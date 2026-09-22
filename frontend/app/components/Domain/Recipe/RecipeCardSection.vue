@@ -1,41 +1,20 @@
 <template>
   <div>
-    <v-row
-      v-if="!disableToolbar"
-      class="align-center pb-2"
-    >
-      <v-icon
-        v-if="title"
-        size="large"
-        start
-      >
+    <v-row v-if="!disableToolbar" class="align-center pb-2">
+      <v-icon v-if="title" size="large" start>
         {{ displayTitleIcon }}
       </v-icon>
       <span class="bistro-section-title text-headline-small">{{ title }}</span>
       <v-spacer />
-      <v-btn
-        :icon="$vuetify.display.xs"
-        variant="text"
-        :disabled="recipes.length === 0"
-        @click="navigateRandom"
-      >
+      <v-btn :icon="$vuetify.display.xs" variant="text" :disabled="recipes.length === 0" @click="navigateRandom">
         <v-icon :start="!$vuetify.display.xs">
           {{ $globals.icons.diceMultiple }}
         </v-icon>
         {{ $vuetify.display.xs ? null : $t("general.random") }}
       </v-btn>
-      <v-menu
-        v-if="!disableSort"
-        offset-y
-        start
-      >
+      <v-menu v-if="!disableSort" offset-y start>
         <template #activator="{ props: activatorProps }">
-          <v-btn
-            variant="text"
-            :icon="$vuetify.display.xs"
-            v-bind="activatorProps"
-            :loading="sortLoading"
-          >
+          <v-btn variant="text" :icon="$vuetify.display.xs" v-bind="activatorProps" :loading="sortLoading">
             <v-icon :start="!$vuetify.display.xs">
               {{ preferences.sortIcon }}
             </v-icon>
@@ -93,73 +72,35 @@
           </v-list-item>
         </v-list>
       </v-menu>
-      <ContextMenu
-        v-if="!$vuetify.display.smAndDown"
-        :items="[
-          {
-            title: $t('general.toggle-view'),
-            icon: $globals.icons.eye,
-            event: 'toggle-dense-view',
-          },
-        ]"
-        @toggle-dense-view="toggleMobileCards()"
-      />
+      <ContextMenu v-if="!$vuetify.display.smAndDown" :items="[
+        {
+          title: $t('general.toggle-view'),
+          icon: $globals.icons.eye,
+          event: 'toggle-dense-view',
+        },
+      ]" @toggle-dense-view="toggleMobileCards()" />
     </v-row>
     <div v-if="recipes && ready">
       <div class="mt-2">
         <v-row v-if="!useMobileCards">
-          <v-col
-            v-for="recipe in recipes"
-            :key="recipe.id!"
-            :sm="6"
-            :md="6"
-            :lg="4"
-            :xl="3"
-          >
-            <RecipeCard
-              :name="recipe.name!"
-              :description="recipe.description!"
-              :slug="recipe.slug!"
-              :rating="recipe.rating!"
-              :image="recipe.image!"
-              :tags="recipe.tags!"
-              :recipe-id="recipe.id!"
-            />
+          <v-col v-for="(recipe, index) in recipes" :key="recipe.id!" :class="{ 'bistro-featured-recipe': index === 0 }"
+            :sm="6" :md="6" :lg="4" :xl="3">
+            <RecipeCard :name="recipe.name!" :description="recipe.description!" :slug="recipe.slug!"
+              :rating="recipe.rating!" :image="recipe.image!" :tags="recipe.tags!" :recipe-id="recipe.id!" />
           </v-col>
         </v-row>
-        <v-row
-          v-else
-          density="comfortable"
-        >
-          <v-col
-            v-for="recipe in recipes"
-            :key="recipe.id!"
-            cols="12"
-            :sm="singleColumn ? '12' : '12'"
-            :md="singleColumn ? '12' : '6'"
-            :lg="singleColumn ? '12' : '4'"
-            :xl="singleColumn ? '12' : '3'"
-          >
-            <RecipeCardMobile
-              :name="recipe.name!"
-              :description="recipe.description!"
-              :slug="recipe.slug!"
-              :rating="recipe.rating!"
-              :image="recipe.image!"
-              :tags="recipe.tags!"
-              :recipe-id="recipe.id!"
-            />
+        <v-row v-else density="comfortable">
+          <v-col v-for="recipe in recipes" :key="recipe.id!" cols="12" :sm="singleColumn ? '12' : '12'"
+            :md="singleColumn ? '12' : '6'" :lg="singleColumn ? '12' : '4'" :xl="singleColumn ? '12' : '3'">
+            <RecipeCardMobile :name="recipe.name!" :description="recipe.description!" :slug="recipe.slug!"
+              :rating="recipe.rating!" :image="recipe.image!" :tags="recipe.tags!" :recipe-id="recipe.id!" />
           </v-col>
         </v-row>
       </div>
       <v-card v-intersect="infiniteScroll" variant="flat" />
     </div>
     <v-fade-transition>
-      <AppLoader
-        v-if="loading"
-        :loading="loading"
-        :waiting-text="$t('general.loading-recipes')"
-      />
+      <AppLoader v-if="loading" :loading="loading" :waiting-text="$t('general.loading-recipes')" />
     </v-fade-transition>
     <AppScrollToTop />
   </div>

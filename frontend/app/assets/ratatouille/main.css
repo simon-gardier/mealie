@@ -71,6 +71,57 @@ body,
   display: none;
 }
 
+.bistro-discovery-panel {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgb(var(--v-theme-copper), 0.42);
+  border-radius: 10px 16px 12px 18px;
+  background:
+    linear-gradient(125deg, rgb(var(--v-theme-paper), 0.98), rgb(var(--v-theme-surface), 0.82)),
+    rgb(var(--v-theme-paper));
+  box-shadow: 0 8px 24px rgb(var(--v-theme-accent), 0.08);
+}
+
+.bistro-discovery-panel::after {
+  position: absolute;
+  right: -34px;
+  top: -48px;
+  width: 150px;
+  height: 150px;
+  border: 1px solid rgb(var(--v-theme-copper), 0.22);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
+}
+
+.bistro-discovery-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 0.65rem 0.35rem;
+}
+
+.bistro-discovery-kicker {
+  color: rgb(var(--v-theme-sage));
+  font-family: "Borel", cursive;
+  font-size: 0.95rem;
+}
+
+.bistro-discovery-title {
+  margin: 0.1rem 0 0;
+  color: rgb(var(--v-theme-accent));
+  font-family: "Fraunces", Georgia, serif;
+  font-size: clamp(1.8rem, 4vw, 2.7rem);
+  line-height: 1.05;
+}
+
+.bistro-discovery-mark {
+  color: rgb(var(--v-theme-primary));
+  font-size: 2.25rem;
+  transform: rotate(-10deg);
+}
+
 .bistro-wordmark {
   display: inline-flex;
   align-items: center;
@@ -105,6 +156,13 @@ body,
     box-shadow 160ms ease;
 }
 
+.bistro-featured-recipe .bistro-recipe-card.v-card {
+  border-width: 2px;
+  box-shadow:
+    0 4px 0 rgb(var(--v-theme-copper), 0.18),
+    0 9px 22px rgb(var(--v-theme-accent), 0.1);
+}
+
 .bistro-recipe-card .v-card-title {
   color: rgb(var(--v-theme-accent));
   line-height: 1.4;
@@ -128,6 +186,23 @@ body,
     box-shadow:
       0 5px 0 rgb(var(--v-theme-copper), 0.16),
       0 9px 20px rgb(var(--v-theme-accent), 0.1);
+  }
+}
+
+@media (min-width: 1280px) {
+  .bistro-featured-recipe {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+
+  .bistro-featured-recipe .bistro-recipe-card .v-card-title {
+    font-size: 1.35rem;
+  }
+}
+
+@media (max-width: 599px) {
+  .bistro-discovery-heading {
+    padding-inline: 0.3rem;
   }
 }
 
