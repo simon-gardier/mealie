@@ -1,31 +1,13 @@
 <template>
   <div>
-    <BasePageTitle
-      v-if="groupName"
-      class="mt-n4 pt-8"
-    >
-      <template #header>
-        <v-img
-          width="100%"
-          max-height="200"
-          max-width="150"
-          src="/svgs/manage-members.svg"
-        />
-      </template>
+    <BasePageTitle v-if="groupName" class="mt-n4 pt-8" title-image="/history.png"
+      :title-image-alt="$t('recipe.timeline')">
       <template #title>
         {{ $t("recipe.group-global-timeline", { groupName }) }}
       </template>
     </BasePageTitle>
-    <v-sheet
-      :class="$vuetify.display.smAndDown ? 'pa-0' : 'px-3 py-0'"
-      style="background-color: transparent;"
-    >
-      <RecipeTimeline
-        v-if="queryFilter"
-        v-model="ready"
-        show-recipe-cards
-        :query-filter="queryFilter"
-      />
+    <v-sheet :class="$vuetify.display.smAndDown ? 'pa-0' : 'px-3 py-0'" style="background-color: transparent;">
+      <RecipeTimeline v-if="queryFilter" v-model="ready" show-recipe-cards :query-filter="queryFilter" />
     </v-sheet>
   </div>
 </template>

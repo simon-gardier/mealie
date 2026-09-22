@@ -1,31 +1,22 @@
 <template>
   <div>
-    <RecipeIngredients
-      :value="recipe.recipeIngredient"
-      :scale="scale"
-      :is-cook-mode="isCookMode"
-      :storage-key="ingredientStorageKey"
-    />
+    <div v-if="!isCookMode">
+      <h2 class="mt-1 text-h5 font-weight-medium opacity-80">
+        {{ $t("recipe.ingredients") }}
+      </h2>
+      <RecipePageScale :model-value="scale" :recipe="recipe" @update:model-value="emit('update:scale', $event)" />
+    </div>
+    <RecipeIngredients :value="recipe.recipeIngredient" :scale="scale" :is-cook-mode="isCookMode"
+      :storage-key="ingredientStorageKey" hide-title />
     <div v-if="!isEditMode && recipe.tools && recipe.tools.length > 0">
       <h2 class="mt-4 text-h5 font-weight-medium opacity-80">
         {{ $t('tool.required-tools') }}
       </h2>
       <v-list density="compact">
-        <v-list-item
-          v-for="(tool, index) in recipe.tools"
-          :key="index"
-          density="compact"
-          class="px-1"
-        >
+        <v-list-item v-for="(tool, index) in recipe.tools" :key="index" density="compact" class="px-1">
           <template #prepend>
-            <v-checkbox
-              v-model="recipeTools[index].onHand"
-              hide-details
-              class="pt-0 py-auto"
-              color="secondary"
-              density="compact"
-              @change="updateTool(index)"
-            />
+            <v-checkbox v-model="recipeTools[index].onHand" hide-details class="pt-0 py-auto" color="secondary"
+              density="compact" @change="updateTool(index)" />
           </template>
           <v-list-item-title>
             {{ tool.name }}
@@ -43,6 +34,7 @@ import { useToolStore } from "~/composables/store";
 import type { NoUndefinedField } from "~/lib/api/types/non-generated";
 import type { Recipe, RecipeTool } from "~/lib/api/types/recipe";
 import RecipeIngredients from "~/components/Domain/Recipe/RecipeIngredients.vue";
+import RecipePageScale from "~/components/Domain/Recipe/RecipePage/RecipePageParts/RecipePageScale.vue";
 
 interface RecipeToolWithOnHand extends RecipeTool {
   onHand: boolean;
@@ -58,6 +50,10 @@ const props = withDefaults(defineProps<Props>(), {
   isCookMode: false,
   ingredientStorageKey: undefined,
 });
+
+const emit = defineEmits<{
+  "update:scale": [scale: number];
+}>();
 
 const { isOwnGroup } = useLoggedInState();
 

@@ -62,8 +62,9 @@
         <v-row no-gutters class="d-flex flex-wrap align-center" style="font-size: larger">
           <v-tooltip location="bottom">
             <template #activator="{ props: tooltipProps }">
-              <v-btn rounded variant="outlined" size="large" v-bind="tooltipProps" class="font-weight-400"
-                style="border-color: rgb(var(--v-theme-primary));" @click="madeThisDialog = true">
+              <v-btn rounded variant="outlined" size="large" v-bind="tooltipProps" class="font-weight-400 py-2"
+                style="border-color: rgb(var(--v-theme-primary)); min-height: 64px; height: auto;"
+                @click="madeThisDialog = true">
                 <v-icon start size="large" color="primary">
                   {{ $globals.icons.calendar }}
                 </v-icon>

@@ -1,14 +1,12 @@
 <template>
-  <div
-    v-if="wakeIsSupported"
-    class="d-print-none d-flex px-2"
-    :class="$vuetify.display.smAndDown ? 'justify-center' : 'justify-end'"
-  >
-    <v-switch
-      v-model="wakeLock"
-      color="primary"
-      :label="$t('recipe.screen-awake')"
-    />
+  <v-list-item v-if="wakeIsSupported && menuItem" :title="$t('recipe.screen-awake')">
+    <template #append>
+      <v-switch v-model="wakeLock" color="primary" hide-details />
+    </template>
+  </v-list-item>
+  <div v-else-if="wakeIsSupported" class="d-print-none d-flex px-2"
+    :class="$vuetify.display.smAndDown ? 'justify-center' : 'justify-end'">
+    <v-switch v-model="wakeLock" color="primary" :label="$t('recipe.screen-awake')" />
   </div>
 </template>
 
@@ -18,6 +16,7 @@ import { useUserExperiencePreferences } from "~/composables/use-users/preference
 
 const { isSupported: wakeIsSupported, isActive, request, release } = useWakeLock();
 const userExperiencePreferences = useUserExperiencePreferences();
+const { menuItem } = defineProps<{ menuItem?: boolean }>();
 
 function handleLock() {
   if (userExperiencePreferences.value.lockScreen) {

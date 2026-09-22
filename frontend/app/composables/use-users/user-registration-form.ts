@@ -1,6 +1,7 @@
 import { useAsyncValidator } from "~/composables/use-validators";
 import type { VForm } from "~/types/auto-forms";
 import { usePublicApi } from "~/composables/api/api-client";
+import { DEFAULT_AVATAR } from "~/composables/use-avatars";
 
 const domAccountForm = ref<VForm | null>(null);
 const username = ref("");
@@ -9,6 +10,8 @@ const email = ref("");
 const password1 = ref("");
 const password2 = ref("");
 const advancedOptions = ref(false);
+const profileAvatar = ref<string | null>(DEFAULT_AVATAR);
+const profileFile = ref<File | null>(null);
 
 export function resetUserRegistrationForm() {
   domAccountForm.value = null;
@@ -18,6 +21,8 @@ export function resetUserRegistrationForm() {
   password1.value = "";
   password2.value = "";
   advancedOptions.value = false;
+  profileAvatar.value = DEFAULT_AVATAR;
+  profileFile.value = null;
 }
 
 export const useUserRegistrationForm = () => {
@@ -56,6 +61,8 @@ export const useUserRegistrationForm = () => {
     fullName,
     email,
     advancedOptions,
+    profileAvatar,
+    profileFile,
     validate: async () => {
       if (!validUsername.value || !validEmail.value) {
         await Promise.all([validateUsername(), validateEmail()]);
@@ -72,6 +79,8 @@ export const useUserRegistrationForm = () => {
       accountDetails.fullName.value = "";
       accountDetails.email.value = "";
       accountDetails.advancedOptions.value = false;
+      accountDetails.profileAvatar.value = DEFAULT_AVATAR;
+      accountDetails.profileFile.value = null;
     },
   };
   // ================================================================

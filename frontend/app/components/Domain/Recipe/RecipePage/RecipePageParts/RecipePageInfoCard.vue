@@ -2,7 +2,7 @@
   <div>
     <div class="d-flex justify-end flex-wrap align-stretch">
       <RecipePageInfoCardImage v-if="landscape && recipe.image" :recipe="recipe" />
-      <v-card :width="landscape || !recipe.image ? '100%' : '50%'" flat
+      <v-card :width="landscape || !recipe.image ? '100%' : '50%'" flat color="transparent"
         class="d-flex flex-column justify-center align-center">
         <v-card-text>
           <div class="d-flex flex-column align-center">

@@ -1,35 +1,19 @@
 <template>
   <div>
     <!-- Create Dialog -->
-    <BaseDialog
-      v-if="createTarget"
-      v-model="dialogStates.create"
-      width="100%"
-      max-width="1100px"
-      :icon="$globals.icons.pages"
-      :title="$t('cookbook.create-a-cookbook')"
-      :submit-icon="$globals.icons.save"
-      :submit-text="$t('general.save')"
-      :submit-disabled="!createTarget.queryFilterString"
-      can-submit
-      @submit="actions.updateOne(createTarget)"
-      @cancel="deleteCreateTarget()"
-    >
+    <BaseDialog v-if="createTarget" v-model="dialogStates.create" width="100%" max-width="1100px"
+      :icon="$globals.icons.pages" :title="$t('cookbook.create-a-cookbook')" :submit-icon="$globals.icons.save"
+      :submit-text="$t('general.save')" :submit-disabled="!createTarget.queryFilterString" can-submit
+      @submit="actions.updateOne(createTarget)" @cancel="deleteCreateTarget()">
       <v-card-text>
         <CookbookEditor :key="createTargetKey" v-model="createTarget" />
       </v-card-text>
     </BaseDialog>
 
     <!-- Delete Dialog -->
-    <BaseDialog
-      v-model="dialogStates.delete"
-      bottom-sheet
-      :title="$t('general.delete-with-name', { name: $t('cookbook.cookbook') })"
-      :icon="$globals.icons.alertCircle"
-      color="error"
-      can-confirm
-      @confirm="deleteCookbook()"
-    >
+    <BaseDialog v-model="dialogStates.delete" bottom-sheet
+      :title="$t('general.delete-with-name', { name: $t('cookbook.cookbook') })" :icon="$globals.icons.alertCircle"
+      color="error" can-confirm @confirm="deleteCookbook()">
       <v-card-text>
         <p>{{ $t("general.confirm-delete-generic-with-name", { name: $t("cookbook.cookbook") }) }}</p>
         <p v-if="deleteTarget" class="mt-4 ml-4">
@@ -41,10 +25,7 @@
     <!-- Cookbook Page -->
     <!-- Page Title -->
     <v-container class="lg-container">
-      <BasePageTitle divider>
-        <template #header>
-          <v-img width="100%" max-height="100" max-width="100" src="/svgs/manage-cookbooks.svg" />
-        </template>
+      <BasePageTitle divider title-image="/cookbooks.png" :title-image-alt="$t('cookbook.cookbooks')">
         <template #title>
           {{ $t("cookbook.cookbooks") }}
         </template>
@@ -52,12 +33,8 @@
       </BasePageTitle>
 
       <div class="my-6">
-        <v-checkbox
-          v-model="cookbookPreferences.hideOtherHouseholds"
-          :label="$t('cookbook.hide-cookbooks-from-other-households')"
-          hide-details
-          color="primary"
-        />
+        <v-checkbox v-model="cookbookPreferences.hideOtherHouseholds"
+          :label="$t('cookbook.hide-cookbooks-from-other-households')" hide-details color="primary" />
         <div class="ml-10 mt-n3">
           <p class="text-subtitle-2 my-0 py-0">
             {{ $t("cookbook.hide-cookbooks-from-other-households-description") }}
@@ -70,19 +47,10 @@
 
       <!-- Cookbook List -->
       <v-expansion-panels class="mt-2">
-        <VueDraggable
-          v-model="myCookbooks"
-          handle=".handle"
-          :delay="250"
-          :delay-on-touch-only="true"
-          style="width: 100%"
-          @end="updateAll(myCookbooks)"
-        >
-          <v-expansion-panel
-            v-for="(cookbook, index) in myCookbooks"
-            :key="cookbook.id"
-            class="my-2 left-border rounded"
-          >
+        <VueDraggable v-model="myCookbooks" handle=".handle" :delay="250" :delay-on-touch-only="true"
+          style="width: 100%" @end="updateAll(myCookbooks)">
+          <v-expansion-panel v-for="(cookbook, index) in myCookbooks" :key="cookbook.id"
+            class="my-2 left-border rounded">
             <v-expansion-panel-title disable-icon-rotate class="text-h6 opacity-80">
               <div class="d-flex align-center">
                 <v-icon size="large" start>
@@ -104,29 +72,22 @@
               </template>
             </v-expansion-panel-title>
             <v-expansion-panel-text>
-              <CookbookEditor
-                v-model="myCookbooks[index]"
-                :collapsable="false"
-              />
+              <CookbookEditor v-model="myCookbooks[index]" :collapsable="false" />
               <v-card-actions>
                 <v-spacer />
-                <BaseButtonGroup
-                  :buttons="[
-                    {
-                      icon: $globals.icons.delete,
-                      text: $t('general.delete'),
-                      event: 'delete',
-                    },
-                    {
-                      icon: $globals.icons.save,
-                      text: $t('general.save'),
-                      event: 'save',
-                      disabled: !cookbook.queryFilterString,
-                    },
-                  ]"
-                  @delete="deleteEventHandler(myCookbooks[index])"
-                  @save="actions.updateOne(myCookbooks[index])"
-                />
+                <BaseButtonGroup :buttons="[
+                  {
+                    icon: $globals.icons.delete,
+                    text: $t('general.delete'),
+                    event: 'delete',
+                  },
+                  {
+                    icon: $globals.icons.save,
+                    text: $t('general.save'),
+                    event: 'save',
+                    disabled: !cookbook.queryFilterString,
+                  },
+                ]" @delete="deleteEventHandler(myCookbooks[index])" @save="actions.updateOne(myCookbooks[index])" />
               </v-card-actions>
             </v-expansion-panel-text>
           </v-expansion-panel>

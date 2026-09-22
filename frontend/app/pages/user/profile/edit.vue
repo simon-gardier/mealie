@@ -3,18 +3,7 @@
     <BasePageTitle divider>
       <template #header>
         <div class="d-flex flex-column align-center justify-center">
-          <UserAvatar
-            :tooltip="false"
-            size="96"
-            :user-id="userCopy.id!"
-          />
-          <AppButtonUpload
-            class="my-1"
-            file-name="profile"
-            accept="image/*"
-            :url="`/api/users/${userCopy.id}/image`"
-            @uploaded="auth.getSession()"
-          />
+          <UserAvatarPicker :user-id="userCopy.id!" @uploaded="auth.getSession()" />
         </div>
       </template>
       <template #title>
@@ -25,23 +14,13 @@
     <section class="mt-5">
       <ToggleState tag="article">
         <template #activator="{ toggle, modelValue: toggleState }">
-          <v-btn
-            v-if="!toggleState && $appInfo.allowPasswordLogin"
-            color="info"
-            class="mt-2 mb-n3"
-            @click="toggle"
-          >
+          <v-btn v-if="!toggleState && $appInfo.allowPasswordLogin" color="info" class="mt-2 mb-n3" @click="toggle">
             <v-icon start>
               {{ $globals.icons.lock }}
             </v-icon>
             {{ $t("settings.change-password") }}
           </v-btn>
-          <v-btn
-            v-else-if="$appInfo.allowPasswordLogin"
-            color="info"
-            class="mt-2 mb-n3"
-            @click="toggle"
-          >
+          <v-btn v-else-if="$appInfo.allowPasswordLogin" color="info" class="mt-2 mb-n3" @click="toggle">
             <v-icon start>
               {{ $globals.icons.user }}
             </v-icon>
@@ -49,116 +28,54 @@
           </v-btn>
         </template>
         <template #default="{ modelValue: toggleState }">
-          <v-slide-x-transition
-            leave-absolute
-            hide-on-leave
-          >
-            <div
-              v-if="!toggleState"
-              key="personal-info"
-            >
-              <BaseCardSectionTitle
-                class="mt-10"
-                :title="$t('profile.personal-information')"
-              />
-              <v-card
-                tag="article"
-                variant="outlined"
-                style="border-color: lightgrey;"
-              >
+          <v-slide-x-transition leave-absolute hide-on-leave>
+            <div v-if="!toggleState" key="personal-info">
+              <BaseCardSectionTitle class="mt-10" :title="$t('profile.personal-information')" />
+              <v-card tag="article" variant="outlined" style="border-color: lightgrey;">
                 <v-card-text class="pb-0">
                   <v-form ref="userUpdate">
-                    <v-text-field
-                      v-model="userCopy.username"
-                      :label="$t('user.username')"
-                      required
-                      validate-on="blur"
-                      density="comfortable"
-                      variant="underlined"
-                    />
-                    <v-text-field
-                      v-model="userCopy.fullName"
-                      :label="$t('user.full-name')"
-                      required
-                      validate-on="blur"
-                      density="comfortable"
-                      variant="underlined"
-                    />
-                    <v-text-field
-                      v-model="userCopy.email"
-                      :label="$t('user.email')"
-                      validate-on="blur"
-                      required
-                      density="comfortable"
-                      variant="underlined"
-                    />
+                    <v-text-field v-model="userCopy.username" :label="$t('user.username')" required validate-on="blur"
+                      density="comfortable" variant="underlined" />
+                    <v-text-field v-model="userCopy.fullName" :label="$t('user.full-name')" required validate-on="blur"
+                      density="comfortable" variant="underlined" />
+                    <v-text-field v-model="userCopy.email" :label="$t('user.email')" validate-on="blur" required
+                      density="comfortable" variant="underlined" />
                   </v-form>
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer />
-                  <BaseButton
-                    update
-                    @click="updateUser"
-                  />
+                  <BaseButton update @click="updateUser" />
                 </v-card-actions>
               </v-card>
             </div>
-            <div
-              v-else
-              key="change-password"
-            >
-              <BaseCardSectionTitle
-                class="mt-10"
-                :title="$t('settings.change-password')"
-              />
+            <div v-else key="change-password">
+              <BaseCardSectionTitle class="mt-10" :title="$t('settings.change-password')" />
               <v-card variant="outlined" style="border-color: lightgrey;">
                 <v-card-text class="pb-0">
                   <v-form ref="passChange">
-                    <v-text-field
-                      v-model="password.current"
-                      :prepend-icon="$globals.icons.lock"
-                      :label="$t('user.current-password')"
-                      validate-on="blur"
-                      :type="showPassword ? 'text' : 'password'"
+                    <v-text-field v-model="password.current" :prepend-icon="$globals.icons.lock"
+                      :label="$t('user.current-password')" validate-on="blur" :type="showPassword ? 'text' : 'password'"
                       :append-icon="showPassword ? $globals.icons.eye : $globals.icons.eyeOff"
-                      :rules="[validators.minLength(1)]"
-                      density="comfortable"
-                      variant="underlined"
-                      @click:append="showPassword = !showPassword"
-                    />
-                    <v-text-field
-                      v-model="password.newOne"
-                      :prepend-icon="$globals.icons.lock"
-                      :label="$t('user.new-password')"
-                      :type="showPassword ? 'text' : 'password'"
+                      :rules="[validators.minLength(1)]" density="comfortable" variant="underlined"
+                      @click:append="showPassword = !showPassword" />
+                    <v-text-field v-model="password.newOne" :prepend-icon="$globals.icons.lock"
+                      :label="$t('user.new-password')" :type="showPassword ? 'text' : 'password'"
                       :append-icon="showPassword ? $globals.icons.eye : $globals.icons.eyeOff"
-                      :rules="[validators.minLength(8)]"
-                      density="comfortable"
-                      variant="underlined"
-                      @click:append="showPassword = !showPassword"
-                    />
-                    <v-text-field
-                      v-model="password.newTwo"
-                      :prepend-icon="$globals.icons.lock"
+                      :rules="[validators.minLength(8)]" density="comfortable" variant="underlined"
+                      @click:append="showPassword = !showPassword" />
+                    <v-text-field v-model="password.newTwo" :prepend-icon="$globals.icons.lock"
                       :label="$t('user.confirm-password')"
                       :rules="[password.newOne === password.newTwo || $t('user.password-must-match')]"
-                      validate-on="blur"
-                      :type="showPassword ? 'text' : 'password'"
-                      :append-icon="showPassword ? $globals.icons.eye : $globals.icons.eyeOff"
-                      density="comfortable"
-                      variant="underlined"
-                      @click:append="showPassword = !showPassword"
-                    />
+                      validate-on="blur" :type="showPassword ? 'text' : 'password'"
+                      :append-icon="showPassword ? $globals.icons.eye : $globals.icons.eyeOff" density="comfortable"
+                      variant="underlined" @click:append="showPassword = !showPassword" />
                     <UserPasswordStrength v-model="password.newOne" />
                   </v-form>
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer />
-                  <BaseButton
-                    update
-                    :disabled="!passwordsMatch || password.current.length < 0"
-                    @click="updatePassword"
-                  />
+                  <BaseButton update :disabled="!passwordsMatch || password.current.length < 0"
+                    @click="updatePassword" />
                 </v-card-actions>
               </v-card>
             </div>
@@ -167,51 +84,22 @@
       </ToggleState>
     </section>
     <section>
-      <BaseCardSectionTitle
-        class="mt-10"
-        :title="$t('profile.preferences')"
-      />
+      <BaseCardSectionTitle class="mt-10" :title="$t('profile.preferences')" />
       <v-card variant="outlined" style="border-color: lightgrey;">
         <v-card-text>
-          <v-combobox
-            v-model="selectedDefaultActivity"
-            :label="$t('user.default-activity')"
-            :items="activityOptions"
-            :hint="$t('user.default-activity-hint')"
-            density="comfortable"
-            variant="underlined"
-            validate-on="blur"
-            persistent-hint
-          />
-          <v-checkbox
-            v-model="userCopy.showAnnouncements"
-            hide-details
-            :label="$t('announcements.show-announcements-from-mealie')"
-            color="primary"
-            @change="updateUser"
-          />
-          <v-checkbox
-            v-model="userCopy.advanced"
-            hide-details
-            :label="$t('profile.show-advanced-description')"
-            color="primary"
-            @change="updateUser"
-          />
+          <v-combobox v-model="selectedDefaultActivity" :label="$t('user.default-activity')" :items="activityOptions"
+            :hint="$t('user.default-activity-hint')" density="comfortable" variant="underlined" validate-on="blur"
+            persistent-hint />
+          <v-checkbox v-model="userCopy.showAnnouncements" hide-details
+            :label="$t('announcements.show-announcements-from-mealie')" color="primary" @change="updateUser" />
+          <v-checkbox v-model="userCopy.advanced" hide-details :label="$t('profile.show-advanced-description')"
+            color="primary" @change="updateUser" />
         </v-card-text>
       </v-card>
-      <nuxt-link
-        class="mt-5 d-flex flex-column justify-center text-center text-primary"
-        :to="`/group`"
-      > {{
+      <nuxt-link class="mt-5 d-flex flex-column justify-center text-center text-primary" :to="`/group`"> {{
         $t('profile.looking-for-privacy-settings') }} </nuxt-link>
       <div class="d-flex flex-wrap justify-center mt-5">
-        <v-btn
-          variant="outlined"
-          class="rounded-xl my-1 mx-1"
-          :to="`/user/profile`"
-          nuxt
-          exact
-        >
+        <v-btn variant="outlined" class="rounded-xl my-1 mx-1" :to="`/user/profile`" nuxt exact>
           <v-icon start>
             {{ $globals.icons.backArrow }}
           </v-icon>
@@ -224,7 +112,7 @@
 
 <script setup lang="ts">
 import { useUserApi } from "~/composables/api";
-import UserAvatar from "~/components/Domain/User/UserAvatar.vue";
+import UserAvatarPicker from "~/components/Domain/User/UserAvatarPicker.vue";
 import UserPasswordStrength from "~/components/Domain/User/UserPasswordStrength.vue";
 import { validators } from "~/composables/use-validators";
 import { useUserActivityPreferences } from "~/composables/use-users/preferences";

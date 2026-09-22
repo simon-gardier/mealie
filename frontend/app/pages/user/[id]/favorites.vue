@@ -1,16 +1,8 @@
 <template>
   <v-container>
-    <RecipeCardSection
-      v-if="recipes && isOwnGroup"
-      :icon="$globals.icons.heart"
-      :title="$t('user.user-favorites')"
-      :recipes="recipes"
-      :query="query"
-      @sort-recipes="assignSorted"
-      @replace-recipes="replaceRecipes"
-      @append-recipes="appendRecipes"
-      @delete="removeRecipe"
-    />
+    <RecipeCardSection v-if="recipes && isOwnGroup" :icon="$globals.icons.heart" :title="$t('user.user-favorites')"
+      title-image="/loved_recipes.png" :recipes="recipes" :query="query" @sort-recipes="assignSorted"
+      @replace-recipes="replaceRecipes" @append-recipes="appendRecipes" @delete="removeRecipe" />
   </v-container>
 </template>
 

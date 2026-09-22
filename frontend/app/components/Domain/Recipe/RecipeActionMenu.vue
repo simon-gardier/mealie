@@ -1,19 +1,8 @@
 <template>
-  <v-toolbar
-    class="fixed-bar mt-0"
-    style="z-index: 2; position: sticky; background: transparent; box-shadow: none;"
-    density="compact"
-    elevation="0"
-  >
-    <BaseDialog
-      v-model="deleteDialog"
-      bottom-sheet
-      :title="$t('recipe.delete-recipe')"
-      color="error"
-      :icon="$globals.icons.alertCircle"
-      can-confirm
-      @confirm="emitDelete()"
-    >
+  <v-toolbar class="fixed-bar mt-0" style="z-index: 2; position: sticky; background: transparent; box-shadow: none;"
+    density="compact" elevation="0">
+    <BaseDialog v-model="deleteDialog" bottom-sheet :title="$t('recipe.delete-recipe')" color="error"
+      :icon="$globals.icons.alertCircle" can-confirm @confirm="emitDelete()">
       <v-card-text>
         {{ $t("recipe.delete-confirmation") }}
       </v-card-text>
@@ -21,29 +10,37 @@
 
     <v-spacer />
     <div v-if="!open" class="custom-btn-group ma-1">
+      <v-tooltip location="bottom" color="info">
+        <template #activator="{ props: tooltipProps }">
+          <v-btn icon variant="flat" rounded="circle" size="small" color="info" class="mr-1" v-bind="tooltipProps"
+            @click="$emit('cook-mode')">
+            <v-icon size="x-large" color="white">
+              {{ $globals.icons.primary }}
+            </v-icon>
+          </v-btn>
+        </template>
+        <span>{{ $t("recipe.cook-mode") }}</span>
+      </v-tooltip>
+      <v-tooltip v-if="recipe.orgURL" location="bottom" color="info">
+        <template #activator="{ props: tooltipProps }">
+          <v-btn icon variant="flat" rounded="circle" size="small" color="info" class="mr-1" :href="recipe.orgURL"
+            target="_blank" v-bind="tooltipProps">
+            <v-icon size="x-large" color="white">
+              {{ $globals.icons.link }}
+            </v-icon>
+          </v-btn>
+        </template>
+        <span>{{ $t("recipe.original-url") }}</span>
+      </v-tooltip>
       <RecipeFavoriteBadge v-if="loggedIn" color="info" button-style :recipe-id="recipe.id!" show-always />
-      <RecipeTimelineBadge
-        v-if="loggedIn"
-        class="ml-1"
-        color="info"
-        button-style
-        :slug="recipe.slug"
-        :recipe-name="recipe.name!"
-      />
+      <RecipeTimelineBadge v-if="loggedIn" class="ml-1" color="info" button-style :slug="recipe.slug"
+        :recipe-name="recipe.name!" />
       <div v-if="loggedIn">
         <v-tooltip v-if="canEdit" location="bottom" color="info">
           <template #activator="{ props: tooltipProps }">
-            <v-btn
-              icon
-              variant="flat"
-              rounded="circle"
-              size="small"
-              color="info"
-              class="ml-1"
-              v-bind="tooltipProps"
-              @click="$emit('edit', true)"
-            >
-              <v-icon size="x-large">
+            <v-btn icon variant="flat" rounded="circle" size="small" color="info" class="ml-1" v-bind="tooltipProps"
+              @click="$emit('edit', true)">
+              <v-icon size="x-large" color="white">
                 {{ $globals.icons.edit }}
               </v-icon>
             </v-btn>
@@ -52,19 +49,9 @@
         </v-tooltip>
       </div>
 
-      <RecipeContextMenu
-        show-print
-        :menu-top="false"
-        :name="recipe.name!"
-        :slug="recipe.slug!"
-        :menu-icon="$globals.icons.dotsVertical"
-        fab
-        color="info"
-        :card-menu="false"
-        :recipe="recipe"
-        :recipe-id="recipe.id!"
-        :recipe-scale="recipeScale"
-        :use-items="{
+      <RecipeContextMenu show-print :menu-top="false" :name="recipe.name!" :slug="recipe.slug!"
+        :menu-icon="$globals.icons.dotsVertical" fab color="info" :card-menu="false" :recipe="recipe"
+        :recipe-id="recipe.id!" :recipe-scale="recipeScale" :use-items="{
           edit: false,
           download: loggedIn,
           duplicate: loggedIn,
@@ -75,22 +62,12 @@
           share: loggedIn,
           recipeActions: true,
           delete: loggedIn,
-        }"
-        class="ml-1"
-        @print="$emit('print')"
-      />
+        }" class="ml-1" @print="$emit('print')" />
     </div>
     <div v-if="open" class="custom-btn-group gapped ma-1">
-      <v-btn
-        v-for="(btn, index) in editorButtons"
-        :key="index"
-        :class="{ 'rounded-circle': $vuetify.display.xs }"
-        :size="$vuetify.display.xs ? 'small' : undefined"
-        :color="btn.color"
-        variant="elevated"
-        :icon="$vuetify.display.xs"
-        @click="emitHandler(btn.event)"
-      >
+      <v-btn v-for="(btn, index) in editorButtons" :key="index" :class="{ 'rounded-circle': $vuetify.display.xs }"
+        :size="$vuetify.display.xs ? 'small' : undefined" :color="btn.color" variant="elevated"
+        :icon="$vuetify.display.xs" @click="emitHandler(btn.event)">
         <v-icon :left="!$vuetify.display.xs">
           {{ btn.icon }}
         </v-icon>
@@ -127,7 +104,7 @@ withDefaults(defineProps<Props>(), {
   canEdit: false,
 });
 
-const emit = defineEmits(["print", "input", "save", "delete", "close", "json", "edit"]);
+const emit = defineEmits(["print", "input", "save", "delete", "close", "json", "edit", "cook-mode"]);
 
 const deleteDialog = ref(false);
 

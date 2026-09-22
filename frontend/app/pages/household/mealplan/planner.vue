@@ -1,26 +1,16 @@
 <template>
   <v-container>
-    <RecipeDialogAddToShoppingList
-      v-if="shoppingLists"
-      v-model="shoppingListDialog"
-      :recipes="weekRecipesWithScales"
-      :shopping-lists="shoppingLists"
-    />
-    <div :class="`d-flex ga-2 ${$vuetify.display.xs ? 'justify-center' : 'justify-start'}`">
+    <RecipeDialogAddToShoppingList v-if="shoppingLists" v-model="shoppingListDialog" :recipes="weekRecipesWithScales"
+      :shopping-lists="shoppingLists" />
+    <div class="d-flex justify-center mb-4">
+      <v-img src="/menus.png" :alt="$t('meal-plan.dinner-this-week')" max-width="360" />
+    </div>
+    <div class="d-flex justify-center ga-2">
       <v-btn :icon="$globals.icons.chevronLeft" flat rounded="md" density="comfortable" @click="() => changeWeek(-1)" />
-      <v-menu
-        v-model="state.picker"
-        :close-on-content-click="false"
-        transition="scale-transition"
-        offset-y
-        min-width="auto"
-      >
+      <v-menu v-model="state.picker" :close-on-content-click="false" transition="scale-transition" offset-y
+        min-width="auto">
         <template #activator="{ props }">
-          <v-btn
-            color="primary"
-            class="mb-2"
-            v-bind="props"
-          >
+          <v-btn color="primary" class="mb-2" v-bind="props">
             <v-icon start>
               {{ $globals.icons.calendar }}
             </v-icon>
@@ -29,82 +19,57 @@
         </template>
 
         <v-card>
-          <MealPlanDatePicker
-            v-model="state.range"
-            hide-header
-            :multiple="'range'"
-            :first-day-of-week="firstDayOfWeek"
-            :local="$i18n.locale"
-          />
+          <MealPlanDatePicker v-model="state.range" hide-header :multiple="'range'" :first-day-of-week="firstDayOfWeek"
+            :local="$i18n.locale" />
 
           <v-card-text>
-            <v-number-input
-              v-model="numberOfDaysPast"
-              :min="0"
-              inset
-              :label="$t('meal-plan.numberOfDaysPast-label')"
-              :hint="$t('meal-plan.numberOfDaysPast-hint')"
-              persistent-hint
-            />
+            <v-number-input v-model="numberOfDaysPast" :min="0" inset :label="$t('meal-plan.numberOfDaysPast-label')"
+              :hint="$t('meal-plan.numberOfDaysPast-hint')" persistent-hint />
           </v-card-text>
 
           <v-card-text>
-            <v-number-input
-              v-model="numberOfDays"
-              :min="1"
-              inset
-              :label="$t('meal-plan.numberOfDays-label')"
-              :hint="$t('meal-plan.numberOfDays-hint')"
-              persistent-hint
-            />
+            <v-number-input v-model="numberOfDays" :min="1" inset :label="$t('meal-plan.numberOfDays-label')"
+              :hint="$t('meal-plan.numberOfDays-hint')" persistent-hint />
           </v-card-text>
         </v-card>
       </v-menu>
       <v-btn :icon="$globals.icons.chevronRight" flat rounded="md" density="comfortable" @click="() => changeWeek(1)" />
     </div>
     <div class="d-flex justify-end">
-      <BaseButtonGroup
-        class="d-flex"
-        :buttons="[
-          edit ? {
-            icon: $globals.icons.calendar,
-            text: $t('general.view'),
-            event: 'view',
-          } : {
-            icon: $globals.icons.edit,
-            text: $t('general.edit'),
-            event: 'edit',
-          },
-          {
-            icon: $globals.icons.dotsVertical,
-            text: '',
-            event: 'three-dot',
-            children: [
-              {
-                icon: $globals.icons.cartCheck,
-                text: $t('meal-plan.add-all-to-list'),
-                event: 'add-to-list',
-                disabled: !hasRecipes,
-              },
-              {
-                icon: $globals.icons.cog,
-                text: $t('general.settings'),
-                event: 'settings',
-              },
-            ],
-          },
-        ]"
-        @add-to-list="addAllToList"
-        @edit="router.push({ name: TABS.edit, query: route.query })"
+      <BaseButtonGroup class="d-flex" :buttons="[
+        edit ? {
+          icon: $globals.icons.calendar,
+          text: $t('general.view'),
+          event: 'view',
+        } : {
+          icon: $globals.icons.edit,
+          text: $t('general.edit'),
+          event: 'edit',
+        },
+        {
+          icon: $globals.icons.dotsVertical,
+          text: '',
+          event: 'three-dot',
+          children: [
+            {
+              icon: $globals.icons.cartCheck,
+              text: $t('meal-plan.add-all-to-list'),
+              event: 'add-to-list',
+              disabled: !hasRecipes,
+            },
+            {
+              icon: $globals.icons.cog,
+              text: $t('general.settings'),
+              event: 'settings',
+            },
+          ],
+        },
+      ]" @add-to-list="addAllToList" @edit="router.push({ name: TABS.edit, query: route.query })"
         @view="router.push({ name: TABS.view, query: route.query })"
-        @settings="router.push('/household/mealplan/settings')"
-      />
+        @settings="router.push('/household/mealplan/settings')" />
     </div>
     <div>
-      <NuxtPage
-        :mealplans="mealsByDate"
-        :actions="actions"
-      />
+      <NuxtPage :mealplans="mealsByDate" :actions="actions" />
     </div>
 
     <v-row />

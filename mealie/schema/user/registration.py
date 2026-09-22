@@ -22,6 +22,10 @@ class CreateUserRegistration(MealieModel):
     seed_data: bool = False
     locale: str = "en-US"
 
+    # Name of a preset avatar (see mealie.assets.avatars) to use as the initial profile image.
+    # Ignored if a profile image is uploaded separately after registration.
+    profile_image: str | None = None
+
     @field_validator("locale")
     def valid_locale(cls, v):
         if not validate_locale(v):

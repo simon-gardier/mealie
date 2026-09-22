@@ -71,6 +71,12 @@ body,
   display: none;
 }
 
+.bistro-search-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
 .bistro-discovery-panel {
   position: relative;
   overflow: hidden;
@@ -79,7 +85,6 @@ body,
   background:
     linear-gradient(125deg, rgb(var(--v-theme-paper), 0.98), rgb(var(--v-theme-surface), 0.82)),
     rgb(var(--v-theme-paper));
-  box-shadow: 0 8px 24px rgb(var(--v-theme-accent), 0.08);
 }
 
 .bistro-discovery-panel::after {
@@ -92,34 +97,6 @@ body,
   border-radius: 50%;
   content: "";
   pointer-events: none;
-}
-
-.bistro-discovery-heading {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.9rem 0.65rem 0.35rem;
-}
-
-.bistro-discovery-kicker {
-  color: rgb(var(--v-theme-sage));
-  font-family: "Borel", cursive;
-  font-size: 0.95rem;
-}
-
-.bistro-discovery-title {
-  margin: 0.1rem 0 0;
-  color: rgb(var(--v-theme-accent));
-  font-family: "Fraunces", Georgia, serif;
-  font-size: clamp(1.8rem, 4vw, 2.7rem);
-  line-height: 1.05;
-}
-
-.bistro-discovery-mark {
-  color: rgb(var(--v-theme-primary));
-  font-size: 2.25rem;
-  transform: rotate(-10deg);
 }
 
 .bistro-wordmark {
@@ -146,33 +123,54 @@ body,
 }
 
 .bistro-recipe-card.v-card {
+  position: relative;
+  overflow: hidden;
   border: 1px solid rgb(var(--v-theme-copper), 0.45);
   border-radius: 13px 17px 12px 15px;
-  box-shadow:
-    0 3px 0 rgb(var(--v-theme-copper), 0.14),
-    0 5px 14px rgb(var(--v-theme-accent), 0.07);
   transition:
     transform 160ms ease,
     box-shadow 160ms ease;
 }
 
+.bistro-recipe-card.v-card::after {
+  position: absolute;
+  right: -18px;
+  bottom: -18px;
+  width: 52px;
+  height: 52px;
+  border-top: 1px solid rgb(var(--v-theme-copper), 0.32);
+  border-left: 1px solid rgb(var(--v-theme-copper), 0.32);
+  background: rgb(var(--v-theme-paper), 0.28);
+  content: "";
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
 .bistro-featured-recipe .bistro-recipe-card.v-card {
   border-width: 2px;
-  box-shadow:
-    0 4px 0 rgb(var(--v-theme-copper), 0.18),
-    0 9px 22px rgb(var(--v-theme-accent), 0.1);
+}
+
+.bistro-recipe-grid {
+  row-gap: 1.25rem;
 }
 
 .bistro-recipe-card .v-card-title {
   color: rgb(var(--v-theme-accent));
   line-height: 1.4;
   padding-top: 14px;
-  padding-bottom: 10px;
+  padding-bottom: 8px;
 }
 
 .bistro-recipe-card .recipe-card-footer {
-  border-top: 1px dashed rgb(var(--v-theme-copper), 0.35);
   margin: 0 12px;
+}
+
+.bistro-recipe-card .recipe-card-tags {
+  padding-bottom: 0;
+}
+
+.bistro-recipe-card .recipe-card-actions {
+  margin-top: -4px;
 }
 
 .bistro-recipe-card .v-chip {
@@ -181,22 +179,56 @@ body,
 }
 
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .bistro-recipe-grid:has(.bistro-recipe-card:hover) .bistro-recipe-card:not(:hover) {
+    opacity: 0.58;
+    transform: scale(0.985);
+  }
+
   .bistro-recipe-card:hover {
     transform: translateY(-3px);
-    box-shadow:
-      0 5px 0 rgb(var(--v-theme-copper), 0.16),
-      0 9px 20px rgb(var(--v-theme-accent), 0.1);
   }
 }
 
 @media (min-width: 1280px) {
-  .bistro-featured-recipe {
-    flex: 0 0 50%;
-    max-width: 50%;
+  .bistro-recipe-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.25rem;
+    margin: 0;
+  }
+
+  .bistro-recipe-grid>.v-col {
+    width: auto;
+    max-width: none;
+    padding: 0;
+  }
+
+  .bistro-recipe-grid>.v-col:nth-child(6n + 1),
+  .bistro-recipe-grid>.v-col:nth-child(6n + 4) {
+    grid-column: span 2;
   }
 
   .bistro-featured-recipe .bistro-recipe-card .v-card-title {
     font-size: 1.35rem;
+  }
+}
+
+@media (min-width: 960px) and (max-width: 1279px) {
+  .bistro-recipe-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.1rem;
+    margin: 0;
+  }
+
+  .bistro-recipe-grid>.v-col {
+    width: auto;
+    max-width: none;
+    padding: 0;
+  }
+
+  .bistro-recipe-grid>.v-col:nth-child(4n + 1) {
+    grid-column: span 2;
   }
 }
 

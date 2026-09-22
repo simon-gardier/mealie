@@ -1,31 +1,18 @@
 <template>
-  <v-navigation-drawer v-model="modelValue" class="bistro-sidebar d-flex flex-column d-print-none position-fixed" touchless>
+  <v-navigation-drawer v-model="modelValue" class="bistro-sidebar d-flex flex-column d-print-none position-fixed"
+    temporary floating touchless :scrim="false" :close-on-content-click="true">
+    <div class="bistro-sidebar-header d-flex align-center ga-2 px-3 py-2">
+      <v-btn icon variant="text" @click.stop="modelValue = false">
+        <v-icon>{{ $globals.icons.menu }}</v-icon>
+      </v-btn>
+      <RouterLink to="/" class="bistro-wordmark d-flex align-center ga-2">
+        <span>Petit Chef</span>
+        <img src="/remy_logo.png" width="42" height="42" alt="" aria-hidden="true" class="remy-logo">
+      </RouterLink>
+    </div>
+
     <AnnouncementDialog v-model="showAnnouncementsDialog" />
     <LanguageDialog v-model="state.languageDialog" />
-    <!-- User Profile -->
-    <template v-if="loggedIn && sessionUser">
-      <v-list-item lines="two" :to="userProfileLink" exact>
-        <div class="d-flex align-center ga-2">
-          <UserAvatar list :user-id="sessionUser.id" :tooltip="false" />
-
-          <div class="d-flex flex-column justify-start">
-            <v-list-item-title class="pr-2 pl-1">
-              {{ sessionUser.fullName }}
-            </v-list-item-title>
-            <v-list-item-subtitle class="opacity-100">
-              <v-btn v-if="isOwnGroup" class="px-2 pa-0" variant="text" :to="userFavoritesLink" size="small">
-                <v-icon start size="small">
-                  {{ $globals.icons.heart }}
-                </v-icon>
-                {{ $t("user.favorite-recipes") }}
-              </v-btn>
-            </v-list-item-subtitle>
-          </div>
-        </div>
-      </v-list-item>
-      <v-divider />
-    </template>
-
     <slot />
 
     <!-- Primary Links -->
@@ -34,39 +21,20 @@
         <template v-for="nav in topLink">
           <div v-if="!nav.restricted || isOwnGroup" :key="nav.key || nav.title">
             <!-- Multi Items -->
-            <v-list-group
-              v-if="nav.children"
-              :key="(nav.key || nav.title) + 'multi-item'"
-              v-model="state.dropDowns[nav.title]"
-              color="primary"
-              :prepend-icon="nav.icon"
-              :fluid="true"
-            >
+            <v-list-group v-if="nav.children" :key="(nav.key || nav.title) + 'multi-item'"
+              v-model="state.dropDowns[nav.title]" color="primary" :prepend-icon="nav.icon" :fluid="true">
               <template #activator="{ props: hoverProps }">
                 <v-list-item v-bind="hoverProps" :prepend-icon="nav.icon" :title="nav.title" />
               </template>
 
-              <v-list-item
-                v-for="child in nav.children"
-                :key="child.key || child.title"
-                exact
-                :to="child.to"
-                :prepend-icon="child.icon"
-                :title="child.title"
-                class="ml-4"
-              />
+              <v-list-item v-for="child in nav.children" :key="child.key || child.title" exact :to="child.to"
+                :prepend-icon="child.icon" :title="child.title" class="ml-4" />
             </v-list-group>
 
             <!-- Single Item -->
             <template v-else>
-              <v-list-item
-                :key="(nav.key || nav.title) + 'single-item'"
-                exact
-                link
-                :to="nav.to"
-                :prepend-icon="nav.icon"
-                :title="nav.title"
-              />
+              <v-list-item :key="(nav.key || nav.title) + 'single-item'" exact link :to="nav.to"
+                :prepend-icon="nav.icon" :title="nav.title" />
             </template>
           </div>
         </template>
@@ -80,27 +48,14 @@
         <template v-for="nav in secondaryLinks">
           <div v-if="!nav.restricted || isOwnGroup" :key="nav.key || nav.title">
             <!-- Multi Items -->
-            <v-list-group
-              v-if="nav.children"
-              :key="(nav.key || nav.title) + 'multi-item'"
-              v-model="state.dropDowns[nav.title]"
-              color="primary"
-              :prepend-icon="nav.icon"
-              fluid
-            >
+            <v-list-group v-if="nav.children" :key="(nav.key || nav.title) + 'multi-item'"
+              v-model="state.dropDowns[nav.title]" color="primary" :prepend-icon="nav.icon" fluid>
               <template #activator="{ props: hoverProps }">
                 <v-list-item v-bind="hoverProps" :prepend-icon="nav.icon" :title="nav.title" />
               </template>
 
-              <v-list-item
-                v-for="child in nav.children"
-                :key="child.key || child.title"
-                exact
-                :to="child.to"
-                class="ml-2"
-                :prepend-icon="child.icon"
-                :title="child.title"
-              />
+              <v-list-item v-for="child in nav.children" :key="child.key || child.title" exact :to="child.to"
+                class="ml-2" :prepend-icon="child.icon" :title="child.title" />
             </v-list-group>
 
             <!-- Single Item -->
@@ -118,44 +73,61 @@
     <!-- Bottom Navigation Links -->
     <template #append>
       <v-list v-model:selected="state.bottomSelected" nav density="comfortable">
-        <v-list-item
-          v-if="loggedIn && announcementsEnabled"
-          :title="$t('announcements.announcements')"
-          @click="() => showAnnouncementsDialog = !showAnnouncementsDialog"
-        >
-          <template #prepend>
-            <v-badge
-              :model-value="!!newAnnouncements.length"
-              color="accent"
-              :content="newAnnouncements.length || undefined"
-              offset-x="-2"
-            >
-              <v-icon>
-                {{ $globals.icons.bullhornVariant }}
-              </v-icon>
-            </v-badge>
-          </template>
-        </v-list-item>
-        <v-menu location="end bottom" :offset="15">
-          <template #activator="{ props: hoverProps }">
-            <v-list-item v-bind="hoverProps" :prepend-icon="$globals.icons.cog" :title="$t('general.settings')" />
-          </template>
-          <v-list density="comfortable" color="primary">
-            <v-list-item :prepend-icon="$globals.icons.translate" :title="$t('sidebar.language')" @click="state.languageDialog=true" />
-            <v-list-item :prepend-icon="$vuetify.theme.current.dark ? $globals.icons.weatherSunny : $globals.icons.weatherNight" :title="$vuetify.theme.current.dark ? $t('settings.theme.light-mode') : $t('settings.theme.dark-mode')" @click="toggleDark" />
-            <v-divider v-if="loggedIn" class="my-2" />
-            <v-list-item v-if="loggedIn" :prepend-icon="$globals.icons.cog" :title="$t('profile.user-settings')" to="/user/profile" />
-            <v-list-item v-if="canManage" :prepend-icon="$globals.icons.manageData" :title="$t('data-pages.data-management')" to="/group/data" />
-            <v-divider v-if="isAdmin" class="my-2" />
-            <v-list-item v-if="isAdmin" :prepend-icon="$globals.icons.wrench" :title="$t('settings.admin-settings')" to="/admin/site-settings" />
-          </v-list>
-        </v-menu>
+        <v-sheet v-if="loggedIn && sessionUser"
+          class="sidebar-user-panel d-flex align-center justify-space-between ga-2 w-100" elevation="2"
+          :color="$vuetify.theme.current.dark ? 'background-lighten-1' : 'background-darken-1'">
+          <RouterLink :to="userProfileLink" class="d-flex align-center ga-2 text-decoration-none">
+            <UserAvatar list :user-id="sessionUser.id" :tooltip="false" />
+          </RouterLink>
+          <div class="d-flex align-center ga-1">
+            <v-btn v-if="loggedIn && announcementsEnabled" icon variant="text" size="small" color="default"
+              class="sidebar-icon-button" @click.stop="() => showAnnouncementsDialog = !showAnnouncementsDialog"
+              :aria-label="$t('announcements.announcements')">
+              <v-badge :model-value="Boolean(newAnnouncements.length)" color="accent" :content="newAnnouncements.length"
+                floating offset-x="7" offset-y="-5">
+                <v-icon :icon="$globals.icons.bullhornVariant" />
+              </v-badge>
+            </v-btn>
+            <v-menu location="end bottom" :offset="15" :z-index="3000" content-class="sidebar-settings-menu">
+              <template #activator="{ props: hoverProps }">
+                <v-btn v-bind="hoverProps" variant="text" size="small" color="default" class="sidebar-icon-button"
+                  :icon="$globals.icons.cog" :aria-label="$t('general.settings')" />
+              </template>
+              <v-list density="comfortable" color="primary">
+                <v-list-item :prepend-icon="$globals.icons.translate" :title="$t('sidebar.language')"
+                  @click="state.languageDialog = true" />
+                <v-list-item
+                  :prepend-icon="$vuetify.theme.current.dark ? $globals.icons.weatherSunny : $globals.icons.weatherNight"
+                  :title="$vuetify.theme.current.dark ? $t('settings.theme.light-mode') : $t('settings.theme.dark-mode')"
+                  @click="toggleDark" />
+                <v-divider class="my-2" />
+                <WakelockSwitch menu-item />
+                <v-list-item :title="$t('settings.disable-cheese-drop')">
+                  <template #append>
+                    <v-switch v-model="disableCheeseDrop" color="primary" hide-details />
+                  </template>
+                </v-list-item>
+                <v-divider v-if="loggedIn" class="my-2" />
+                <v-list-item v-if="loggedIn" :prepend-icon="$globals.icons.cog" :title="$t('profile.user-settings')"
+                  to="/user/profile" />
+                <v-list-item v-if="canManage" :prepend-icon="$globals.icons.manageData"
+                  :title="$t('data-pages.data-management')" to="/group/data" />
+                <v-divider v-if="isAdmin" class="my-2" />
+                <v-list-item v-if="isAdmin" :prepend-icon="$globals.icons.wrench" :title="$t('settings.admin-settings')"
+                  to="/admin/site-settings" />
+              </v-list>
+            </v-menu>
+            <v-btn v-if="loggedIn" variant="text" size="small" color="default" class="disconnect-button"
+              :icon="$globals.icons.logout" @click.stop="logout()" :aria-label="$t('user.logout')" />
+          </div>
+        </v-sheet>
       </v-list>
     </template>
   </v-navigation-drawer>
 </template>
 
 <script setup lang="ts">
+import { useLocalStorage } from "@vueuse/core";
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 import type { SidebarLinks } from "~/types/application-types";
 import AnnouncementDialog from "~/components/Domain/Announcement/AnnouncementDialog.vue";
@@ -187,10 +159,19 @@ const { loggedIn, isOwnGroup } = useLoggedInState();
 const isAdmin = computed(() => auth.user.value?.admin);
 const canManage = computed(() => auth.user.value?.canManage);
 
-const userFavoritesLink = computed(() => auth.user.value ? `/user/${auth.user.value.id}/favorites` : undefined);
 const userProfileLink = computed(() => auth.user.value ? "/user/profile" : undefined);
 
 const toggleDark = useToggleDarkMode();
+const disableCheeseDrop = useLocalStorage("disable-cheese-drop", false);
+
+async function logout() {
+  try {
+    await auth.signOut("/login?direct=1");
+  }
+  catch (e) {
+    console.error(e);
+  }
+}
 
 const showAnnouncementsDialog = ref(false);
 const { announcementsEnabled, newAnnouncements } = useAnnouncements();
@@ -220,6 +201,22 @@ watch(
 </script>
 
 <style scoped>
+.remy-logo {
+  object-fit: contain;
+}
+
+.bistro-sidebar {
+  z-index: 2021 !important;
+  top: 0 !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow-y: auto;
+}
+
+.bistro-sidebar :deep(.v-navigation-drawer__content) {
+  padding-top: 0;
+}
+
 @media print {
   .no-print {
     display: none;
@@ -232,5 +229,19 @@ watch(
 
 .favorites-link:hover {
   text-decoration: underline;
+}
+
+.disconnect-button {
+  min-width: auto;
+  padding-inline: 8px;
+}
+
+.sidebar-user-panel {
+  padding: 8px;
+  border-radius: 8px;
+}
+
+:deep(.sidebar-settings-menu) {
+  z-index: 3000 !important;
 }
 </style>

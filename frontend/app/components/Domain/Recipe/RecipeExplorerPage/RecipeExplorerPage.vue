@@ -1,26 +1,12 @@
 <template>
-  <v-container
-    fluid
-    class="px-0"
-  >
-    <RecipeExplorerPageSearch
-      ref="searchComponent"
-      @ready="onSearchReady"
-    />
+  <v-container fluid class="px-0">
+    <RecipeExplorerPageSearch ref="searchComponent" :recipe-count="recipes.length" @ready="onSearchReady"
+      @random="navigateRandom" @toggle-view="toggleRecipeView" />
     <v-divider />
     <v-container class="mt-6 px-md-6 pb-16">
-      <RecipeCardSection
-        v-if="ready"
-        class="mt-n5"
-        :icon="$globals.icons.silverwareForkKnife"
-        :title="$t('general.recipes')"
-        :recipes="recipes"
-        :query="searchQuery"
-        disable-sort
-        @item-selected="onItemSelected"
-        @replace-recipes="replaceRecipes"
-        @append-recipes="appendRecipes"
-      />
+      <RecipeCardSection v-if="ready" ref="recipeSection" class="mt-n5" :recipes="recipes" :query="searchQuery"
+        disable-toolbar disable-sort @item-selected="onItemSelected" @replace-recipes="replaceRecipes"
+        @append-recipes="appendRecipes" />
     </v-container>
   </v-container>
 </template>
@@ -41,6 +27,7 @@ const { recipes, appendRecipes, replaceRecipes } = useLazyRecipes(isOwnGroup.val
 
 const ready = ref(false);
 const searchComponent = ref<InstanceType<typeof RecipeExplorerPageSearch>>();
+const recipeSection = ref<InstanceType<typeof RecipeCardSection>>();
 
 const searchQuery = computed(() => {
   return searchComponent.value?.passedQueryWithSeed || {};
@@ -52,5 +39,13 @@ function onSearchReady() {
 
 function onItemSelected(item: any, urlPrefix: string) {
   searchComponent.value?.filterItems(item, urlPrefix);
+}
+
+function navigateRandom() {
+  recipeSection.value?.navigateRandom();
+}
+
+function toggleRecipeView() {
+  recipeSection.value?.toggleMobileCards();
 }
 </script>

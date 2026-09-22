@@ -3,74 +3,31 @@
     <TheSnackbar />
 
     <AppHeader>
-      <v-btn
-        icon
-        :aria-label="$t('general.menu')"
-        @click.stop="sidebar = !sidebar"
-      >
+      <v-btn icon :aria-label="$t('general.menu')" @click.stop="sidebar = !sidebar">
         <v-icon> {{ $globals.icons.menu }}</v-icon>
       </v-btn>
     </AppHeader>
 
-    <AppSidebar
-      v-model="sidebar"
-      :top-link="topLinks"
-      :secondary-links="cookbookLinks || []"
-    >
-      <v-menu
-        offset-y
-        nudge-bottom="5"
-        close-delay="50"
-        nudge-right="15"
-      >
+    <div v-if="sidebar" class="sidebar-backdrop" @click="sidebar = false" />
+
+    <AppSidebar v-model="sidebar" :top-link="topLinks" :secondary-links="cookbookLinks || []">
+      <v-menu offset-y nudge-bottom="5" close-delay="50" nudge-right="15">
         <template #activator="{ props }">
-          <v-btn
-            v-if="isOwnGroup"
-            rounded
-            size="large"
-            class="ml-2 mt-3"
-            v-bind="props"
-            variant="elevated"
-            elevation="2"
-            :color="$vuetify.theme.current.dark ? 'background-lighten-1' : 'background-darken-1'"
-          >
-            <v-icon
-              start
-              size="large"
-              color="primary"
-            >
+          <v-btn v-if="isOwnGroup" class="sidebar-create-button ml-2 mt-3" v-bind="props" variant="elevated"
+            elevation="2" :color="$vuetify.theme.current.dark ? 'background-lighten-1' : 'background-darken-1'">
+            <v-icon start size="20" color="primary">
               {{ $globals.icons.createAlt }}
             </v-icon>
             {{ $t("general.create") }}
           </v-btn>
         </template>
-        <v-list
-          density="comfortable"
-          class="mb-0 mt-1 py-0"
-          variant="flat"
-        >
+        <v-list density="comfortable" class="mb-0 mt-1 py-0" variant="flat">
           <template v-for="(item, index) in createLinks">
-            <div
-              v-if="!item.hide"
-              :key="item.title"
-            >
-              <v-divider
-                v-if="item.insertDivider"
-                :key="index"
-                class="mx-2"
-              />
-              <v-list-item
-                v-if="!item.restricted || isOwnGroup"
-                :key="item.title"
-                :to="item.to"
-                exact
-                class="my-1"
-              >
+            <div v-if="!item.hide" :key="item.title">
+              <v-divider v-if="item.insertDivider" :key="index" class="mx-2" />
+              <v-list-item v-if="!item.restricted || isOwnGroup" :key="item.title" :to="item.to" exact class="my-1">
                 <template #prepend>
-                  <v-icon
-                    size="40"
-                    :icon="item.icon"
-                  />
+                  <v-icon size="40" :icon="item.icon" />
                 </template>
                 <v-list-item-title class="font-weight-medium" style="font-size: small;">
                   {{ item.title }}
@@ -256,6 +213,12 @@ const topLinks = computed<SideBarLink[]>(() => [
     restricted: true,
   },
   {
+    icon: $globals.icons.heart,
+    title: i18n.t("user.favorite-recipes"),
+    to: auth.user.value ? `/user/${auth.user.value.id}/favorites` : undefined,
+    restricted: true,
+  },
+  {
     icon: $globals.icons.book,
     to: `/g/${groupSlug.value}/cookbooks`,
     title: i18n.t("cookbook.cookbooks"),
@@ -288,3 +251,25 @@ const topLinks = computed<SideBarLink[]>(() => [
   },
 ]);
 </script>
+
+<style scoped>
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2008;
+  background: rgba(0, 0, 0, 0.18);
+}
+</style>
+
+<style scoped>
+.sidebar-create-button {
+  min-height: 48px !important;
+  height: 48px !important;
+  width: calc(100% - 16px) !important;
+  margin-right: 8px !important;
+  font-size: 0.875rem !important;
+  letter-spacing: normal !important;
+  padding-inline: 16px !important;
+  border-radius: 8px !important;
+}
+</style>

@@ -102,13 +102,6 @@
       <h2 v-if="!isCookMode" class="mt-1 text-h5 font-weight-medium opacity-80">
         {{ $t("recipe.instructions") }}
       </h2>
-      <BaseButton v-if="!isEditForm && !isCookMode" minor cancel color="primary" class="cook-mode-button"
-        @click="toggleCookMode()">
-        <template #icon>
-          {{ $globals.icons.primary }}
-        </template>
-        {{ $t("recipe.cook-mode") }}
-      </BaseButton>
     </div>
     <v-bottom-sheet v-model="linkedNotesSheetOpen" max-width="900" inset>
       <v-card>
@@ -371,7 +364,7 @@ const props = defineProps({
 const emit = defineEmits(["click-instruction-field", "update:assets"]);
 
 const i18n = useI18n();
-const { isCookMode, toggleCookMode, isEditForm } = usePageState(props.recipe.slug);
+const { isCookMode, isEditForm } = usePageState(props.recipe.slug);
 const { extractIngredientReferences } = useExtractIngredientReferences();
 
 const dialog = ref(false);

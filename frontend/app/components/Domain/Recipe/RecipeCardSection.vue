@@ -4,7 +4,8 @@
       <v-icon v-if="title" size="large" start>
         {{ displayTitleIcon }}
       </v-icon>
-      <span class="bistro-section-title text-headline-small">{{ title }}</span>
+      <v-img v-if="titleImage" :src="titleImage" :alt="title || ''" class="title-image" max-width="360" />
+      <span :class="['bistro-section-title', 'text-headline-small', { 'sr-only': titleImage }]">{{ title }}</span>
       <v-spacer />
       <v-btn :icon="$vuetify.display.xs" variant="text" :disabled="recipes.length === 0" @click="navigateRandom">
         <v-icon :start="!$vuetify.display.xs">
@@ -82,7 +83,7 @@
     </v-row>
     <div v-if="recipes && ready">
       <div class="mt-2">
-        <v-row v-if="!useMobileCards">
+        <v-row v-if="!useMobileCards" class="bistro-recipe-grid">
           <v-col v-for="(recipe, index) in recipes" :key="recipe.id!" :class="{ 'bistro-featured-recipe': index === 0 }"
             :sm="6" :md="6" :lg="4" :xl="3">
             <RecipeCard :name="recipe.name!" :description="recipe.description!" :slug="recipe.slug!"
@@ -124,6 +125,7 @@ interface Props {
   disableSort?: boolean;
   icon?: string | null;
   title?: string | null;
+  titleImage?: string | null;
   singleColumn?: boolean;
   recipes?: Recipe[];
   query?: RecipeSearchQuery | null;
@@ -133,6 +135,7 @@ const props = withDefaults(defineProps<Props>(), {
   disableSort: false,
   icon: null,
   title: null,
+  titleImage: null,
   singleColumn: false,
   recipes: () => [],
   query: null,
@@ -181,6 +184,11 @@ const loading = ref(false);
 const { fetchMore, getRandom } = useLazyRecipes(isOwnGroup.value ? null : groupSlug.value);
 const { savePosition, getSavedPage, restorePosition } = useScrollPosition();
 const router = useRouter();
+
+defineExpose({
+  navigateRandom,
+  toggleMobileCards,
+});
 
 const queryFilter = computed(() => {
   return props.query?.queryFilter || null;
@@ -401,6 +409,22 @@ function toggleMobileCards() {
 </script>
 
 <style>
+.title-image {
+  width: min(100%, 360px);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .transparent {
   opacity: 1;
 }

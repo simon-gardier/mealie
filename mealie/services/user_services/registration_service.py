@@ -44,7 +44,7 @@ class RegistrationService:
         )
 
         # TODO: problem with repository type, not type here
-        return self.repos.users.create(new_user)  # type: ignore
+        return self.repos.users.create(new_user, avatar=self.registration.profile_image)  # type: ignore
 
     def _register_new_group(self) -> GroupInDB:
         group_data = GroupBase(name=self.registration.group)

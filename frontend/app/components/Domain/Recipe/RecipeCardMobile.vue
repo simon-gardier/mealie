@@ -1,59 +1,25 @@
 <template>
   <div :style="`height: ${height}px;`">
     <v-expand-transition>
-      <v-card
-        class="bistro-recipe-card"
-        :ripple="false"
-        :class="[
-          isFlat ? 'mx-auto flat' : 'mx-auto',
-          { 'disable-highlight': disableHighlight },
-        ]"
-        :style="{ cursor }"
-        hover
-        height="100%"
-        :to="$attrs.selected ? undefined : recipeRoute"
-        @click="$emit('selected')"
-      >
-        <v-img
-          v-if="vertical"
-          class="rounded-sm"
-          cover
-        >
-          <RecipeCardImage
-            tiny
-            :icon-size="100"
-            :slug="slug"
-            :recipe-id="recipeId"
-            :image-version="image"
-            :height="height"
-          />
+      <v-card class="bistro-recipe-card" :ripple="false" :class="[
+        isFlat ? 'mx-auto flat' : 'mx-auto',
+        { 'disable-highlight': disableHighlight },
+      ]" :style="{ cursor }" hover height="100%" :to="$attrs.selected ? undefined : recipeRoute"
+        @click="$emit('selected')">
+        <v-img v-if="vertical" class="rounded-sm" cover>
+          <RecipeCardImage tiny :icon-size="100" :slug="slug" :recipe-id="recipeId" :image-version="image"
+            :height="height" />
         </v-img>
-        <v-list-item
-          lines="two"
-          class="py-0"
-          :class="vertical ? 'px-2' : 'px-0'"
-          item-props
-          height="100%"
-          density="compact"
-        >
+        <v-list-item lines="two" class="py-0" :class="vertical ? 'px-2' : 'px-0'" item-props height="100%"
+          density="compact">
           <template #prepend>
-            <slot
-              v-if="!vertical"
-              name="avatar"
-            >
-              <RecipeCardImage
-                tiny
-                :icon-size="100"
-                :slug="slug"
-                :recipe-id="recipeId"
-                :image-version="image"
-                width="125"
-                :height="height"
-              />
+            <slot v-if="!vertical" name="avatar">
+              <RecipeCardImage tiny :icon-size="100" :slug="slug" :recipe-id="recipeId" :image-version="image"
+                width="125" :height="height" />
             </slot>
           </template>
-          <div class="pl-4 d-flex flex-column justify-space-between align-stretch pr-2">
-            <v-list-item-title class="mt-3 mb-1 text-top text-truncate w-100">
+          <div class="pl-4 d-flex flex-column ga-2 align-stretch pr-2">
+            <v-list-item-title class="ma-0 text-top text-truncate w-100">
               {{ name }}
             </v-list-item-title>
             <v-list-item-subtitle class="ma-0 text-top">
@@ -64,47 +30,25 @@
                 <br>
               </p>
             </v-list-item-subtitle>
-            <div
-              class="d-flex flex-nowrap justify-start ma-0 pt-2 pb-0"
-              style="overflow-x: hidden; overflow-y: hidden; white-space: nowrap;"
-            >
-              <RecipeChips
-                :truncate="true"
-                :items="tags"
-                :title="false"
-                :limit="2"
-                small
-                url-prefix="tags"
-                v-bind="$attrs"
-              />
+            <div class="d-flex flex-nowrap justify-start ma-0 pa-0"
+              style="overflow-x: hidden; overflow-y: hidden; white-space: nowrap;">
+              <RecipeChips :truncate="true" :items="tags" :title="false" :limit="2" small url-prefix="tags"
+                v-bind="$attrs" />
             </div>
           </div>
           <slot name="actions">
-            <v-card-actions class="w-100 my-0 px-1 py-0">
-              <RecipeFavoriteBadge
-                v-if="isOwnGroup && showRecipeContent"
-                :recipe-id="recipeId"
-                show-always
-                class="ma-0 pa-0"
-              />
+            <v-card-actions class="recipe-card-actions w-100 my-0 px-1 py-0">
+              <RecipeFavoriteBadge v-if="isOwnGroup && showRecipeContent" :recipe-id="recipeId" show-always
+                class="ma-0 pa-0" />
               <div v-else class="my-0 px-1 py-0" /> <!-- Empty div to keep the layout consistent -->
-              <RecipeCardRating
-                v-if="showRecipeContent"
-                :class="[{ 'pb-2': !isOwnGroup }, 'ml-n2']"
-                :model-value="rating"
-                :recipe-id="recipeId"
-              />
+              <RecipeCardRating v-if="showRecipeContent" :class="[{ 'pb-2': !isOwnGroup }, 'ml-n2']"
+                :model-value="rating" :recipe-id="recipeId" />
 
               <!-- If we're not logged-in, no items display, so we hide this menu -->
               <!-- We also add padding to the v-rating above to compensate -->
               <slot name="context-menu">
-                <RecipeContextMenu
-                  v-if="isOwnGroup && showRecipeContent"
-                  :slug="slug"
-                  :menu-icon="$globals.icons.dotsHorizontal"
-                  :name="name"
-                  :recipe-id="recipeId"
-                  class="ml-auto"
+                <RecipeContextMenu v-if="isOwnGroup && showRecipeContent" :slug="slug"
+                  :menu-icon="$globals.icons.dotsHorizontal" :name="name" :recipe-id="recipeId" class="ml-auto"
                   :use-items="{
                     delete: false,
                     edit: false,
@@ -114,13 +58,9 @@
                     print: false,
                     printPreferences: false,
                     share: true,
-                  }"
-                  :leading-items="contextMenuLeadingItems"
-                  :append-items="contextMenuAppendItems"
-                  @deleted="$emit('delete', slug)"
-                  @mealplan-remove="$emit('mealplanRemove')"
-                  @mealplan-edit="$emit('mealplanEdit')"
-                />
+                  }" :leading-items="contextMenuLeadingItems" :append-items="contextMenuAppendItems"
+                  @deleted="$emit('delete', slug)" @mealplan-remove="$emit('mealplanRemove')"
+                  @mealplan-edit="$emit('mealplanEdit')" />
               </slot>
             </v-card-actions>
           </slot>
@@ -188,11 +128,13 @@ const cursor = computed(() => showRecipeContent.value ? "pointer" : "auto");
 :deep(.v-list-item__prepend) {
   height: 100%;
 }
+
 .v-mobile-img {
   padding-top: 0;
   padding-bottom: 0;
   padding-left: 0;
 }
+
 .v-card--reveal {
   align-items: center;
   bottom: 0;
@@ -201,9 +143,11 @@ const cursor = computed(() => showRecipeContent.value ? "pointer" : "auto");
   position: absolute;
   width: 100%;
 }
+
 .v-card--text-show {
   opacity: 1 !important;
 }
+
 .headerClass {
   white-space: nowrap;
   word-break: normal;

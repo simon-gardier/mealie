@@ -1,44 +1,19 @@
 <template>
   <div>
-    <BaseDialog
-      v-model="discardDialog"
-      bottom-sheet
-      :title="$t('general.discard-changes')"
-      color="warning"
-      :icon="$globals.icons.alertCircle"
-      can-confirm
-      @confirm="confirmDiscard"
-      @cancel="cancelDiscard"
-    >
+    <BaseDialog v-model="discardDialog" bottom-sheet :title="$t('general.discard-changes')" color="warning"
+      :icon="$globals.icons.alertCircle" can-confirm @confirm="confirmDiscard" @cancel="cancelDiscard">
       <v-card-text>
         {{ $t("general.discard-changes-description") }}
       </v-card-text>
     </BaseDialog>
-    <RecipePageParseDialog
-      :model-value="isParsing"
-      :ingredients="recipe.recipeIngredient"
-      :width="$vuetify.display.smAndDown ? '100%' : '80%'"
-      @update:model-value="toggleIsParsing"
-      @save="saveParsedIngredients"
-    />
+    <RecipePageParseDialog :model-value="isParsing" :ingredients="recipe.recipeIngredient"
+      :width="$vuetify.display.smAndDown ? '100%' : '80%'" @update:model-value="toggleIsParsing"
+      @save="saveParsedIngredients" />
     <v-container v-show="!isCookMode" key="recipe-page" class="px-0" :class="{ 'pa-0': $vuetify.display.smAndDown }">
-      <v-card flat class="d-print-none">
-        <RecipePageHeader
-          ref="recipeToolbar"
-          :recipe="recipe"
-          :recipe-scale="scale"
-          :landscape="landscape"
-          @save="saveRecipe"
-          @delete="deleteRecipe"
-          @close="closeEditor"
-        />
-        <RecipeJsonEditor
-          v-if="isEditJSON"
-          v-model="recipe"
-          class="mt-10"
-          mode="text"
-          :main-menu-bar="false"
-        />
+      <v-card flat class="d-print-none" color="transparent">
+        <RecipePageHeader ref="recipeToolbar" :recipe="recipe" :recipe-scale="scale" :landscape="landscape"
+          @save="saveRecipe" @delete="deleteRecipe" @close="closeEditor" />
+        <RecipeJsonEditor v-if="isEditJSON" v-model="recipe" class="mt-10" mode="text" :main-menu-bar="false" />
         <v-card-text v-else>
           <!--
             This is where most of the main content is rendered. Some components include state for both Edit and View modes
@@ -59,10 +34,6 @@
           <div>
             <RecipePageIngredientEditor v-if="isEditForm" v-model="recipe" />
           </div>
-          <div>
-            <RecipePageScale v-model="scale" :recipe="recipe" />
-          </div>
-
           <!--
             This section contains the 2 column layout for the recipe steps and other content.
           -->
@@ -70,34 +41,20 @@
             <!--
               The left column is conditionally rendered based on cook mode.
             -->
-            <v-col
-              v-if="!isCookMode || isEditForm"
-              cols="12"
-              sm="12"
-              md="4"
-              :class="$vuetify.display.mdAndUp ? 'border-e-thin' : null"
-            >
-              <RecipePageIngredientToolsView
-                v-if="!isEditForm"
-                :recipe="recipe"
-                :scale="scale"
-                :ingredient-storage-key="ingredientStorageKey"
-                class="pr-2"
-              />
-              <RecipePageOrganizers v-if="$vuetify.display.mdAndUp" v-model="recipe" class="pr-2" @item-selected="chipClicked" />
+            <v-col v-if="!isCookMode || isEditForm" cols="12" sm="12" md="4"
+              :class="$vuetify.display.mdAndUp ? 'border-e-thin' : null">
+              <RecipePageIngredientToolsView v-if="!isEditForm" v-model:scale="scale" :recipe="recipe"
+                :ingredient-storage-key="ingredientStorageKey" class="pr-2" />
+              <RecipePageOrganizers v-if="$vuetify.display.mdAndUp" v-model="recipe" class="pr-2"
+                @item-selected="chipClicked" />
             </v-col>
             <!--
               the right column is always rendered, but it's layout width is determined by where the left column is
               rendered.
             -->
             <v-col cols="12" sm="12" :md="8 + (isCookMode ? 1 : 0) * 4">
-              <RecipePageInstructions
-                v-model="recipe.recipeInstructions"
-                v-model:assets="recipe.assets"
-                :recipe="recipe"
-                :scale="scale"
-                :ingredient-storage-key="ingredientStorageKey"
-              />
+              <RecipePageInstructions v-model="recipe.recipeInstructions" v-model:assets="recipe.assets"
+                :recipe="recipe" :scale="scale" :ingredient-storage-key="ingredientStorageKey" />
               <div v-if="isEditForm" class="d-flex">
                 <RecipeDialogBulkAdd class="ml-auto my-2 mr-1" @bulk-data="addStep" />
                 <BaseButton class="my-2" @click="addStep()">
@@ -113,25 +70,13 @@
           <RecipePageFooter v-model="recipe" />
         </v-card-text>
       </v-card>
-      <WakelockSwitch />
-      <RecipePageComments
-        v-if="!disableComments && !isEditForm && !isCookMode"
-        v-model="recipe"
-        class="px-1 my-4 d-print-none"
-      />
+      <RecipePageComments v-if="!disableComments && !isEditForm && !isCookMode" v-model="recipe"
+        class="px-1 my-4 d-print-none" />
       <RecipePrintContainer :recipe="recipe" :scale="scale" />
     </v-container>
     <!-- Floating save button when toolbar scrolls out of view -->
-    <v-fab
-      v-if="isEditMode && !toolbarVisible"
-      color="success"
-      location="bottom end"
-      size="large"
-      app
-      appear
-      class="d-print-none"
-      @click="saveRecipe"
-    >
+    <v-fab v-if="isEditMode && !toolbarVisible" color="success" location="bottom end" size="large" app appear
+      class="d-print-none" @click="saveRecipe">
       <v-icon>{{ $globals.icons.save }}</v-icon>
       <v-tooltip activator="parent" location="left">
         {{ $t("general.save") }}
@@ -139,45 +84,26 @@
     </v-fab>
     <!-- Cook mode displayes two columns with ingredients and instructions side by side, each being scrolled individually, allowing to view both at the same time -->
     <!-- The calc is to account for the navabar height (48px) -->
-    <v-sheet
-      v-show="isCookMode && !hasLinkedIngredients"
-      key="cookmode"
-      :height="$vuetify.display.smAndUp ? 'calc(100vh - 48px)' : 'auto'"
-      class-name="overflow-hidden"
-    >
+    <v-sheet v-show="isCookMode && !hasLinkedIngredients" key="cookmode"
+      :height="$vuetify.display.smAndUp ? 'calc(100vh - 48px)' : 'auto'" class-name="overflow-hidden">
       <!-- the calc is to account for the toolbar a more dynamic solution could be needed  -->
       <v-row style="height: 100%" no-gutters class="overflow-hidden">
         <v-col cols="12" sm="5" class="overflow-y-auto pl-4 pr-3 py-2" style="height: 100%">
           <div class="d-flex align-center">
             <RecipePageScale v-model="scale" :recipe="recipe" />
           </div>
-          <RecipePageIngredientToolsView
-            v-if="!isEditForm"
-            :recipe="recipe"
-            :scale="scale"
-            :is-cook-mode="isCookMode"
-            :ingredient-storage-key="ingredientStorageKey"
-          />
+          <RecipePageIngredientToolsView v-if="!isEditForm" v-model:scale="scale" :recipe="recipe"
+            :is-cook-mode="isCookMode" :ingredient-storage-key="ingredientStorageKey" />
           <v-divider />
         </v-col>
-        <v-col
-          class="overflow-y-auto"
-          :class="$vuetify.display.smAndDown ? 'py-2': 'py-6'"
-          style="height: 100%"
-          cols="12"
-          sm="7"
-        >
+        <v-col class="overflow-y-auto" :class="$vuetify.display.smAndDown ? 'py-2' : 'py-6'" style="height: 100%"
+          cols="12" sm="7">
           <h2 class="text-h5 px-4 font-weight-medium opacity-80">
             {{ $t('recipe.instructions') }}
           </h2>
-          <RecipePageInstructions
-            v-model="recipe.recipeInstructions"
-            v-model:assets="recipe.assets"
-            class="overflow-y-hidden px-4"
-            :recipe="recipe"
-            :scale="scale"
-            :ingredient-storage-key="ingredientStorageKey"
-          />
+          <RecipePageInstructions v-model="recipe.recipeInstructions" v-model:assets="recipe.assets"
+            class="overflow-y-hidden px-4" :recipe="recipe" :scale="scale"
+            :ingredient-storage-key="ingredientStorageKey" />
         </v-col>
       </v-row>
     </v-sheet>
@@ -185,35 +111,21 @@
       <div class="mt-2 px-2 px-md-4">
         <RecipePageScale v-model="scale" :recipe="recipe" />
       </div>
-      <RecipePageInstructions
-        v-model="recipe.recipeInstructions"
-        v-model:assets="recipe.assets"
-        class="overflow-y-hidden mt-n5 px-2 px-md-4"
-        :recipe="recipe"
-        :scale="scale"
-        :ingredient-storage-key="ingredientStorageKey"
-      />
+      <RecipePageInstructions v-model="recipe.recipeInstructions" v-model:assets="recipe.assets"
+        class="overflow-y-hidden mt-n5 px-2 px-md-4" :recipe="recipe" :scale="scale"
+        :ingredient-storage-key="ingredientStorageKey" />
 
       <div v-if="notLinkedIngredients.length > 0" class="px-2 px-md-4 pb-4">
         <v-divider />
         <v-card flat>
           <v-card-title>{{ $t("recipe.not-linked-ingredients") }}</v-card-title>
-          <RecipeIngredients
-            :value="notLinkedIngredients"
-            :scale="scale"
-            :is-cook-mode="isCookMode"
-            :storage-key="ingredientStorageKey"
-          />
+          <RecipeIngredients :value="notLinkedIngredients" :scale="scale" :is-cook-mode="isCookMode"
+            :storage-key="ingredientStorageKey" />
         </v-card>
       </div>
     </v-sheet>
-    <v-btn
-      v-if="isCookMode"
-      icon
-      color="primary"
-      style="position: fixed; right: 12px; top: 60px"
-      @click="toggleCookMode()"
-    >
+    <v-btn v-if="isCookMode" icon color="primary" style="position: fixed; right: 12px; top: 60px"
+      @click="toggleCookMode()">
       <v-icon>{{ $globals.icons.close }}</v-icon>
     </v-btn>
   </div>
