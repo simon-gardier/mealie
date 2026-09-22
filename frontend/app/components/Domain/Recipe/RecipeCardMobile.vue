@@ -2,6 +2,7 @@
   <div :style="`height: ${height}px;`">
     <v-expand-transition>
       <v-card
+        class="bistro-recipe-card"
         :ripple="false"
         :class="[
           isFlat ? 'mx-auto flat' : 'mx-auto',

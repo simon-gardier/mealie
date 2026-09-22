@@ -7,9 +7,10 @@
     >
       <v-card
         v-bind="hoverProps"
+        class="bistro-recipe-card"
         :class="{ 'on-hover': isHovering }"
         :style="{ cursor }"
-        :elevation="isHovering ? 12 : 2"
+        :elevation="0"
         :to="recipeRoute"
         :min-height="imageHeight + 75"
         @click.self="$emit('click')"

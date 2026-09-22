@@ -11,7 +11,7 @@
       >
         {{ displayTitleIcon }}
       </v-icon>
-      <span class="text-headline-small">{{ title }}</span>
+      <span class="bistro-section-title text-headline-small">{{ title }}</span>
       <v-spacer />
       <v-btn
         :icon="$vuetify.display.xs"

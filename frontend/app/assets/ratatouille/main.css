@@ -1,0 +1,173 @@
+/* Nuxt Fonts resolves and self-hosts these families. */
+:root {
+  --bistro-body: "Inter", sans-serif;
+  --bistro-heading: "Fraunces", Georgia, serif;
+  --bistro-note: "Borel", cursive;
+}
+
+body,
+.v-application,
+.v-overlay-container {
+  font-family: "Inter", sans-serif;
+}
+
+.v-application {
+  --v-font-family: "Inter", sans-serif;
+}
+
+.v-application h1,
+.v-application h2,
+.v-application h3,
+.bistro-sidebar .v-list-item-title,
+.bistro-sidebar .v-list-item-subtitle,
+.bistro-sidebar .v-btn,
+.bistro-wordmark,
+.bistro-recipe-card .v-card-title,
+.bistro-recipe-card .v-list-item-title,
+.bistro-section-title {
+  font-family: "Fraunces", Georgia, serif;
+  letter-spacing: -0.025em;
+}
+
+.recipe-title,
+.cook-mode-button,
+.arrow-search input::placeholder,
+.bistro-header input::placeholder {
+  font-family: "Fraunces", Georgia, serif;
+}
+
+.v-application {
+  background-image: radial-gradient(rgb(var(--v-theme-copper), 0.08) 0.6px, transparent 0.6px);
+  background-size: 7px 7px;
+}
+
+.v-btn:not(.v-btn--icon) {
+  border-radius: 9px 12px 10px 11px;
+  letter-spacing: 0;
+}
+
+.v-btn {
+  font-family: "Fraunces", Georgia, serif;
+}
+
+.v-field {
+  border-radius: 10px;
+}
+
+.v-btn:focus-visible,
+.v-list-item:focus-visible,
+.bistro-wordmark:focus-visible,
+.bistro-recipe-card:focus-visible {
+  outline: 3px solid rgb(var(--v-theme-primary));
+  outline-offset: 3px;
+}
+
+.bistro-header.v-toolbar {
+  border-bottom: 2px solid rgb(var(--v-theme-copper), 0.55);
+  box-shadow: 0 2px 8px rgb(var(--v-theme-accent), 0.06);
+}
+
+.bistro-search-bar {
+  display: none;
+}
+
+.bistro-wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px 0 4px;
+  color: rgb(var(--v-theme-accent));
+  text-decoration: none;
+  font-size: 1.65rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.bistro-sidebar .v-list-item--active .v-list-item-title {
+  text-decoration: underline;
+  text-decoration-color: rgb(var(--v-theme-copper));
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+}
+
+.bistro-sidebar .v-list-item {
+  border-radius: 6px 12px 8px 9px;
+}
+
+.bistro-recipe-card.v-card {
+  border: 1px solid rgb(var(--v-theme-copper), 0.45);
+  border-radius: 13px 17px 12px 15px;
+  box-shadow:
+    0 3px 0 rgb(var(--v-theme-copper), 0.14),
+    0 5px 14px rgb(var(--v-theme-accent), 0.07);
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.bistro-recipe-card .v-card-title {
+  color: rgb(var(--v-theme-accent));
+  line-height: 1.4;
+  padding-top: 14px;
+  padding-bottom: 10px;
+}
+
+.bistro-recipe-card .recipe-card-footer {
+  border-top: 1px dashed rgb(var(--v-theme-copper), 0.35);
+  margin: 0 12px;
+}
+
+.bistro-recipe-card .v-chip {
+  border: 1px solid rgb(var(--v-theme-sage), 0.45);
+  border-radius: 5px 8px 6px 7px;
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .bistro-recipe-card:hover {
+    transform: translateY(-3px);
+    box-shadow:
+      0 5px 0 rgb(var(--v-theme-copper), 0.16),
+      0 9px 20px rgb(var(--v-theme-accent), 0.1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .bistro-recipe-card,
+  .bistro-recipe-card * {
+    transition: none !important;
+  }
+}
+
+@media print {
+  .v-application {
+    background-image: none;
+  }
+
+  .bistro-recipe-card.v-card {
+    box-shadow: none;
+    transform: none;
+  }
+}
+
+.bistro-note {
+  font-family: "Borel", cursive;
+}
+
+.recipe-time-value,
+.cooked-day {
+  font-family: "Borel", cursive;
+}
+
+.recipe-description {
+  font-family: "Inter", sans-serif;
+}
+
+.bistro-recipe-card .v-card-title {
+  white-space: normal;
+  display: -webkit-box;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

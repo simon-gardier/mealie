@@ -1,91 +1,43 @@
 <template>
   <div>
     <div>
-      <BaseDialog
-        v-model="madeThisDialog"
-        bottom-sheet
-        :loading="madeThisFormLoading"
-        :icon="$globals.icons.chefHat"
-        :title="$t('recipe.made-this')"
-        :submit-text="$t('recipe.add-to-timeline')"
-        can-submit
-        disable-submit-on-enter
-        @submit="createTimelineEvent"
-      >
+      <BaseDialog v-model="madeThisDialog" bottom-sheet :loading="madeThisFormLoading" :icon="$globals.icons.chefHat"
+        :title="$t('recipe.made-this')" :submit-text="$t('recipe.add-to-timeline')" can-submit disable-submit-on-enter
+        @submit="createTimelineEvent">
         <v-card-text>
           <v-form ref="domMadeThisForm">
-            <v-textarea
-              v-model="newTimelineEvent.eventMessage"
-              autofocus
-              :label="$t('recipe.comment')"
-              :hint="$t('recipe.how-did-it-turn-out')"
-              persistent-hint
-              rows="4"
-            />
+            <v-textarea v-model="newTimelineEvent.eventMessage" autofocus :label="$t('recipe.comment')"
+              :hint="$t('recipe.how-did-it-turn-out')" persistent-hint rows="4" />
             <div v-if="childRecipes?.length">
               <v-card-text class="pt-6 pb-0 text-title-medium">
                 {{ $t('recipe.include-linked-recipes') }}
               </v-card-text>
               <v-list>
-                <v-list-item
-                  v-for="(childRecipe, i) in childRecipes"
-                  :key="childRecipe.recipeId + i"
-                  density="compact"
-                  class="my-0 py-0"
-                  @click="childRecipe.checked = !childRecipe.checked"
-                >
-                  <v-checkbox
-                    hide-details
-                    density="compact"
-                    :input-value="childRecipe.checked"
-                    :label="childRecipe.name"
-                    class="my-0 py-0"
-                    color="secondary"
-                  />
+                <v-list-item v-for="(childRecipe, i) in childRecipes" :key="childRecipe.recipeId + i" density="compact"
+                  class="my-0 py-0" @click="childRecipe.checked = !childRecipe.checked">
+                  <v-checkbox hide-details density="compact" :input-value="childRecipe.checked"
+                    :label="childRecipe.name" class="my-0 py-0" color="secondary" />
                 </v-list-item>
               </v-list>
             </div>
             <v-container>
               <v-row class="mt-4">
                 <v-col cols="5">
-                  <v-menu
-                    v-model="datePickerMenu"
-                    :close-on-content-click="false"
-                    transition="scale-transition"
-                    offset-y
-                  >
+                  <v-menu v-model="datePickerMenu" :close-on-content-click="false" transition="scale-transition"
+                    offset-y>
                     <template #activator="{ props: activatorProps }">
-                      <v-text-field
-                        :model-value="$d(newTimelineEventTimestamp)"
-                        :prepend-icon="$globals.icons.calendar"
-                        v-bind="activatorProps"
-                        readonly
-                        density="compact"
-                        min-width="160"
-                      />
+                      <v-text-field :model-value="$d(newTimelineEventTimestamp)" :prepend-icon="$globals.icons.calendar"
+                        v-bind="activatorProps" readonly density="compact" min-width="160" />
                     </template>
-                    <v-date-picker
-                      v-model="newTimelineEventTimestamp"
-                      hide-header
-                      :first-day-of-week="firstDayOfWeek"
-                      :local="$i18n.locale"
-                      @update:model-value="datePickerMenu = false"
-                    />
+                    <v-date-picker v-model="newTimelineEventTimestamp" hide-header :first-day-of-week="firstDayOfWeek"
+                      :local="$i18n.locale" @update:model-value="datePickerMenu = false" />
                   </v-menu>
                 </v-col>
                 <v-spacer />
                 <v-col cols="auto">
-                  <AppButtonUpload
-                    v-if="!newTimelineEventImage"
-                    class="ml-auto"
-                    url="none"
-                    file-name="image"
-                    accept="image/*"
-                    :text="$t('recipe.upload-image')"
-                    :text-btn="false"
-                    :post="false"
-                    @uploaded="uploadImage"
-                  />
+                  <AppButtonUpload v-if="!newTimelineEventImage" class="ml-auto" url="none" file-name="image"
+                    accept="image/*" :text="$t('recipe.upload-image')" :text-btn="false" :post="false"
+                    @uploaded="uploadImage" />
                   <v-btn v-if="!!newTimelineEventImage" color="error" @click="clearImage">
                     <v-icon start>
                       {{ $globals.icons.close }}
@@ -96,11 +48,8 @@
               </v-row>
               <v-row v-if="newTimelineEventImage && newTimelineEventImagePreviewUrl">
                 <v-col cols="12">
-                  <ImageCropper
-                    :img="newTimelineEventImagePreviewUrl"
-                    cropper-width="100%"
-                    @save="updateUploadedImage"
-                  />
+                  <ImageCropper :img="newTimelineEventImagePreviewUrl" cropper-width="100%"
+                    @save="updateUploadedImage" />
                 </v-col>
               </v-row>
             </v-container>
@@ -113,22 +62,15 @@
         <v-row no-gutters class="d-flex flex-wrap align-center" style="font-size: larger">
           <v-tooltip location="bottom">
             <template #activator="{ props: tooltipProps }">
-              <v-btn
-                rounded
-                variant="outlined"
-                size="large"
-                v-bind="tooltipProps"
-                class="font-weight-400"
-                style="border-color: rgb(var(--v-theme-primary));"
-                @click="madeThisDialog = true"
-              >
+              <v-btn rounded variant="outlined" size="large" v-bind="tooltipProps" class="font-weight-400"
+                style="border-color: rgb(var(--v-theme-primary));" @click="madeThisDialog = true">
                 <v-icon start size="large" color="primary">
                   {{ $globals.icons.calendar }}
                 </v-icon>
                 <span class="opacity-80">
                   <strong>{{ $t("general.last-made") }}</strong>
                   <br>
-                  {{ lastMade ? $d(new Date(lastMade)) : $t("general.never") }}
+                  <span class="cooked-day">{{ lastMade ? $d(new Date(lastMade)) : $t("general.never") }}</span>
                 </span>
                 <v-icon end size="large" color="primary">
                   {{ $globals.icons.createAlt }}

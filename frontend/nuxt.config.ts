@@ -29,14 +29,14 @@ export default defineNuxtConfig({
     baseURL: process.env.SUB_PATH || "/",
 
     head: {
-      title: "Mealie",
+      title: "Petit Chef",
       meta: [
         { property: "og:type", content: "website" },
-        { property: "og:title", content: "Mealie" },
-        { property: "og:site_name", content: "Mealie" },
+        { property: "og:title", content: "Petit Chef" },
+        { property: "og:site_name", content: "Petit Chef" },
         {
           property: "og:description",
-          content: "Mealie is a recipe management app for your kitchen.",
+          content: "Petit Chef is a recipe management app for your kitchen.",
         },
         {
           property: "og:image",
@@ -47,12 +47,12 @@ export default defineNuxtConfig({
         { name: "viewport", content: "width=device-width, initial-scale=1" },
         {
           name: "description",
-          content: "Mealie is a recipe management app for your kitchen.",
+          content: "Petit Chef is a recipe management app for your kitchen.",
         },
       ],
       script: [
         {
-          innerHTML: `(function(){try{var d=localStorage.getItem('vueuse-color-scheme');var m=d==='dark'||(d!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches);document.documentElement.style.backgroundColor=m?'#1E1E1E':'#FFFFFF'}catch(e){}})()`,
+          innerHTML: `(function(){try{var d=localStorage.getItem('vueuse-color-scheme');var m=d==='dark'||(d!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches);document.documentElement.style.backgroundColor=m?'#211f1c':'#f5efe1'}catch(e){}})()`,
           type: "text/javascript",
         },
       ],
@@ -72,7 +72,7 @@ export default defineNuxtConfig({
     viewTransition: true,
   },
 
-  css: ["~/assets/main.css", "~/assets/style-overrides.scss"],
+  css: ["~/assets/main.css", "~/assets/style-overrides.scss", "~/assets/ratatouille/main.css"],
 
   runtimeConfig: {
     sessionPassword: process.env.SESSION_PASSWORD || "password-with-at-least-32-characters",
@@ -142,6 +142,26 @@ export default defineNuxtConfig({
     },
   },
   fonts: {
+    families: [
+      {
+        name: "Inter",
+        weights: [400, 500, 600, 700],
+        styles: ["normal"],
+        subsets: ["latin", "latin-ext"],
+      },
+      {
+        name: "Fraunces",
+        weights: [400, 600, 700],
+        styles: ["normal"],
+        subsets: ["latin", "latin-ext"],
+      },
+      {
+        name: "Borel",
+        weights: [400],
+        styles: ["normal"],
+        subsets: ["latin"],
+      },
+    ],
     defaults: {
       weights: ["100 900"],
       styles: ["normal", "italic"],

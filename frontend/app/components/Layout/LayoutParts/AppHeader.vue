@@ -1,80 +1,32 @@
 <template>
-  <v-app-bar
-    clipped-left
-    density="compact"
-    app
-    color="primary"
-    dark
-    class="d-print-none"
-  >
+  <v-app-bar clipped-left density="compact" app color="surface" class="bistro-header d-print-none">
     <slot />
-    <RouterLink :to="routerLink">
-      <v-btn
-        icon
-        color="white"
-      >
-        <v-icon size="40"> {{ $globals.icons.primary }} </v-icon>
-      </v-btn>
+    <RouterLink :to="routerLink" class="bistro-wordmark">
+      <v-icon size="30" aria-hidden="true">{{ mdiChefHat }}</v-icon>
+      <span>Petit Chef</span>
     </RouterLink>
-
-    <div
-      btn
-      class="pl-2"
-    >
-      <v-toolbar-title
-        style="cursor: pointer"
-        @click="$router.push(routerLink)"
-      >
-        Mealie
-      </v-toolbar-title>
-    </div>
     <RecipeDialogSearch ref="domSearchDialog" />
 
     <v-spacer />
 
     <!-- Navigation Menu -->
     <template v-if="menu">
-      <v-responsive
-        v-if="!xs"
-        max-width="250"
-        @click="activateSearch"
-      >
-        <v-text-field
-          readonly
-          class="mt-1"
-          rounded
-          variant="solo-filled"
-          density="compact"
-          flat
-          :prepend-inner-icon="$globals.icons.search"
-          bg-color="primary-darken-1"
-          :placeholder="$t('search.search-hint')"
-        />
+      <v-responsive v-if="!xs" max-width="250" class="bistro-search-bar" @click="activateSearch">
+        <v-text-field readonly class="mt-1" rounded variant="solo-filled" density="compact" flat
+          :prepend-inner-icon="$globals.icons.search" bg-color="background" :placeholder="$t('search.search-hint')"
+          @keydown.enter="activateSearch" @keydown.space.prevent="activateSearch" />
       </v-responsive>
-      <v-btn
-        v-else
-        icon
-        @click="activateSearch"
-      >
+      <v-btn v-else :aria-label="$t('search.search')" icon @click="activateSearch">
         <v-icon> {{ $globals.icons.search }}</v-icon>
       </v-btn>
-      <v-btn
-        v-if="loggedIn"
-        :variant="smAndUp ? 'text' : undefined"
-        :icon="xs"
-        @click="logout()"
-      >
+      <v-btn v-if="loggedIn" :aria-label="$t('user.logout')" :variant="smAndUp ? 'text' : undefined" :icon="xs"
+        @click="logout()">
         <v-icon :start="smAndUp">
           {{ $globals.icons.logout }}
         </v-icon>
         {{ smAndUp ? $t("user.logout") : "" }}
       </v-btn>
-      <v-btn
-        v-else
-        variant="text"
-        nuxt
-        to="/login"
-      >
+      <v-btn v-else variant="text" nuxt to="/login">
         <v-icon start>
           {{ $globals.icons.user }}
         </v-icon>
@@ -85,6 +37,7 @@
 </template>
 
 <script setup lang="ts">
+import { mdiChefHat } from "@mdi/js";
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 import type RecipeDialogSearch from "~/components/Domain/Recipe/RecipeDialogSearch.vue";
 

@@ -1,26 +1,12 @@
 <template>
-  <v-container
-    fill-height
-    fluid
-    class="d-flex justify-center align-center flex-column fill-height"
-    :class="{
-      'bg-off-white': !$vuetify.theme.current.dark && !isDark,
-    }"
-  >
-    <v-card
-      class="d-flex flex-column w-100"
-      max-width="1200px"
-      min-height="700px"
-    >
+  <v-container fill-height fluid class="d-flex justify-center align-center flex-column fill-height" :class="{
+    'bg-off-white': !$vuetify.theme.current.dark && !isDark,
+  }">
+    <v-card class="d-flex flex-column w-100" max-width="1200px" min-height="700px">
       <div>
-        <v-toolbar
-          width="100%"
-          color="primary"
-          style="margin-bottom: 4rem"
-          dark
-        >
+        <v-toolbar width="100%" color="primary" style="margin-bottom: 4rem" dark>
           <v-toolbar-title class="text-h4 text-center">
-            Mealie
+            Petit Chef
           </v-toolbar-title>
         </v-toolbar>
         <AppLogo />
@@ -34,39 +20,18 @@
               {{ $t("user-registration.user-registration") }}
             </v-card-title>
 
-            <div
-              class="d-flex flex-wrap justify-center flex-md-nowrap pa-4"
-              style="gap: 1em"
-            >
-              <v-card
-                color="primary"
-                dark
-                hover
-                width="320px"
-                @click="initial.joinGroup"
-              >
+            <div class="d-flex flex-wrap justify-center flex-md-nowrap pa-4" style="gap: 1em">
+              <v-card color="primary" dark hover width="320px" @click="initial.joinGroup">
                 <v-card-title class="d-flex align-center justify-center py-3">
-                  <v-icon
-                    size="large"
-                    start
-                  >
+                  <v-icon size="large" start>
                     {{ $globals.icons.group }}
                   </v-icon>
                   {{ $t("user-registration.join-a-group") }}
                 </v-card-title>
               </v-card>
-              <v-card
-                color="primary"
-                dark
-                hover
-                width="320px"
-                @click="initial.createGroup"
-              >
+              <v-card color="primary" dark hover width="320px" @click="initial.createGroup">
                 <v-card-title class="d-flex align-center justify-center py-3">
-                  <v-icon
-                    size="large"
-                    start
-                  >
+                  <v-icon size="large" start>
                     {{ $globals.icons.user }}
                   </v-icon>
 
@@ -80,10 +45,7 @@
         <template v-else-if="state.ctx.state === States.ProvideToken">
           <div>
             <v-card-title>
-              <v-icon
-                size="large"
-                class="mr-3"
-              >
+              <v-icon size="large" class="mr-3">
                 {{ $globals.icons.group }}
               </v-icon>
               <span> {{ $t("user-registration.join-a-group") }} </span>
@@ -91,34 +53,20 @@
             <v-divider />
             <v-card-text>
               {{ $t("user-registration.provide-registration-token-description") }}
-              <v-form
-                ref="domTokenForm"
-                class="mt-4"
-                @submit.prevent
-              >
-                <v-text-field
-                  v-model="token"
-                  v-bind="inputAttrs"
-                  :label="$t('group.group-token')"
-                  :rules="[validators.required]"
-                />
+              <v-form ref="domTokenForm" class="mt-4" @submit.prevent>
+                <v-text-field v-model="token" v-bind="inputAttrs" :label="$t('group.group-token')"
+                  :rules="[validators.required]" />
               </v-form>
             </v-card-text>
             <v-divider />
             <v-card-actions class="mt-auto justify-space-between">
-              <BaseButton
-                cancel
-                @click="state.back"
-              >
+              <BaseButton cancel @click="state.back">
                 <template #icon>
                   {{ $globals.icons.back }}
                 </template>
                 {{ $t("general.back") }}
               </BaseButton>
-              <BaseButton
-                icon-right
-                @click="provideToken.next"
-              >
+              <BaseButton icon-right @click="provideToken.next">
                 <template #icon>
                   {{ $globals.icons.forward }}
                 </template>
@@ -131,10 +79,7 @@
         <template v-else-if="state.ctx.state === States.ProvideGroupDetails">
           <div class="preferred-width">
             <v-card-title>
-              <v-icon
-                size="large"
-                class="mr-3"
-              >
+              <v-icon size="large" class="mr-3">
                 {{ $globals.icons.group }}
               </v-icon>
               <span> {{ $t("user-registration.group-details") }}</span>
@@ -144,33 +89,16 @@
             </v-card-text>
             <v-divider />
             <v-card-text>
-              <v-form
-                ref="domGroupForm"
-                v-model="isGroupFormValid"
-                @submit.prevent
-              >
-                <v-text-field
-                  v-model="groupDetails.groupName.value"
-                  v-bind="inputAttrs"
-                  :label="$t('group.group-name')"
-                  :rules="[validators.required]"
-                  :error-messages="groupErrorMessages"
-                  @blur="validGroupName"
-                />
+              <v-form ref="domGroupForm" v-model="isGroupFormValid" @submit.prevent>
+                <v-text-field v-model="groupDetails.groupName.value" v-bind="inputAttrs" :label="$t('group.group-name')"
+                  :rules="[validators.required]" :error-messages="groupErrorMessages" @blur="validGroupName" />
                 <div class="mt-n4 px-2">
-                  <v-checkbox
-                    v-model="groupDetails.groupPrivate.value"
-                    hide-details
-                    :label="$t('group.settings.keep-my-recipes-private')"
-                  />
+                  <v-checkbox v-model="groupDetails.groupPrivate.value" hide-details
+                    :label="$t('group.settings.keep-my-recipes-private')" />
                   <p class="text-caption mt-1">
                     {{ $t("group.settings.keep-my-recipes-private-description") }}
                   </p>
-                  <v-checkbox
-                    v-model="groupDetails.groupSeed.value"
-                    hide-details
-                    :label="$t('data-pages.seed-data')"
-                  />
+                  <v-checkbox v-model="groupDetails.groupSeed.value" hide-details :label="$t('data-pages.seed-data')" />
                   <p class="text-caption mt-1">
                     {{ $t("user-registration.use-seed-data-description") }}
                   </p>
@@ -179,20 +107,13 @@
             </v-card-text>
             <v-divider />
             <v-card-actions class="justify-space-between">
-              <BaseButton
-                cancel
-                @click="state.back"
-              >
+              <BaseButton cancel @click="state.back">
                 <template #icon>
                   {{ $globals.icons.back }}
                 </template>
                 {{ $t("general.back") }}
               </BaseButton>
-              <BaseButton
-                icon-right
-                :disabled="!isGroupFormValid || !groupNameValid"
-                @click="groupDetails.next"
-              >
+              <BaseButton icon-right :disabled="!isGroupFormValid || !groupNameValid" @click="groupDetails.next">
                 <template #icon>
                   {{ $globals.icons.forward }}
                 </template>
@@ -207,20 +128,13 @@
             <UserRegistrationForm v-model="isAccountFormValid" />
             <v-divider />
             <v-card-actions class="justify-space-between">
-              <BaseButton
-                cancel
-                @click="state.back"
-              >
+              <BaseButton cancel @click="state.back">
                 <template #icon>
                   {{ $globals.icons.back }}
                 </template>
                 {{ $t("general.back") }}
               </BaseButton>
-              <BaseButton
-                icon-right
-                :disabled="!isAccountFormValid"
-                @click="accountDetailsNext"
-              >
+              <BaseButton icon-right :disabled="!isAccountFormValid" @click="accountDetailsNext">
                 <template #icon>
                   {{ $globals.icons.forward }}
                 </template>
@@ -233,36 +147,24 @@
         <template v-else-if="state.ctx.state === States.Confirmation">
           <div class="preferred-width">
             <v-card-title class="mb-0 pb-0">
-              <v-icon
-                size="large"
-                class="mr-3"
-              >
+              <v-icon size="large" class="mr-3">
                 {{ $globals.icons.user }}
               </v-icon>
               <span>{{ $t("general.confirm") }}</span>
             </v-card-title>
             <v-list>
               <template v-for="(item, idx) in confirmationData">
-                <v-list-item
-                  v-if="item.display"
-                  :key="idx"
-                >
+                <v-list-item v-if="item.display" :key="idx">
                   <v-list-item-title> {{ item.text }} </v-list-item-title>
                   <v-list-item-subtitle> {{ item.value }} </v-list-item-subtitle>
                 </v-list-item>
-                <v-divider
-                  v-if="idx !== confirmationData.length - 1"
-                  :key="`divider-${idx}`"
-                />
+                <v-divider v-if="idx !== confirmationData.length - 1" :key="`divider-${idx}`" />
               </template>
             </v-list>
 
             <v-divider />
             <v-card-actions class="justify-space-between">
-              <BaseButton
-                cancel
-                @click="state.back"
-              >
+              <BaseButton cancel @click="state.back">
                 <template #icon>
                   {{ $globals.icons.back }}
                 </template>
@@ -280,19 +182,10 @@
       </div>
 
       <v-card-actions class="justify-center flex-column py-8">
-        <v-btn
-          variant="text"
-          class="mb-2"
-          to="/login"
-        >
+        <v-btn variant="text" class="mb-2" to="/login">
           {{ $t("user.login") }}
         </v-btn>
-        <BaseButton
-          size="large"
-          color="primary"
-          :icon="$globals.icons.translate"
-          @click="langDialog = true"
-        >
+        <BaseButton size="large" color="primary" :icon="$globals.icons.translate" @click="langDialog = true">
           {{ $t("language-dialog.choose-language") }}
         </BaseButton>
       </v-card-actions>
