@@ -305,9 +305,11 @@
     "day-any": "Any",
     "meal-title": "Meal Title",
     "meal-note": "Meal Note",
+    "select-meal-below": "Select a meal below",
     "note": "Note",
     "ignore-rules": "Ignore Planner Rules",
     "no-recipes-match-your-rules": "No recipes match your meal plan rules",
+    "no-meal-planned": "No meal planned",
     "random-meal": "Random Meal",
     "random-dinner": "Random Dinner",
     "random-side": "Random Side",
@@ -325,6 +327,7 @@
     "applies-on-days": "Applies on {0}s",
     "meal-plan-settings": "Meal Plan Settings",
     "add-all-to-list": "Add All to List",
+    "add-to-shopping-list": "Add to shopping list",
     "add-day-to-list": "Add Day to List",
     "randomize-recipe": "Randomize Recipe"
   },
@@ -759,6 +762,7 @@
   },
   "shopping-list": {
     "all-lists": "All Lists",
+    "only-my-lists": "Show only my lists",
     "create-shopping-list": "Create Shopping List",
     "ingredient-of-recipe": "Ingredient of {recipe}",
     "new-list": "New List",

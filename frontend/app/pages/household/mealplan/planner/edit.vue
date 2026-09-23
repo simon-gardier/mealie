@@ -1,46 +1,19 @@
 <template>
   <div>
-    <GroupMealPlanEntryDialog
-      v-model="dialog.open"
-      :entry="dialog.entry"
-      :date="dialog.date"
-      @create="actions.createOne($event)"
-      @update="actions.updateOne($event)"
-    />
+    <GroupMealPlanEntryDialog v-model="dialog.open" :entry="dialog.entry" :date="dialog.date"
+      @create="actions.createOne($event)" @update="actions.updateOne($event)" />
     <MealPlanLayout :mealplans="mealplans">
       <template #default="{ plan, index, day }">
         <MealPlanDay :day="day.date" :recipes="day.recipes" :actions="actions" inline-actions>
-          <VueDraggable
-            v-model="mealplansByDate[plan.date.toString()]!"
-            tag="div"
-            handle=".handle"
-            :delay="250"
-            :delay-on-touch-only="true"
-            group="meals"
-            :data-index="index"
-            :data-box="plan.date"
-            style="min-height: 150px"
-            @end="onMoveCallback"
-          >
+          <VueDraggable v-model="mealplansByDate[plan.date.toString()]!" tag="div" handle=".handle" :delay="250"
+            :delay-on-touch-only="true" group="meals" :data-index="index" :data-box="plan.date"
+            style="min-height: 150px" @end="onMoveCallback">
             <SpinTransition>
-              <v-card
-                v-for="mealplan in mealplansByDate[plan.date.toString()]"
-                :key="mealplan.id"
-                class="my-2 ml-4 mr-1"
-                :class="{ handle: $vuetify.display.smAndUp }"
-              >
-                <RecipeCardLineItem
-                  v-if="mealplan.recipe"
-                  class="py-2"
-                  :recipe="mealplan.recipe"
-                  disable-link
-                  @click="editMeal(mealplan)"
-                />
-                <v-list-item
-                  v-else
-                  class="py-2"
-                  @click="editMeal(mealplan)"
-                >
+              <v-card v-for="mealplan in mealplansByDate[plan.date.toString()]" :key="mealplan.id"
+                class="planner-edit-card my-2 ml-4 mr-1" :class="{ handle: $vuetify.display.smAndUp }">
+                <RecipeCardLineItem v-if="mealplan.recipe" class="py-2" :recipe="mealplan.recipe" disable-link
+                  @click="editMeal(mealplan)" />
+                <v-list-item v-else class="py-2" @click="editMeal(mealplan)">
                   <template #prepend>
                     <v-avatar>
                       <v-icon>
@@ -64,14 +37,7 @@
                   </v-btn>
                   <v-menu offset-y>
                     <template #activator="{ props: menuProps }">
-                      <v-chip
-                        v-bind="menuProps"
-                        label
-                        variant="elevated"
-                        size="small"
-                        color="accent"
-                        @click.prevent
-                      >
+                      <v-chip v-bind="menuProps" label variant="elevated" size="small" color="accent" @click.prevent>
                         <v-icon start>
                           {{ $globals.icons.tags }}
                         </v-icon>
@@ -79,27 +45,18 @@
                       </v-chip>
                     </template>
                     <v-list>
-                      <v-list-item
-                        v-for="mealType in planTypeOptions"
-                        :key="mealType.value"
-                        @click="actions.setType(mealplan, mealType.value)"
-                      >
+                      <v-list-item v-for="mealType in planTypeOptions" :key="mealType.value"
+                        @click="actions.setType(mealplan, mealType.value)">
                         <v-list-item-title> {{ mealType.text }} </v-list-item-title>
                       </v-list-item>
                     </v-list>
                   </v-menu>
-                  <v-btn
-                    v-if="mealplan.recipe && mealplan.entryType"
-                    class="ml-auto"
-                    size="small"
-                    variant="text"
-                    icon
-                    :title="$t('meal-plan.randomize-recipe')"
-                    @click="randomizeMeal(mealplan)"
-                  >
+                  <v-btn v-if="mealplan.recipe && mealplan.entryType" class="ml-auto" size="small" variant="text" icon
+                    :title="$t('meal-plan.randomize-recipe')" @click="randomizeMeal(mealplan)">
                     <v-icon>{{ $globals.icons.diceMultiple }}</v-icon>
                   </v-btn>
-                  <v-btn :class="{ 'ml-auto': !mealplan.recipe || !mealplan.entryType }" size="small" variant="text" icon @click="actions.deleteOne(mealplan.id)">
+                  <v-btn :class="{ 'ml-auto': !mealplan.recipe || !mealplan.entryType }" size="small" variant="text"
+                    icon @click="actions.deleteOne(mealplan.id)">
                     <v-icon>{{ $globals.icons.delete }}</v-icon>
                   </v-btn>
                 </div>

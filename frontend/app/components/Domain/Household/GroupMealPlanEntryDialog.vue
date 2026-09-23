@@ -1,135 +1,89 @@
 <template>
-  <BaseDialog
-    v-model="dialog"
+  <BaseDialog v-model="dialog"
     :title="entry ? $t('meal-plan.update-this-meal-plan') : $t('meal-plan.create-a-new-meal-plan')"
-    :submit-text="entry ? $t('general.update') : $t('general.create')"
-    :icon="$globals.icons.foods"
-    :submit-disabled="submitDisabled"
-    color="primary"
-    width="1000"
-    can-submit
-    disable-submit-on-enter
-    @submit="submit"
-  >
+    :submit-text="entry ? $t('general.update') : $t('general.create')" :submit-disabled="submitDisabled" color="primary"
+    width="1000" center-title cancel-in-toolbar can-submit disable-submit-on-enter @submit="submit">
     <v-card-text>
       <v-row>
-        <v-col
-          cols="12"
-          md="5"
-        >
-          <v-btn-toggle
-            v-model="entryMode"
-            mandatory
-            divided
-            variant="outlined"
-            color="primary"
-            class="w-100 mb-4"
-          >
-            <v-btn
-              value="recipe"
-              class="flex-grow-1"
-            >
+        <v-col cols="12" md="5">
+          <MealPlanDatePicker v-model="selectedDate" :entry-type="entryType" />
+        </v-col>
+
+        <!-- both modes fill the same pane, so the dialog doesn't resize when switching between them -->
+        <v-col cols="12" md="7" class="entry-detail">
+          <v-tabs v-model="entryMode" color="primary" grow class="entry-detail__tabs mb-4">
+            <v-tab value="recipe">
               <v-icon start>
                 {{ $globals.icons.silverwareForkKnife }}
               </v-icon>
               {{ $t("general.recipe") }}
-            </v-btn>
-            <v-btn
-              value="note"
-              class="flex-grow-1"
-            >
+            </v-tab>
+            <v-tab value="note">
               <v-icon start>
                 {{ $globals.icons.textBox }}
               </v-icon>
               {{ $t("meal-plan.note") }}
-            </v-btn>
-          </v-btn-toggle>
+            </v-tab>
+          </v-tabs>
 
-          <MealPlanDatePicker v-model="selectedDate" :entry-type="entryType" />
+          <div class="entry-detail__content">
+            <RecipeSelector v-if="isRecipe" ref="selector" v-model="recipe" class="flex-grow-1"
+              :query-filter="ruleQueryFilter" :show-selected="false">
+              <template #filters>
+                <v-switch v-model="ignoreRules" class="ignore-rules-switch flex-grow-0 ms-auto" color="primary"
+                  density="compact" hide-details :disabled="!applicableRuleFilter"
+                  :label="$t('meal-plan.ignore-rules')" />
+              </template>
 
-          <v-select
-            v-model="entryType"
-            class="mt-4"
-            :items="planTypeOptions"
-            :label="$t('recipe.entry-type')"
-            item-title="text"
-            item-value="value"
-            :return-object="false"
-            hide-details
-          />
-        </v-col>
+              <template #selected>
+                <RecipeCardLineItem v-if="recipe" class="selected-recipe" :recipe="recipe" disable-link>
+                  <template #append>
+                    <v-btn icon variant="text" color="error" size="small" aria-label="Remove selected recipe"
+                      title="Remove selected recipe" @click.stop="recipe = null">
+                      <v-icon>{{ $globals.icons.close }}</v-icon>
+                    </v-btn>
+                  </template>
+                </RecipeCardLineItem>
+                <v-list-item v-else class="selection-placeholder">
+                  <template #prepend>
+                    <v-avatar rounded="lg" width="56" height="40" color="surface-variant">
+                      <v-icon>{{ $globals.icons.silverwareForkKnife }}</v-icon>
+                    </v-avatar>
+                  </template>
+                  <v-list-item-title>{{ $t("meal-plan.select-meal-below") }}</v-list-item-title>
+                </v-list-item>
+              </template>
 
-        <!-- both modes fill the same pane, so the dialog doesn't resize when switching between them -->
-        <v-col
-          cols="12"
-          md="7"
-          class="entry-detail"
-        >
-          <RecipeSelector
-            v-if="isRecipe"
-            ref="selector"
-            v-model="recipe"
-            height="auto"
-            :query-filter="ruleQueryFilter"
-          >
-            <template #filters>
-              <v-switch
-                v-model="ignoreRules"
-                class="ignore-rules-switch flex-grow-0 ms-auto"
-                color="primary"
-                density="compact"
-                hide-details
-                :disabled="!applicableRuleFilter"
-                :label="$t('meal-plan.ignore-rules')"
-              />
-            </template>
+              <template #no-results>
+                <v-alert v-if="ruleQueryFilter" type="info" variant="tonal">
+                  <div>{{ $t("meal-plan.no-recipes-match-your-rules") }}</div>
+                  <v-btn class="mt-2" size="small" color="info" variant="tonal" @click="ignoreRules = true">
+                    {{ $t("meal-plan.ignore-rules") }}
+                  </v-btn>
+                </v-alert>
+                <v-alert v-else type="info" variant="tonal" :text="$t('search.no-results')" />
+              </template>
+            </RecipeSelector>
 
-            <template #no-results>
-              <v-alert
-                v-if="ruleQueryFilter"
-                type="info"
-                variant="tonal"
-              >
-                <div>{{ $t("meal-plan.no-recipes-match-your-rules") }}</div>
-                <v-btn
-                  class="mt-2"
-                  size="small"
-                  color="info"
-                  variant="tonal"
-                  @click="ignoreRules = true"
-                >
-                  {{ $t("meal-plan.ignore-rules") }}
-                </v-btn>
-              </v-alert>
-              <v-alert
-                v-else
-                type="info"
-                variant="tonal"
-                :text="$t('search.no-results')"
-              />
-            </template>
-          </RecipeSelector>
-
-          <div v-else>
-            <v-text-field
-              v-model="title"
-              :label="$t('meal-plan.meal-title')"
-              :rules="[validators.required]"
-            />
-            <v-textarea
-              v-model="text"
-              :label="$t('meal-plan.meal-note')"
-              rows="6"
-            />
+            <div v-else>
+              <v-text-field v-model="title" :label="$t('meal-plan.meal-title')" :rules="[validators.required]" />
+              <v-textarea v-model="text" :label="$t('meal-plan.meal-note')" rows="6" />
+            </div>
           </div>
         </v-col>
       </v-row>
     </v-card-text>
+    <template #custom-card-action>
+      <v-select v-model="entryType" class="meal-type-footer" :items="planTypeOptions" :label="$t('recipe.entry-type')"
+        item-title="text" item-value="value" :return-object="false" hide-details density="compact" variant="outlined"
+        :disabled="submitDisabled" />
+    </template>
   </BaseDialog>
 </template>
 
 <script setup lang="ts">
 import { format } from "date-fns";
+import RecipeCardLineItem from "~/components/Domain/Recipe/RecipeCardLineItem.vue";
 import RecipeSelector from "~/components/Domain/Recipe/RecipeSelector.vue";
 import { usePlanTypeOptions } from "~/composables/use-group-mealplan";
 import { buildRuleQueryFilter, useMealplanRules } from "~/composables/use-mealplan-rules";
@@ -220,19 +174,41 @@ watch(dialog, (isOpen) => {
 
 <style scoped>
 .entry-detail {
-  position: relative;
+  display: flex;
+  flex-direction: column;
   min-height: clamp(320px, 45vh, 520px);
 }
 
-/*
-  Take the pane out of flow so a long result list scrolls inside it instead of growing the
-  dialog, while it still stretches to the height of the settings column beside it.
-  The inset matches the v-col gutter padding.
-*/
-.entry-detail > * {
-  position: absolute;
-  inset: 12px;
-  overflow-y: auto;
+.entry-detail__tabs {
+  flex: 0 0 auto;
+}
+
+.entry-detail__content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.entry-detail__content>* {
+  min-height: 0;
+}
+
+.meal-type-footer {
+  flex: 0 0 150px;
+  min-width: 150px;
+  max-width: 150px;
+  width: 150px !important;
+  --v-input-control-height: 32px;
+}
+
+.selected-recipe {
+  color: rgb(var(--v-theme-error));
+  background-color: rgb(var(--v-theme-error) / 0.12);
+}
+
+.selection-placeholder {
+  min-height: 56px;
 }
 
 /* v-switch reserves a taller control than the filter buttons next to it */

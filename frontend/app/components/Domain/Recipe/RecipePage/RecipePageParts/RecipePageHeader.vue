@@ -3,9 +3,15 @@
     <RecipePageInfoCard :recipe="recipe" :recipe-scale="recipeScale" :landscape="landscape" />
     <v-divider />
     <RecipeActionMenu :recipe="recipe" :slug="recipe.slug" :recipe-scale="recipeScale" :can-edit="canEditRecipe"
-      :name="recipe.name" :logged-in="isOwnGroup" :open="isEditMode" :recipe-id="recipe.id" class="ml-auto mt-n7 pb-4"
+      :name="recipe.name" :logged-in="isOwnGroup" :open="isEditMode" :recipe-id="recipe.id" class="mt-n7 pb-4"
       @close="$emit('close')" @json="toggleEditMode()" @edit="setMode(PageMode.EDIT)" @save="$emit('save')"
-      @delete="$emit('delete')" @print="printRecipe" @cook-mode="toggleCookMode()" />
+      @delete="$emit('delete')" @print="printRecipe" @cook-mode="toggleCookMode()">
+      <RecipePageEditorToolbar v-if="isEditMode" :model-value="recipe"
+        @update:model-value="$emit('update:recipe', $event)" />
+      <template v-if="isEditMode" #owner>
+        <RecipePageEditorOwnerSelect :model-value="recipe" @update:model-value="$emit('update:recipe', $event)" />
+      </template>
+    </RecipeActionMenu>
   </div>
 </template>
 
@@ -14,6 +20,8 @@ import { useLoggedInState } from "~/composables/use-logged-in-state";
 import { useRecipePermissions } from "~/composables/recipes";
 import RecipePageInfoCard from "~/components/Domain/Recipe/RecipePage/RecipePageParts/RecipePageInfoCard.vue";
 import RecipeActionMenu from "~/components/Domain/Recipe/RecipeActionMenu.vue";
+import RecipePageEditorToolbar from "~/components/Domain/Recipe/RecipePage/RecipePageParts/RecipePageEditorToolbar.vue";
+import RecipePageEditorOwnerSelect from "~/components/Domain/Recipe/RecipePage/RecipePageParts/RecipePageEditorOwnerSelect.vue";
 import { useStaticRoutes, useUserApi } from "~/composables/api";
 import type { HouseholdSummary } from "~/lib/api/types/household";
 import type { Recipe } from "~/lib/api/types/recipe";
@@ -30,7 +38,7 @@ const props = withDefaults(defineProps<Props>(), {
   landscape: false,
 });
 
-defineEmits(["save", "delete", "print", "close"]);
+defineEmits(["save", "delete", "print", "close", "update:recipe"]);
 
 const { recipeImage } = useStaticRoutes();
 const { imageKey, setMode, toggleEditMode, toggleCookMode, isEditMode } = usePageState(props.recipe.slug);

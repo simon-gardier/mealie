@@ -18,11 +18,13 @@
                 width="125" :height="height" />
             </slot>
           </template>
-          <div class="pl-4 d-flex flex-column ga-2 align-stretch pr-2">
-            <v-list-item-title class="ma-0 text-top text-truncate w-100">
+          <div class="recipe-card-mobile__content pl-4 d-flex flex-column ga-2 align-stretch pr-2">
+            <v-list-item-title class="recipe-card-mobile__title ma-0 text-top w-100"
+              :class="listMode ? 'recipe-list-title' : 'text-truncate'">
               {{ name }}
             </v-list-item-title>
-            <v-list-item-subtitle class="ma-0 text-top">
+            <v-list-item-subtitle v-if="showDescription" class="ma-0 text-top"
+              :class="{ 'recipe-list-description': listMode }">
               <SafeMarkdown v-if="description" :source="description" />
               <p v-else>
                 <br>
@@ -30,10 +32,10 @@
                 <br>
               </p>
             </v-list-item-subtitle>
-            <div class="d-flex flex-nowrap justify-start ma-0 pa-0"
-              style="overflow-x: hidden; overflow-y: hidden; white-space: nowrap;">
-              <RecipeChips :truncate="true" :items="tags" :title="false" :limit="2" small url-prefix="tags"
-                v-bind="$attrs" />
+            <div class="d-flex justify-start ma-0 pa-0" :class="listMode ? 'recipe-list-tags flex-wrap' : 'flex-nowrap'"
+              :style="listMode ? undefined : 'overflow-x: hidden; overflow-y: hidden; white-space: nowrap;'">
+              <RecipeChips :truncate="!listMode" :items="tags" :title="false" :limit="listMode ? undefined : 2" small
+                url-prefix="tags" v-bind="$attrs" />
             </div>
           </div>
           <slot name="actions">
@@ -92,6 +94,8 @@ interface Props {
   isFlat?: boolean;
   height?: number;
   disableHighlight?: boolean;
+  showDescription?: boolean;
+  listMode?: boolean;
   contextMenuAppendItems?: ContextMenuItem[];
   contextMenuLeadingItems?: ContextMenuItem[];
 }
@@ -103,6 +107,8 @@ const props = withDefaults(defineProps<Props>(), {
   isFlat: false,
   height: 150,
   disableHighlight: false,
+  showDescription: true,
+  listMode: false,
 });
 
 defineEmits<{
@@ -167,5 +173,34 @@ const cursor = computed(() => showRecipeContent.value ? "pointer" : "auto");
 
 .disable-highlight :deep(.v-card__overlay) {
   opacity: 0 !important;
+}
+
+.recipe-card-actions {
+  gap: 0;
+  min-width: 0;
+}
+
+/* list mode: allow multi-line wrapping, falling back to an inner scrollbar for overly long content */
+.recipe-list-title {
+  display: block;
+  overflow-y: auto;
+  max-height: 3.2em;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.recipe-list-description {
+  display: block;
+  overflow-y: auto;
+  max-height: 4.5em;
+  white-space: normal;
+  word-break: break-word;
+  -webkit-line-clamp: unset;
+  -webkit-box-orient: unset;
+}
+
+.recipe-list-tags {
+  overflow-y: auto;
+  max-height: 3.2rem;
 }
 </style>

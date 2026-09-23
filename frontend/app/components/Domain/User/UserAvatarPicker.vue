@@ -53,7 +53,7 @@ const previewUrl = computed(() => {
   }
   if (props.userId) {
     const key = auth.user.value?.cacheKey ?? "";
-    return `/api/users/${props.userId}/image?cacheKey=${key}`;
+    return `/api/media/users/${props.userId}/profile.webp?cacheKey=${key}`;
   }
   return getPresetAvatarUrl(props.modelValue ?? defaultAvatar);
 });

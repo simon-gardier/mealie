@@ -1,35 +1,20 @@
 <template>
   <div class="text-center">
-    <BaseDialog
-      v-model="dialogDeleteImage"
-      bottom-sheet
-      :title="$t('recipe.delete-image')"
-      :icon="$globals.icons.alertCircle"
-      color="error"
-      can-delete
-      @delete="deleteImage"
-    >
+    <BaseDialog v-model="dialogDeleteImage" bottom-sheet :title="$t('recipe.delete-image')"
+      :icon="$globals.icons.alertCircle" color="error" can-delete @delete="deleteImage">
       <v-card-text>
         {{ $t("recipe.delete-image-confirmation") }}
       </v-card-text>
     </BaseDialog>
-    <v-menu
-      v-model="menu"
-      offset-y
-      top
-      nudge-top="6"
-      :close-on-content-click="false"
-    >
+    <v-menu v-model="menu" offset-y top nudge-top="6" :close-on-content-click="false">
       <template #activator="{ props: activatorProps }">
-        <v-btn
-          color="accent"
-          dark
-          v-bind="activatorProps"
-        >
-          <v-icon start>
+        <v-btn color="accent" dark :class="['editor-action', { 'rounded-circle': $vuetify.display.xs }]"
+          :size="$vuetify.display.xs ? 'small' : undefined" variant="elevated" :icon="$vuetify.display.xs"
+          v-bind="activatorProps">
+          <v-icon :start="!$vuetify.display.xs">
             {{ $globals.icons.fileImage }}
           </v-icon>
-          {{ $t("general.image") }}
+          {{ $vuetify.display.xs ? "" : $t("general.image") }}
         </v-btn>
       </template>
       <v-card width="400">
@@ -38,37 +23,15 @@
             {{ $t("recipe.recipe-image") }}
           </div>
           <div class="d-flex gap-2">
-            <AppButtonUpload
-              url="none"
-              file-name="image"
-              :text-btn="false"
-              :post="false"
-              @uploaded="uploadImage"
-            />
-            <BaseButton
-              class="ml-2"
-              delete
-              @click="dialogDeleteImage = true"
-            />
+            <AppButtonUpload url="none" file-name="image" :text-btn="false" :post="false" @uploaded="uploadImage" />
+            <BaseButton class="ml-2" delete @click="dialogDeleteImage = true" />
           </div>
         </v-card-title>
         <v-card-text class="mt-n5">
           <div>
-            <v-text-field
-              v-model="url"
-              :label="$t('general.url')"
-              class="pt-5"
-              clearable
-              :messages="messages"
-            >
+            <v-text-field v-model="url" :label="$t('general.url')" class="pt-5" clearable :messages="messages">
               <template #append>
-                <v-btn
-                  class="ml-2"
-                  color="primary"
-                  :loading="loading"
-                  :disabled="!slug"
-                  @click="getImageFromURL"
-                >
+                <v-btn class="ml-2" color="primary" :loading="loading" :disabled="!slug" @click="getImageFromURL">
                   {{ $t("general.get") }}
                 </v-btn>
               </template>

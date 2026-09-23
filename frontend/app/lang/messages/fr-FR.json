@@ -305,9 +305,11 @@
     "day-any": "Tous",
     "meal-title": "Titre du repas",
     "meal-note": "Note du repas",
+    "select-meal-below": "Choisis un repas ci-dessous",
     "note": "Note",
     "ignore-rules": "Ignorer les règles du planificateur",
     "no-recipes-match-your-rules": "Aucune recette ne correspond à vos règles de menu",
+    "no-meal-planned": "Pas de repas prévu",
     "random-meal": "Repas aléatoire",
     "random-dinner": "Dîner aléatoire",
     "random-side": "Accompagnement aléatoire",
@@ -325,6 +327,7 @@
     "applies-on-days": "S'applique les {0}s",
     "meal-plan-settings": "Paramètres des menus",
     "add-all-to-list": "Ajouter tout à la liste",
+    "add-to-shopping-list": "Ajouter tout à la liste de course",
     "add-day-to-list": "Ajouter un jour à la liste",
     "randomize-recipe": "Recette au hasard"
   },
@@ -756,6 +759,7 @@
   },
   "shopping-list": {
     "all-lists": "Toutes les listes",
+    "only-my-lists": "N'afficher que mes listes",
     "create-shopping-list": "Créer une liste de courses",
     "ingredient-of-recipe": "Ingrédient de {recipe}",
     "new-list": "Nouvelle liste",

@@ -1,38 +1,22 @@
 <template>
-  <div
-    class="recipe-selector d-flex flex-column"
-    :style="{ height }"
-  >
+  <div class="recipe-selector d-flex flex-column" :style="{ height }">
+    <div v-if="$slots.selected" class="recipe-selection mb-3">
+      <slot name="selected" />
+    </div>
+
     <!-- v-input defaults to flex-grow, which stretches the field when the results are short -->
-    <v-text-field
-      v-model="search"
-      class="flex-grow-0"
-      variant="outlined"
-      density="compact"
-      color="primary"
-      autofocus
-      hide-details
-      clearable
-      :placeholder="$t('search.search-placeholder')"
-      :prepend-inner-icon="$globals.icons.search"
-    />
+    <v-text-field v-model="search" class="flex-grow-0" variant="outlined" density="compact" color="primary" autofocus
+      hide-details clearable :placeholder="$t('search.search-placeholder')"
+      :prepend-inner-icon="$globals.icons.search" />
 
     <div class="d-flex flex-wrap align-start ga-2 mt-3">
-      <SearchFilter
-        v-if="categories.length"
-        v-model="selectedCategories"
-        :items="categories"
-      >
+      <SearchFilter v-if="categories.length" v-model="selectedCategories" :items="categories">
         <v-icon start>
           {{ $globals.icons.categories }}
         </v-icon>
         {{ $t("category.categories") }}
       </SearchFilter>
-      <SearchFilter
-        v-if="tags.length"
-        v-model="selectedTags"
-        :items="tags"
-      >
+      <SearchFilter v-if="tags.length" v-model="selectedTags" :items="tags">
         <v-icon start>
           {{ $globals.icons.tags }}
         </v-icon>
@@ -41,61 +25,29 @@
       <slot name="filters" />
     </div>
 
-    <div
-      v-if="modelValue"
-      class="d-flex align-center ga-2 mt-3"
-    >
+    <div v-if="modelValue && showSelected" class="d-flex align-center ga-2 mt-3">
       <span class="text-caption text-medium-emphasis">{{ $t("general.selected") }}</span>
-      <v-chip
-        label
-        color="primary"
-        closable
-        :prepend-icon="$globals.icons.silverwareForkKnife"
-        @click:close="select(null)"
-      >
+      <v-chip label color="primary" closable :prepend-icon="$globals.icons.silverwareForkKnife"
+        @click:close="select(null)">
         {{ modelValue.name }}
       </v-chip>
     </div>
 
-    <div
-      ref="resultsContainer"
-      class="recipe-results mt-3"
-    >
-      <v-list
-        v-if="recipes.length"
-        class="py-0"
-      >
-        <RecipeCardLineItem
-          v-for="recipe in recipes"
-          :key="recipe.id!"
-          :recipe="recipe"
-          :active="recipe.id === modelValue?.id"
-          disable-link
-          @click="select(recipe)"
-        />
+    <div ref="resultsContainer" class="recipe-results mt-3">
+      <v-list v-if="recipes.length" class="py-0">
+        <RecipeCardLineItem v-for="recipe in recipes" :key="recipe.id!" :recipe="recipe"
+          :active="recipe.id === modelValue?.id" disable-link @click="select(recipe)" />
       </v-list>
 
-      <div
-        v-else-if="!loading"
-        class="py-2"
-      >
+      <div v-else-if="!loading" class="py-2">
         <slot name="no-results">
-          <v-alert
-            type="info"
-            variant="tonal"
-            :text="$t('search.no-results')"
-          />
+          <v-alert type="info" variant="tonal" :text="$t('search.no-results')" />
         </slot>
       </div>
 
       <div ref="sentinel" />
 
-      <v-progress-circular
-        v-if="loading"
-        indeterminate
-        color="primary"
-        class="d-block mx-auto my-3"
-      />
+      <v-progress-circular v-if="loading" indeterminate color="primary" class="d-block mx-auto my-3" />
     </div>
   </div>
 </template>
@@ -113,10 +65,12 @@ import type { RecipeSearchQuery } from "~/lib/api/user/recipes/recipe";
 interface Props {
   queryFilter?: string | null;
   height?: string;
+  showSelected?: boolean;
 }
 const props = withDefaults(defineProps<Props>(), {
   queryFilter: null,
   height: "100%",
+  showSelected: true,
 });
 
 const modelValue = defineModel<RecipeSummary | null>({ default: null });

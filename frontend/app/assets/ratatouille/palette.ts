@@ -5,6 +5,7 @@ export const bistroThemes = {
     colors: {
       "background": "#f5efe1",
       "surface": "#fffaf0",
+      "paper": "#fffaf0",
       "surface-variant": "#e9dfcc",
       "on-background": "#302820",
       "on-surface": "#302820",
@@ -33,6 +34,7 @@ export const bistroThemes = {
     colors: {
       "background": "#211f1c",
       "surface": "#2c2924",
+      "paper": "#2c2924",
       "surface-variant": "#423c33",
       "on-background": "#f5efe1",
       "on-surface": "#f5efe1",

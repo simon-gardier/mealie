@@ -1,21 +1,14 @@
 <template>
   <div class="text-center">
-    <v-menu
-      offset-y
-      top
-      nudge-top="6"
-      :close-on-content-click="false"
-    >
+    <v-menu offset-y top nudge-top="6" :close-on-content-click="false">
       <template #activator="{ props }">
-        <v-btn
-          color="accent"
-          dark
-          v-bind="props"
-        >
-          <v-icon start>
+        <v-btn color="accent" dark :class="['editor-action', { 'rounded-circle': $vuetify.display.xs }]"
+          :size="$vuetify.display.xs ? 'small' : undefined" variant="elevated" :icon="$vuetify.display.xs"
+          v-bind="props">
+          <v-icon :start="!$vuetify.display.xs">
             {{ $globals.icons.cog }}
           </v-icon>
-          {{ $t("general.settings") }}
+          {{ $vuetify.display.xs ? "" : $t("general.settings") }}
         </v-btn>
       </template>
       <v-card>
@@ -26,10 +19,7 @@
         </v-card-title>
         <v-divider class="mx-2" />
         <v-card-text class="mt-n5 pt-6 pb-2">
-          <RecipeSettingsSwitches
-            v-model="value"
-            :is-owner="isOwner"
-          />
+          <RecipeSettingsSwitches v-model="value" :is-owner="isOwner" />
         </v-card-text>
       </v-card>
     </v-menu>

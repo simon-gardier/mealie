@@ -1,50 +1,19 @@
 <template>
-  <RecipeDialogAddToShoppingList
-    v-model="shoppingListDialog"
-    :recipes="recipesWithScales"
-    :shopping-lists="shoppingLists"
-  />
-  <GroupMealPlanEntryDialog
-    v-model="dialog.open"
-    :entry="dialog.entry"
-    :date="dialog.date"
-    @create="actions.createOne($event)"
-    @update="actions.updateOne($event)"
-  />
+  <RecipeDialogAddToShoppingList v-model="shoppingListDialog" :recipes="recipesWithScales"
+    :shopping-lists="shoppingLists" />
+  <GroupMealPlanEntryDialog v-model="dialog.open" :entry="dialog.entry" :date="dialog.date"
+    @create="actions.createOne($event)" @update="actions.updateOne($event)" />
   <template v-if="inlineActions">
     <MealPlanDayHeader :day="day" />
     <slot />
     <!-- Day Column Actions -->
     <div class="d-flex justify-end">
-      <BaseButtonGroup
-        v-bind="bindings"
-        :buttons="[...commonButtons, ...inlineButtons]"
-      />
+      <BaseButtonGroup v-bind="bindings" :buttons="[...commonButtons, ...inlineButtons]" />
     </div>
   </template>
   <template v-else>
-    <MealPlanDayHeader :day="day">
-      <BaseButtonGroup
-        v-bind="bindings"
-        :buttons="[{
-          icon: $globals.icons.dotsVertical,
-          event: '',
-          text: '',
-          children: [
-            {
-              text: $t('meal-plan.add-day-to-list'),
-              icon: $globals.icons.cartCheck,
-              event: 'shopping-list',
-              loading: addAllLoading,
-              disabled: !props.recipes.length,
-            },
-            ...commonButtons,
-            ...inlineButtons,
-          ],
-        }]"
-      />
-    </MealPlanDayHeader>
-    <slot />
+    <MealPlanDayHeader :day="day" />
+    <slot :buttons="viewButtons" :bindings="bindings" />
   </template>
 </template>
 
@@ -77,16 +46,6 @@ const commonButtons = [
     text: i18n.t("general.new"),
     event: "create",
   },
-  {
-    icon: $globals.icons.potSteam,
-    text: i18n.t("meal-plan.random-dinner"),
-    event: "randomDinner",
-  },
-  {
-    icon: $globals.icons.bowlMixOutline,
-    text: i18n.t("meal-plan.random-side"),
-    event: "randomSide",
-  },
 ];
 const randomButtons = [
   {
@@ -98,6 +57,11 @@ const randomButtons = [
     icon: $globals.icons.diceMultiple,
     text: i18n.t("meal-plan.lunch"),
     event: "randomLunch",
+  },
+  {
+    icon: $globals.icons.diceMultiple,
+    text: i18n.t("meal-plan.dinner"),
+    event: "randomDinner",
   },
   {
     icon: $globals.icons.diceMultiple,
@@ -123,11 +87,22 @@ const randomButtons = [
 const inlineButtons = [
   {
     icon: $globals.icons.diceMultiple,
-    text: i18n.t("meal-plan.random-meal"),
+    text: i18n.t("general.random"),
     event: "random",
     children: randomButtons,
   },
 ];
+const viewButtons = computed(() => [
+  {
+    text: i18n.t("meal-plan.add-day-to-list"),
+    icon: $globals.icons.cartCheck,
+    event: "shopping-list",
+    loading: addAllLoading.value,
+    disabled: !props.recipes.length,
+  },
+  ...commonButtons,
+  ...inlineButtons,
+]);
 
 const recipesWithScales = computed(() => {
   return props.recipes.map(recipe => ({ scale: 1, ...recipe }));

@@ -16,17 +16,6 @@
           :prepend-inner-icon="$globals.icons.search" bg-color="background" :placeholder="$t('search.search-hint')"
           @keydown.enter="activateSearch" @keydown.space.prevent="activateSearch" />
       </v-responsive>
-      <!--
-      <v-btn v-else :aria-label="$t('search.search')" icon @click="activateSearch">
-        <v-icon> {{ $globals.icons.search }}</v-icon>
-      </v-btn>
-      -->
-      <v-btn v-else variant="text" nuxt to="/login">
-        <v-icon start>
-          {{ $globals.icons.user }}
-        </v-icon>
-        {{ $t("user.login") }}
-      </v-btn>
     </template>
   </v-app-bar>
 </template>

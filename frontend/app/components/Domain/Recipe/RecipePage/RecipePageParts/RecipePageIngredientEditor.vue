@@ -4,22 +4,12 @@
       <h2 class="mb-4 text-h5 font-weight-medium opacity-80">
         {{ $t("recipe.ingredients") }}
       </h2>
-      <v-alert
-        v-if="!hasFoodOrUnit"
-        border="start"
-        color="info"
-        :icon="$globals.icons.information"
-        variant="tonal"
-      >
+      <v-alert v-if="!hasFoodOrUnit" border="start" color="info" :icon="$globals.icons.information" variant="tonal">
         <div>
           {{ $t('recipe.ingredients-not-parsed-description', { parse: $t('recipe.parse') }) }}
         </div>
-        <div class="d-flex flex-wrap justify-end mt-3">
-          <BaseButton
-            class="mb-1"
-            color="info"
-            @click="toggleIsParsing(true)"
-          >
+        <div class="d-flex flex-wrap justify-center mt-3">
+          <BaseButton class="mb-1" color="info" @click="toggleIsParsing(true)">
             <template #icon>
               {{ $globals.icons.foods }}
             </template>
@@ -28,53 +18,24 @@
         </div>
       </v-alert>
     </div>
-    <VueDraggable
-      v-if="recipe.recipeIngredient.length > 0"
-      v-model="recipe.recipeIngredient"
-      handle=".handle"
-      :delay="250"
-      :delay-on-touch-only="true"
-      v-bind="{
+    <VueDraggable v-if="recipe.recipeIngredient.length > 0" v-model="recipe.recipeIngredient" handle=".handle"
+      :delay="250" :delay-on-touch-only="true" v-bind="{
         animation: 200,
         group: 'recipe-ingredients',
         disabled: false,
         ghostClass: 'ghost',
-      }"
-      @start="drag = true"
-      @end="drag = false"
-    >
-      <RecipeIngredientEditor
-        v-for="(ingredient, index) in recipe.recipeIngredient"
-        :key="ingredient.referenceId"
-        v-model="recipe.recipeIngredient[index]"
-        :is-recipe="ingredientIsRecipe(ingredient)"
-        enable-drag-handle
-        enable-context-menu
-        @delete="recipe.recipeIngredient.splice(index, 1)"
-        @insert-above="insertNewIngredient(index)"
-        @insert-below="insertNewIngredient(index + 1)"
-      />
+      }" @start="drag = true" @end="drag = false">
+      <RecipeIngredientEditor v-for="(ingredient, index) in recipe.recipeIngredient" :key="ingredient.referenceId"
+        v-model="recipe.recipeIngredient[index]" :is-recipe="ingredientIsRecipe(ingredient)" enable-drag-handle
+        enable-context-menu @delete="recipe.recipeIngredient.splice(index, 1)"
+        @insert-above="insertNewIngredient(index)" @insert-below="insertNewIngredient(index + 1)" />
     </VueDraggable>
-    <v-skeleton-loader
-      v-else
-      boilerplate
-      elevation="2"
-      type="list-item"
-    />
+    <v-skeleton-loader v-else boilerplate elevation="2" type="list-item" />
     <div class="d-flex flex-wrap justify-center justify-sm-end mt-3">
-      <RecipeDialogBulkAdd
-        ref="domBulkAddDialog"
-        class="mx-1 mb-1"
-        style="display: none"
-        @bulk-data="addIngredient"
-      />
+      <RecipeDialogBulkAdd ref="domBulkAddDialog" class="mx-1 mb-1" style="display: none" @bulk-data="addIngredient" />
       <div class="d-inline-flex">
         <!-- Main button: Add Food -->
-        <v-btn
-          color="success"
-          class="split-main ml-2"
-          @click="addIngredient"
-        >
+        <v-btn color="success" class="split-main ml-2" @click="addIngredient">
           <v-icon start>
             {{ $globals.icons.createAlt }}
           </v-icon>
@@ -83,36 +44,17 @@
         <!-- Dropdown button -->
         <v-menu>
           <template #activator="{ props }">
-            <v-btn
-              color="success"
-              class="split-dropdown"
-              v-bind="props"
-            >
+            <v-btn color="success" class="split-dropdown" v-bind="props">
               <v-icon>{{ $globals.icons.chevronDown }}</v-icon>
             </v-btn>
           </template>
           <v-list>
-            <v-list-item
-              slim
-              density="comfortable"
-              :prepend-icon="$globals.icons.foods"
-              :title="$t('new-recipe.add-food')"
-              @click="addIngredient"
-            />
-            <v-list-item
-              slim
-              density="comfortable"
-              :prepend-icon="$globals.icons.silverwareForkKnife"
-              :title="$t('new-recipe.add-recipe')"
-              @click="addRecipe"
-            />
-            <v-list-item
-              slim
-              density="comfortable"
-              :prepend-icon="$globals.icons.create"
-              :title="$t('new-recipe.bulk-add')"
-              @click="showBulkAdd"
-            />
+            <v-list-item slim density="comfortable" :prepend-icon="$globals.icons.foods"
+              :title="$t('new-recipe.add-food')" @click="addIngredient" />
+            <v-list-item slim density="comfortable" :prepend-icon="$globals.icons.silverwareForkKnife"
+              :title="$t('new-recipe.add-recipe')" @click="addRecipe" />
+            <v-list-item slim density="comfortable" :prepend-icon="$globals.icons.create"
+              :title="$t('new-recipe.bulk-add')" @click="showBulkAdd" />
           </v-list>
         </v-menu>
       </div>
@@ -252,6 +194,7 @@ function insertNewIngredient(dest: number) {
   border-top-right-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
 }
+
 .split-dropdown {
   border-top-left-radius: 0 !important;
   border-bottom-left-radius: 0 !important;

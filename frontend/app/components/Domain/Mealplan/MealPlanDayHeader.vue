@@ -1,5 +1,6 @@
 <template>
-  <v-card border="primary s-lg opacity-100" class="rounded-sm px-2" style="z-index: 2;">
+  <v-card color="surface-variant" border="primary s-lg opacity-100" class="rounded-sm px-2"
+    style="z-index: 2; background: rgb(var(--v-theme-surface-variant)) !important;">
     <v-container class="px-0 d-flex align-center justify-space-between" height="56px">
       <p :class="`pl-2 ${isToday(day) ? 'text-primary font-weight-bold' : ''}`">
         {{ $d(day, "short") }}

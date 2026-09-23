@@ -12,7 +12,7 @@
     <v-container v-show="!isCookMode" key="recipe-page" class="px-0" :class="{ 'pa-0': $vuetify.display.smAndDown }">
       <v-card flat class="d-print-none" color="transparent">
         <RecipePageHeader ref="recipeToolbar" :recipe="recipe" :recipe-scale="scale" :landscape="landscape"
-          @save="saveRecipe" @delete="deleteRecipe" @close="closeEditor" />
+          @update:recipe="recipe = $event" @save="saveRecipe" @delete="deleteRecipe" @close="closeEditor" />
         <RecipeJsonEditor v-if="isEditJSON" v-model="recipe" class="mt-10" mode="text" :main-menu-bar="false" />
         <v-card-text v-else>
           <!--
@@ -27,9 +27,6 @@
           -->
           <div>
             <RecipePageInfoEditor v-if="isEditMode" v-model="recipe" />
-          </div>
-          <div>
-            <RecipePageEditorToolbar v-if="isEditForm" v-model="recipe" />
           </div>
           <div>
             <RecipePageIngredientEditor v-if="isEditForm" v-model="recipe" />
@@ -54,13 +51,16 @@
             -->
             <v-col cols="12" sm="12" :md="8 + (isCookMode ? 1 : 0) * 4">
               <RecipePageInstructions v-model="recipe.recipeInstructions" v-model:assets="recipe.assets"
-                :recipe="recipe" :scale="scale" :ingredient-storage-key="ingredientStorageKey" />
-              <div v-if="isEditForm" class="d-flex">
-                <RecipeDialogBulkAdd class="ml-auto my-2 mr-1" @bulk-data="addStep" />
-                <BaseButton class="my-2" @click="addStep()">
-                  {{ $t("general.add") }}
-                </BaseButton>
-              </div>
+                :recipe="recipe" :scale="scale" :ingredient-storage-key="ingredientStorageKey">
+                <template v-if="isEditForm" #footer>
+                  <div class="d-flex justify-center">
+                    <RecipeDialogBulkAdd class="my-2 mr-1" @bulk-data="addStep" />
+                    <BaseButton class="my-2" @click="addStep()">
+                      {{ $t("general.add") }}
+                    </BaseButton>
+                  </div>
+                </template>
+              </RecipePageInstructions>
               <div v-if="!$vuetify.display.mdAndUp">
                 <RecipePageOrganizers v-model="recipe" />
               </div>
@@ -136,7 +136,6 @@ import type { ComponentPublicInstance } from "vue";
 import { invoke, until } from "@vueuse/core";
 import type { RouteLocationNormalized } from "vue-router";
 import RecipeIngredients from "../RecipeIngredients.vue";
-import RecipePageEditorToolbar from "./RecipePageParts/RecipePageEditorToolbar.vue";
 import RecipePageFooter from "./RecipePageParts/RecipePageFooter.vue";
 import RecipePageHeader from "./RecipePageParts/RecipePageHeader.vue";
 import RecipePageIngredientEditor from "./RecipePageParts/RecipePageIngredientEditor.vue";

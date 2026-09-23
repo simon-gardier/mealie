@@ -1,34 +1,16 @@
 <template>
   <div>
     <!-- Merge Dialog -->
-    <BaseDialog
-      v-model="mergeDialog"
-      bottom-sheet
-      :icon="$globals.icons.foods"
-      :title="$t('data-pages.foods.combine-food')"
-      can-confirm
-      @confirm="mergeFoods"
-    >
+    <BaseDialog v-model="mergeDialog" bottom-sheet :icon="$globals.icons.foods"
+      :title="$t('data-pages.foods.combine-food')" can-confirm @confirm="mergeFoods">
       <v-card-text>
         <div>
           {{ $t("data-pages.foods.merge-dialog-text") }}
         </div>
-        <v-autocomplete
-          v-model="fromFood"
-          return-object
-          :items="foods"
-          :custom-filter="normalizeFilter"
-          item-title="name"
-          :label="$t('data-pages.foods.source-food')"
-        />
-        <v-autocomplete
-          v-model="toFood"
-          return-object
-          :items="foods"
-          :custom-filter="normalizeFilter"
-          item-title="name"
-          :label="$t('data-pages.foods.target-food')"
-        />
+        <v-autocomplete v-model="fromFood" return-object :items="foods" :custom-filter="normalizeFilter"
+          item-title="name" :label="$t('data-pages.foods.source-food')" />
+        <v-autocomplete v-model="toFood" return-object :items="foods" :custom-filter="normalizeFilter" item-title="name"
+          :label="$t('data-pages.foods.target-food')" />
 
         <template v-if="canMerge && fromFood && toFood">
           <div class="text-center">
@@ -39,29 +21,14 @@
     </BaseDialog>
 
     <!-- Seed Dialog -->
-    <BaseDialog
-      v-model="seedDialog"
-      bottom-sheet
-      :icon="$globals.icons.foods"
-      :title="$t('data-pages.seed-data')"
-      can-confirm
-      @confirm="seedDatabase"
-    >
+    <BaseDialog v-model="seedDialog" bottom-sheet :icon="$globals.icons.foods" :title="$t('data-pages.seed-data')"
+      can-confirm @confirm="seedDatabase">
       <v-card-text>
         <div class="pb-2">
           {{ $t("data-pages.foods.seed-dialog-text") }}
         </div>
-        <v-autocomplete
-          v-model="locale"
-          :items="locales"
-          item-title="name"
-          :custom-filter="normalizeFilter"
-          :label="$t('data-pages.select-language')"
-          class="my-3"
-          hide-details
-          variant="outlined"
-          offset
-        >
+        <v-autocomplete v-model="locale" :items="locales" item-title="name" :custom-filter="normalizeFilter"
+          :label="$t('data-pages.select-language')" class="my-3" hide-details variant="outlined" offset>
           <template #item="{ item, props }">
             <v-list-item v-bind="props">
               <v-list-item-subtitle>
@@ -78,47 +45,24 @@
     </BaseDialog>
 
     <!-- Alias Sub-Dialog -->
-    <RecipeDataAliasManagerDialog
-      v-if="editForm.data"
-      v-model="aliasManagerDialog"
-      :data="editForm.data"
-      @submit="updateFoodAlias"
-      @cancel="aliasManagerDialog = false"
-    />
+    <RecipeDataAliasManagerDialog v-if="editForm.data" v-model="aliasManagerDialog" :data="editForm.data"
+      @submit="updateFoodAlias" @cancel="aliasManagerDialog = false" />
 
     <!-- Substitution Sub-Dialog -->
-    <RecipeDataSubstitutionManagerDialog
-      v-if="editForm.data"
-      v-model="substitutionManagerDialog"
-      :data="editForm.data"
-      @submit="updateFoodSubstitutions"
-      @cancel="substitutionManagerDialog = false"
-    />
+    <RecipeDataSubstitutionManagerDialog v-if="editForm.data" v-model="substitutionManagerDialog" :data="editForm.data"
+      @submit="updateFoodSubstitutions" @cancel="substitutionManagerDialog = false" />
 
     <!-- Bulk Assign Labels Dialog -->
-    <BaseDialog
-      v-model="bulkAssignLabelDialog"
-      bottom-sheet
-      :title="$t('data-pages.labels.assign-label')"
-      :icon="$globals.icons.tags"
-      can-confirm
-      @confirm="assignSelected"
-    >
+    <BaseDialog v-model="bulkAssignLabelDialog" bottom-sheet :title="$t('data-pages.labels.assign-label')"
+      :icon="$globals.icons.tags" can-confirm @confirm="assignSelected">
       <v-card-text>
         <v-card class="mb-4">
           <v-card-title>{{ $t("general.caution") }}</v-card-title>
           <v-card-text>{{ $t("data-pages.foods.label-overwrite-warning") }}</v-card-text>
         </v-card>
 
-        <v-autocomplete
-          v-model="bulkAssignLabelId"
-          clearable
-          :items="allLabels"
-          :custom-filter="normalizeFilter"
-          item-value="id"
-          item-title="name"
-          :label="$t('data-pages.foods.food-label')"
-        />
+        <v-autocomplete v-model="bulkAssignLabelId" clearable :items="allLabels" :custom-filter="normalizeFilter"
+          item-value="id" item-title="name" :label="$t('data-pages.foods.food-label')" />
         <v-card variant="outlined">
           <v-virtual-scroll height="400" item-height="25" :items="bulkAssignTarget">
             <template #default="{ item }">
@@ -131,26 +75,15 @@
       </v-card-text>
     </BaseDialog>
 
-    <GroupDataPage
-      :icon="$globals.icons.foods"
-      :title="$t('data-pages.foods.food-data')"
-      :create-title="$t('data-pages.foods.create-food')"
-      :edit-title="$t('data-pages.foods.edit-food')"
-      :table-headers="tableHeaders"
-      :table-config="tableConfig"
-      :data="foods || []"
-      :bulk-actions="[
+    <GroupDataPage :icon="$globals.icons.foods" title-image="/food-icons/icons8-food-100.png"
+      :title="$t('data-pages.foods.food-data')" :create-title="$t('data-pages.foods.create-food')"
+      :edit-title="$t('data-pages.foods.edit-food')" :table-headers="tableHeaders" :table-config="tableConfig"
+      :data="foods || []" :bulk-actions="[
         { icon: $globals.icons.delete, text: $t('general.delete'), event: 'delete-selected' },
         { icon: $globals.icons.tags, text: $t('data-pages.labels.assign-label'), event: 'assign-selected' },
-      ]"
-      :create-form="createForm"
-      :edit-form="editForm"
-      :on-delete-dialog-open="onDeleteDialogOpen"
-      @create-one="handleCreate"
-      @edit-one="handleEdit"
-      @delete-one="foodStore.actions.deleteOne"
-      @bulk-action="handleBulkAction"
-    >
+      ]" :create-form="createForm" :edit-form="editForm" :on-delete-dialog-open="onDeleteDialogOpen"
+      @create-one="handleCreate" @edit-one="handleEdit" @delete-one="foodStore.actions.deleteOne"
+      @bulk-action="handleBulkAction">
       <template #table-button-row>
         <BaseButton @click="mergeDialog = true">
           <template #icon>
@@ -206,11 +139,8 @@
               <NuxtLink :to="recipe.url" class="text-white">{{ recipe.name }}</NuxtLink>
             </li>
           </ul>
-          <NuxtLink
-            v-if="affectedRecipesTotal > 5"
-            :to="affectedRecipesMoreLink"
-            class="text-white d-inline-block mt-1"
-          >
+          <NuxtLink v-if="affectedRecipesTotal > 5" :to="affectedRecipesMoreLink"
+            class="text-white d-inline-block mt-1">
             {{ $t("data-pages.foods.delete-affects-recipes-more", { count: affectedRecipesTotal }) }}
           </NuxtLink>
         </v-alert>

@@ -6,9 +6,11 @@
         class="d-flex flex-column justify-center align-center">
         <v-card-text>
           <div class="d-flex flex-column align-center">
-            <v-card-title class="recipe-title text-h5 font-weight-regular pa-0 text-wrap text-center opacity-80">
-              {{ recipe.name }}
-            </v-card-title>
+            <div class="recipe-title-background d-flex align-center justify-center">
+              <v-card-title class="recipe-title text-h5 font-weight-regular pa-0 text-wrap text-center opacity-80">
+                {{ recipe.name }}
+              </v-card-title>
+            </div>
             <RecipeRating :key="recipe.slug" :model-value="recipe.rating" :recipe-id="recipe.id" :slug="recipe.slug" />
           </div>
           <v-divider class="my-2" />
@@ -63,3 +65,17 @@ withDefaults(defineProps<Props>(), {
 
 const { isOwnGroup } = useLoggedInState();
 </script>
+
+<style scoped>
+.recipe-title-background {
+  aspect-ratio: 485 / 228;
+  background: url("~/assets/recipe_title.png") center / 100% 100% no-repeat;
+  width: min(100%, 360px);
+}
+
+.recipe-title {
+  line-height: 1.2;
+  max-width: 70%;
+  overflow-wrap: anywhere;
+}
+</style>

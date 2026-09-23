@@ -1,16 +1,6 @@
 <template>
-  <v-row>
-    <v-col
-      v-for="(plan, index) in mealplans"
-      :key="index"
-      cols="12"
-      sm="12"
-      md="12"
-      lg="6"
-      xl="4"
-      xxl="4"
-      class="col-borders my-1 d-flex flex-column"
-    >
+  <v-row class="planner-grid">
+    <v-col v-for="(plan, index) in mealplans" :key="index" class="col-borders my-1 d-flex flex-column">
       <slot v-bind="{ plan, index, day: getDay(plan) }" />
     </v-col>
   </v-row>

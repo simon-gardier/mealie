@@ -99,7 +99,7 @@
     </BaseDialog>
 
     <div class="d-flex justify-space-between justify-start">
-      <h2 v-if="!isCookMode" class="mt-1 text-h5 font-weight-medium opacity-80">
+      <h2 v-if="!isCookMode" class="recipe-section-title mt-1 text-h5 font-weight-medium opacity-80">
         {{ $t("recipe.instructions") }}
       </h2>
     </div>
@@ -318,6 +318,7 @@
         </div>
       </TransitionGroup>
     </VueDraggable>
+    <slot name="footer" />
     <v-divider v-if="!isCookMode" class="mt-10 d-flex d-md-none" />
   </section>
 </template>

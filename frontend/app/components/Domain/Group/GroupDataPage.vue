@@ -1,47 +1,21 @@
 <template>
   <!-- Create Dialog -->
-  <BaseDialog
-    v-model="createDialog"
-    :title="createTitle || $t('general.create')"
-    :icon="icon"
-    color="primary"
-    max-width="600px"
-    width="100%"
-    :submit-disabled="!createFormValid"
-    can-confirm
-    @confirm="emit('create-one', createForm.data)"
-  >
+  <BaseDialog v-model="createDialog" :title="createTitle || $t('general.create')" :icon="icon" color="primary"
+    max-width="600px" width="100%" :submit-disabled="!createFormValid" can-confirm
+    @confirm="emit('create-one', createForm.data)">
     <div class="mx-2 mt-2">
       <slot name="create-dialog-top" />
-      <AutoForm
-        v-model="createForm.data"
-        v-model:is-valid="createFormValid"
-        :items="createForm.items"
-        class="py-2"
-      />
+      <AutoForm v-model="createForm.data" v-model:is-valid="createFormValid" :items="createForm.items" class="py-2" />
     </div>
   </BaseDialog>
 
   <!-- Edit Dialog -->
-  <BaseDialog
-    v-model="editDialog"
-    :title="editTitle || $t('general.edit')"
-    :icon="icon"
-    color="primary"
-    max-width="600px"
-    width="100%"
-    :submit-disabled="!editFormValid"
-    can-confirm
-    @confirm="emit('edit-one', editForm.data)"
-  >
+  <BaseDialog v-model="editDialog" :title="editTitle || $t('general.edit')" :icon="icon" color="primary"
+    max-width="600px" width="100%" :submit-disabled="!editFormValid" can-confirm
+    @confirm="emit('edit-one', editForm.data)">
     <div class="mx-2 mt-2">
       <slot name="edit-dialog-top" />
-      <AutoForm
-        v-model="editForm.data"
-        v-model:is-valid="editFormValid"
-        :items="editForm.items"
-        class="py-2"
-      />
+      <AutoForm v-model="editForm.data" v-model:is-valid="editFormValid" :items="editForm.items" class="py-2" />
     </div>
     <template #custom-card-action>
       <slot name="edit-dialog-custom-action" />
@@ -49,15 +23,8 @@
   </BaseDialog>
 
   <!-- Delete Dialog -->
-  <BaseDialog
-    v-model="deleteDialog"
-    bottom-sheet
-    :title="$t('general.confirm')"
-    :icon="$globals.icons.alertCircle"
-    color="error"
-    can-confirm
-    @confirm="$emit('deleteOne', deleteTarget.id)"
-  >
+  <BaseDialog v-model="deleteDialog" bottom-sheet :title="$t('general.confirm')" :icon="$globals.icons.alertCircle"
+    color="error" can-confirm @confirm="$emit('deleteOne', deleteTarget.id)">
     <v-card-text>
       {{ $t("general.confirm-delete-generic") }}
       <p v-if="deleteTarget" class="mt-4 mb-0 font-weight-bold">
@@ -68,16 +35,9 @@
   </BaseDialog>
 
   <!-- Bulk Delete Dialog -->
-  <BaseDialog
-    v-model="bulkDeleteDialog"
-    bottom-sheet
-    width="650px"
-    :title="$t('general.confirm')"
-    :icon="$globals.icons.alertCircle"
-    color="error"
-    can-confirm
-    @confirm="$emit('bulk-action', 'delete-selected', bulkDeleteTarget)"
-  >
+  <BaseDialog v-model="bulkDeleteDialog" bottom-sheet width="650px" :title="$t('general.confirm')"
+    :icon="$globals.icons.alertCircle" color="error" can-confirm
+    @confirm="$emit('bulk-action', 'delete-selected', bulkDeleteTarget)">
     <v-card-text>
       <p class="h4">
         {{ $t('general.confirm-delete-generic-items') }}
@@ -95,36 +55,16 @@
     </v-card-text>
   </BaseDialog>
 
-  <BaseCardSectionTitle
-    :icon="icon"
-    section
-    :title="title"
-  />
+  <BaseCardSectionTitle :icon="icon" :title-image="titleImage" section :title="title" />
 
-  <CrudTable
-    :headers="tableHeaders"
-    :table-config="tableConfig"
-    :data="data || []"
-    :bulk-actions="bulkActions"
-    :initial-sort="initialSort"
-    @edit-one="editEventHandler"
-    @delete-one="deleteEventHandler"
-    @bulk-action="handleBulkAction"
-  >
-    <template
-      v-for="slotName in itemSlotNames"
-      #[slotName]="slotProps"
-    >
-      <slot
-        :name="slotName"
-        v-bind="slotProps"
-      />
+  <CrudTable :headers="tableHeaders" :table-config="tableConfig" :data="data || []" :bulk-actions="bulkActions"
+    :initial-sort="initialSort" @edit-one="editEventHandler" @delete-one="deleteEventHandler"
+    @bulk-action="handleBulkAction">
+    <template v-for="slotName in itemSlotNames" #[slotName]="slotProps">
+      <slot :name="slotName" v-bind="slotProps" />
     </template>
     <template #button-row>
-      <BaseButton
-        create
-        @click="createDialog = true"
-      >
+      <BaseButton create @click="createDialog = true">
         {{ $t("general.create") }}
       </BaseButton>
       <slot name="table-button-row" />
@@ -159,6 +99,10 @@ const props = defineProps({
   icon: {
     type: String,
     required: true,
+  },
+  titleImage: {
+    type: String,
+    default: "",
   },
   title: {
     type: String,

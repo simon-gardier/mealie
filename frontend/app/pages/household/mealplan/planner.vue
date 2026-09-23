@@ -1,16 +1,16 @@
 <template>
-  <v-container>
+  <v-container class="planner-page">
     <RecipeDialogAddToShoppingList v-if="shoppingLists" v-model="shoppingListDialog" :recipes="weekRecipesWithScales"
       :shopping-lists="shoppingLists" />
-    <div class="d-flex justify-center mb-4">
+    <div class="planner-title-image">
       <v-img src="/menus.png" :alt="$t('meal-plan.dinner-this-week')" max-width="360" />
     </div>
-    <div class="d-flex justify-center ga-2">
-      <v-btn :icon="$globals.icons.chevronLeft" flat rounded="md" density="comfortable" @click="() => changeWeek(-1)" />
+    <div class="planner-date-nav">
+      <v-btn :icon="$globals.icons.chevronLeft" variant="text" density="comfortable" @click="() => changeWeek(-1)" />
       <v-menu v-model="state.picker" :close-on-content-click="false" transition="scale-transition" offset-y
         min-width="auto">
         <template #activator="{ props }">
-          <v-btn color="primary" class="mb-2" v-bind="props">
+          <v-btn color="primary" class="planner-date-nav__range" v-bind="props">
             <v-icon start>
               {{ $globals.icons.calendar }}
             </v-icon>
@@ -33,43 +33,17 @@
           </v-card-text>
         </v-card>
       </v-menu>
-      <v-btn :icon="$globals.icons.chevronRight" flat rounded="md" density="comfortable" @click="() => changeWeek(1)" />
+      <v-btn :icon="$globals.icons.chevronRight" variant="text" density="comfortable" @click="() => changeWeek(1)" />
     </div>
-    <div class="d-flex justify-end">
-      <BaseButtonGroup class="d-flex" :buttons="[
-        edit ? {
-          icon: $globals.icons.calendar,
-          text: $t('general.view'),
-          event: 'view',
-        } : {
-          icon: $globals.icons.edit,
-          text: $t('general.edit'),
-          event: 'edit',
-        },
-        {
-          icon: $globals.icons.dotsVertical,
-          text: '',
-          event: 'three-dot',
-          children: [
-            {
-              icon: $globals.icons.cartCheck,
-              text: $t('meal-plan.add-all-to-list'),
-              event: 'add-to-list',
-              disabled: !hasRecipes,
-            },
-            {
-              icon: $globals.icons.cog,
-              text: $t('general.settings'),
-              event: 'settings',
-            },
-          ],
-        },
-      ]" @add-to-list="addAllToList" @edit="router.push({ name: TABS.edit, query: route.query })"
-        @view="router.push({ name: TABS.view, query: route.query })"
-        @settings="router.push('/household/mealplan/settings')" />
-    </div>
-    <div>
+    <div class="planner-content">
       <NuxtPage :mealplans="mealsByDate" :actions="actions" />
+    </div>
+
+    <div class="planner-bottom-actions">
+      <BaseButton color="primary" :icon="$globals.icons.cartCheck" :text="$t('meal-plan.add-to-shopping-list')"
+        :disabled="!hasRecipes" @click="addAllToList" />
+      <BaseButton secondary :icon="$globals.icons.cog" :text="$t('general.settings')"
+        @click="router.push('/household/mealplan/settings')" />
     </div>
 
     <v-row />
@@ -77,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { addDays, differenceInCalendarDays, format, isSameDay, isValid, parseISO } from "date-fns";
+import { addDays, differenceInCalendarDays, endOfWeek, format, isSameDay, isValid, parseISO, startOfWeek } from "date-fns";
 import RecipeDialogAddToShoppingList from "~/components/Domain/Recipe/RecipeDialogAddToShoppingList.vue";
 import { useAddToShoppingListDialog } from "~/composables/shopping-list-page/use-add-to-shopping-list-dialog";
 import { useMealplans } from "~/composables/use-group-mealplan";
@@ -86,7 +60,6 @@ import { useUserMealPlanPreferences } from "~/composables/use-users/preferences"
 
 const TABS = {
   view: "household-mealplan-planner-view",
-  edit: "household-mealplan-planner-edit",
 };
 
 const route = useRoute();
@@ -125,10 +98,6 @@ if (route.path === "/household/mealplan/planner") {
   });
 }
 
-const edit = computed(() => {
-  return route.path.startsWith("/household/mealplan/planner/edit");
-});
-
 function safeParseISO(date: string, fallback: Date | undefined = undefined) {
   try {
     const parsed = parseISO(date);
@@ -139,9 +108,10 @@ function safeParseISO(date: string, fallback: Date | undefined = undefined) {
   }
 }
 
-// Initialize dates from query parameters or defaults
-const initialStartDate = safeParseISO(route.query.start as string, addDays(new Date(), adjustForToday(-numberOfDaysPast.value)));
-const initialEndDate = safeParseISO(route.query.end as string, addDays(new Date(), adjustForToday(numberOfDays.value)));
+// Initialize dates from query parameters or the current Monday-through-Sunday week.
+const currentDate = new Date();
+const initialStartDate = safeParseISO(route.query.start as string, startOfWeek(currentDate, { weekStartsOn: 1 }));
+const initialEndDate = safeParseISO(route.query.end as string, endOfWeek(currentDate, { weekStartsOn: 1 }));
 
 const state = ref({
   range: [initialStartDate, initialEndDate] as [Date, Date],
@@ -151,7 +121,7 @@ const state = ref({
 });
 
 const firstDayOfWeek = computed(() => {
-  return household.value?.preferences?.firstDayOfWeek || 0;
+  return household.value?.preferences?.firstDayOfWeek || 1;
 });
 
 function changeWeek(step: number) {
@@ -242,3 +212,64 @@ const weekRecipesWithScales = computed(() => {
     .map(recipe => ({ scale: 1, ...recipe }));
 });
 </script>
+
+<style scoped>
+.planner-page {
+  max-width: 1480px;
+  padding-top: 1.5rem;
+}
+
+.planner-title-image {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.4rem;
+}
+
+.planner-actions {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.planner-actions :deep(.v-btn),
+.planner-actions :deep(.v-btn__overlay) {
+  border-radius: 50% !important;
+}
+
+.planner-date-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  margin: 0.5rem 0 1.25rem;
+}
+
+.planner-date-nav__range {
+  min-width: min(100%, 300px);
+}
+
+.planner-content {
+  position: relative;
+}
+
+.planner-bottom-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 1.25rem;
+}
+
+@media (max-width: 599px) {
+  .planner-page {
+    padding-inline: 0.75rem;
+  }
+
+  .planner-date-nav {
+    gap: 0;
+  }
+
+  .planner-date-nav__range {
+    min-width: 0;
+  }
+}
+</style>

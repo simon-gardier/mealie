@@ -28,9 +28,9 @@
       </template>
     </BasePageTitle>
 
-    <v-container class="d-flex align-center justify-end px-0 pt-0 pb-4">
-      <v-checkbox v-model="preferences.viewAllLists" hide-details :label="$t('general.show-all')" class="my-0 mr-4" />
+    <v-container class="d-flex align-center justify-space-between px-0 pt-0 pb-4">
       <BaseButton create class="my-0" @click="state.createDialog = true" />
+      <v-switch v-model="onlyMyLists" hide-details :label="$t('shopping-list.only-my-lists')" class="my-0" />
     </v-container>
 
     <v-container v-if="!shoppingListChoices.length">
@@ -41,22 +41,23 @@
       </BasePageTitle>
     </v-container>
 
-    <section>
-      <v-card v-for="list in shoppingListChoices" :key="list.id" class="my-2 left-border"
-        :to="`/shopping-lists/${list.id}`">
+    <div v-if="deletingListId" class="bistro-delete-backdrop" aria-hidden="true" @click="skipDeleteAnimation" />
+
+    <section class="bistro-scratch-note-grid">
+      <v-card v-for="list in shoppingListChoices" :key="list.id" class="bistro-scratch-note"
+        :class="{ 'bistro-scratch-note--crumpling': deletingListId === list.id }" :to="`/shopping-lists/${list.id}`">
         <v-card-title class="d-flex align-center">
-          <v-icon class="mr-2">
-            {{ $globals.icons.cartCheck }}
-          </v-icon>
           <span class="flex-grow-1">
             {{ list.name }}
           </span>
-          <v-btn icon variant="plain" @click.prevent="toggleOwnerDialog(list)">
+          <v-btn icon variant="plain" class="bistro-note-action bistro-note-action-owner"
+            @click.prevent="toggleOwnerDialog(list)">
             <v-icon>
               {{ $globals.icons.user }}
             </v-icon>
           </v-btn>
-          <v-btn icon variant="plain" @click.prevent="openDelete(list.id)">
+          <v-btn icon variant="plain" class="bistro-note-action bistro-note-action-delete"
+            @click.prevent="openDelete(list.id)">
             <v-icon>
               {{ $globals.icons.delete }}
             </v-icon>
@@ -87,6 +88,13 @@ useSeoMeta({
 const overrideDisableRedirect = ref(false);
 const disableRedirect = computed(() => route.query.disableRedirect === "true" || overrideDisableRedirect.value);
 const preferences = useShoppingListPreferences();
+const deletingListId = ref<string | null>(null);
+let releaseDeleteAnimation: (() => void) | undefined;
+let deleteAnimationTimer: ReturnType<typeof setTimeout> | undefined;
+const onlyMyLists = computed({
+  get: () => !preferences.value.viewAllLists,
+  set: value => preferences.value.viewAllLists = !value,
+});
 
 const state = reactive({
   createName: "",
@@ -209,10 +217,49 @@ function openDelete(id: string) {
   state.deleteTarget = id;
 }
 
+function waitForDeleteAnimation() {
+  return new Promise<void>((resolve) => {
+    const complete = () => {
+      if (deleteAnimationTimer) {
+        clearTimeout(deleteAnimationTimer);
+      }
+      deleteAnimationTimer = undefined;
+      releaseDeleteAnimation = undefined;
+      resolve();
+    };
+
+    releaseDeleteAnimation = complete;
+    deleteAnimationTimer = setTimeout(complete, 2400);
+  });
+}
+
+function skipDeleteAnimation() {
+  const target = deletingListId.value;
+  if (!target) {
+    return;
+  }
+
+  shoppingLists.value = shoppingLists.value?.filter(list => list.id !== target) ?? [];
+  releaseDeleteAnimation?.();
+}
+
 async function deleteOne() {
-  const { data } = await userApi.shopping.lists.deleteOne(state.deleteTarget);
-  if (data) {
-    refresh();
+  if (deletingListId.value || !state.deleteTarget) {
+    return;
+  }
+
+  const deleteTarget = state.deleteTarget;
+  deletingListId.value = deleteTarget;
+  await waitForDeleteAnimation();
+
+  try {
+    const { data } = await userApi.shopping.lists.deleteOne(deleteTarget);
+    if (data) {
+      refresh();
+    }
+  }
+  finally {
+    deletingListId.value = null;
   }
 }
 </script>

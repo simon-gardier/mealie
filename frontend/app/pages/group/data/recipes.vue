@@ -1,55 +1,28 @@
 <template>
   <v-container fluid>
     <!-- Export Purge Confirmation Dialog -->
-    <BaseDialog
-      v-model="purgeExportsDialog"
-      bottom-sheet
-      :title="$t('data-pages.recipes.purge-exports')"
-      color="error"
-      :icon="$globals.icons.alertCircle"
-      can-confirm
-      @confirm="purgeExports()"
-    >
+    <BaseDialog v-model="purgeExportsDialog" bottom-sheet :title="$t('data-pages.recipes.purge-exports')" color="error"
+      :icon="$globals.icons.alertCircle" can-confirm @confirm="purgeExports()">
       <v-card-text> {{ $t('data-pages.recipes.are-you-sure-you-want-to-delete-all-export-data') }} </v-card-text>
     </BaseDialog>
 
     <!-- Base Dialog Object -->
-    <BaseDialog
-      ref="domDialog"
-      v-model="dialog.state"
-      bottom-sheet
-      width="650px"
-      :color="dialog.mode == MODES.delete ? 'error' : undefined"
-      :icon="dialog.icon"
-      :title="dialog.title"
-      :submit-text="$t('general.submit')"
-      :can-submit="dialog.mode != MODES.delete"
-      :can-delete="dialog.mode == MODES.delete"
-      @submit="dialog.callback"
-      @delete="dialog.callback"
-    >
+    <BaseDialog ref="domDialog" v-model="dialog.state" bottom-sheet width="650px"
+      :color="dialog.mode == MODES.delete ? 'error' : undefined" :icon="dialog.icon" :title="dialog.title"
+      :submit-text="$t('general.submit')" :can-submit="dialog.mode != MODES.delete"
+      :can-delete="dialog.mode == MODES.delete" @submit="dialog.callback" @delete="dialog.callback">
       <v-card-text v-if="dialog.mode == MODES.tag">
-        <RecipeOrganizerSelector
-          v-model="toSetTags"
-          selector-type="tags"
-        />
+        <RecipeOrganizerSelector v-model="toSetTags" selector-type="tags" />
       </v-card-text>
       <v-card-text v-else-if="dialog.mode == MODES.category">
-        <RecipeOrganizerSelector
-          v-model="toSetCategories"
-          selector-type="categories"
-        />
+        <RecipeOrganizerSelector v-model="toSetCategories" selector-type="categories" />
       </v-card-text>
       <v-card-text v-else-if="dialog.mode == MODES.delete">
         <p class="h4">
           {{ $t('data-pages.recipes.confirm-delete-recipes') }}
         </p>
         <v-card variant="outlined">
-          <v-virtual-scroll
-            height="400"
-            item-height="25"
-            :items="selected"
-          >
+          <v-virtual-scroll height="400" item-height="25" :items="selected">
             <template #default="{ item }">
               <v-list-item class="pb-2">
                 <v-list-item-title>{{ item.name }}</v-list-item-title>
@@ -61,14 +34,10 @@
       <v-card-text v-else-if="dialog.mode == MODES.export">
         <p class="h4">
           {{ $t('data-pages.recipes.the-following-recipes-selected-length-will-be-exported',
-                [selected.length]) }}
+            [selected.length]) }}
         </p>
         <v-card variant="outlined">
-          <v-virtual-scroll
-            height="400"
-            item-height="25"
-            :items="selected"
-          >
+          <v-virtual-scroll height="400" item-height="25" :items="selected">
             <template #default="{ item }">
               <v-list-item class="pb-2">
                 <v-list-item-title>{{ item.name }}</v-list-item-title>
@@ -77,10 +46,7 @@
           </v-virtual-scroll>
         </v-card>
       </v-card-text>
-      <v-card-text
-        v-else-if="dialog.mode == MODES.updateSettings"
-        class="px-12"
-      >
+      <v-card-text v-else-if="dialog.mode == MODES.updateSettings" class="px-12">
         <p>{{ $t('data-pages.recipes.settings-chosen-explanation') }}</p>
         <div class="mx-auto">
           <RecipeSettingsSwitches v-model="recipeSettings" />
@@ -90,26 +56,13 @@
         </p>
       </v-card-text>
       <v-card-text v-else-if="dialog.mode == MODES.changeOwner">
-        <v-select
-          v-model="selectedOwner"
-          :items="allUsers"
-          item-title="fullName"
-          item-value="id"
-          :label="$t('general.owner')"
-          hide-details
-        >
+        <v-select v-model="selectedOwner" :items="allUsers" item-title="fullName" item-value="id"
+          :label="$t('general.owner')" hide-details>
           <template #prepend>
-            <UserAvatar
-              :user-id="selectedOwner"
-              :tooltip="false"
-            />
+            <UserAvatar :user-id="selectedOwner" :tooltip="false" />
           </template>
         </v-select>
-        <v-card-text
-          v-if="selectedOwnerHousehold"
-          class="d-flex"
-          style="align-items: flex-end;"
-        >
+        <v-card-text v-if="selectedOwnerHousehold" class="d-flex" style="align-items: flex-end;">
           <v-icon>{{ $globals.icons.household }}</v-icon>
           <span class="pl-1">{{ selectedOwnerHousehold.name }}</span>
         </v-card-text>
@@ -117,27 +70,13 @@
     </BaseDialog>
     <section>
       <!-- Recipe Data Table -->
-      <BaseCardSectionTitle
-        :icon="$globals.icons.primary"
-        :title="$t('data-pages.recipes.recipe-data')"
-      >
+      <BaseCardSectionTitle :icon="$globals.icons.primary" :title="$t('data-pages.recipes.recipe-data')">
         {{ $t('data-pages.recipes.recipe-data-description') }}
       </BaseCardSectionTitle>
       <v-card-actions class="mt-n5 mb-1">
-        <v-menu
-          offset-y
-          bottom
-          nudge-bottom="6"
-          :close-on-content-click="false"
-        >
+        <v-menu offset-y bottom nudge-bottom="6" :close-on-content-click="false">
           <template #activator="{ props }">
-            <v-btn
-              color="accent"
-              class="mr-2"
-              variant="elevated"
-              dark
-              v-bind="props"
-            >
+            <v-btn color="accent" class="mr-2" variant="elevated" dark v-bind="props">
               <v-icon start>
                 {{ $globals.icons.cog }}
               </v-icon>
@@ -150,64 +89,32 @@
             </v-card-title>
             <v-divider class="mx-2" />
             <v-card-text class="mt-n5">
-              <v-checkbox
-                v-for="(_, key) in headers"
-                :key="key"
-                v-model="headers[key]"
-                density="compact"
-                flat
-                inset
-                :label="headerLabels[key]"
-                hide-details
-              />
+              <v-checkbox v-for="(_, key) in headers" :key="key" v-model="headers[key]" density="compact" flat inset
+                :label="headerLabels[key]" hide-details />
             </v-card-text>
           </v-card>
         </v-menu>
-        <BaseOverflowButton
-          :disabled="selected.length < 1"
-          mode="event"
-          color="info"
-          variant="elevated"
-          :items="actions"
-          @export-selected="openDialog(MODES.export)"
-          @tag-selected="openDialog(MODES.tag)"
-          @categorize-selected="openDialog(MODES.category)"
-          @delete-selected="openDialog(MODES.delete)"
-          @update-settings="openDialog(MODES.updateSettings)"
-          @change-owner="openDialog(MODES.changeOwner)"
-        />
+        <BaseOverflowButton :disabled="selected.length < 1" mode="event" color="info" variant="elevated"
+          :items="actions" @export-selected="openDialog(MODES.export)" @tag-selected="openDialog(MODES.tag)"
+          @categorize-selected="openDialog(MODES.category)" @delete-selected="openDialog(MODES.delete)"
+          @update-settings="openDialog(MODES.updateSettings)" @change-owner="openDialog(MODES.changeOwner)" />
 
-        <p
-          v-if="selected.length > 0"
-          class="text-caption my-auto ml-5"
-        >
+        <p v-if="selected.length > 0" class="text-caption my-auto ml-5">
           {{ $t('general.selected-count', selected.length)
           }}
         </p>
       </v-card-actions>
-      <div class="mx-2 clip-width">
-        <v-text-field
-          v-model="search"
-          variant="underlined"
-          :label="$t('search.search')"
-        />
+      <div class="mx-2 clip-width bistro-recipe-search-bar">
+        <v-text-field v-model="search" variant="underlined" :label="$t('search.search')" />
       </div>
       <v-card>
-        <RecipeDataTable
-          v-model="selected"
-          :loading="loading"
-          :recipes="allRecipes"
-          :show-headers="headers"
-          :search="search"
-        />
+        <RecipeDataTable v-model="selected" :loading="loading" :recipes="allRecipes" :show-headers="headers"
+          :search="search" />
         <v-card-actions class="justify-end">
-          <BaseButton
-            color="info"
-            @click="
-              selectAll();
-              openDialog(MODES.export);
-            "
-          >
+          <BaseButton color="info" @click="
+            selectAll();
+          openDialog(MODES.export);
+          ">
             <template #icon>
               {{ $globals.icons.database }}
             </template>
@@ -219,18 +126,11 @@
 
     <section class="mt-10">
       <!-- Data Table -->
-      <BaseCardSectionTitle
-        :icon="$globals.icons.database"
-        section
-        :title="$t('data-pages.recipes.data-exports')"
-      >
+      <BaseCardSectionTitle :icon="$globals.icons.database" section :title="$t('data-pages.recipes.data-exports')">
         {{ $t('data-pages.recipes.data-exports-description') }}
       </BaseCardSectionTitle>
       <v-card-actions class="mt-n5 mb-1">
-        <BaseButton
-          delete
-          @click="purgeExportsDialog = true"
-        />
+        <BaseButton delete @click="purgeExportsDialog = true" />
       </v-card-actions>
       <v-card>
         <GroupExportData :exports="groupExports" />
@@ -530,6 +430,7 @@ const selectedOwnerHousehold = computed(() => {
 .clip-width {
   max-width: 400px;
 }
+
 .v-btn--disabled {
   opacity: 0.5 !important;
 }

@@ -2,18 +2,40 @@
   <!-- Wrap v-hover with a div to provide a proper DOM element for the transition -->
   <div>
     <v-hover v-slot="{ isHovering, props: hoverProps }" :open-delay="50">
-      <v-card v-bind="hoverProps" class="bistro-recipe-card" :class="{ 'on-hover': isHovering }" :style="{ cursor }"
-        :elevation="0" :to="recipeRoute" :min-height="imageHeight + 75" @click.self="$emit('click')">
-        <RecipeCardImage small :icon-size="imageHeight" :height="imageHeight" :slug="slug" :recipe-id="recipeId"
-          :image-version="image">
-        </RecipeCardImage>
+      <v-card
+        v-bind="hoverProps"
+        class="bistro-recipe-card"
+        :class="{ 'on-hover': isHovering }"
+        :style="{ cursor }"
+        :elevation="0"
+        :to="recipeRoute"
+        :min-height="imageHeight + 75"
+        @click.self="$emit('click')"
+      >
+        <RecipeCardImage
+          small
+          :icon-size="imageHeight"
+          :height="imageHeight"
+          :slug="slug"
+          :recipe-id="recipeId"
+          :image-version="image"
+        />
         <v-card-title class="px-4" style="font-size: 1.25rem;">
           {{ name }}
         </v-card-title>
 
         <div class="recipe-card-footer" :class="{ 'recipe-card-footer--no-tags': tags.length === 0 }">
-          <RecipeChips v-if="tags.length > 0" class="recipe-card-tags px-4" :truncate="false" :items="tags"
-            :title="false" :limit="2" small url-prefix="tags" v-bind="$attrs" />
+          <RecipeChips
+            v-if="tags.length > 0"
+            class="recipe-card-tags px-4"
+            :truncate="false"
+            :items="tags"
+            :title="false"
+            :limit="2"
+            small
+            url-prefix="tags"
+            v-bind="$attrs"
+          />
 
           <slot name="actions">
             <v-card-actions v-if="showRecipeContent" class="recipe-card-actions px-1 py-0">
@@ -23,8 +45,14 @@
               <RecipeCardRating :model-value="rating" :recipe-id="recipeId" />
               <v-spacer />
               <!-- If we're not logged-in, no items display, so we hide this menu -->
-              <RecipeContextMenu v-if="isOwnGroup && showRecipeContent" color="grey-darken-2" :slug="slug"
-                :menu-icon="$globals.icons.dotsVertical" :name="name" :recipe-id="recipeId" :use-items="{
+              <RecipeContextMenu
+                v-if="isOwnGroup && showRecipeContent"
+                color="grey-darken-2"
+                :slug="slug"
+                :menu-icon="$globals.icons.dotsVertical"
+                :name="name"
+                :recipe-id="recipeId"
+                :use-items="{
                   delete: false,
                   edit: false,
                   download: true,
@@ -33,7 +61,9 @@
                   print: false,
                   printPreferences: false,
                   share: true,
-                }" @deleted="$emit('delete', slug)" />
+                }"
+                @deleted="$emit('delete', slug)"
+              />
             </v-card-actions>
           </slot>
         </div>

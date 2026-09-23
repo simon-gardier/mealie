@@ -14,18 +14,20 @@
     <section class="mt-5">
       <ToggleState tag="article">
         <template #activator="{ toggle, modelValue: toggleState }">
-          <v-btn v-if="!toggleState && $appInfo.allowPasswordLogin" color="info" class="mt-2 mb-n3" @click="toggle">
-            <v-icon start>
-              {{ $globals.icons.lock }}
-            </v-icon>
-            {{ $t("settings.change-password") }}
-          </v-btn>
-          <v-btn v-else-if="$appInfo.allowPasswordLogin" color="info" class="mt-2 mb-n3" @click="toggle">
-            <v-icon start>
-              {{ $globals.icons.user }}
-            </v-icon>
-            {{ $t("settings.profile") }}
-          </v-btn>
+          <div class="d-flex justify-center">
+            <v-btn v-if="!toggleState && $appInfo.allowPasswordLogin" color="info" class="mt-2 mb-n3" @click="toggle">
+              <v-icon start>
+                {{ $globals.icons.lock }}
+              </v-icon>
+              {{ $t("settings.change-password") }}
+            </v-btn>
+            <v-btn v-else-if="$appInfo.allowPasswordLogin" color="info" class="mt-2 mb-n3" @click="toggle">
+              <v-icon start>
+                {{ $globals.icons.user }}
+              </v-icon>
+              {{ $t("settings.profile") }}
+            </v-btn>
+          </div>
         </template>
         <template #default="{ modelValue: toggleState }">
           <v-slide-x-transition leave-absolute hide-on-leave>

@@ -1,12 +1,7 @@
 <template>
   <div v-if="dialog">
-    <BaseDialog
-      v-if="shoppingListDialog && ready"
-      v-model="dialog"
-      bottom-sheet
-      :title="$t('recipe.add-to-list')"
-      :icon="$globals.icons.cartCheck"
-    >
+    <BaseDialog v-if="shoppingListDialog && ready" v-model="dialog" bottom-sheet :title="$t('recipe.add-to-list')"
+      :icon="$globals.icons.cartCheck">
       <v-container v-if="!filteredShoppingLists.length">
         <BasePageTitle>
           <template #title>
@@ -15,149 +10,77 @@
         </BasePageTitle>
       </v-container>
       <v-card-text>
-        <v-card
-          v-for="list in filteredShoppingLists"
-          :key="list.id"
-          hover
-          class="my-2 left-border"
-          @click="openShoppingListIngredientDialog(list)"
-        >
+        <v-card v-for="list in filteredShoppingLists" :key="list.id" hover class="my-2 left-border"
+          @click="openShoppingListIngredientDialog(list)">
           <v-card-title class="py-2">
             {{ list.name }}
           </v-card-title>
         </v-card>
       </v-card-text>
       <template #card-actions>
-        <v-btn
-          variant="text"
-          color="grey"
-          @click="dialog = false"
-        >
+        <v-btn variant="text" color="grey" @click="dialog = false">
           {{ $t("general.cancel") }}
         </v-btn>
-        <div
-          class="d-flex justify-end"
-          style="width: 100%;"
-        >
-          <v-checkbox
-            v-model="preferences.viewAllLists"
-            hide-details
-            :label="$t('general.show-all')"
-            class="my-auto mr-4"
-            @click="setShowAllToggled()"
-          />
+        <div class="d-flex justify-end" style="width: 100%;">
+          <v-switch v-model="onlyMyLists" hide-details :label="$t('shopping-list.only-my-lists')" class="my-auto mr-4"
+            @click="setShowAllToggled()" />
         </div>
       </template>
     </BaseDialog>
-    <BaseDialog
-      v-if="shoppingListIngredientDialog"
-      v-model="dialog"
-      :title="selectedShoppingList?.name || $t('recipe.add-to-list')"
-      :icon="$globals.icons.cartCheck"
-      width="70%"
-      :submit-text="$t('recipe.add-to-list')"
-      can-submit
-      @submit="addRecipesToList()"
-    >
+    <BaseDialog v-if="shoppingListIngredientDialog" v-model="dialog"
+      :title="selectedShoppingList?.name || $t('recipe.add-to-list')" :icon="$globals.icons.cartCheck" width="70%"
+      :submit-text="$t('recipe.add-to-list')" can-submit @submit="addRecipesToList()">
       <div style="max-height: 70vh;  overflow-y: auto">
-        <v-card
-          v-for="(recipeSection, recipeSectionIndex) in recipeIngredientSections"
-          :key="recipeSection.recipeId + recipeSectionIndex"
-          elevation="0"
-          height="fit-content"
-          width="100%"
-        >
-          <v-divider
-            v-if="recipeSectionIndex > 0"
-            class="mt-3"
-          />
-          <v-card-title
-            v-if="recipeIngredientSections.length > 1"
-            class="justify-center text-h5"
-            width="100%"
-          >
+        <v-card v-for="(recipeSection, recipeSectionIndex) in recipeIngredientSections"
+          :key="recipeSection.recipeId + recipeSectionIndex" elevation="0" height="fit-content" width="100%">
+          <v-divider v-if="recipeSectionIndex > 0" class="mt-3" />
+          <v-card-title v-if="recipeIngredientSections.length > 1" class="justify-center text-h5" width="100%">
             <v-container style="width: 100%;">
-              <v-row
-                no-gutters
-                class="ma-0 pa-0"
-              >
-                <v-col
-                  cols="12"
-                  align-self="center"
-                  class="text-center"
-                >
+              <v-row no-gutters class="ma-0 pa-0">
+                <v-col cols="12" align-self="center" class="text-center">
                   {{ recipeSection.recipeName }}
                   <v-tooltip v-if="recipeSection.parentRecipe?.name" location="top">
                     <template #activator="{ props: tooltipProps }">
-                      <v-icon
-                        v-bind="tooltipProps"
-                        size="tiny"
-                        class="mb-2 ml-2"
-                        style="cursor: pointer"
-                      >
+                      <v-icon v-bind="tooltipProps" size="tiny" class="mb-2 ml-2" style="cursor: pointer">
                         {{ $globals.icons.potSteam }}
                       </v-icon>
                     </template>
-                    <span>{{ $t("shopping-list.ingredient-of-recipe", { recipe: recipeSection.parentRecipe.name }) }}</span>
+                    <span>{{ $t("shopping-list.ingredient-of-recipe", { recipe: recipeSection.parentRecipe.name })
+                      }}</span>
                   </v-tooltip>
                 </v-col>
               </v-row>
-              <v-row
-                v-if="recipeSection.recipeScale > 1"
-                no-gutters
-                class="ma-0 pa-0"
-              >
+              <v-row v-if="recipeSection.recipeScale > 1" no-gutters class="ma-0 pa-0">
                 <!-- TODO: make this editable in the dialog and visible on single-recipe lists -->
-                <v-col
-                  cols="12"
-                  align-self="center"
-                  class="text-center"
-                >
+                <v-col cols="12" align-self="center" class="text-center">
                   ({{ $t("recipe.quantity") }}: {{ recipeSection.recipeScale }})
                 </v-col>
               </v-row>
             </v-container>
           </v-card-title>
           <div>
-            <div
-              v-for="(ingredientSection, ingredientSectionIndex) in recipeSection.ingredientSections"
-              :key="recipeSection.recipeId + recipeSectionIndex + ingredientSectionIndex"
-            >
-              <v-card-title
-                v-if="ingredientSection.sectionName"
-                class="ingredient-title mt-2 pb-0 text-h6"
-              >
+            <div v-for="(ingredientSection, ingredientSectionIndex) in recipeSection.ingredientSections"
+              :key="recipeSection.recipeId + recipeSectionIndex + ingredientSectionIndex">
+              <v-card-title v-if="ingredientSection.sectionName" class="ingredient-title mt-2 pb-0 text-h6">
                 {{ ingredientSection.sectionName }}
               </v-card-title>
-              <div
-                :class="$vuetify.display.smAndDown ? '' : 'ingredient-grid'"
-                :style="$vuetify.display.smAndDown ? '' : { gridTemplateRows: `repeat(${Math.ceil(ingredientSection.ingredients.length / 2)}, min-content)` }"
-              >
-                <v-list-item
-                  v-for="(ingredientData, i) in ingredientSection.ingredients"
-                  :key="recipeSection.recipeId + recipeSectionIndex + ingredientSectionIndex + i"
-                  density="compact"
+              <div :class="$vuetify.display.smAndDown ? '' : 'ingredient-grid'"
+                :style="$vuetify.display.smAndDown ? '' : { gridTemplateRows: `repeat(${Math.ceil(ingredientSection.ingredients.length / 2)}, min-content)` }">
+                <v-list-item v-for="(ingredientData, i) in ingredientSection.ingredients"
+                  :key="recipeSection.recipeId + recipeSectionIndex + ingredientSectionIndex + i" density="compact"
                   @click="recipeIngredientSections[recipeSectionIndex]
                     .ingredientSections[ingredientSectionIndex]
                     .ingredients[i].checked = !recipeIngredientSections[recipeSectionIndex]
                       .ingredientSections[ingredientSectionIndex]
                       .ingredients[i]
-                      .checked"
-                >
+                      .checked">
                   <v-container class="pa-0 ma-0">
                     <v-row no-gutters>
-                      <v-checkbox
-                        hide-details
-                        :model-value="ingredientData.checked"
-                        class="pt-0 my-auto py-auto mr-2"
-                        color="secondary"
-                        density="compact"
-                      />
+                      <v-checkbox hide-details :model-value="ingredientData.checked" class="pt-0 my-auto py-auto mr-2"
+                        color="secondary" density="compact" />
                       <div :key="`${ingredientData.ingredient?.quantity || 'no-qty'}-${i}`" class="pa-auto my-auto">
-                        <RecipeIngredientListItem
-                          :ingredient="ingredientData.ingredient"
-                          :scale="recipeSection.recipeScale"
-                        />
+                        <RecipeIngredientListItem :ingredient="ingredientData.ingredient"
+                          :scale="recipeSection.recipeScale" />
                       </div>
                     </v-row>
                   </v-container>
@@ -168,22 +91,18 @@
         </v-card>
       </div>
       <div class="d-flex justify-end mb-4 mt-2">
-        <BaseButtonGroup
-          :buttons="[
-            {
-              icon: $globals.icons.checkboxMultipleBlankOutline,
-              text: $t('shopping-list.uncheck-all-items'),
-              event: 'uncheck',
-            },
-            {
-              icon: $globals.icons.checkboxMultipleMarkedOutline,
-              text: $t('shopping-list.check-all-items'),
-              event: 'check',
-            },
-          ]"
-          @uncheck="bulkCheckIngredients(false)"
-          @check="bulkCheckIngredients(true)"
-        />
+        <BaseButtonGroup :buttons="[
+          {
+            icon: $globals.icons.checkboxMultipleBlankOutline,
+            text: $t('shopping-list.uncheck-all-items'),
+            event: 'uncheck',
+          },
+          {
+            icon: $globals.icons.checkboxMultipleMarkedOutline,
+            text: $t('shopping-list.check-all-items'),
+            event: 'check',
+          },
+        ]" @uncheck="bulkCheckIngredients(false)" @check="bulkCheckIngredients(true)" />
       </div>
     </BaseDialog>
   </div>
@@ -235,6 +154,10 @@ const i18n = useI18n();
 const auth = useMealieAuth();
 const api = useUserApi();
 const preferences = useShoppingListPreferences();
+const onlyMyLists = computed({
+  get: () => !preferences.value.viewAllLists,
+  set: value => preferences.value.viewAllLists = !value,
+});
 const router = useRouter();
 const ready = ref(false);
 
@@ -467,11 +390,11 @@ async function addRecipesToList() {
   error
     ? alert.error(i18n.t("recipe.failed-to-add-recipes-to-list"))
     : alert.success(i18n.t("recipe.successfully-added-to-list"), null, {
-        action: {
-          message: i18n.t("general.view"),
-          onClick: () => router.push(`/shopping-lists/${listId ?? ""}`),
-        },
-      });
+      action: {
+        message: i18n.t("general.view"),
+        onClick: () => router.push(`/shopping-lists/${listId ?? ""}`),
+      },
+    });
 
   state.shoppingListDialog = false;
   state.shoppingListIngredientDialog = false;

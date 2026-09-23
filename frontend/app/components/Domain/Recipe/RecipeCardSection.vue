@@ -73,7 +73,7 @@
           </v-list-item>
         </v-list>
       </v-menu>
-      <ContextMenu v-if="!$vuetify.display.smAndDown" :items="[
+      <ContextMenu :items="[
         {
           title: $t('general.toggle-view'),
           icon: $globals.icons.eye,
@@ -84,17 +84,16 @@
     <div v-if="recipes && ready">
       <div class="mt-2">
         <v-row v-if="!useMobileCards" class="bistro-recipe-grid">
-          <v-col v-for="(recipe, index) in recipes" :key="recipe.id!" :class="{ 'bistro-featured-recipe': index === 0 }"
-            :sm="6" :md="6" :lg="4" :xl="3">
+          <v-col v-for="(recipe, index) in recipes" :key="recipe.id!" :sm="6" :md="6" :lg="6" :xl="6">
             <RecipeCard :name="recipe.name!" :description="recipe.description!" :slug="recipe.slug!"
-              :rating="recipe.rating!" :image="recipe.image!" :tags="recipe.tags!" :recipe-id="recipe.id!" />
+              :rating="recipe.rating!" :image="recipe.image!" :tags="recipe.tags!" :recipe-id="recipe.id!"
+              :style="getRecipeCardStyle(recipe, index)" />
           </v-col>
         </v-row>
-        <v-row v-else density="comfortable">
-          <v-col v-for="recipe in recipes" :key="recipe.id!" cols="12" :sm="singleColumn ? '12' : '12'"
-            :md="singleColumn ? '12' : '6'" :lg="singleColumn ? '12' : '4'" :xl="singleColumn ? '12' : '3'">
+        <v-row v-else density="comfortable" class="bistro-recipe-list">
+          <v-col v-for="recipe in recipes" :key="recipe.id!" cols="12">
             <RecipeCardMobile :name="recipe.name!" :description="recipe.description!" :slug="recipe.slug!"
-              :rating="recipe.rating!" :image="recipe.image!" :tags="recipe.tags!" :recipe-id="recipe.id!" />
+              :rating="recipe.rating!" :image="recipe.image!" :tags="recipe.tags!" :recipe-id="recipe.id!" list-mode />
           </v-col>
         </v-row>
       </div>
@@ -146,7 +145,6 @@ const emit = defineEmits<{
   appendRecipes: [recipes: Recipe[]];
 }>();
 
-const display = useDisplay();
 const preferences = useUserSortPreferences();
 
 const EVENTS = {
@@ -162,7 +160,7 @@ const auth = useMealieAuth();
 const { $globals } = useNuxtApp();
 const { isOwnGroup } = useLoggedInState();
 const useMobileCards = computed(() => {
-  return display.smAndDown.value || preferences.value.useMobileCards;
+  return preferences.value.useMobileCards;
 });
 
 const displayTitleIcon = computed(() => {
@@ -184,6 +182,17 @@ const loading = ref(false);
 const { fetchMore, getRandom } = useLazyRecipes(isOwnGroup.value ? null : groupSlug.value);
 const { savePosition, getSavedPage, restorePosition } = useScrollPosition();
 const router = useRouter();
+
+function getRecipeCardStyle(recipe: Recipe, index: number) {
+  const seed = Array.from((recipe.id || recipe.slug || recipe.name || `${index}`)).reduce((total, char) => {
+    return total + char.charCodeAt(0);
+  }, 0);
+  const tilt = (((seed % 11) - 5) * 0.32) + (index % 2 === 0 ? -0.7 : 0.7);
+
+  return {
+    "--note-tilt": `${tilt.toFixed(2)}deg`,
+  };
+}
 
 defineExpose({
   navigateRandom,

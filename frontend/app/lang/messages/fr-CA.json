@@ -308,6 +308,7 @@
     "note": "Note",
     "ignore-rules": "Ignorer les règles du planificateur",
     "no-recipes-match-your-rules": "Aucune recette ne correspond à vos règles de menu",
+    "no-meal-planned": "Pas de repas prévu",
     "random-meal": "Repas aléatoire",
     "random-dinner": "Souper aléatoire",
     "random-side": "Accompagnement aléatoire",
@@ -756,6 +757,7 @@
   },
   "shopping-list": {
     "all-lists": "Toutes les listes",
+    "only-my-lists": "N'afficher que mes listes",
     "create-shopping-list": "Créer une liste d'épicerie",
     "ingredient-of-recipe": "Ingrédient de {recipe}",
     "new-list": "Nouvelle liste",

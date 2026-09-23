@@ -1,7 +1,8 @@
 <template>
   <div v-if="value && value.length > 0">
     <div v-if="!isCookMode && !hideTitle" class="d-flex justify-start">
-      <h2 class="mt-1 text-h5 font-weight-medium opacity-80">
+      <h2 class="recipe-section-title mt-1 text-h5 font-weight-medium opacity-80">
+        <img src="/food-icons/icons8-ingredients-100.png" alt="" aria-hidden="true" class="recipe-section-icon">
         {{ $t("recipe.ingredients") }}
       </h2>
     </div>
@@ -109,5 +110,17 @@ function setChecked(index: number, value: boolean) {
 .ingredient-list-item .v-selection-control {
   align-self: flex-start;
   margin-top: -9px;
+}
+
+.recipe-section-title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.recipe-section-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
 }
 </style>

@@ -11,7 +11,7 @@
     <div v-if="sidebar" class="sidebar-backdrop" @click="sidebar = false" />
 
     <AppSidebar v-model="sidebar" :top-link="topLinks" :secondary-links="cookbookLinks || []">
-      <v-menu offset-y nudge-bottom="5" close-delay="50" nudge-right="15">
+      <v-menu offset-y nudge-bottom="5" close-delay="50" nudge-right="15" :z-index="3000">
         <template #activator="{ props }">
           <v-btn v-if="isOwnGroup" class="sidebar-create-button ml-2 mt-3" v-bind="props" variant="elevated"
             elevation="2" :color="$vuetify.theme.current.dark ? 'background-lighten-1' : 'background-darken-1'">
@@ -25,9 +25,10 @@
           <template v-for="(item, index) in createLinks">
             <div v-if="!item.hide" :key="item.title">
               <v-divider v-if="item.insertDivider" :key="index" class="mx-2" />
-              <v-list-item v-if="!item.restricted || isOwnGroup" :key="item.title" :to="item.to" exact class="my-1">
+              <v-list-item v-if="!item.restricted || isOwnGroup" :key="item.title" :to="item.to" exact
+                class="create-menu-item my-1">
                 <template #prepend>
-                  <v-icon size="40" :icon="item.icon" />
+                  <v-icon :icon="item.icon" />
                 </template>
                 <v-list-item-title class="font-weight-medium" style="font-size: small;">
                   {{ item.title }}
@@ -271,5 +272,9 @@ const topLinks = computed<SideBarLink[]>(() => [
   letter-spacing: normal !important;
   padding-inline: 16px !important;
   border-radius: 8px !important;
+}
+
+.create-menu-item {
+  --v-list-prepend-gap: 12px;
 }
 </style>

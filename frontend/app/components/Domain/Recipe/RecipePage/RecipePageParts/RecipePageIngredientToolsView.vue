@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="!isCookMode">
-      <h2 class="mt-1 text-h5 font-weight-medium opacity-80">
+      <h2 class="recipe-section-title mt-1 text-h5 font-weight-medium opacity-80">
         {{ $t("recipe.ingredients") }}
       </h2>
       <RecipePageScale :model-value="scale" :recipe="recipe" @update:model-value="emit('update:scale', $event)" />
@@ -96,3 +96,17 @@ function updateTool(index: number) {
   }
 }
 </script>
+
+<style scoped>
+.recipe-section-title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.recipe-section-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+</style>
