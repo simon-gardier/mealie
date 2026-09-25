@@ -28,11 +28,11 @@
         <v-card-text class="w-100">
           <v-form @submit.prevent="authenticate">
             <v-text-field v-if="$appInfo.allowPasswordLogin" id="username" v-model="form.email"
-              :prepend-inner-icon="$globals.icons.email" variant="underlined" color="primary" density="comfortable"
+              :prepend-inner-icon="$globals.icons.email" variant="outlined" color="primary" density="comfortable"
               width="100%" autofocus autocomplete="username" name="username" :label="$t('user.email-or-username')"
               type="text" />
             <v-text-field v-if="$appInfo.allowPasswordLogin" id="password" v-model="form.password"
-              :prepend-inner-icon="$globals.icons.lock" :append-inner-icon="passwordIcon" variant="underlined"
+              :prepend-inner-icon="$globals.icons.lock" :append-inner-icon="passwordIcon" variant="outlined"
               color="primary" density="comfortable" autocomplete="current-password" name="password"
               :label="$t('user.password')" :type="inputType" @click:append-inner="togglePasswordShow" />
             <div v-if="$appInfo.allowPasswordLogin" class="d-flex justify-center mt-n2">
@@ -338,7 +338,7 @@ function alertOnError(error: any) {
 
 .welcome-title {
   width: 100%;
-  max-width: 320px;
+  max-width: 520px;
   height: auto;
 }
 

@@ -23,7 +23,7 @@ class GroupPreferencesModel(SqlAlchemyBase, BaseMixins):
     show_announcements: Mapped[bool] = mapped_column(sa.Boolean, default=True)
 
     # Deprecated (see household preferences)
-    first_day_of_week: Mapped[int | None] = mapped_column(sa.Integer, default=0)
+    first_day_of_week: Mapped[int | None] = mapped_column(sa.Integer, default=1)
     recipe_public: Mapped[bool | None] = mapped_column(sa.Boolean, default=True)
     recipe_show_nutrition: Mapped[bool | None] = mapped_column(sa.Boolean, default=False)
     recipe_show_assets: Mapped[bool | None] = mapped_column(sa.Boolean, default=False)

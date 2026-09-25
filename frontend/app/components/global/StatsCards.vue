@@ -1,20 +1,9 @@
 <template>
-  <v-card
-    :min-width="minWidth"
-    :to="to"
-    :hover="to ? true : false"
-  >
+  <v-card class="stats-card rounded-lg" color="primary" variant="flat" :min-width="minWidth" :to="to"
+    :hover="to ? true : false">
     <div class="d-flex flex-no-wrap">
-      <v-avatar
-        class="ml-3 mr-0 mt-3"
-        color="primary"
-        size="36"
-      >
-        <v-icon
-          color="white"
-          class="pa-1"
-          size="x-large"
-        >
+      <v-avatar class="ml-3 mr-0 mt-3" color="primary" size="36">
+        <v-icon color="white" class="pa-1" size="x-large">
           {{ activeIcon }}
         </v-icon>
       </v-avatar>
@@ -53,4 +42,19 @@ const activeIcon = computed(() => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.stats-card {
+  background-color: rgb(var(--v-theme-primary));
+  color: rgb(var(--v-theme-on-primary));
+}
+
+.stats-card :deep(.v-card-title),
+.stats-card :deep(.v-card-subtitle),
+.stats-card :deep(.v-icon) {
+  color: rgb(var(--v-theme-on-primary)) !important;
+}
+
+.stats-card:hover {
+  filter: brightness(1.04);
+}
+</style>

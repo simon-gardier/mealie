@@ -1,7 +1,7 @@
 <template>
   <div>
     <AppButtonUpload
-      class="ml-auto"
+      class="d-flex justify-center"
       url="none"
       file-name="images"
       accept="image/*"

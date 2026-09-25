@@ -1,16 +1,8 @@
 <template>
-  <v-container
-    v-if="household"
-    class="narrow-container"
-  >
+  <v-container v-if="household" class="narrow-container">
     <BasePageTitle class="mb-5">
       <template #header>
-        <v-img
-          width="100%"
-          max-height="100"
-          max-width="100"
-          src="/svgs/manage-group-settings.svg"
-        />
+        <v-img width="100%" max-height="100" max-width="100" src="/svgs/manage-group-settings.svg" />
       </template>
       <template #title>
         {{ $t("profile.household-settings") }}
@@ -18,13 +10,13 @@
       {{ $t("profile.household-description") }}
     </BasePageTitle>
     <v-form ref="refHouseholdEditForm" @submit.prevent="handleSubmit">
-      <v-card variant="outlined" style="border-color: lightgray;">
+      <v-card color="surface-variant" variant="flat" class="household-settings-wrapper">
         <v-card-text>
           <HouseholdPreferencesEditor v-if="household.preferences" v-model="household.preferences" />
         </v-card-text>
       </v-card>
-      <div class="d-flex pa-2">
-        <BaseButton type="submit" edit class="ml-auto">
+      <div class="d-flex pa-2 justify-center">
+        <BaseButton type="submit" edit>
           {{ $t("general.update") }}
         </BaseButton>
       </div>
@@ -76,6 +68,13 @@ async function handleSubmit() {
 </script>
 
 <style lang="css">
+.household-settings-wrapper {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  overflow: visible;
+}
+
 .preference-container {
   display: flex;
   flex-direction: column;

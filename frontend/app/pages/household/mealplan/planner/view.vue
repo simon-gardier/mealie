@@ -18,7 +18,7 @@
                     </div>
                     <SpinTransition>
                       <RecipeCardMobile v-for="mealplan in section.meals" :key="mealplan.id"
-                        :recipe-id="mealplan.recipe ? mealplan.recipe.id! : ''" class="planner-meal-card mb-2"
+                        :recipe-id="mealplan.recipe ? mealplan.recipe.id! : ''" class="planner-meal-card mb-2" compact
                         :rating="mealplan.recipe ? mealplan.recipe.rating! : 0"
                         :slug="mealplan.recipe ? mealplan.recipe.slug! : mealplan.title!"
                         :description="mealplan.recipe ? mealplan.recipe.description! : mealplan.text!"
@@ -40,7 +40,8 @@
                             event: 'mealplanEdit',
                             isPublic: false,
                           },
-                        ]" @mealplan-remove="actions.deleteOne(mealplan.id)" @mealplan-edit="editMeal(mealplan)">
+                        ]" :context-menu-use-items="contextMenuUseItems"
+                        @mealplan-remove="actions.deleteOne(mealplan.id)" @mealplan-edit="editMeal(mealplan)">
                         <template v-if="!mealplan.recipe" #context-menu>
                           <MealPlanNoteMenu @mealplan-remove="actions.deleteOne(mealplan.id)"
                             @mealplan-edit="editMeal(mealplan)" />
@@ -55,7 +56,7 @@
               </v-card>
               <v-card v-else color="surface-variant" variant="flat" class="planner-empty-day"
                 style="background: rgb(var(--v-theme-surface-variant)) !important;">
-                <p>{{ $t('meal-plan.no-meal-planned') }}</p>
+                <p v-if="!loading">{{ $t('meal-plan.no-meal-planned') }}</p>
                 <div class="planner-day-actions d-flex justify-center">
                   <BaseButtonGroup v-bind="bindings" :buttons="buttons" />
                 </div>
@@ -77,7 +78,10 @@ import type { ReadPlanEntry } from "~/lib/api/types/meal-plan";
 defineProps<{
   mealplans: MealsByDate[];
   actions: ReturnType<typeof useMealplans>["actions"];
+  loading?: boolean;
 }>();
+
+const contextMenuUseItems = { share: false };
 
 const dialog = reactive({
   open: false,

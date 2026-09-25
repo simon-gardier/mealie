@@ -3,56 +3,65 @@
     <v-row class="mb-0 mt-3 mx-7">
       <v-spacer />
       <v-col class="text-right">
-        <!-- Filters -->
-        <v-menu
-          offset-y
-          bottom
-          start
-          nudge-bottom="3"
-          :close-on-content-click="false"
-        >
-          <template #activator="{ props: activatorProps }">
-            <v-badge
-              :content="filterBadgeCount"
-              :model-value="filterBadgeCount > 0"
-              bordered
-            >
-              <v-btn
-                variant="text"
-                v-bind="activatorProps"
-                :prepend-icon="$globals.icons.filter"
+        <div class="d-flex justify-end align-center">
+          <v-btn
+            variant="text"
+            :icon="preferences.orderDirection === 'asc' ? $globals.icons.sortCalendarDescending : $globals.icons.sortCalendarAscending"
+            :title="preferences.orderDirection === 'asc' ? $t('general.sort-descending') : $t('general.sort-ascending')"
+            @click="reverseSort"
+          />
+          <!-- Filters -->
+          <v-menu
+            offset-y
+            bottom
+            start
+            nudge-bottom="3"
+            :close-on-content-click="false"
+          >
+            <template #activator="{ props: activatorProps }">
+              <v-badge
+                :content="filterBadgeCount"
+                :model-value="filterBadgeCount > 0"
+                bordered
               >
-                {{ $t("general.filter") }}
-              </v-btn>
-            </v-badge>
-          </template>
-          <v-card>
-            <v-list>
-              <v-list-item
-                :prepend-icon="preferences.orderDirection === 'asc' ? $globals.icons.sortCalendarDescending : $globals.icons.sortCalendarAscending"
-                :title="preferences.orderDirection === 'asc' ? $t('general.sort-descending') : $t('general.sort-ascending')"
-                @click="reverseSort"
-              />
-              <v-divider />
-              <v-list-item
-                v-for="option, idx in eventTypeFilterState"
-                :key="idx"
-                :active="option.checked"
-                :color="option.checked ? 'primary' : undefined"
-                @click="toggleEventTypeOption(option.value)"
-              >
-                <template #prepend>
-                  <v-icon>
-                    {{ option.icon }}
-                  </v-icon>
-                </template>
-                <v-list-item-title>
-                  {{ option.label }}
-                </v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-card>
-        </v-menu>
+                <v-btn
+                  variant="text"
+                  v-bind="activatorProps"
+                  :icon="$globals.icons.filter"
+                >
+                </v-btn>
+              </v-badge>
+            </template>
+            <v-card>
+              <v-list>
+                <v-list-item
+                  v-for="option, idx in eventTypeFilterState"
+                  :key="idx"
+                  :active="option.checked"
+                  :color="option.checked ? 'primary' : undefined"
+                  @click="toggleEventTypeOption(option.value)"
+                >
+                  <template #prepend>
+                    <v-icon>
+                      {{ option.icon }}
+                    </v-icon>
+                  </template>
+                  <v-list-item-title>
+                    {{ option.label }}
+                  </v-list-item-title>
+                  <template #append>
+                    <v-checkbox-btn
+                      :model-value="option.checked"
+                      color="primary"
+                      @click.stop
+                      @update:model-value="toggleEventTypeOption(option.value)"
+                    />
+                  </template>
+                </v-list-item>
+              </v-list>
+            </v-card>
+          </v-menu>
+        </div>
       </v-col>
     </v-row>
     <div

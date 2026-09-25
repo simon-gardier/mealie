@@ -1,88 +1,91 @@
 <template>
   <div>
-    <v-row v-if="!disableToolbar" class="align-center pb-2">
-      <v-icon v-if="title" size="large" start>
-        {{ displayTitleIcon }}
-      </v-icon>
-      <v-img v-if="titleImage" :src="titleImage" :alt="title || ''" class="title-image" max-width="360" />
-      <span :class="['bistro-section-title', 'text-headline-small', { 'sr-only': titleImage }]">{{ title }}</span>
-      <v-spacer />
-      <v-btn :icon="$vuetify.display.xs" variant="text" :disabled="recipes.length === 0" @click="navigateRandom">
-        <v-icon :start="!$vuetify.display.xs">
-          {{ $globals.icons.diceMultiple }}
-        </v-icon>
-        {{ $vuetify.display.xs ? null : $t("general.random") }}
-      </v-btn>
-      <v-menu v-if="!disableSort" offset-y start>
-        <template #activator="{ props: activatorProps }">
-          <v-btn variant="text" :icon="$vuetify.display.xs" v-bind="activatorProps" :loading="sortLoading">
-            <v-icon :start="!$vuetify.display.xs">
-              {{ preferences.sortIcon }}
-            </v-icon>
-            {{ $vuetify.display.xs ? null : $t("general.sort") }}
-          </v-btn>
-        </template>
-        <v-list>
-          <v-list-item @click="sortRecipes(EVENTS.az)">
-            <div class="d-flex align-center flex-nowrap">
-              <v-icon class="mr-2" inline>
-                {{ $globals.icons.orderAlphabeticalAscending }}
+    <div v-if="!disableToolbar" class="pb-2">
+      <div v-if="title || titleImage" class="d-flex justify-center align-center">
+        <v-img v-if="titleImage" :src="titleImage" :alt="title || ''" class="title-image" max-width="360" />
+        <span :class="['bistro-section-title', 'text-headline-small', { 'sr-only': titleImage }]">{{ title }}</span>
+      </div>
+      <v-row class="justify-center align-center ma-0">
+        <v-btn :icon="$vuetify.display.xs" variant="text" :disabled="recipes.length === 0" @click="navigateRandom">
+          <v-icon :start="!$vuetify.display.xs">
+            {{ $globals.icons.diceMultiple }}
+          </v-icon>
+          {{ $vuetify.display.xs ? null : $t("general.random") }}
+        </v-btn>
+        <v-menu v-if="!disableSort" offset-y start>
+          <template #activator="{ props: activatorProps }">
+            <v-btn variant="text" :icon="$vuetify.display.xs" v-bind="activatorProps" :loading="sortLoading">
+              <v-icon :start="!$vuetify.display.xs">
+                {{ preferences.sortIcon }}
               </v-icon>
-              <v-list-item-title>{{ $t("general.sort-alphabetically") }}</v-list-item-title>
-            </div>
-          </v-list-item>
-          <v-list-item @click="sortRecipes(EVENTS.rating)">
-            <div class="d-flex align-center flex-nowrap">
-              <v-icon class="mr-2" inline>
-                {{ $globals.icons.star }}
-              </v-icon>
-              <v-list-item-title>{{ $t("general.rating") }}</v-list-item-title>
-            </div>
-          </v-list-item>
-          <v-list-item @click="sortRecipes(EVENTS.created)">
-            <div class="d-flex align-center flex-nowrap">
-              <v-icon class="mr-2" inline>
-                {{ $globals.icons.newBox }}
-              </v-icon>
-              <v-list-item-title>{{ $t("general.created") }}</v-list-item-title>
-            </div>
-          </v-list-item>
-          <v-list-item @click="sortRecipes(EVENTS.updated)">
-            <div class="d-flex align-center flex-nowrap">
-              <v-icon class="mr-2" inline>
-                {{ $globals.icons.update }}
-              </v-icon>
-              <v-list-item-title>{{ $t("general.updated") }}</v-list-item-title>
-            </div>
-          </v-list-item>
-          <v-list-item @click="sortRecipes(EVENTS.lastMade)">
-            <div class="d-flex align-center flex-nowrap">
-              <v-icon class="mr-2" inline>
-                {{ $globals.icons.chefHat }}
-              </v-icon>
-              <v-list-item-title>{{ $t("general.last-made") }}</v-list-item-title>
-            </div>
-          </v-list-item>
-          <v-list-item @click="sortRecipes(EVENTS.shuffle)">
-            <div class="d-flex align-center flex-nowrap">
-              <v-icon class="mr-2" inline>
-                {{ $globals.icons.diceMultiple }}
-              </v-icon>
-              <v-list-item-title>{{ $t("general.random") }}</v-list-item-title>
-            </div>
-          </v-list-item>
-        </v-list>
-      </v-menu>
-      <ContextMenu :items="[
-        {
-          title: $t('general.toggle-view'),
-          icon: $globals.icons.eye,
-          event: 'toggle-dense-view',
-        },
-      ]" @toggle-dense-view="toggleMobileCards()" />
-    </v-row>
+              {{ $vuetify.display.xs ? null : $t("general.sort") }}
+            </v-btn>
+          </template>
+          <v-list>
+            <v-list-item @click="sortRecipes(EVENTS.az)">
+              <div class="d-flex align-center flex-nowrap">
+                <v-icon class="mr-2" inline>
+                  {{ $globals.icons.orderAlphabeticalAscending }}
+                </v-icon>
+                <v-list-item-title>{{ $t("general.sort-alphabetically") }}</v-list-item-title>
+              </div>
+            </v-list-item>
+            <v-list-item @click="sortRecipes(EVENTS.rating)">
+              <div class="d-flex align-center flex-nowrap">
+                <v-icon class="mr-2" inline>
+                  {{ $globals.icons.star }}
+                </v-icon>
+                <v-list-item-title>{{ $t("general.rating") }}</v-list-item-title>
+              </div>
+            </v-list-item>
+            <v-list-item @click="sortRecipes(EVENTS.created)">
+              <div class="d-flex align-center flex-nowrap">
+                <v-icon class="mr-2" inline>
+                  {{ $globals.icons.newBox }}
+                </v-icon>
+                <v-list-item-title>{{ $t("general.created") }}</v-list-item-title>
+              </div>
+            </v-list-item>
+            <v-list-item @click="sortRecipes(EVENTS.updated)">
+              <div class="d-flex align-center flex-nowrap">
+                <v-icon class="mr-2" inline>
+                  {{ $globals.icons.update }}
+                </v-icon>
+                <v-list-item-title>{{ $t("general.updated") }}</v-list-item-title>
+              </div>
+            </v-list-item>
+            <v-list-item @click="sortRecipes(EVENTS.lastMade)">
+              <div class="d-flex align-center flex-nowrap">
+                <v-icon class="mr-2" inline>
+                  {{ $globals.icons.chefHat }}
+                </v-icon>
+                <v-list-item-title>{{ $t("general.last-made") }}</v-list-item-title>
+              </div>
+            </v-list-item>
+            <v-list-item @click="sortRecipes(EVENTS.shuffle)">
+              <div class="d-flex align-center flex-nowrap">
+                <v-icon class="mr-2" inline>
+                  {{ $globals.icons.diceMultiple }}
+                </v-icon>
+                <v-list-item-title>{{ $t("general.random") }}</v-list-item-title>
+              </div>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+        <v-btn :icon="$vuetify.display.xs" variant="text" :aria-label="$t('general.toggle-view')"
+          @click="toggleMobileCards()">
+          <v-icon :start="!$vuetify.display.xs">
+            {{ $globals.icons.gridView }}
+          </v-icon>
+          {{ $vuetify.display.xs ? null : $t("general.toggle-view") }}
+        </v-btn>
+        <slot name="toolbar-actions" />
+      </v-row>
+    </div>
     <div v-if="recipes && ready">
       <div class="mt-2">
+        <BaseNoResultsAlert v-if="!loading && recipes.length === 0" :text="$t('search.no-results')"
+          class="my-8 mx-auto" />
         <v-row v-if="!useMobileCards" class="bistro-recipe-grid">
           <v-col v-for="(recipe, index) in recipes" :key="recipe.id!" :sm="6" :md="6" :lg="6" :xl="6">
             <RecipeCard :name="recipe.name!" :description="recipe.description!" :slug="recipe.slug!"
@@ -122,7 +125,6 @@ const APPEND_RECIPES_EVENT = "appendRecipes";
 interface Props {
   disableToolbar?: boolean;
   disableSort?: boolean;
-  icon?: string | null;
   title?: string | null;
   titleImage?: string | null;
   singleColumn?: boolean;
@@ -132,7 +134,6 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   disableToolbar: false,
   disableSort: false,
-  icon: null,
   title: null,
   titleImage: null,
   singleColumn: false,
@@ -161,10 +162,6 @@ const { $globals } = useNuxtApp();
 const { isOwnGroup } = useLoggedInState();
 const useMobileCards = computed(() => {
   return preferences.value.useMobileCards;
-});
-
-const displayTitleIcon = computed(() => {
-  return props.icon || $globals.icons.tags;
 });
 
 const sortLoading = ref(false);

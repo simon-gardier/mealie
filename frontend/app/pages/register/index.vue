@@ -1,9 +1,11 @@
 <template>
   <v-container fill-height fluid class="d-flex justify-center align-center flex-column fill-height register-background">
     <img src="/welcome_title.png" alt="Petit Chef" class="welcome-title mb-4">
-    <v-card class="d-flex flex-column w-100 glass-card" max-width="1200px" min-height="700px">
+    <v-card class="d-flex flex-column w-100 glass-card"
+      :max-width="state.ctx.state === States.Initial ? '760px' : '1200px'"
+      :min-height="state.ctx.state === States.Initial ? '400px' : '700px'">
       <!-- Form Container -->
-      <div class="d-flex justify-center grow items-center my-4">
+      <div class="d-flex justify-center align-center flex-grow-1 my-4">
         <template v-if="state.ctx.state === States.Initial">
           <v-container>
             <v-card-title class="text-h5 my-4 mb-5 pb-0 text-center section-title">
@@ -11,7 +13,7 @@
             </v-card-title>
 
             <div class="d-flex flex-wrap justify-center flex-md-nowrap pa-4" style="gap: 1em">
-              <v-card color="primary" dark hover width="320px" @click="initial.joinGroup">
+              <v-card class="registration-choice" color="primary" dark hover width="320px" @click="initial.joinGroup">
                 <v-card-title class="d-flex align-center justify-center py-3">
                   <v-icon size="large" start>
                     {{ $globals.icons.group }}
@@ -19,7 +21,7 @@
                   {{ $t("user-registration.join-a-group") }}
                 </v-card-title>
               </v-card>
-              <v-card color="primary" dark hover width="320px" @click="initial.createGroup">
+              <v-card class="registration-choice" color="primary" dark hover width="320px" @click="initial.createGroup">
                 <v-card-title class="d-flex align-center justify-center py-3">
                   <v-icon size="large" start>
                     {{ $globals.icons.user }}
@@ -175,10 +177,10 @@
       </div>
 
       <v-card-actions class="justify-center flex-wrap py-8" style="gap: 0.5rem;">
-        <BaseButton size="large" color="primary" :icon="$globals.icons.lock" to="/login">
+        <BaseButton size="large" color="grey-darken-2" :icon="$globals.icons.lock" to="/login">
           {{ $t("user.login") }}
         </BaseButton>
-        <BaseButton size="large" color="primary" :icon="$globals.icons.translate" @click="langDialog = true">
+        <BaseButton size="large" color="grey-darken-2" :icon="$globals.icons.translate" @click="langDialog = true">
           {{ $t("language-dialog.choose-language") }}
         </BaseButton>
       </v-card-actions>
@@ -206,7 +208,7 @@ definePageMeta({
 });
 
 const inputAttrs = {
-  variant: "underlined" as const,
+  variant: "outlined" as const,
   color: "primary",
   density: "comfortable" as const,
   validateOnBlur: true,
@@ -429,6 +431,10 @@ async function submitRegistration() {
   border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 24px !important;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+}
+
+.registration-choice {
+  border-radius: 9px 12px 10px 11px;
 }
 
 .section-title {

@@ -8,13 +8,9 @@
     </BaseDialog>
     <v-menu v-model="menu" offset-y top nudge-top="6" :close-on-content-click="false">
       <template #activator="{ props: activatorProps }">
-        <v-btn color="accent" dark :class="['editor-action', { 'rounded-circle': $vuetify.display.xs }]"
-          :size="$vuetify.display.xs ? 'small' : undefined" variant="elevated" :icon="$vuetify.display.xs"
+        <v-btn color="accent" dark class="editor-action rounded-circle" size="small" variant="elevated" icon
           v-bind="activatorProps">
-          <v-icon :start="!$vuetify.display.xs">
-            {{ $globals.icons.fileImage }}
-          </v-icon>
-          {{ $vuetify.display.xs ? "" : $t("general.image") }}
+          <v-icon>{{ $globals.icons.fileImage }}</v-icon>
         </v-btn>
       </template>
       <v-card width="400">

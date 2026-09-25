@@ -39,14 +39,16 @@
           :disabled="state.loading"
         />
 
-        <v-switch
+        <v-tabs
           v-model="state.isEditJSON"
-          :label="$t('recipe.json-editor')"
           color="primary"
-          class="mt-2"
+          class="editor-tabs mt-2"
           :disabled="state.loading"
-          @change="handleIsEditJson"
-        />
+          @update:model-value="handleIsEditJson"
+        >
+          <v-tab :value="false">{{ $t('recipe.text-editor') }}</v-tab>
+          <v-tab :value="true">{{ $t('recipe.json-editor') }}</v-tab>
+        </v-tabs>
         <RecipeJsonEditor
           v-if="state.isEditJSON"
           v-model="newRecipeData"
@@ -293,6 +295,41 @@ async function createRecipe() {
 </script>
 
 <style scoped>
+.editor-tabs {
+  width: 100%;
+}
+
+.editor-tabs :deep(.v-tab) {
+  flex: 0 0 auto;
+  border-top: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  border-radius: 0;
+  background-color: rgb(var(--v-theme-surface));
+}
+
+.editor-tabs :deep(.v-tab:first-child) {
+  border-left: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  border-radius: 7px 0 0 7px;
+}
+
+.editor-tabs :deep(.v-tab + .v-tab) {
+  border-left: 0;
+}
+
+.editor-tabs :deep(.v-tab:last-child) {
+  border-right: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  border-radius: 0 7px 7px 0;
+}
+
+.editor-tabs :deep(.v-tab--selected) {
+  background-color: rgb(var(--v-theme-primary));
+  color: rgb(var(--v-theme-on-primary));
+}
+
+.editor-tabs :deep(.v-tab__slider) {
+  display: none;
+}
+
 .force-url-white a {
   color: white !important;
 }

@@ -1,65 +1,31 @@
 <template>
-  <v-navigation-drawer
-    ref="target"
-    permanent
-    rounded="t-xl"
-    location="bottom"
-    class="pa-4 pt-2 mb-0"
-    width="300"
-    rail-width="85"
-    :rail="rail"
-    elevation="4"
-  >
+  <v-navigation-drawer ref="target" permanent rounded="t-xl" location="bottom" class="pa-4 pt-2 mb-0" width="300"
+    rail-width="85" :rail="rail" elevation="4">
     <div class="d-flex flex-column ga-3">
       <v-card-actions class="pa-0">
         <div class="position-relative" style="flex: 1;">
-          <InputLabelType
-            ref="foodInputRef"
-            v-model="listItem.food"
-            v-model:item-id="listItem.foodId!"
-            :items="foods"
-            :label="rail ? $t('shopping-list.add-item') : $t('shopping-list.food')"
-            :icon="$globals.icons.foods"
-            :style="rail ? 'margin-inline: 3px;' : undefined"
-            :search="rail"
-            :menu-props="{ location: menuDirection }"
-            create
-            @create="createAssignFood"
-          />
+          <InputLabelType ref="foodInputRef" v-model="listItem.food" v-model:item-id="listItem.foodId!" :items="foods"
+            :label="rail ? $t('shopping-list.add-item') : $t('shopping-list.food')" :icon="$globals.icons.foods"
+            outlined :style="rail ? 'margin-inline: 3px;' : undefined" :search="rail"
+            :menu-props="{ location: menuDirection }" create @create="createAssignFood" />
           <!-- Intercept clicks when collapsed so the drawer expands before the autocomplete opens -->
-          <div
-            v-if="rail"
-            class="position-absolute"
-            style="inset: 0; cursor: text;"
-            @click="expandAndFocus"
-          />
+          <div v-if="rail" class="position-absolute" style="inset: 0; cursor: text;" @click="expandAndFocus" />
         </div>
-        <BaseButtonGroup
-          v-if="!rail"
-          :buttons="[
-            {
-              icon: $globals.icons.close,
-              text: $t('general.cancel'),
-              event: 'cancel',
-            },
-            {
-              icon: $globals.icons.save,
-              text: $t('general.save'),
-              event: 'save',
-            },
-          ]"
-          @save="$emit('save')"
-          @cancel="rail = true; $emit('cancel')"
-        />
+        <BaseButtonGroup v-if="!rail" :buttons="[
+          {
+            icon: $globals.icons.close,
+            text: $t('general.cancel'),
+            event: 'cancel',
+          },
+          {
+            icon: $globals.icons.save,
+            text: $t('general.save'),
+            event: 'save',
+          },
+        ]" @save="$emit('save')" @cancel="rail = true; $emit('cancel')" />
       </v-card-actions>
 
-      <ShoppingListItemDetails
-        v-if="!rail"
-        v-model="listItem"
-        :labels="labels"
-        :units="units"
-        @save="$emit('save')"
-      />
+      <ShoppingListItemDetails v-if="!rail" v-model="listItem" :labels="labels" :units="units" @save="$emit('save')" />
     </div>
   </v-navigation-drawer>
 </template>

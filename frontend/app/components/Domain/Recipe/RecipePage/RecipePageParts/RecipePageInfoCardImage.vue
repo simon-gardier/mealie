@@ -77,16 +77,18 @@ watch(
 }
 
 .recipe-image-frame__image {
+  background: transparent;
   bottom: 7.071%;
-  left: 6.571%;
+  /* wider inset than the frame's outer edge so the photo stays behind the vine border instead of peeking out on the sides */
+  left: 9%;
   position: absolute;
-  right: 6.571%;
+  right: 9%;
   top: 9.091%;
   z-index: 0;
 }
 
 .recipe-image-frame::after {
-  background: url("~/assets/cadre_final.png") center / 100% 100% no-repeat;
+  background: url("~/assets/frame.png") center / 100% 100% no-repeat;
   content: "";
   inset: 0;
   pointer-events: none;

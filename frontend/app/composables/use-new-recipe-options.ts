@@ -99,6 +99,7 @@ export function useNewRecipeOptions(props: UseNewRecipeOptionsProps = {}) {
     if (parseParam) {
       queryParams.set("parse", "true");
     }
+    queryParams.set("celebrate", "true");
 
     const queryString = queryParams.toString();
     const recipeUrl = `/g/${groupSlug}/r/${recipeSlug}${queryString ? `?${queryString}` : ""}`;

@@ -1,23 +1,23 @@
 <template>
-  <div v-if="yieldDisplay">
-    <div class="text-center d-flex align-center">
-      <v-card class="pa-1 px-2" dark color="secondary-darken-1">
-        <!-- eslint-disable-next-line vue/no-v-html -->
-        <span v-html="yieldDisplay" />
-      </v-card>
-      <BaseButtonGroup v-if="canEditScale" class="pl-2" :large="false" :buttons="[
-        {
-          icon: $globals.icons.minus,
-          text: $t('recipe.decrease-scale-label'),
-          event: 'decrement',
-          disabled: disableDecrement,
-        },
+  <div v-if="yieldDisplay" class="w-100">
+    <div class="text-center d-flex align-center justify-center">
+      <BaseButtonGroup v-if="canEditScale" class="pr-2" :large="false" rounded :buttons="[{
+        icon: $globals.icons.minus,
+        text: $t('recipe.decrease-scale-label'),
+        event: 'decrement',
+        disabled: disableDecrement,
+      }]" @decrement="recalculateScale(yieldQuantity - 1)" />
+      <v-number-input :model-value="yieldQuantity" :label="$t('recipe.servings')" :min="1" :precision="null"
+        :disabled="!canEditScale" control-variant="hidden" density="compact" hide-details variant="solo"
+        class="portion-input flex-grow-0" style="width: 90px; min-width: 90px; max-width: 90px"
+        @update:model-value="recalculateScale" />
+      <BaseButtonGroup v-if="canEditScale" class="pl-2" :large="false" rounded :buttons="[
         {
           icon: $globals.icons.createAlt,
           text: $t('recipe.increase-scale-label'),
           event: 'increment',
         },
-      ]" @decrement="recalculateScale(yieldQuantity - 1)" @increment="recalculateScale(yieldQuantity + 1)" />
+      ]" @increment="recalculateScale(yieldQuantity + 1)" />
     </div>
   </div>
 </template>
@@ -39,8 +39,8 @@ const scale = defineModel<number>({ required: true });
 const i18n = useI18n();
 const canEditScale = computed(() => props.editScale && props.recipeServings > 0);
 
-function recalculateScale(newYield: number) {
-  if (isNaN(newYield) || newYield <= 0) {
+function recalculateScale(newYield: number | null) {
+  if (newYield === null || !Number.isFinite(newYield) || newYield <= 0) {
     return;
   }
 
@@ -68,3 +68,29 @@ const disableDecrement = computed(() => {
   return yieldQuantity.value <= 1;
 });
 </script>
+
+<style scoped>
+.portion-input,
+.portion-input :deep(.v-field),
+.portion-input :deep(.v-field--disabled) {
+  opacity: 1 !important;
+  background-color: rgb(var(--v-theme-surface)) !important;
+}
+
+.portion-input {
+  border: 1px solid #212121;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.portion-input :deep(.v-field) {
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.portion-input :deep(.v-field__input) {
+  justify-content: center;
+  text-align: center;
+}
+</style>

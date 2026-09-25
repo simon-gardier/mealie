@@ -55,7 +55,7 @@ definePageMeta({ layout: "blank" });
 const inputAttrs = {
   validateOnBlur: true,
   class: "pb-1",
-  variant: "underlined" as any,
+  variant: "outlined" as any,
   color: "primary",
   density: "comfortable" as any,
 };

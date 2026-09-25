@@ -83,6 +83,7 @@ import type { ReadPlanEntry } from "~/lib/api/types/meal-plan";
 const props = defineProps<{
   mealplans: MealsByDate[];
   actions: ReturnType<typeof useMealplans>["actions"];
+  loading?: boolean;
 }>();
 
 const api = useUserApi();

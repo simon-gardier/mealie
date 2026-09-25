@@ -1,49 +1,25 @@
 <template>
-  <v-card
-    variant="outlined"
-    color="info"
-    class="d-flex justify-space-between align-center"
-    @click="$emit('parse')"
-  >
-    <v-card-text>
-      {{ $t('recipe.parser.try-again-with-parser', { parser: currentParserText }) }}
-    </v-card-text>
-    <v-card-actions>
-      <BaseButton edit minor @click.stop="open = true">
-        {{ $t('recipe.parser.select-parser') }}
-      </BaseButton>
-    </v-card-actions>
-  </v-card>
-  <v-alert
-    v-if="showNlpLanguageHint"
-    type="info"
-    variant="tonal"
-    density="compact"
-    class="mt-3 text-body-2"
-  >
-    {{ $t("recipe.parser.natural-language-processor-english-only") }}
-  </v-alert>
-  <BaseDialog
-    v-model="open"
-    bottom-sheet
-    :title="$t('recipe.parser.select-parser')"
-    :icon="$globals.icons.fileSign"
-  >
-    <v-list>
-      <v-list-item
-        v-for="(parser) in availableParsers.filter(({ hide }) => !hide)"
-        :key="parser.value"
-        link
-        :append-icon="$globals.icons.chevronRight"
-        @click="
-          currentParser = parser.value as Parser;
-          $emit('parse')
-        "
-      >
-        {{ parser.text }}
-      </v-list-item>
-    </v-list>
-  </BaseDialog>
+  <div class="ingredient-block px-4">
+    <div class="ingredient-section-label">
+      {{ $t("recipe.parser.analyzer") }}:
+    </div>
+    <div class="d-flex justify-center">
+      <v-select v-model="currentParser" class="analyzer-select" :items="availableParsers.filter(({ hide }) => !hide)"
+        item-title="text" item-value="value" variant="outlined" density="compact" hide-details
+        :aria-label="$t('recipe.parser.select-parser')">
+        <template v-if="showNlpLanguageHint" #append-inner>
+          <v-tooltip location="top" max-width="400">
+            <template #activator="{ props: tooltipProps }">
+              <v-icon v-bind="tooltipProps" color="info">
+                {{ $globals.icons.information }}
+              </v-icon>
+            </template>
+            <span>{{ $t("recipe.parser.natural-language-processor-english-only") }}</span>
+          </v-tooltip>
+        </template>
+      </v-select>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -54,15 +30,23 @@ defineProps<{ availableParsers: MenuItem[]; showNlpLanguageHint: boolean }>();
 const emit = defineEmits<{ parse: [] }>();
 const currentParser = defineModel<Parser>({ default: "nlp" });
 
-const { t } = useI18n();
-
-const currentParserText = computed(() => {
-  switch (currentParser.value) {
-    case "brute": return t("recipe.parser.brute-parser");
-    case "openai": return t("recipe.parser.openai-parser");
-  }
-  return t("recipe.parser.natural-language-processor");
-});
-const open = ref(false);
 watch(currentParser, () => emit("parse"));
 </script>
+
+<style scoped>
+.ingredient-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ingredient-section-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.analyzer-select {
+  flex: 0 1 auto;
+  width: fit-content;
+}
+</style>

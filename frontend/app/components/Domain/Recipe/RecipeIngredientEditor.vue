@@ -1,16 +1,8 @@
 <template>
   <div>
-    <v-text-field
-      v-if="titleVisible"
-      v-model="model.title"
-      density="compact"
-      variant="underlined"
-      hide-details
-      class="mx-1 mt-3 mb-4"
-      :placeholder="$t('recipe.section-title')"
-      style="max-width: 500px"
-      @click="$emit('clickIngredientField', 'title')"
-    />
+    <v-text-field v-if="titleVisible" v-model="model.title" density="compact" variant="outlined" hide-details
+      class="mx-1 mt-3 mb-4" :placeholder="$t('recipe.section-title')" style="max-width: 500px"
+      @click="$emit('clickIngredientField', 'title')" />
     <RecipeIngredientEditorLayout :header="enableDragHandle || enableContextMenu">
       <template v-if="enableDragHandle" #dragHandle>
         <v-icon class="ma-2 handle" size="large">
@@ -18,165 +10,94 @@
         </v-icon>
       </template>
       <template v-if="enableContextMenu" #contextMenu>
-        <BaseButtonGroup
-          hover
-          :large="false"
-          class="ml-auto"
-          :buttons="btns"
-          @toggle-section="toggleTitle"
-          @toggle-subrecipe="toggleIsRecipe"
-          @toggle-substitutions="toggleSubstitutions"
-          @insert-above="$emit('insert-above')"
-          @insert-below="$emit('insert-below')"
-          @delete="$emit('delete')"
-        />
+        <BaseButtonGroup hover :large="false" class="ml-auto" :buttons="btns" @toggle-section="toggleTitle"
+          @toggle-subrecipe="toggleIsRecipe" @toggle-substitutions="toggleSubstitutions"
+          @insert-above="$emit('insert-above')" @insert-below="$emit('insert-below')" @delete="$emit('delete')" />
       </template>
       <template #form>
         <div class="flex-grow-1">
-          <div class="d-flex ga-2 py-2" :class="$vuetify.display.mdAndDown ? 'flex-column' : ''">
-            <v-number-input
-              v-model="model.quantity"
-              variant="filled"
-              :precision="null"
-              :min="0"
-              hide-details
-              inset
-              density="compact"
-              :style="$vuetify.display.mdAndDown ? '' : 'flex: 3 0 50px;'"
-              :placeholder="$t('recipe.quantity')"
-              @keypress="quantityFilter"
-            />
-            <v-autocomplete
-              ref="unitAutocomplete"
-              v-model="model.unit"
-              v-model:search="unitSearch"
-              auto-select-first
-              hide-details
-              density="compact"
-              :style="$vuetify.display.mdAndDown ? '' : 'flex: 4 0 50px;'"
-              variant="filled"
-              return-object
-              :items="filteredUnits"
-              :custom-filter="() => true"
-              item-title="name"
-              :placeholder="$t('recipe.choose-unit')"
-              clearable
-              :menu-props="{ attach: props.menuAttachTarget, maxHeight: '250px' }"
-              @keyup.enter="handleUnitEnter"
-            >
-              <template v-if="unitError" #prepend-inner>
-                <v-tooltip location="bottom">
-                  <template #activator="{ props: unitTooltipProps }">
-                    <v-icon
-                      v-bind="unitTooltipProps"
-                      class="opacity-100"
-                      color="primary"
-                    >
-                      {{ $globals.icons.alert }}
-                    </v-icon>
-                  </template>
-                  <span v-if="unitErrorTooltip">
-                    {{ unitErrorTooltip }}
-                  </span>
-                </v-tooltip>
-              </template>
-              <template #no-data>
-                <div class="caption text-center pb-2">
-                  {{ $t("recipe.press-enter-to-create") }}
-                </div>
-              </template>
-              <template #append-item>
-                <div v-if="showCreateUnit" class="px-2">
-                  <BaseButton
-                    block
-                    size="small"
-                    @click="createAssignUnit()"
-                  />
-                </div>
-              </template>
-            </v-autocomplete>
+          <div class="d-flex ga-2 py-2"
+            :class="$vuetify.display.mdAndDown ? 'flex-column align-stretch' : 'align-start'">
+            <v-number-input v-model="model.quantity" variant="outlined" :precision="null" :min="0" hide-details inset
+              density="compact" :style="$vuetify.display.mdAndDown ? '' : 'flex: 3 0 50px;'"
+              :placeholder="$t('recipe.quantity')" @keypress="quantityFilter" />
+            <div class="ingredient-data-field" :style="$vuetify.display.mdAndDown ? '' : 'flex: 4 0 50px;'">
+              <v-autocomplete ref="unitAutocomplete" v-model="model.unit" v-model:search="unitSearch" auto-select-first
+                hide-details density="compact" variant="outlined" return-object :items="filteredUnits"
+                :custom-filter="() => true" item-title="name" :placeholder="$t('recipe.choose-unit')" clearable
+                :menu-props="{ attach: props.menuAttachTarget, maxHeight: '250px' }" @keyup.enter="handleUnitEnter">
+                <template v-if="unitError" #prepend-inner>
+                  <v-tooltip location="bottom">
+                    <template #activator="{ props: unitTooltipProps }">
+                      <v-icon v-bind="unitTooltipProps" class="opacity-100" color="primary">
+                        {{ $globals.icons.alert }}
+                      </v-icon>
+                    </template>
+                    <span v-if="unitErrorTooltip">
+                      {{ unitErrorTooltip }}
+                    </span>
+                  </v-tooltip>
+                </template>
+                <template #no-data>
+                  <div class="caption text-center pb-2">
+                    {{ $t("recipe.press-enter-to-create") }}
+                  </div>
+                </template>
+                <template #append-item>
+                  <div v-if="showCreateUnit" class="px-2">
+                    <BaseButton block size="small" @click="createAssignUnit()" />
+                  </div>
+                </template>
+              </v-autocomplete>
+              <div v-if="$slots.unitAction" class="attached-field-action">
+                <slot name="unitAction" />
+              </div>
+            </div>
 
             <!-- Foods Input -->
-            <v-autocomplete
-              v-if="!state.isRecipe"
-              ref="foodAutocomplete"
-              v-model="model.food"
-              v-model:search="foodSearch"
-              auto-select-first
-              hide-details
-              density="compact"
-              :style="$vuetify.display.mdAndDown ? '' : 'flex: 7 0 50px;'"
-              variant="filled"
-              return-object
-              :items="filteredFoods"
-              :custom-filter="() => true"
-              item-title="name"
-              :placeholder="$t('recipe.choose-food')"
-              clearable
-              :menu-props="{ attach: props.menuAttachTarget, maxHeight: '250px' }"
-              @keyup.enter="handleFoodEnter"
-            >
-              <template v-if="foodError" #prepend-inner>
-                <v-tooltip location="bottom">
-                  <template #activator="{ props: foodTooltipProps }">
-                    <v-icon
-                      v-bind="foodTooltipProps"
-                      class="opacity-100"
-                      color="primary"
-                    >
-                      {{ $globals.icons.alert }}
-                    </v-icon>
-                  </template>
-                  <span v-if="foodErrorTooltip">
-                    {{ foodErrorTooltip }}
-                  </span>
-                </v-tooltip>
-              </template>
-              <template #no-data>
-                <div class="caption text-center pb-2">
-                  {{ $t("recipe.press-enter-to-create") }}
-                </div>
-              </template>
-              <template #append-item>
-                <div v-if="showCreateFood" class="px-2">
-                  <BaseButton
-                    block
-                    size="small"
-                    @click="createAssignFood()"
-                  />
-                </div>
-              </template>
-            </v-autocomplete>
+            <div v-if="!state.isRecipe" class="ingredient-data-field"
+              :style="$vuetify.display.mdAndDown ? '' : 'flex: 7 0 50px;'">
+              <v-autocomplete ref="foodAutocomplete" v-model="model.food" v-model:search="foodSearch" auto-select-first
+                hide-details density="compact" variant="outlined" return-object :items="filteredFoods"
+                :custom-filter="() => true" item-title="name" :placeholder="$t('recipe.choose-food')" clearable
+                :menu-props="{ attach: props.menuAttachTarget, maxHeight: '250px' }" @keyup.enter="handleFoodEnter">
+                <template v-if="foodError" #prepend-inner>
+                  <v-tooltip location="bottom">
+                    <template #activator="{ props: foodTooltipProps }">
+                      <v-icon v-bind="foodTooltipProps" class="opacity-100" color="primary">
+                        {{ $globals.icons.alert }}
+                      </v-icon>
+                    </template>
+                    <span v-if="foodErrorTooltip">
+                      {{ foodErrorTooltip }}
+                    </span>
+                  </v-tooltip>
+                </template>
+                <template #no-data>
+                  <div class="caption text-center pb-2">
+                    {{ $t("recipe.press-enter-to-create") }}
+                  </div>
+                </template>
+                <template #append-item>
+                  <div v-if="showCreateFood" class="px-2">
+                    <BaseButton block size="small" @click="createAssignFood()" />
+                  </div>
+                </template>
+              </v-autocomplete>
+              <div v-if="$slots.foodAction" class="attached-field-action">
+                <slot name="foodAction" />
+              </div>
+            </div>
             <!-- Recipe Input -->
-            <v-autocomplete
-              v-if="state.isRecipe"
-              ref="search.query"
-              v-model="model.referencedRecipe"
-              v-model:search="search.query.value"
-              auto-select-first
-              hide-details
-              density="compact"
-              :style="$vuetify.display.mdAndDown ? '' : 'flex: 7 0 50px;'"
-              variant="filled"
-              return-object
-              :items="search.data.value || []"
-              item-title="name"
-              :placeholder="$t('search.type-to-search')"
-              clearable
-              :label="!model.referencedRecipe ? $t('recipe.choose-recipe') : ''"
-              @click="search.trigger()"
-              @focus="search.trigger()"
-            />
-            <v-text-field
-              v-model="model.note"
-              hide-details
-              density="compact"
-              :style="$vuetify.display.mdAndDown ? '' : 'flex: 7 0 50px;'"
-              variant="filled"
-              :placeholder="$t('recipe.notes')"
-              class=""
-              @click="$emit('clickIngredientField', 'note')"
-            />
+            <v-autocomplete v-if="state.isRecipe" ref="search.query" v-model="model.referencedRecipe"
+              v-model:search="search.query.value" auto-select-first hide-details density="compact"
+              :style="$vuetify.display.mdAndDown ? '' : 'flex: 7 0 50px;'" variant="outlined" return-object
+              :items="search.data.value || []" item-title="name" :placeholder="$t('search.type-to-search')" clearable
+              :label="!model.referencedRecipe ? $t('recipe.choose-recipe') : ''" @click="search.trigger()"
+              @focus="search.trigger()" />
+            <v-text-field v-model="model.note" hide-details density="compact"
+              :style="$vuetify.display.mdAndDown ? '' : 'flex: 7 0 50px;'" variant="outlined"
+              :placeholder="$t('recipe.notes')" class="" @click="$emit('clickIngredientField', 'note')" />
           </div>
         </div>
       </template>
@@ -190,13 +111,8 @@
           </v-icon>
           {{ $t("recipe.substitutions") }}
         </div>
-        <RecipeIngredientSubstitutionEditor
-          :substitutions="model.substitutions || []"
-          :foods="allFoods"
-          :menu-attach-target="props.menuAttachTarget"
-          @add="addSubstitution"
-          @delete="deleteSubstitution"
-        />
+        <RecipeIngredientSubstitutionEditor :substitutions="model.substitutions || []" :foods="allFoods"
+          :menu-attach-target="props.menuAttachTarget" @add="addSubstitution" @delete="deleteSubstitution" />
       </div>
       <slot name="before-divider" />
     </div>
@@ -459,3 +375,24 @@ function quantityFilter(e: KeyboardEvent) {
   }
 }
 </script>
+
+<style scoped>
+.ingredient-data-field {
+  min-width: 0;
+}
+
+.ingredient-data-field:has(.attached-field-action:not(:empty)) :deep(.v-field) {
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.attached-field-action {
+  margin-top: -1px;
+}
+
+.attached-field-action :deep(.v-btn) {
+  width: 100%;
+  border-radius: 0 0 10px 11px;
+  box-shadow: none;
+}
+</style>

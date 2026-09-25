@@ -1,7 +1,19 @@
 <template>
   <div class="d-flex editor-actions">
-    <RecipeImageUploadBtn :slug="recipe.slug" @upload="uploadImage" @refresh="refreshImage" @delete="deleteImage" />
-    <RecipeSettingsMenu v-model="recipe.settings" :is-owner="recipe.userId == user.id" @upload="uploadImage" />
+    <v-tooltip location="bottom">
+      <template #activator="{ props: tooltipProps }">
+        <RecipeImageUploadBtn :slug="recipe.slug" v-bind="tooltipProps" @upload="uploadImage" @refresh="refreshImage"
+          @delete="deleteImage" />
+      </template>
+      <span>{{ $t("general.image") }}</span>
+    </v-tooltip>
+    <v-tooltip location="bottom">
+      <template #activator="{ props: tooltipProps }">
+        <RecipeSettingsMenu v-model="recipe.settings" :is-owner="recipe.userId == user.id" v-bind="tooltipProps"
+          @upload="uploadImage" />
+      </template>
+      <span>{{ $t("general.settings") }}</span>
+    </v-tooltip>
   </div>
 </template>
 

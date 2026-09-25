@@ -1,20 +1,13 @@
 <template>
   <v-card
-    variant="outlined"
-    style="border-color: lightgrey;"
+    color="surface-variant"
+    variant="flat"
     :to="link.to"
     height="100%"
-    class="d-flex flex-column mt-4 pa-2"
+    class="d-flex flex-column mt-4 pa-2 rounded-lg"
   >
-    <div
-      v-if="$vuetify.display.smAndDown"
-      class="pa-2 mx-auto"
-    >
-      <v-img
-        width="150px"
-        height="125"
-        :src="image"
-      />
+    <div v-if="$vuetify.display.smAndDown" class="pa-2 mx-auto">
+      <v-img width="150px" height="125" :src="image" />
     </div>
     <div class="d-flex justify-space-between">
       <div>
@@ -27,25 +20,14 @@
           </v-card-text>
         </div>
       </div>
-      <div
-        v-if="$vuetify.display.mdAndUp"
-        class="py-2 px-10 my-auto"
-      >
-        <v-img
-          width="150px"
-          height="125"
-          :src="image"
-        />
+      <div v-if="$vuetify.display.mdAndUp" class="py-2 px-10 my-auto">
+        <v-img width="150px" height="125" :src="image" />
       </div>
     </div>
     <v-spacer />
     <v-divider />
     <v-card-actions>
-      <v-btn
-        variant="text"
-        color="info"
-        :to="link.to"
-      >
+      <v-btn variant="flat" color="primary" class="rounded-lg" :to="link.to">
         {{ link.text }}
       </v-btn>
     </v-card-actions>

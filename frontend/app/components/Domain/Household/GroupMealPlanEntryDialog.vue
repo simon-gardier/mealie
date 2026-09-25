@@ -1,8 +1,9 @@
 <template>
   <BaseDialog v-model="dialog"
     :title="entry ? $t('meal-plan.update-this-meal-plan') : $t('meal-plan.create-a-new-meal-plan')"
-    :submit-text="entry ? $t('general.update') : $t('general.create')" :submit-disabled="submitDisabled" color="primary"
-    width="1000" center-title cancel-in-toolbar can-submit disable-submit-on-enter @submit="submit">
+    :submit-text="entry ? $t('general.update') : $t('general.create')" :hide-submit-icon="!!entry"
+    :submit-disabled="submitDisabled" color="primary" width="1000" center-title cancel-in-toolbar can-submit
+    expand-card-actions-left disable-submit-on-enter @submit="submit">
     <v-card-text>
       <v-row>
         <v-col cols="12" md="5">
@@ -35,25 +36,6 @@
                   :label="$t('meal-plan.ignore-rules')" />
               </template>
 
-              <template #selected>
-                <RecipeCardLineItem v-if="recipe" class="selected-recipe" :recipe="recipe" disable-link>
-                  <template #append>
-                    <v-btn icon variant="text" color="error" size="small" aria-label="Remove selected recipe"
-                      title="Remove selected recipe" @click.stop="recipe = null">
-                      <v-icon>{{ $globals.icons.close }}</v-icon>
-                    </v-btn>
-                  </template>
-                </RecipeCardLineItem>
-                <v-list-item v-else class="selection-placeholder">
-                  <template #prepend>
-                    <v-avatar rounded="lg" width="56" height="40" color="surface-variant">
-                      <v-icon>{{ $globals.icons.silverwareForkKnife }}</v-icon>
-                    </v-avatar>
-                  </template>
-                  <v-list-item-title>{{ $t("meal-plan.select-meal-below") }}</v-list-item-title>
-                </v-list-item>
-              </template>
-
               <template #no-results>
                 <v-alert v-if="ruleQueryFilter" type="info" variant="tonal">
                   <div>{{ $t("meal-plan.no-recipes-match-your-rules") }}</div>
@@ -61,7 +43,7 @@
                     {{ $t("meal-plan.ignore-rules") }}
                   </v-btn>
                 </v-alert>
-                <v-alert v-else type="info" variant="tonal" :text="$t('search.no-results')" />
+                <BaseNoResultsAlert v-else :text="$t('search.no-results')" />
               </template>
             </RecipeSelector>
 
@@ -73,6 +55,25 @@
         </v-col>
       </v-row>
     </v-card-text>
+    <template #card-actions-left>
+      <RecipeCardLineItem v-if="isRecipe && recipe" class="selected-recipe meal-plan-footer-selection" :recipe="recipe"
+        disable-link>
+        <template #append>
+          <v-btn icon variant="text" color="error" size="small" aria-label="Remove selected recipe"
+            title="Remove selected recipe" @click.stop="recipe = null">
+            <v-icon>{{ $globals.icons.close }}</v-icon>
+          </v-btn>
+        </template>
+      </RecipeCardLineItem>
+      <v-list-item v-else-if="isRecipe" class="selection-placeholder meal-plan-footer-selection">
+        <template #prepend>
+          <v-avatar rounded="lg" width="56" height="40" color="surface-variant">
+            <v-icon>{{ $globals.icons.silverwareForkKnife }}</v-icon>
+          </v-avatar>
+        </template>
+        <v-list-item-title>{{ $t("meal-plan.select-meal-below") }}</v-list-item-title>
+      </v-list-item>
+    </template>
     <template #custom-card-action>
       <v-select v-model="entryType" class="meal-type-footer" :items="planTypeOptions" :label="$t('recipe.entry-type')"
         item-title="text" item-value="value" :return-object="false" hide-details density="compact" variant="outlined"
@@ -200,6 +201,15 @@ watch(dialog, (isOpen) => {
   max-width: 150px;
   width: 150px !important;
   --v-input-control-height: 32px;
+}
+
+.meal-plan-footer-selection {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.meal-plan-footer-selection :deep(.v-list-item__content) {
+  min-width: 0;
 }
 
 .selected-recipe {

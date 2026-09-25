@@ -70,6 +70,8 @@ export function useParseIngredientsDialog(
   const state = reactive({
     currentParsedIndex: -1,
     allReviewed: false,
+    reviewedCount: 0,
+    reviewTotal: 0,
     saveLoading: false,
     step: ParseStep.LOADING,
     loadingCount: 0,
@@ -89,7 +91,8 @@ export function useParseIngredientsDialog(
       case ParseStep.LOADING:
         if (!dontShowInfoPage.value) {
           console.log("showing info");
-          return ParseStep.INFO;
+          // return ParseStep.INFO;
+          return getNextStep(ParseStep.INFO);
         };
         return getNextStep(ParseStep.INFO);
       case ParseStep.INFO:
@@ -174,9 +177,13 @@ export function useParseIngredientsDialog(
     let nextIndex = state.currentParsedIndex;
     if (currentIngShouldDelete.value) {
       parsedIngs.value.splice(state.currentParsedIndex, 1);
+      state.reviewTotal = Math.max(0, state.reviewTotal - 1);
       currentIngShouldDelete.value = false;
     }
     else {
+      if (currentIng.value) {
+        state.reviewedCount = Math.min(state.reviewedCount + 1, state.reviewTotal);
+      }
       nextIndex += 1;
     }
 
@@ -208,6 +215,8 @@ export function useParseIngredientsDialog(
     currentIngShouldDelete.value = false;
     state.currentParsedIndex = -1;
     state.allReviewed = false;
+    state.reviewedCount = 0;
+    state.reviewTotal = 0;
     state.step = ParseStep.LOADING;
     state.saveLoading = false;
     createdUnits.clear();
@@ -247,6 +256,8 @@ export function useParseIngredientsDialog(
       parsedIngs.value = [...data, ...recipeRefs];
       state.currentParsedIndex = -1;
       state.allReviewed = false;
+      state.reviewedCount = 0;
+      state.reviewTotal = ingredientsToReview.value.length;
       createdUnits.clear();
       createdFoods.clear();
       currentIngShouldDelete.value = false;

@@ -1,48 +1,24 @@
 <template>
   <div>
     <!-- Edit Dialog -->
-    <BaseDialog
-      v-if="editTarget"
-      v-model="dialogStates.edit"
-      width="100%"
-      max-width="1100px"
-      :icon="$globals.icons.pages"
-      :title="$t('general.edit')"
-      :submit-icon="$globals.icons.save"
-      :submit-text="$t('general.save')"
-      :submit-disabled="!editTarget.queryFilterString"
-      can-submit
-      @submit="editCookbook"
-    >
+    <BaseDialog v-if="editTarget" v-model="dialogStates.edit" width="100%" max-width="1100px"
+      :icon="$globals.icons.pages" :title="$t('general.edit')" :submit-icon="$globals.icons.save"
+      :submit-text="$t('general.save')" :submit-disabled="!editTarget.queryFilterString" can-submit
+      @submit="editCookbook">
       <v-card-text>
-        <CookbookEditor
-          v-model="editTarget"
-        />
+        <CookbookEditor v-model="editTarget" />
       </v-card-text>
     </BaseDialog>
 
-    <v-container
-      v-if="book"
-      class="my-0"
-    >
-      <v-sheet
-        color="transparent"
-        class="d-flex flex-column w-100 pa-0 ma-0"
-        elevation="0"
-      >
-        <div class="d-flex align-center w-100 mb-2">
-          <v-toolbar-title class="headline mb-0">
+    <v-container v-if="book" class="my-0">
+      <v-sheet color="transparent" class="d-flex flex-column w-100 pa-0 ma-0" elevation="0">
+        <div class="d-flex align-center justify-center w-100 mb-2">
+          <v-toolbar-title class="headline mb-0 text-center">
             <v-icon size="large" class="mr-3">
               {{ $globals.icons.pages }}
             </v-icon>
             {{ book.name }}
           </v-toolbar-title>
-          <BaseButton
-            v-if="canEdit"
-            class="mx-1"
-            :edit="true"
-            @click="handleEditCookbook"
-          />
         </div>
         <div v-if="book.description" class="subtitle-1 text-grey-lighten-1 mb-2">
           {{ book.description }}
@@ -50,15 +26,17 @@
       </v-sheet>
 
       <v-container class="pa-0">
-        <RecipeCardSection
-          class="mb-5 mx-1"
-          :recipes="recipes"
-          :query="{ cookbook: slug }"
-          @sort-recipes="assignSorted"
-          @replace-recipes="replaceRecipes"
-          @append-recipes="appendRecipes"
-          @delete="removeRecipe"
-        />
+        <RecipeCardSection class="mb-5 mx-1" :recipes="recipes" :query="{ cookbook: slug }" @sort-recipes="assignSorted"
+          @replace-recipes="replaceRecipes" @append-recipes="appendRecipes" @delete="removeRecipe">
+          <template #toolbar-actions>
+            <v-btn v-if="canEdit" :icon="$vuetify.display.xs" variant="text" @click="handleEditCookbook">
+              <v-icon :start="!$vuetify.display.xs">
+                {{ $globals.icons.edit }}
+              </v-icon>
+              {{ $vuetify.display.xs ? null : $t("general.edit") }}
+            </v-btn>
+          </template>
+        </RecipeCardSection>
       </v-container>
     </v-container>
   </div>

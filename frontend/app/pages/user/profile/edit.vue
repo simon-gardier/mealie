@@ -32,50 +32,52 @@
         <template #default="{ modelValue: toggleState }">
           <v-slide-x-transition leave-absolute hide-on-leave>
             <div v-if="!toggleState" key="personal-info">
-              <BaseCardSectionTitle class="mt-10" :title="$t('profile.personal-information')" />
-              <v-card tag="article" variant="outlined" style="border-color: lightgrey;">
+              <v-card tag="article" color="surface-variant" variant="flat" class="settings-card mt-10">
+                <v-card-title class="settings-card-title">
+                  {{ $t('profile.personal-information') }}
+                </v-card-title>
                 <v-card-text class="pb-0">
                   <v-form ref="userUpdate">
                     <v-text-field v-model="userCopy.username" :label="$t('user.username')" required validate-on="blur"
-                      density="comfortable" variant="underlined" />
+                      density="comfortable" variant="solo" class="settings-input" />
                     <v-text-field v-model="userCopy.fullName" :label="$t('user.full-name')" required validate-on="blur"
-                      density="comfortable" variant="underlined" />
+                      density="comfortable" variant="solo" class="settings-input" />
                     <v-text-field v-model="userCopy.email" :label="$t('user.email')" validate-on="blur" required
-                      density="comfortable" variant="underlined" />
+                      density="comfortable" variant="solo" class="settings-input" />
                   </v-form>
                 </v-card-text>
-                <v-card-actions>
-                  <v-spacer />
+                <v-card-actions class="justify-center">
                   <BaseButton update @click="updateUser" />
                 </v-card-actions>
               </v-card>
             </div>
             <div v-else key="change-password">
-              <BaseCardSectionTitle class="mt-10" :title="$t('settings.change-password')" />
-              <v-card variant="outlined" style="border-color: lightgrey;">
+              <v-card color="surface-variant" variant="flat" class="settings-card mt-10">
+                <v-card-title class="settings-card-title">
+                  {{ $t('settings.change-password') }}
+                </v-card-title>
                 <v-card-text class="pb-0">
                   <v-form ref="passChange">
                     <v-text-field v-model="password.current" :prepend-icon="$globals.icons.lock"
                       :label="$t('user.current-password')" validate-on="blur" :type="showPassword ? 'text' : 'password'"
                       :append-icon="showPassword ? $globals.icons.eye : $globals.icons.eyeOff"
-                      :rules="[validators.minLength(1)]" density="comfortable" variant="underlined"
+                      :rules="[validators.minLength(1)]" density="comfortable" variant="solo" class="settings-input"
                       @click:append="showPassword = !showPassword" />
                     <v-text-field v-model="password.newOne" :prepend-icon="$globals.icons.lock"
                       :label="$t('user.new-password')" :type="showPassword ? 'text' : 'password'"
                       :append-icon="showPassword ? $globals.icons.eye : $globals.icons.eyeOff"
-                      :rules="[validators.minLength(8)]" density="comfortable" variant="underlined"
+                      :rules="[validators.minLength(8)]" density="comfortable" variant="solo" class="settings-input"
                       @click:append="showPassword = !showPassword" />
                     <v-text-field v-model="password.newTwo" :prepend-icon="$globals.icons.lock"
                       :label="$t('user.confirm-password')"
                       :rules="[password.newOne === password.newTwo || $t('user.password-must-match')]"
                       validate-on="blur" :type="showPassword ? 'text' : 'password'"
                       :append-icon="showPassword ? $globals.icons.eye : $globals.icons.eyeOff" density="comfortable"
-                      variant="underlined" @click:append="showPassword = !showPassword" />
+                      variant="solo" class="settings-input" @click:append="showPassword = !showPassword" />
                     <UserPasswordStrength v-model="password.newOne" />
                   </v-form>
                 </v-card-text>
-                <v-card-actions>
-                  <v-spacer />
+                <v-card-actions class="justify-center">
                   <BaseButton update :disabled="!passwordsMatch || password.current.length < 0"
                     @click="updatePassword" />
                 </v-card-actions>
@@ -86,12 +88,14 @@
       </ToggleState>
     </section>
     <section>
-      <BaseCardSectionTitle class="mt-10" :title="$t('profile.preferences')" />
-      <v-card variant="outlined" style="border-color: lightgrey;">
+      <v-card color="surface-variant" variant="flat" class="settings-card mt-10">
+        <v-card-title class="settings-card-title">
+          {{ $t('profile.preferences') }}
+        </v-card-title>
         <v-card-text>
           <v-combobox v-model="selectedDefaultActivity" :label="$t('user.default-activity')" :items="activityOptions"
-            :hint="$t('user.default-activity-hint')" density="comfortable" variant="underlined" validate-on="blur"
-            persistent-hint />
+            :hint="$t('user.default-activity-hint')" density="comfortable" variant="solo" class="settings-input"
+            validate-on="blur" persistent-hint />
           <v-checkbox v-model="userCopy.showAnnouncements" hide-details
             :label="$t('announcements.show-announcements-from-mealie')" color="primary" @change="updateUser" />
           <v-checkbox v-model="userCopy.advanced" hide-details :label="$t('profile.show-advanced-description')"
@@ -196,3 +200,48 @@ async function updatePassword() {
   }
 }
 </script>
+
+<style scoped>
+.settings-card {
+  border: 1px solid rgb(var(--v-theme-primary));
+  border-radius: 12px;
+  background: rgb(var(--v-theme-surface-variant));
+  overflow: hidden;
+}
+
+.settings-card-title {
+  border-bottom: 1px solid rgba(var(--v-theme-primary), 0.35);
+  background: rgba(var(--v-theme-primary), 0.08);
+  padding: 0.9rem 1rem 0.8rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.settings-card :deep(.v-card-text) {
+  padding-top: 0.75rem;
+}
+
+.settings-input {
+  margin-top: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.settings-input :deep(.v-field) {
+  background: rgba(var(--v-theme-surface), 0.72) !important;
+  border: 1px solid rgba(var(--v-theme-primary), 0.5);
+  border-radius: 10px;
+  box-shadow: none !important;
+}
+
+.settings-input :deep(.v-field__outline) {
+  display: none;
+}
+
+.settings-input :deep(.v-field__input) {
+  color: rgb(var(--v-theme-on-surface));
+}
+
+.settings-input :deep(.v-field--focused .v-field__outline) {
+  display: none;
+}
+</style>

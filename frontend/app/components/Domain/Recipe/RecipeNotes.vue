@@ -1,18 +1,24 @@
 <template>
-  <div v-if="model.length > 0 || edit" class="mt-8">
+  <div class="mt-8">
     <h2 class="my-4 text-h5 font-weight-medium opacity-80">
       {{ $t("recipe.note") }}
     </h2>
+    <v-alert v-if="model.length === 0 && !edit" type="info" variant="tonal" density="compact"
+      class="mx-auto text-center" style="max-width: fit-content">
+      {{ $t("recipe.no-notes") }}
+    </v-alert>
     <div v-for="(note, index) in model" :id="'note' + index" :key="'note' + index" class="mt-1">
       <v-card v-if="edit">
         <v-card-text>
           <div class="d-flex align-center">
-            <v-text-field v-model="model[index]['title']" variant="underlined" :label="$t('recipe.title')" />
-            <v-btn icon class="mr-2" elevation="0" @click="removeByIndex(index)">
+            <v-text-field v-model="model[index]['title']" class="flex-grow-1" variant="outlined" hide-details
+              :label="$t('recipe.title')" />
+            <v-btn icon class="mr-2 align-self-center" elevation="0" @click="removeByIndex(index)">
               <v-icon>{{ $globals.icons.delete }}</v-icon>
             </v-btn>
           </div>
-          <v-textarea v-model="model[index]['text']" variant="underlined" auto-grow :placeholder="$t('recipe.note')" />
+          <v-textarea v-model="model[index]['text']" class="mt-4" variant="outlined" auto-grow
+            :placeholder="$t('recipe.note')" />
         </v-card-text>
       </v-card>
       <div v-else>

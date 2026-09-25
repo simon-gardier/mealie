@@ -1,16 +1,8 @@
 <template>
-  <v-container
-    v-if="group"
-    class="narrow-container"
-  >
+  <v-container v-if="group" class="narrow-container">
     <BasePageTitle>
       <template #header>
-        <v-img
-          width="100%"
-          max-height="125"
-          max-width="125"
-          src="/svgs/manage-group-settings.svg"
-        />
+        <v-img width="100%" max-height="125" max-width="125" src="/svgs/manage-group-settings.svg" />
       </template>
       <template #title>
         {{ $t('group.admin-group-management') }}
@@ -18,36 +10,17 @@
     </BasePageTitle>
     <AppToolbar back />
     <v-card-text> {{ $t('group.group-id-value', [group.id]) }} </v-card-text>
-    <v-form
-      v-if="!userError"
-      ref="refGroupEditForm"
-      @submit.prevent="handleSubmit"
-    >
-      <v-card variant="outlined" style="border-color: lightgrey;">
+    <v-form v-if="!userError" ref="refGroupEditForm" @submit.prevent="handleSubmit">
+      <v-card variant="outlined" class="admin-content-card" style="border-color: lightgrey;">
         <v-card-text>
-          <v-text-field
-            v-model="group.name"
-            :label="$t('group.group-name')"
-          />
-          <GroupPreferencesEditor
-            v-if="group.preferences"
-            v-model="group.preferences"
-          />
-          <GroupAIProviderSettingsEditor
-            v-if="group.aiProviderSettings"
-            v-model="group.aiProviderSettings"
-            @create="handleCreateProvider"
-            @update="handleUpdateProvider"
-            @delete="handleDeleteProvider"
-          />
+          <v-text-field v-model="group.name" :label="$t('group.group-name')" />
+          <GroupPreferencesEditor v-if="group.preferences" v-model="group.preferences" />
+          <GroupAIProviderSettingsEditor v-if="group.aiProviderSettings" v-model="group.aiProviderSettings"
+            @create="handleCreateProvider" @update="handleUpdateProvider" @delete="handleDeleteProvider" />
         </v-card-text>
       </v-card>
       <div class="d-flex pa-2">
-        <BaseButton
-          type="submit"
-          edit
-          class="ml-auto"
-        >
+        <BaseButton type="submit" edit class="ml-auto">
           {{ $t("general.update") }}
         </BaseButton>
       </div>

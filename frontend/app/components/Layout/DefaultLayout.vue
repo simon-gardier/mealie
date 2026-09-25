@@ -11,36 +11,14 @@
     <div v-if="sidebar" class="sidebar-backdrop" @click="sidebar = false" />
 
     <AppSidebar v-model="sidebar" :top-link="topLinks" :secondary-links="cookbookLinks || []">
-      <v-menu offset-y nudge-bottom="5" close-delay="50" nudge-right="15" :z-index="3000">
-        <template #activator="{ props }">
-          <v-btn v-if="isOwnGroup" class="sidebar-create-button ml-2 mt-3" v-bind="props" variant="elevated"
-            elevation="2" :color="$vuetify.theme.current.dark ? 'background-lighten-1' : 'background-darken-1'">
-            <v-icon start size="20" color="primary">
-              {{ $globals.icons.createAlt }}
-            </v-icon>
-            {{ $t("general.create") }}
-          </v-btn>
-        </template>
-        <v-list density="comfortable" class="mb-0 mt-1 py-0" variant="flat">
-          <template v-for="(item, index) in createLinks">
-            <div v-if="!item.hide" :key="item.title">
-              <v-divider v-if="item.insertDivider" :key="index" class="mx-2" />
-              <v-list-item v-if="!item.restricted || isOwnGroup" :key="item.title" :to="item.to" exact
-                class="create-menu-item my-1">
-                <template #prepend>
-                  <v-icon :icon="item.icon" />
-                </template>
-                <v-list-item-title class="font-weight-medium" style="font-size: small;">
-                  {{ item.title }}
-                </v-list-item-title>
-                <v-list-item-subtitle class="font-weight-medium" style="font-size: small;">
-                  {{ item.subtitle }}
-                </v-list-item-subtitle>
-              </v-list-item>
-            </div>
-          </template>
-        </v-list>
-      </v-menu>
+      <v-btn v-if="isOwnGroup" class="sidebar-create-button ml-2 mt-3" :to="`/g/${groupSlug}/r/create/url`"
+        variant="elevated" elevation="2"
+        :color="$vuetify.theme.current.dark ? 'background-lighten-1' : 'background-darken-1'">
+        <v-icon start size="20" color="primary">
+          {{ $globals.icons.createAlt }}
+        </v-icon>
+        {{ $t("general.create") }}
+      </v-btn>
     </AppSidebar>
     <v-main class="pt-12">
       <v-scroll-x-transition>
@@ -91,8 +69,6 @@ const cookbooks = computed(() => {
   }
   return [];
 });
-
-const showAIImport = computed(() => group.value?.aiProviderSettings?.aiEnabled);
 
 const sidebar = ref<boolean>(false);
 onMounted(() => {
@@ -151,36 +127,6 @@ const cookbookLinks = computed<SideBarLink[]>(() => {
     return [...ownLinks, ...links];
   }
 });
-
-const createLinks = computed(() => [
-  {
-    insertDivider: false,
-    icon: $globals.icons.link,
-    title: i18n.t("general.import"),
-    subtitle: i18n.t("new-recipe.import-by-url"),
-    to: `/g/${groupSlug.value}/r/create/url`,
-    restricted: true,
-    hide: false,
-  },
-  {
-    insertDivider: false,
-    icon: $globals.icons.autoFix,
-    title: i18n.t("recipe.import-with-ai"),
-    subtitle: i18n.t("recipe.import-with-ai-subtitle"),
-    to: `/g/${groupSlug.value}/r/create/ai`,
-    restricted: true,
-    hide: !showAIImport.value,
-  },
-  {
-    insertDivider: true,
-    icon: $globals.icons.edit,
-    title: i18n.t("general.create"),
-    subtitle: i18n.t("new-recipe.create-manually"),
-    to: `/g/${groupSlug.value}/r/create/new`,
-    restricted: true,
-    hide: false,
-  },
-]);
 
 const topLinks = computed<SideBarLink[]>(() => [
   {

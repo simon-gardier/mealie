@@ -2,13 +2,9 @@
   <div class="text-center">
     <v-menu offset-y top nudge-top="6" :close-on-content-click="false">
       <template #activator="{ props }">
-        <v-btn color="accent" dark :class="['editor-action', { 'rounded-circle': $vuetify.display.xs }]"
-          :size="$vuetify.display.xs ? 'small' : undefined" variant="elevated" :icon="$vuetify.display.xs"
+        <v-btn color="accent" dark class="editor-action rounded-circle" size="small" variant="elevated" icon
           v-bind="props">
-          <v-icon :start="!$vuetify.display.xs">
-            {{ $globals.icons.cog }}
-          </v-icon>
-          {{ $vuetify.display.xs ? "" : $t("general.settings") }}
+          <v-icon>{{ $globals.icons.cog }}</v-icon>
         </v-btn>
       </template>
       <v-card>

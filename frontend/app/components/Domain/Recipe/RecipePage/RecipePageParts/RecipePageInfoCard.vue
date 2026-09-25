@@ -7,14 +7,15 @@
         <v-card-text>
           <div class="d-flex flex-column align-center">
             <div class="recipe-title-background d-flex align-center justify-center">
-              <v-card-title class="recipe-title text-h5 font-weight-regular pa-0 text-wrap text-center opacity-80">
+              <v-card-title class="recipe-page-title text-h5 font-weight-regular pa-0 text-wrap text-center opacity-80"
+                :style="{ color: isDark ? undefined : '#fff' }">
                 {{ recipe.name }}
               </v-card-title>
             </div>
             <RecipeRating :key="recipe.slug" :model-value="recipe.rating" :recipe-id="recipe.id" :slug="recipe.slug" />
           </div>
           <v-divider class="my-2" />
-          <SafeMarkdown :source="recipe.description" class="recipe-description my-3" />
+          <SafeMarkdown v-if="recipe.description" :source="recipe.description" class="recipe-description my-3" />
           <v-divider v-if="recipe.description" />
           <v-container class="d-flex flex-row flex-wrap justify-center">
             <div class="mx-6">
@@ -59,11 +60,13 @@ interface Props {
   landscape: boolean;
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   recipeScale: 1,
 });
 
 const { isOwnGroup } = useLoggedInState();
+const theme = useTheme();
+const isDark = computed(() => theme.global.current.value.dark);
 </script>
 
 <style scoped>
@@ -73,7 +76,8 @@ const { isOwnGroup } = useLoggedInState();
   width: min(100%, 360px);
 }
 
-.recipe-title {
+.recipe-page-title {
+  font-family: "Fraunces", Georgia, serif;
   line-height: 1.2;
   max-width: 70%;
   overflow-wrap: anywhere;

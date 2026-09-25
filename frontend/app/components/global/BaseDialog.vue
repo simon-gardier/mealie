@@ -1,8 +1,8 @@
 <template>
   <div>
     <slot name="activator" v-bind="{ open }" />
-    <v-bottom-sheet v-if="bottomSheet && $vuetify.display.xs" v-model="dialog" content-class="rounded-t-xl"
-      :content-props="{
+    <v-bottom-sheet v-if="bottomSheet && $vuetify.display.xs" v-model="dialog"
+      :content-class="['rounded-t-xl', contentClass]" :content-props="{
         style: 'overflow: hidden',
       }" :max-width="maxWidth ?? undefined" @keydown.enter="submitOnEnter" @click:outside="emit('cancel')"
       @keydown.esc="emit('cancel')">
@@ -25,8 +25,8 @@
       </BaseDialogContent>
     </v-bottom-sheet>
     <v-dialog v-else v-model="dialog" :width="width" :max-width="maxWidth ?? undefined"
-      :content-class="top ? 'top-dialog' : undefined" :fullscreen="$vuetify.display.xs" @keydown.enter="submitOnEnter"
-      @click:outside="emit('cancel')" @keydown.esc="emit('cancel')">
+      :content-class="[top ? 'top-dialog' : undefined, contentClass]" :fullscreen="$vuetify.display.xs"
+      @keydown.enter="submitOnEnter" @click:outside="emit('cancel')" @keydown.esc="emit('cancel')">
       <BaseDialogContent v-bind="bindings">
         <template #default>
           <slot v-bind="{ submitEvent }" />
@@ -60,6 +60,7 @@ interface DialogProps {
   icon?: string | null;
   titleImage?: string | null;
   centerTitle?: boolean;
+  contentClass?: string;
   cancelInToolbar?: boolean;
   width?: number | string;
   maxWidth?: number | string | null;
@@ -70,6 +71,7 @@ interface DialogProps {
 
   // submit
   submitIcon?: string | null;
+  hideSubmitIcon?: boolean;
   submitText?: string;
   submitDisabled?: boolean;
 
@@ -80,6 +82,7 @@ interface DialogProps {
   canDelete?: boolean;
   canConfirm?: boolean;
   canSubmit?: boolean;
+  expandCardActionsLeft?: boolean;
   disableSubmitOnEnter?: boolean;
 }
 
@@ -95,6 +98,7 @@ const props = withDefaults(defineProps<DialogProps>(), {
   icon: null,
   titleImage: null,
   centerTitle: false,
+  contentClass: "",
   cancelInToolbar: false,
   width: "500",
   maxWidth: null,
@@ -105,12 +109,14 @@ const props = withDefaults(defineProps<DialogProps>(), {
 
   // submit
   submitIcon: null,
+  hideSubmitIcon: false,
   submitDisabled: false,
 
   // actions
   canDelete: false,
   canConfirm: false,
   canSubmit: false,
+  expandCardActionsLeft: false,
   disableSubmitOnEnter: false,
 });
 const emit = defineEmits<DialogEmits>();
@@ -177,12 +183,14 @@ const bindings = computed(() => ({
   cancelInToolbar: props.cancelInToolbar,
   loading: props.loading,
   submitIcon: props.submitIcon,
+  hideSubmitIcon: props.hideSubmitIcon,
   submitText: props.submitText ?? i18n.t("general.create"),
   submitDisabled: props.submitDisabled,
   cancelText: props.cancelText ?? i18n.t("general.cancel"),
   canDelete: props.canDelete,
   canConfirm: props.canConfirm,
   canSubmit: props.canSubmit,
+  expandCardActionsLeft: props.expandCardActionsLeft,
   onCancel: () => {
     emit("cancel");
     dialog.value = false;

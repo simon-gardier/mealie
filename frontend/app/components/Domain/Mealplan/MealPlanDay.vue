@@ -43,7 +43,7 @@ const props = withDefaults(defineProps<Props>(), {
 const commonButtons = [
   {
     icon: $globals.icons.createAlt,
-    text: i18n.t("general.new"),
+    text: i18n.t("general.add"),
     event: "create",
   },
 ];

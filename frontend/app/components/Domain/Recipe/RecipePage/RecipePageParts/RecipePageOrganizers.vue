@@ -2,7 +2,7 @@
   <div>
     <!-- Recipe Categories -->
     <v-card v-if="recipe.recipeCategory.length > 0 || isEditForm" :class="{ 'mt-10': !isEditForm }">
-      <v-card-title class="py-2">
+      <v-card-title class="recipe-organizer-title py-2">
         {{ $t("recipe.categories") }}
       </v-card-title>
       <v-divider class="mx-2" />
@@ -15,7 +15,7 @@
 
     <!-- Recipe Tags -->
     <v-card v-if="recipe.tags.length > 0 || isEditForm" class="mt-4">
-      <v-card-title class="py-2">
+      <v-card-title class="recipe-organizer-title py-2">
         {{ $t("tag.tags") }}
       </v-card-title>
       <v-divider class="mx-2" />
@@ -55,3 +55,9 @@ import RecipeAssets from "@/components/Domain/Recipe/RecipeAssets.vue";
 const recipe = defineModel<NoUndefinedField<Recipe>>({ required: true });
 const { isEditForm } = usePageState(recipe.value.slug);
 </script>
+
+<style scoped>
+.recipe-organizer-title {
+  font-family: Fraunces, serif;
+}
+</style>

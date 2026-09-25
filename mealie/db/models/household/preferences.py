@@ -27,7 +27,7 @@ class HouseholdPreferencesModel(SqlAlchemyBase, BaseMixins):
     show_announcements: FilterableColumn[bool] = mapped_column(sa.Boolean, default=True)
 
     lock_recipe_edits_from_other_households: FilterableColumn[bool | None] = mapped_column(sa.Boolean, default=True)
-    first_day_of_week: FilterableColumn[int | None] = mapped_column(sa.Integer, default=0)
+    first_day_of_week: FilterableColumn[int | None] = mapped_column(sa.Integer, default=1)
 
     # Recipe Defaults
     recipe_public: FilterableColumn[bool | None] = mapped_column(sa.Boolean, default=True)

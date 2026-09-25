@@ -1,5 +1,5 @@
 <template>
-  <v-card height="100%" :loading="loading">
+  <v-card height="100%" :loading="loading" class="base-dialog-card">
     <template #loader="{ isActive }">
       <v-progress-linear :active="isActive" indeterminate />
     </template>
@@ -31,11 +31,11 @@
           {{ cancelLabel }}
         </v-btn>
         <slot name="card-actions-left" />
-        <v-spacer v-if="!$vuetify.display.xs" />
+        <v-spacer v-if="!$vuetify.display.xs && !expandCardActionsLeft" />
         <div class="dialog-footer-center">
           <slot name="card-actions-center" />
         </div>
-        <v-spacer v-if="!$vuetify.display.xs" />
+        <v-spacer v-if="!$vuetify.display.xs && !expandCardActionsLeft" />
         <slot name="custom-card-action" />
         <BaseButton v-if="canDelete" delete @click="emit('delete')" />
         <BaseButton v-if="canConfirm" :color="color" type="submit" :disabled="submitDisabled" @click="emit('confirm')">
@@ -44,7 +44,8 @@
           </template>
           {{ $t("general.confirm") }}
         </BaseButton>
-        <BaseButton v-if="canSubmit" type="submit" :disabled="submitDisabled || loading" @click="emit('submit')">
+        <BaseButton v-if="canSubmit" type="submit" :disabled="submitDisabled || loading" :hide-icon="hideSubmitIcon"
+          @click="emit('submit')">
           {{ submitLabel }}
           <template v-if="submitIcon" #icon>
             {{ submitIcon }}
@@ -69,6 +70,7 @@ interface DialogProps {
 
   // submit
   submitIcon?: string | null;
+  hideSubmitIcon?: boolean;
   submitText?: string;
   submitDisabled?: boolean;
 
@@ -79,6 +81,7 @@ interface DialogProps {
   canDelete?: boolean;
   canConfirm?: boolean;
   canSubmit?: boolean;
+  expandCardActionsLeft?: boolean;
 }
 
 interface DialogEmits {
@@ -97,12 +100,14 @@ const props = withDefaults(defineProps<DialogProps>(), {
 
   // submit
   submitIcon: null,
+  hideSubmitIcon: false,
   submitDisabled: false,
 
   // actions
   canDelete: false,
   canConfirm: false,
   canSubmit: false,
+  expandCardActionsLeft: false,
 });
 const emit = defineEmits<DialogEmits>();
 

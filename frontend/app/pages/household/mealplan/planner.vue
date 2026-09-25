@@ -36,14 +36,14 @@
       <v-btn :icon="$globals.icons.chevronRight" variant="text" density="comfortable" @click="() => changeWeek(1)" />
     </div>
     <div class="planner-content">
-      <NuxtPage :mealplans="mealsByDate" :actions="actions" />
+      <NuxtPage :mealplans="mealsByDate" :actions="actions" :loading="loading" />
     </div>
 
     <div class="planner-bottom-actions">
       <BaseButton color="primary" :icon="$globals.icons.cartCheck" :text="$t('meal-plan.add-to-shopping-list')"
         :disabled="!hasRecipes" @click="addAllToList" />
-      <BaseButton secondary :icon="$globals.icons.cog" :text="$t('general.settings')"
-        @click="router.push('/household/mealplan/settings')" />
+      <v-btn :icon="$globals.icons.cog" variant="text" :aria-label="$t('general.settings')"
+        :title="$t('general.settings')" @click="router.push('/household/mealplan/settings')" />
     </div>
 
     <v-row />
@@ -162,7 +162,7 @@ watch(weekRange, (newRange) => {
   });
 }, { immediate: true });
 
-const { mealplans, actions } = useMealplans(weekRange);
+const { mealplans, actions, loading } = useMealplans(weekRange);
 
 function filterMealByDate(date: Date) {
   if (!mealplans.value) return [];
@@ -254,6 +254,7 @@ const weekRecipesWithScales = computed(() => {
 
 .planner-bottom-actions {
   display: flex;
+  align-items: center;
   gap: 0.5rem;
   justify-content: center;
   margin-top: 1.25rem;

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card-title class="headline pb-3">
+    <v-card-title class="recipe-comments-title headline pb-3">
       <v-icon class="mr-2">
         {{ $globals.icons.commentTextMultipleOutline }}
       </v-icon>
@@ -11,8 +11,8 @@
       <div class="d-flex mt-3" style="gap: 10px">
         <UserAvatar :tooltip="false" size="40" :user-id="user.id" />
 
-        <v-textarea v-model="comment" hide-details density="compact" single-line variant="outlined" auto-grow rows="2"
-          :placeholder="$t('recipe.join-the-conversation')" />
+        <v-textarea v-model="comment" class="recipe-comment-input" hide-details density="compact" single-line
+          variant="outlined" auto-grow rows="2" :label="$t('recipe.join-the-conversation')" />
       </div>
       <div class="ml-auto mt-1">
         <BaseButton size="small" :disabled="!comment.trim()" @click="submitComment">
@@ -23,18 +23,25 @@
         </BaseButton>
       </div>
     </div>
+    <v-alert v-if="!recipe.comments.length" type="info" variant="tonal" density="compact"
+      class="mt-3 mx-auto text-center" style="max-width: fit-content">
+      {{ $t("recipe.no-comments") }}
+    </v-alert>
     <div v-for="recipeComment in recipe.comments" :key="recipeComment.id" class="d-flex my-2" style="gap: 10px">
       <UserAvatar :tooltip="false" size="40" :user-id="recipeComment.userId" />
-      <v-card variant="outlined" class="flex-grow-1">
+      <v-card variant="outlined" class="recipe-comment-card flex-grow-1">
         <v-card-text class="pa-3 pb-0">
-          <p class="">
-            {{ recipeComment.user.fullName }} • {{ $d(Date.parse(recipeComment.createdAt), "medium") }}
+          <p class="d-flex justify-space-between">
+            <span>{{ recipeComment.user.fullName }}</span>
+            <span class="comment-date">{{ $d(Date.parse(recipeComment.createdAt), "medium") }}</span>
           </p>
           <SafeMarkdown :source="recipeComment.text" />
         </v-card-text>
         <v-card-actions class="justify-end mt-0 pt-0">
-          <BaseButton v-if="user.id == recipeComment.user.id || user.admin" delete size="small"
-            @click="deleteComment(recipeComment.id)" />
+          <v-btn v-if="user.id == recipeComment.user.id || user.admin" icon rounded="circle" variant="plain"
+            :title="$t('general.delete')" @click="deleteComment(recipeComment.id)">
+            <v-icon>{{ $globals.icons.delete }}</v-icon>
+          </v-btn>
         </v-card-actions>
       </v-card>
     </div>
@@ -79,3 +86,23 @@ async function deleteComment(id: string) {
   }
 }
 </script>
+
+<style scoped>
+.recipe-comments-title {
+  font-family: Fraunces, serif;
+}
+
+.recipe-comment-input {
+  --v-field-border-opacity: 1;
+}
+
+.recipe-comment-card {
+  border-color: rgba(var(--v-border-color), 0.75);
+  border-radius: 12px;
+  background-color: rgb(var(--v-theme-surface));
+}
+
+.comment-date::first-letter {
+  text-transform: uppercase;
+}
+</style>

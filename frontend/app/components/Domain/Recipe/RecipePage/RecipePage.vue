@@ -1,5 +1,6 @@
 <template>
   <div>
+    <RecipePageCreationCelebration v-if="showCreationCelebration" @complete="showCreationCelebration = false" />
     <BaseDialog v-model="discardDialog" bottom-sheet :title="$t('general.discard-changes')" color="warning"
       :icon="$globals.icons.alertCircle" can-confirm @confirm="confirmDiscard" @cancel="cancelDiscard">
       <v-card-text>
@@ -54,10 +55,27 @@
                 :recipe="recipe" :scale="scale" :ingredient-storage-key="ingredientStorageKey">
                 <template v-if="isEditForm" #footer>
                   <div class="d-flex justify-center">
-                    <RecipeDialogBulkAdd class="my-2 mr-1" @bulk-data="addStep" />
-                    <BaseButton class="my-2" @click="addStep()">
-                      {{ $t("general.add") }}
-                    </BaseButton>
+                    <RecipeDialogBulkAdd ref="domBulkAddDialog" class="my-2" style="display: none"
+                      @bulk-data="addStep" />
+                    <div class="d-inline-flex my-2">
+                      <v-btn color="success" class="split-main" @click="addStep()">
+                        <v-icon start>
+                          {{ $globals.icons.createAlt }}
+                        </v-icon>
+                        {{ $t("general.add") }}
+                      </v-btn>
+                      <v-menu>
+                        <template #activator="{ props }">
+                          <v-btn color="success" class="split-dropdown" v-bind="props">
+                            <v-icon>{{ $globals.icons.chevronDown }}</v-icon>
+                          </v-btn>
+                        </template>
+                        <v-list>
+                          <v-list-item slim density="comfortable" :prepend-icon="$globals.icons.create"
+                            :title="$t('new-recipe.bulk-add')" @click="domBulkAddDialog?.open()" />
+                        </v-list>
+                      </v-menu>
+                    </div>
                   </div>
                 </template>
               </RecipePageInstructions>
@@ -137,6 +155,7 @@ import { invoke, until } from "@vueuse/core";
 import type { RouteLocationNormalized } from "vue-router";
 import RecipeIngredients from "../RecipeIngredients.vue";
 import RecipePageFooter from "./RecipePageParts/RecipePageFooter.vue";
+import RecipePageCreationCelebration from "./RecipePageParts/RecipePageCreationCelebration.vue";
 import RecipePageHeader from "./RecipePageParts/RecipePageHeader.vue";
 import RecipePageIngredientEditor from "./RecipePageParts/RecipePageIngredientEditor.vue";
 import RecipePageIngredientToolsView from "./RecipePageParts/RecipePageIngredientToolsView.vue";
@@ -187,6 +206,7 @@ const api = useUserApi();
 const { pageMode, setMode, isEditForm, isEditJSON, isCookMode, isEditMode, isParsing, toggleCookMode, toggleIsParsing }
   = usePageState(recipe.value.slug);
 const { deactivateNavigationWarning } = useNavigationWarning();
+const domBulkAddDialog = ref<InstanceType<typeof RecipeDialogBulkAdd> | null>(null);
 const notLinkedIngredients = computed(() => {
   return recipe.value.recipeIngredient.filter((ingredient) => {
     return !recipe.value.recipeInstructions.some(step =>
@@ -295,6 +315,8 @@ const hasLinkedIngredients = computed(() => {
 const paramsEdit = useRouteQuery<BooleanString>("edit", "");
 const paramsParse = useRouteQuery<BooleanString>("parse", "");
 const paramsCook = useRouteQuery<BooleanString>("cook", "");
+const paramsCelebrate = useRouteQuery<BooleanString>("celebrate", "");
+const showCreationCelebration = ref(false);
 const { hydrateCookMode } = useCookModeQuery({
   cookQuery: paramsCook,
   isEditMode,
@@ -309,6 +331,11 @@ onMounted(() => {
 
   if (paramsParse.value === "true" && isOwnGroup.value) {
     toggleIsParsing(true);
+  }
+
+  if (paramsCelebrate.value === "true" && isOwnGroup.value) {
+    showCreationCelebration.value = true;
+    paramsCelebrate.value = undefined;
   }
 
   hydrateCookMode();
@@ -454,5 +481,18 @@ const scale = ref(1);
 
 .list-group-item i {
   cursor: pointer;
+}
+
+.split-main {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.split-dropdown {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  min-width: 30px;
+  padding-left: 0;
+  padding-right: 0;
 }
 </style>

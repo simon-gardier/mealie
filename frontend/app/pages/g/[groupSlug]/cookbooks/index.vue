@@ -6,7 +6,7 @@
       :submit-text="$t('general.save')" :submit-disabled="!createTarget.queryFilterString" can-submit
       @submit="actions.updateOne(createTarget)" @cancel="deleteCreateTarget()">
       <v-card-text>
-        <CookbookEditor :key="createTargetKey" v-model="createTarget" />
+        <CookbookEditor :key="createTargetKey" v-model="createTarget" styled />
       </v-card-text>
     </BaseDialog>
 
@@ -43,7 +43,9 @@
       </div>
 
       <!-- Create New -->
-      <BaseButton create @click="createCookbook" />
+      <div class="d-flex justify-center">
+        <BaseButton create @click="createCookbook" />
+      </div>
 
       <!-- Cookbook List -->
       <v-expansion-panels class="mt-2">

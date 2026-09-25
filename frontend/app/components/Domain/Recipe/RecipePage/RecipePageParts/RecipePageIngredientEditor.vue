@@ -1,22 +1,30 @@
 <template>
   <div>
     <div class="mb-4">
-      <h2 class="mb-4 text-h5 font-weight-medium opacity-80">
-        {{ $t("recipe.ingredients") }}
-      </h2>
-      <v-alert v-if="!hasFoodOrUnit" border="start" color="info" :icon="$globals.icons.information" variant="tonal">
-        <div>
-          {{ $t('recipe.ingredients-not-parsed-description', { parse: $t('recipe.parse') }) }}
-        </div>
-        <div class="d-flex flex-wrap justify-center mt-3">
-          <BaseButton class="mb-1" color="info" @click="toggleIsParsing(true)">
-            <template #icon>
-              {{ $globals.icons.foods }}
-            </template>
+      <div class="d-flex align-center justify-space-between flex-wrap ga-2">
+        <h2 class="mb-0 text-h5 font-weight-medium opacity-80">
+          {{ $t("recipe.ingredients") }}
+        </h2>
+        <div v-if="!hasFoodOrUnit" class="d-flex align-center ga-1">
+          <v-btn color="info" @click="toggleIsParsing(true)">
+            <v-icon start>
+              {{ $globals.icons.robot }}
+            </v-icon>
             {{ $t('recipe.parse') }}
-          </BaseButton>
+          </v-btn>
+          <v-menu location="bottom" content-class="ingredient-info-tooltip">
+            <template #activator="{ props }">
+              <v-btn v-bind="props" icon variant="text" color="info"
+                :aria-label="$t('recipe.ingredients-not-parsed-description', { parse: $t('recipe.parse') })">
+                <v-icon>{{ $globals.icons.information }}</v-icon>
+              </v-btn>
+            </template>
+            <v-sheet class="pa-3 text-body-2" color="surface" elevation="4" rounded>
+              {{ $t('recipe.ingredients-not-parsed-description', { parse: $t('recipe.parse') }) }}
+            </v-sheet>
+          </v-menu>
         </div>
-      </v-alert>
+      </div>
     </div>
     <VueDraggable v-if="recipe.recipeIngredient.length > 0" v-model="recipe.recipeIngredient" handle=".handle"
       :delay="250" :delay-on-touch-only="true" v-bind="{
@@ -31,7 +39,7 @@
         @insert-above="insertNewIngredient(index)" @insert-below="insertNewIngredient(index + 1)" />
     </VueDraggable>
     <v-skeleton-loader v-else boilerplate elevation="2" type="list-item" />
-    <div class="d-flex flex-wrap justify-center justify-sm-end mt-3">
+    <div class="d-flex flex-wrap justify-center mt-5 mb-5">
       <RecipeDialogBulkAdd ref="domBulkAddDialog" class="mx-1 mb-1" style="display: none" @bulk-data="addIngredient" />
       <div class="d-inline-flex">
         <!-- Main button: Add Food -->
@@ -201,5 +209,10 @@ function insertNewIngredient(dest: number) {
   min-width: 30px;
   padding-left: 0;
   padding-right: 0;
+}
+
+:global(.ingredient-info-tooltip) {
+  max-width: 280px !important;
+  white-space: normal;
 }
 </style>

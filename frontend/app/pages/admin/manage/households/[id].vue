@@ -1,16 +1,8 @@
 <template>
-  <v-container
-    v-if="household"
-    class="narrow-container"
-  >
+  <v-container v-if="household" class="narrow-container">
     <BasePageTitle>
       <template #header>
-        <v-img
-          width="100%"
-          max-height="125"
-          max-width="125"
-          src="/svgs/manage-group-settings.svg"
-        />
+        <v-img width="100%" max-height="125" max-width="125" src="/svgs/manage-group-settings.svg" />
       </template>
       <template #title>
         {{ $t('household.admin-household-management') }}
@@ -18,47 +10,20 @@
     </BasePageTitle>
     <AppToolbar back />
     <v-card-text> {{ $t('household.household-id-value', [household.id]) }} </v-card-text>
-    <v-form
-      v-if="!userError"
-      ref="refHouseholdEditForm"
-      @submit.prevent="handleSubmit"
-    >
-      <v-card variant="outlined" style="border-color: lightgrey;">
+    <v-form v-if="!userError" ref="refHouseholdEditForm" @submit.prevent="handleSubmit">
+      <v-card variant="outlined" class="admin-content-card" style="border-color: lightgrey;">
         <v-card-text>
-          <v-select
-            v-if="groups"
-            v-model="household.groupId"
-            disabled
-            :items="groups"
-            variant="solo-filled"
-            flat
-            item-title="name"
-            item-value="id"
-            :return-object="false"
-            :label="$t('group.user-group')"
-            :rules="[validators.required]"
-          />
-          <v-text-field
-            v-model="household.name"
-            variant="solo-filled"
-            flat
-            :label="$t('household.household-name')"
-            :rules="[validators.required]"
-          />
-          <HouseholdPreferencesEditor
-            v-if="household.preferences"
-            v-model="household.preferences"
-            variant="solo-filled"
-            flat
-          />
+          <v-select v-if="groups" v-model="household.groupId" disabled :items="groups" variant="solo-filled" flat
+            item-title="name" item-value="id" :return-object="false" :label="$t('group.user-group')"
+            :rules="[validators.required]" />
+          <v-text-field v-model="household.name" variant="solo-filled" flat :label="$t('household.household-name')"
+            :rules="[validators.required]" />
+          <HouseholdPreferencesEditor v-if="household.preferences" v-model="household.preferences" variant="solo-filled"
+            flat />
         </v-card-text>
       </v-card>
       <div class="d-flex pa-2">
-        <BaseButton
-          type="submit"
-          edit
-          class="ml-auto"
-        >
+        <BaseButton type="submit" edit class="ml-auto">
           {{ $t("general.update") }}
         </BaseButton>
       </div>

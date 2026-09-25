@@ -1,9 +1,6 @@
 <template>
-  <v-select v-model="recipe.userId" max-width="300" :items="allUsers" :item-props="itemsProps"
-    :label="$t('general.owner')" :disabled="!canEditOwner" variant="outlined" density="compact" hide-details>
-    <template #prepend>
-      <UserAvatar :user-id="recipe.userId" :tooltip="false" />
-    </template>
+  <v-select v-model="recipe.userId" :items="allUsers" :item-props="itemsProps" :label="$t('general.owner')"
+    :disabled="!canEditOwner" variant="outlined" density="compact" hide-details>
   </v-select>
 </template>
 
@@ -11,7 +8,6 @@
 import { computed } from "vue";
 import { usePageUser } from "~/composables/recipe-page/shared-state";
 import { useHouseholdStore, useUserStore } from "~/composables/store";
-import UserAvatar from "~/components/Domain/User/UserAvatar.vue";
 import type { NoUndefinedField } from "~/lib/api/types/non-generated";
 import type { Recipe } from "~/lib/api/types/recipe";
 

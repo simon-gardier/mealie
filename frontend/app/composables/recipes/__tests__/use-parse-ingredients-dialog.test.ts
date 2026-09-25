@@ -91,6 +91,8 @@ const wrapper = (ingredients: NoUndefinedField<RecipeIngredient>[] = [{}, { refe
         },
         setParsedIngs(ings: ParsedIngredient[]) {
           x.parsedIngs.value = ings;
+          x.state.reviewedCount = 0;
+          x.state.reviewTotal = x.ingredientsToReviewCount.value;
         },
         setShouldDelete(should: boolean) {
           x.currentIngShouldDelete.value = should;
@@ -170,6 +172,8 @@ describe("useParseIngredientsDialog", () => {
       nextIngredient();
       expect(state.currentParsedIndex).toBe(3);
       expect(state.allReviewed).toBe(true);
+      expect(state.reviewedCount).toBe(4);
+      expect(state.reviewTotal).toBe(4);
     });
     test("skips over ingredients that don't need to be reviewed", () => {
       const wrapped = wrapper();
@@ -203,6 +207,8 @@ describe("useParseIngredientsDialog", () => {
       nextIngredient();
       expect(state.currentParsedIndex).toBe(3);
       expect(state.allReviewed).toBe(true);
+      expect(state.reviewedCount).toBe(2);
+      expect(state.reviewTotal).toBe(2);
     });
     test("skips over deleted ingredients properly", () => {
       const wrapped = wrapper();
@@ -233,6 +239,8 @@ describe("useParseIngredientsDialog", () => {
       nextIngredient();
       expect(state.currentParsedIndex).toBe(1);
       expect(state.allReviewed).toBe(false);
+      expect(state.reviewedCount).toBe(1);
+      expect(state.reviewTotal).toBe(2);
       expect(wrapped.vm.currentIngShouldDelete).toBe(false);
       nextIngredient();
       expect(state.currentParsedIndex).toBe(1);
@@ -300,9 +308,9 @@ describe("useParseIngredientsDialog", () => {
       const { nextStep, state } = wrapper().vm;
       expect(state.step).toBe(ParseStep.LOADING);
       nextStep();
-      expect(state.step).toBe(ParseStep.INFO);
-      nextStep();
       expect(state.step).toBe(ParseStep.PARSE);
+      nextStep();
+      expect(state.step).toBe(ParseStep.REVIEW);
       nextStep();
       expect(state.step).toBe(ParseStep.REVIEW);
     });
@@ -320,7 +328,7 @@ describe("useParseIngredientsDialog", () => {
       state.allReviewed = true;
       expect(state.step).toBe(ParseStep.LOADING);
       nextStep();
-      expect(state.step).toBe(ParseStep.INFO);
+      expect(state.step).toBe(ParseStep.PARSE);
       nextStep();
       expect(state.step).toBe(ParseStep.REVIEW);
     });
@@ -402,7 +410,7 @@ describe("useParseIngredientsDialog", () => {
       expect(state.saveLoading).toBe(false);
       expect(state.loadingCount).toBe(1);
       await promise;
-      expect(state.step).toBe(ParseStep.INFO);
+      expect(state.step).toBe(ParseStep.PARSE);
       expect(state.loadingCount).toBe(0);
       expect(mockParseIngredients).toHaveBeenCalled();
     });
@@ -415,7 +423,7 @@ describe("useParseIngredientsDialog", () => {
       expect(state.loadingCount).toBe(1);
       parseIngredients(); // Second call
       await promise;
-      expect(state.step).toBe(ParseStep.INFO);
+      expect(state.step).toBe(ParseStep.PARSE);
       expect(state.loadingCount).toBe(0);
       expect(mockParseIngredients).toHaveBeenCalledOnce();
     });
@@ -423,11 +431,11 @@ describe("useParseIngredientsDialog", () => {
       const wrapped = wrapper([]);
       const { state, parseIngredients } = wrapped.vm;
       const promise = parseIngredients();
-      expect(state.step).toBe(ParseStep.INFO);
+      expect(state.step).toBe(ParseStep.REVIEW);
       expect(state.saveLoading).toBe(false);
       expect(state.loadingCount).toBe(0);
       await promise;
-      expect(state.step).toBe(ParseStep.INFO);
+      expect(state.step).toBe(ParseStep.REVIEW);
       expect(state.loadingCount).toBe(0);
       expect(mockParseIngredients).not.toHaveBeenCalled();
     });
@@ -440,7 +448,7 @@ describe("useParseIngredientsDialog", () => {
       expect(state.saveLoading).toBe(false);
       expect(state.loadingCount).toBe(1);
       await promise;
-      expect(state.step).toBe(ParseStep.INFO);
+      expect(state.step).toBe(ParseStep.PARSE);
       expect(state.loadingCount).toBe(0);
       expect(mockError).toHaveBeenCalled();
     });
@@ -453,7 +461,7 @@ describe("useParseIngredientsDialog", () => {
       expect(state.saveLoading).toBe(false);
       expect(state.loadingCount).toBe(1);
       await promise;
-      expect(state.step).toBe(ParseStep.INFO);
+      expect(state.step).toBe(ParseStep.PARSE);
       expect(state.loadingCount).toBe(0);
       expect(mockError).toHaveBeenCalled();
     });

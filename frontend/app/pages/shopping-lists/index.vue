@@ -3,7 +3,8 @@
     <BaseDialog v-model="state.createDialog" bottom-sheet :title="$t('shopping-list.create-shopping-list')"
       :icon="$globals.icons.formatListCheck" can-submit :submit-disabled="!isCreateNameValid" @submit="createOne">
       <v-card-text>
-        <v-text-field v-model.trim="state.createName" autofocus :label="$t('shopping-list.new-list')" />
+        <v-text-field v-model.trim="state.createName" autofocus variant="outlined"
+          :label="$t('shopping-list.new-list')" />
       </v-card-text>
     </BaseDialog>
 
@@ -13,7 +14,11 @@
       <v-container>
         <v-form>
           <v-select v-model="updateUserId" :items="allUsers" item-title="fullName" item-value="id"
-            :label="$t('general.owner')" :prepend-icon="$globals.icons.user" />
+            :label="$t('general.owner')">
+            <template #prepend>
+              <UserAvatar v-if="updateUserId" :user-id="updateUserId" :tooltip="false" />
+            </template>
+          </v-select>
         </v-form>
       </v-container>
     </BaseDialog>
@@ -29,16 +34,12 @@
     </BasePageTitle>
 
     <v-container class="d-flex align-center justify-space-between px-0 pt-0 pb-4">
-      <BaseButton create class="my-0" @click="state.createDialog = true" />
       <v-switch v-model="onlyMyLists" hide-details :label="$t('shopping-list.only-my-lists')" class="my-0" />
+      <BaseButton create class="my-0" @click="state.createDialog = true" />
     </v-container>
 
     <v-container v-if="!shoppingListChoices.length">
-      <BasePageTitle>
-        <template #title>
-          {{ $t('shopping-list.no-shopping-lists-found') }}
-        </template>
-      </BasePageTitle>
+      <BaseNoResultsAlert :text="$t('shopping-list.no-shopping-lists-found')" />
     </v-container>
 
     <div v-if="deletingListId" class="bistro-delete-backdrop" aria-hidden="true" @click="skipDeleteAnimation" />
@@ -74,6 +75,7 @@ import { useUserApi } from "~/composables/api";
 import { useAsyncKey } from "~/composables/use-utils";
 import { useShoppingListPreferences } from "~/composables/use-users/preferences";
 import type { UserOut } from "~/lib/api/types/user";
+import UserAvatar from "~/components/Domain/User/UserAvatar.vue";
 
 const auth = useMealieAuth();
 const i18n = useI18n();

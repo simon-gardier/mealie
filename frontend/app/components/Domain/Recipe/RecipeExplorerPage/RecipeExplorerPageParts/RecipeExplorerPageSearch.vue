@@ -4,7 +4,7 @@
       <div class="d-flex justify-center align-center ga-2 mb-2">
         <v-text-field ref="input" v-model="state.search" variant="outlined" hide-details clearable color="primary"
           class="flex-grow-1" :placeholder="$t('search.search-placeholder')" :prepend-inner-icon="$globals.icons.search"
-          @keyup.enter="hideKeyboard" />
+          @click:clear="refreshResults" @keyup.enter="hideKeyboard" />
         <v-btn icon color="error" class="random-button" :disabled="recipeCount === 0" :aria-label="$t('general.random')"
           @click="emit('random')">
           <v-icon>{{ $globals.icons.diceMultiple }}</v-icon>
@@ -168,6 +168,11 @@ function hideKeyboard() {
   input.value?.blur();
 }
 
+async function refreshResults() {
+  await nextTick();
+  await search();
+}
+
 // function to show refresh icon
 async function setRandomOrderByWrapper() {
   if (!showRandomLoading.value) {
@@ -204,10 +209,6 @@ async function setRandomOrderByWrapper() {
   .search-actions {
     flex-basis: 100%;
     margin-left: 0;
-  }
-
-  .search-view-toggle {
-    display: none;
   }
 }
 

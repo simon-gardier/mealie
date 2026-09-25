@@ -35,13 +35,13 @@
 
     <div ref="resultsContainer" class="recipe-results mt-3">
       <v-list v-if="recipes.length" class="py-0">
-        <RecipeCardLineItem v-for="recipe in recipes" :key="recipe.id!" :recipe="recipe"
-          :active="recipe.id === modelValue?.id" disable-link @click="select(recipe)" />
+        <RecipeCardLineItem v-for="recipe in recipes" :key="recipe.id!" :recipe="recipe" disable-link
+          @click="select(recipe)" />
       </v-list>
 
       <div v-else-if="!loading" class="py-2">
         <slot name="no-results">
-          <v-alert type="info" variant="tonal" :text="$t('search.no-results')" />
+          <BaseNoResultsAlert :text="$t('search.no-results')" />
         </slot>
       </div>
 

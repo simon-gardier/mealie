@@ -151,9 +151,9 @@
           </v-sheet>
           <v-hover v-slot="{ isHovering }">
             <v-card class="my-3"
-              :class="[{ 'on-hover': isHovering }, { 'cursor-default': isEditForm }, isChecked(index)]"
+              :class="[{ 'on-hover': isHovering }, { 'cursor-default': isEditForm }, { 'recipe-step-complete': isChecked(index) }]"
               :elevation="isHovering ? 12 : 2" :ripple="false" @click="toggleDisabled(index)">
-              <v-card-title class="recipe-step-title pt-3" :class="!isChecked(index) ? 'pb-0' : 'pb-3'">
+              <v-card-title class="recipe-step-title pt-3 pb-0">
                 <div class="d-flex align-center w-100">
                   <v-text-field v-if="isEditForm" v-model="step.summary" class="headline" hide-details density="compact"
                     variant="solo" flat :placeholder="$t('recipe.step-index', { step: index + 1 })">
@@ -165,7 +165,7 @@
                   </v-text-field>
                   <div v-else class="summary-wrapper">
                     <template v-if="step.summary">
-                      <SafeMarkdown class="pr-2" :source="step.summary" />
+                      <SafeMarkdown class="recipe-step-summary pr-2" :source="step.summary" />
                     </template>
                     <template v-else>
                       <span>
@@ -175,7 +175,17 @@
                   </div>
                   <template v-if="isEditForm">
                     <div class="ml-auto">
-                      <BaseButtonGroup :large="false" :buttons="[
+                      <BaseButtonGroup :large="false" rounded :buttons="[
+                        {
+                          icon: previewStates[index] ? $globals.icons.edit : $globals.icons.eye,
+                          text: previewStates[index] ? $t('recipe.edit-markdown') : $t('markdown-editor.preview-markdown-button-label'),
+                          event: 'preview-step',
+                        },
+                        {
+                          icon: $globals.icons.upload,
+                          text: $t('recipe.upload-image'),
+                          event: 'upload-image',
+                        },
                         {
                           icon: $globals.icons.delete,
                           text: $t('general.delete'),
@@ -187,40 +197,37 @@
                           event: 'open',
                           children: [
                             {
+                              icon: $globals.icons.textBox,
                               text: sectionTitleLabel(step.id),
                               event: 'toggle-section',
                             },
                             {
+                              icon: $globals.icons.link,
                               text: $t('recipe.link-references'),
                               event: 'link-references',
                             },
                             {
-                              text: $t('recipe.upload-image'),
-                              event: 'upload-image',
-                            },
-                            {
-                              icon: previewStates[index] ? $globals.icons.edit : $globals.icons.eye,
-                              text: previewStates[index] ? $t('recipe.edit-markdown') : $t('markdown-editor.preview-markdown-button-label'),
-                              event: 'preview-step',
-                              divider: true,
-                            },
-                            {
+                              icon: $globals.icons.swapHorizontal,
                               text: $t('recipe.merge-above'),
                               event: 'merge-above',
                             },
                             {
+                              icon: $globals.icons.sortAscending,
                               text: $t('recipe.move-to-top'),
                               event: 'move-to-top',
                             },
                             {
+                              icon: $globals.icons.sortDescending,
                               text: $t('recipe.move-to-bottom'),
                               event: 'move-to-bottom',
                             },
                             {
+                              icon: $globals.icons.create,
                               text: $t('recipe.insert-above'),
                               event: 'insert-above',
                             },
                             {
+                              icon: $globals.icons.create,
                               text: $t('recipe.insert-below'),
                               event: 'insert-below',
                             },
@@ -243,11 +250,6 @@
                         {{ $t('recipe.linked-notes-with-count', { count: linkedNotesForStep(step).length }) }}
                       </v-tooltip>
                     </v-btn>
-                    <v-fade-transition>
-                      <v-icon v-show="isChecked(index)" size="24" color="success">
-                        {{ $globals.icons.checkboxMarkedCircle }}
-                      </v-icon>
-                    </v-fade-transition>
                   </div>
                 </div>
               </v-card-title>
@@ -281,38 +283,36 @@
                   </div>
                 </v-card-text>
               </DropZone>
-              <v-expand-transition>
-                <div v-if="!isChecked(index) && !isEditForm" class="m-0 p-0">
-                  <v-card-text class="markdown">
-                    <v-row>
-                      <v-col v-if="isCookMode && hasCookModeLinkedContent(step)" cols="12" sm="5">
-                        <div v-if="hasLinkedIngredients(step)" class="ml-n4">
-                          <RecipeIngredients :value="recipe.recipeIngredient.filter((ing) => {
-                            if (!step.ingredientReferences) return false
-                            return step.ingredientReferences.map((ref) => ref.referenceId).includes(ing.referenceId || '')
-                          })" :scale="scale" :is-cook-mode="isCookMode" :storage-key="ingredientStorageKey" />
-                        </div>
-                        <v-divider v-if="hasLinkedIngredients(step) && hasLinkedNotes(step)" class="my-3" />
-                        <div v-if="hasLinkedNotes(step)">
-                          <template v-for="(note, noteIndex) in linkedNotesForStep(step)"
-                            :key="note.referenceId ?? note.title">
-                            <v-divider v-if="noteIndex > 0" class="my-3" />
-                            <div class="text-title-large mb-1">
-                              {{ note.title || $t('recipe.note') }}
-                            </div>
-                            <SafeMarkdown :source="note.text" />
-                          </template>
-                        </div>
-                      </v-col>
-                      <v-divider v-if="isCookMode && hasCookModeLinkedContent(step) && $vuetify.display.smAndUp"
-                        vertical />
-                      <v-col>
-                        <SafeMarkdown class="markdown" :source="step.text" />
-                      </v-col>
-                    </v-row>
-                  </v-card-text>
-                </div>
-              </v-expand-transition>
+              <div v-if="!isEditForm" class="m-0 p-0">
+                <v-card-text class="markdown">
+                  <v-row>
+                    <v-col v-if="isCookMode && hasCookModeLinkedContent(step)" cols="12" sm="5">
+                      <div v-if="hasLinkedIngredients(step)" class="ml-n4">
+                        <RecipeIngredients :value="recipe.recipeIngredient.filter((ing) => {
+                          if (!step.ingredientReferences) return false
+                          return step.ingredientReferences.map((ref) => ref.referenceId).includes(ing.referenceId || '')
+                        })" :scale="scale" :is-cook-mode="isCookMode" :storage-key="ingredientStorageKey" />
+                      </div>
+                      <v-divider v-if="hasLinkedIngredients(step) && hasLinkedNotes(step)" class="my-3" />
+                      <div v-if="hasLinkedNotes(step)">
+                        <template v-for="(note, noteIndex) in linkedNotesForStep(step)"
+                          :key="note.referenceId ?? note.title">
+                          <v-divider v-if="noteIndex > 0" class="my-3" />
+                          <div class="text-title-large mb-1">
+                            {{ note.title || $t('recipe.note') }}
+                          </div>
+                          <SafeMarkdown :source="note.text" />
+                        </template>
+                      </div>
+                    </v-col>
+                    <v-divider v-if="isCookMode && hasCookModeLinkedContent(step) && $vuetify.display.smAndUp"
+                      vertical />
+                    <v-col>
+                      <SafeMarkdown class="recipe-step-instructions markdown" :source="step.text" />
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+              </div>
             </v-card>
           </v-hover>
         </div>

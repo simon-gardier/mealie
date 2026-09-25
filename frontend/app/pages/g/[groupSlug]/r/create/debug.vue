@@ -1,47 +1,25 @@
 <template>
   <div>
-    <v-form
-      ref="domUrlForm"
-      @submit.prevent="debugUrl(recipeUrl)"
-    >
+    <v-form ref="domUrlForm" @submit.prevent="debugUrl(recipeUrl)">
       <div>
         <v-card-title class="headline">
           {{ $t('recipe.recipe-debugger') }}
         </v-card-title>
         <v-card-text>
           {{ $t('recipe.recipe-debugger-description') }}
-          <v-text-field
-            v-model="recipeUrl"
-            :label="$t('new-recipe.recipe-url')"
-            validate-on="blur"
-            :prepend-inner-icon="$globals.icons.link"
-            autofocus
-            variant="solo-filled"
-            clearable
-            rounded
-            class="rounded-lg mt-2"
-            :rules="[validators.url]"
-            :hint="$t('new-recipe.url-form-hint')"
-            persistent-hint
-          />
+          <v-text-field v-model="recipeUrl" class="my-3" :label="$t('new-recipe.recipe-url')" validate-on="blur"
+            :prepend-inner-icon="$globals.icons.link" density="compact" autofocus variant="outlined" clearable
+            style="--v-input-control-height: 60px" :rules="[validators.url]" :hint="$t('new-recipe.url-form-hint')"
+            persistent-hint />
         </v-card-text>
         <v-card-text v-if="group?.aiProviderSettings?.aiEnabled">
           {{ $t('recipe.recipe-debugger-use-openai-description') }}
-          <v-checkbox
-            v-model="state.useOpenAI"
-            :label="$t('recipe.use-openai')"
-          />
+          <v-checkbox v-model="state.useOpenAI" :label="$t('recipe.use-openai')" />
         </v-card-text>
         <v-card-actions class="justify-center">
           <div style="width: 250px">
-            <BaseButton
-              :disabled="recipeUrl === null"
-              rounded
-              block
-              type="submit"
-              color="info"
-              :loading="state.loading"
-            >
+            <BaseButton :disabled="recipeUrl === null" rounded block type="submit" color="info"
+              :loading="state.loading">
               <template #icon>
                 {{ $globals.icons.robot }}
               </template>
@@ -52,17 +30,9 @@
       </div>
     </v-form>
     <section v-if="debugData">
-      <v-checkbox
-        v-model="debugTreeView"
-        :label="$t('recipe.tree-view')"
-      />
-      <RecipeJsonEditor
-        v-model="debugData"
-        height="700px"
-        :mode="debugTreeView ? 'tree' : 'text'"
-        :main-menu-bar="false"
-        :read-only="true"
-      />
+      <v-checkbox v-model="debugTreeView" :label="$t('recipe.tree-view')" />
+      <RecipeJsonEditor v-model="debugData" height="700px" :mode="debugTreeView ? 'tree' : 'text'"
+        :main-menu-bar="false" :read-only="true" />
     </section>
   </div>
 </template>

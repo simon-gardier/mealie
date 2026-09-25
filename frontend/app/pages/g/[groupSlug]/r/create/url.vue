@@ -1,9 +1,6 @@
 <template>
   <div>
-    <v-form
-      ref="domUrlForm"
-      @submit.prevent="createByUrl(recipeUrl, importKeywordsAsTags, importCategories)"
-    >
+    <v-form ref="domUrlForm" @submit.prevent="createByUrl(recipeUrl, importKeywordsAsTags, importCategories)">
       <div>
         <v-card-title class="headline">
           {{ $t('recipe.scrape-recipe') }}
@@ -18,66 +15,35 @@
           <v-card-text class="px-0">
             <p>
               {{ $t('recipe.scrape-recipe-have-a-lot-of-recipes') }}
-              <router-link :to="bulkImporterTarget" class="text-primary">{{ $t('recipe.scrape-recipe-suggest-bulk-importer') }}</router-link>.
+              <router-link :to="bulkImporterTarget" class="text-primary">{{
+                $t('recipe.scrape-recipe-suggest-bulk-importer') }}</router-link>.
             </p>
             <p>
               {{ $t('recipe.scrape-recipe-have-raw-html-or-json-data') }}
-              <router-link :to="htmlOrJsonImporterTarget" class="text-primary">{{ $t('recipe.scrape-recipe-you-can-import-from-raw-data-directly') }}</router-link>.
+              <router-link :to="htmlOrJsonImporterTarget" class="text-primary">{{
+                $t('recipe.scrape-recipe-you-can-import-from-raw-data-directly') }}</router-link>.
             </p>
             <p v-if="aiEnabled">
               {{ $t('recipe.scrape-recipe-have-ai-read-the-page') }}
               <router-link :to="aiImporterTarget" class="text-primary">{{ $t('recipe.import-with-ai') }}</router-link>.
             </p>
           </v-card-text>
-          <v-text-field
-            v-model="recipeUrl"
-            :label="$t('new-recipe.recipe-url')"
-            :prepend-inner-icon="$globals.icons.link"
-            validate-on="blur"
-            autofocus
-            variant="solo-filled"
-            clearable
-            class="rounded-lg mt-2"
-            rounded
-            :rules="[validators.url]"
-            :hint="$t('new-recipe.url-form-hint')"
-            persistent-hint
-          />
+          <v-text-field v-model="recipeUrl" class="my-3" :label="$t('new-recipe.recipe-url')"
+            :prepend-inner-icon="$globals.icons.link" validate-on="blur" density="compact" autofocus variant="outlined"
+            clearable :rules="[validators.url]" :hint="$t('new-recipe.url-form-hint')" persistent-hint
+            style="--v-input-control-height: 60px" />
         </v-card-text>
-        <v-checkbox
-          v-model="importKeywordsAsTags"
-          color="primary"
-          hide-details
-          :label="$t('recipe.import-original-keywords-as-tags')"
-        />
-        <v-checkbox
-          v-model="importCategories"
-          color="primary"
-          hide-details
-          :label="$t('recipe.import-original-categories')"
-        />
-        <v-checkbox
-          v-model="stayInEditMode"
-          color="primary"
-          hide-details
-          :label="$t('recipe.stay-in-edit-mode')"
-        />
-        <v-checkbox
-          v-model="parseRecipe"
-          color="primary"
-          hide-details
-          :label="$t('recipe.parse-recipe-ingredients-after-import')"
-        />
+        <v-checkbox v-model="importKeywordsAsTags" color="primary" hide-details
+          :label="$t('recipe.import-original-keywords-as-tags')" />
+        <v-checkbox v-model="importCategories" color="primary" hide-details
+          :label="$t('recipe.import-original-categories')" />
+        <v-checkbox v-model="stayInEditMode" color="primary" hide-details :label="$t('recipe.stay-in-edit-mode')" />
+        <v-checkbox v-model="parseRecipe" color="primary" hide-details
+          :label="$t('recipe.parse-recipe-ingredients-after-import')" />
         <v-card-actions class="justify-center">
           <div style="width: 100%" class="text-center">
             <div style="width: 250px; margin: 0 auto">
-              <BaseButton
-                :disabled="recipeUrl === null"
-                rounded
-                block
-                type="submit"
-                :loading="state.loading"
-              />
+              <BaseButton :disabled="recipeUrl === null" rounded block type="submit" :loading="state.loading" />
             </div>
             <v-card-text class="py-2">
               <!-- render &nbsp; to maintain layout -->
@@ -88,17 +54,9 @@
       </div>
     </v-form>
     <v-expand-transition>
-      <v-alert
-        v-if="state.error"
-        color="error"
-        class="mt-6 white--text"
-      >
+      <v-alert v-if="state.error" color="error" class="mt-6 white--text">
         <v-card-title class="ma-0 pa-0">
-          <v-icon
-            start
-            color="white"
-            size="x-large"
-          >
+          <v-icon start color="white" size="x-large">
             {{ $globals.icons.robot }}
           </v-icon>
           {{ $t("new-recipe.error-title") }}
@@ -108,7 +66,8 @@
         <div class="force-url-white">
           <p>
             {{ $t("recipe.scrape-recipe-website-being-blocked") }}
-            <router-link :to="htmlOrJsonImporterTarget">{{ $t("recipe.scrape-recipe-try-importing-raw-html-instead") }}</router-link>
+            <router-link :to="htmlOrJsonImporterTarget">{{ $t("recipe.scrape-recipe-try-importing-raw-html-instead")
+              }}</router-link>
           </p>
           <p v-if="aiEnabled">
             {{ $t("recipe.scrape-recipe-have-ai-read-the-page") }}
@@ -120,28 +79,15 @@
           </p>
         </div>
         <div class="d-flex row justify-space-around my-3 force-url-white">
-          <a
-            class="dark text-primary"
-            href="https://developers.google.com/search/docs/data-types/recipe"
-            target="_blank"
-            rel="noreferrer nofollow"
-          >
+          <a class="dark text-primary" href="https://developers.google.com/search/docs/data-types/recipe"
+            target="_blank" rel="noreferrer nofollow">
             {{ $t("new-recipe.google-ld-json-info") }}
           </a>
-          <a
-            class="text-primary"
-            href="https://github.com/mealie-recipes/mealie/issues"
-            target="_blank"
-            rel="noreferrer nofollow"
-          >
+          <a class="text-primary" href="https://github.com/mealie-recipes/mealie/issues" target="_blank"
+            rel="noreferrer nofollow">
             {{ $t("new-recipe.github-issues") }}
           </a>
-          <a
-            class="text-primary"
-            href="https://schema.org/Recipe"
-            target="_blank"
-            rel="noreferrer nofollow"
-          >
+          <a class="text-primary" href="https://schema.org/Recipe" target="_blank" rel="noreferrer nofollow">
             {{ $t("new-recipe.recipe-markup-specification") }}
           </a>
         </div>

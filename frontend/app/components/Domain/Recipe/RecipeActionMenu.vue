@@ -11,6 +11,15 @@
 
       <v-spacer v-if="!open" />
       <div v-if="!open" class="custom-btn-group ma-1">
+        <v-tooltip v-if="recipe.userId" location="bottom" color="info">
+          <template #activator="{ props: tooltipProps }">
+            <v-btn icon variant="flat" rounded="circle" size="small" color="info" class="mr-1 owner-avatar-btn"
+              v-bind="tooltipProps">
+              <UserAvatar :user-id="recipe.userId" :tooltip="false" size="32" />
+            </v-btn>
+          </template>
+          <span>{{ ownerName || $t('general.owner') }}</span>
+        </v-tooltip>
         <v-tooltip location="bottom" color="info">
           <template #activator="{ props: tooltipProps }">
             <v-btn icon variant="flat" rounded="circle" size="small" color="info" class="mr-1" v-bind="tooltipProps"
@@ -65,31 +74,45 @@
             delete: loggedIn,
           }" class="ml-1" @print="$emit('print')" />
       </div>
+      <v-spacer v-if="open" />
+      <v-menu v-if="open" offset-y top nudge-top="6" :close-on-content-click="false">
+        <template #activator="{ props: menuProps }">
+          <v-tooltip location="bottom">
+            <template #activator="{ props: tooltipProps }">
+              <v-btn class="editor-action rounded-circle ma-1" size="small" color="info" variant="elevated" icon
+                v-bind="{ ...menuProps, ...tooltipProps }">
+                <UserAvatar :user-id="recipe.userId" :tooltip="false" size="32" />
+              </v-btn>
+            </template>
+            <span>{{ ownerName || $t("general.owner") }}</span>
+          </v-tooltip>
+        </template>
+        <v-card class="pa-2 owner-menu">
+          <slot name="owner" />
+        </v-card>
+      </v-menu>
       <div v-if="open" class="custom-btn-group edit-actions ma-1">
         <slot />
-        <v-btn v-for="(btn, index) in editorButtons" :key="index"
-          :class="['editor-action', { 'rounded-circle': $vuetify.display.xs }]"
-          :size="$vuetify.display.xs ? 'small' : undefined" :color="btn.color" variant="elevated"
-          :icon="$vuetify.display.xs" @click="emitHandler(btn.event)">
-          <v-icon :left="!$vuetify.display.xs">
-            {{ btn.icon }}
-          </v-icon>
-          {{ $vuetify.display.xs ? "" : btn.text }}
-        </v-btn>
+        <v-tooltip v-for="(btn, index) in editorButtons" :key="index" location="bottom">
+          <template #activator="{ props: tooltipProps }">
+            <v-btn class="editor-action rounded-circle" size="small" :color="btn.color" variant="elevated" icon
+              v-bind="tooltipProps" @click="emitHandler(btn.event)">
+              <v-icon>{{ btn.icon }}</v-icon>
+            </v-btn>
+          </template>
+          <span>{{ btn.text }}</span>
+        </v-tooltip>
       </div>
-      <v-spacer v-if="open" />
-      <v-btn v-if="open" :class="{ 'rounded-circle': $vuetify.display.xs }"
-        :size="$vuetify.display.xs ? 'small' : undefined" variant="elevated" :icon="$vuetify.display.xs"
-        @click="emitHandler(CLOSE_EVENT)">
-        <v-icon :left="!$vuetify.display.xs">
-          {{ $globals.icons.close }}
-        </v-icon>
-        {{ $vuetify.display.xs ? "" : $t("general.close") }}
-      </v-btn>
+      <v-tooltip v-if="open" location="bottom">
+        <template #activator="{ props: tooltipProps }">
+          <v-btn class="editor-action rounded-circle ma-1" size="small" variant="elevated" icon v-bind="tooltipProps"
+            @click="emitHandler(CLOSE_EVENT)">
+            <v-icon>{{ $globals.icons.close }}</v-icon>
+          </v-btn>
+        </template>
+        <span>{{ $t("general.close") }}</span>
+      </v-tooltip>
     </v-toolbar>
-    <div v-if="open && $slots.owner" class="owner-container">
-      <slot name="owner" />
-    </div>
   </div>
 </template>
 
@@ -97,6 +120,8 @@
 import RecipeContextMenu from "./RecipeContextMenu/RecipeContextMenu.vue";
 import RecipeFavoriteBadge from "./RecipeFavoriteBadge.vue";
 import RecipeTimelineBadge from "./RecipeTimelineBadge.vue";
+import UserAvatar from "~/components/Domain/User/UserAvatar.vue";
+import { useUserStore } from "~/composables/store/use-user-store";
 import type { Recipe } from "~/lib/api/types/recipe";
 
 const SAVE_EVENT = "save";
@@ -114,7 +139,7 @@ interface Props {
   recipeId: string;
   canEdit?: boolean;
 }
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   recipeScale: 1,
   loggedIn: false,
   canEdit: false,
@@ -123,6 +148,9 @@ withDefaults(defineProps<Props>(), {
 const emit = defineEmits(["print", "input", "save", "delete", "close", "json", "edit", "cook-mode"]);
 
 const deleteDialog = ref(false);
+
+const { store: groupMembers } = useUserStore();
+const ownerName = computed(() => groupMembers.value.find(member => member.id === props.recipe.userId)?.fullName ?? "");
 
 const i18n = useI18n();
 const { $globals } = useNuxtApp();
@@ -179,13 +207,14 @@ function emitDelete() {
   gap: 0.25rem;
 }
 
-.owner-container {
-  margin: 0.25rem auto;
-  padding: 0.5rem;
-  width: fit-content;
-  max-width: calc(100% - 1.5rem);
-  border: 1px solid rgb(var(--v-theme-outline));
-  border-radius: 4px;
+.owner-avatar-btn {
+  padding: 1px !important;
+}
+
+.owner-menu {
+  width: max-content;
+  min-width: 240px;
+  max-width: calc(100vw - 32px);
 }
 
 .vertical {

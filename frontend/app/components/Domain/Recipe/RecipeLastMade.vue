@@ -1,13 +1,25 @@
 <template>
   <div>
     <div>
-      <BaseDialog v-model="madeThisDialog" bottom-sheet :loading="madeThisFormLoading" :icon="$globals.icons.chefHat"
-        title-image="/food-icons/icons8-chef-hat-100.png" :title="$t('recipe.made-this')"
-        :submit-text="$t('recipe.add-to-timeline')" can-submit disable-submit-on-enter @submit="createTimelineEvent">
+      <BaseDialog v-model="madeThisDialog" bottom-sheet center-title content-class="cooked-dialog"
+        :loading="madeThisFormLoading" :title="$t('recipe.made-this')" :submit-text="$t('recipe.add-to-timeline')"
+        can-submit disable-submit-on-enter @submit="createTimelineEvent">
         <v-card-text>
           <v-form ref="domMadeThisForm">
-            <v-textarea v-model="newTimelineEvent.eventMessage" autofocus :label="$t('recipe.comment')"
-              :hint="$t('recipe.how-did-it-turn-out')" persistent-hint rows="4" />
+            <div class="cooked-date-menu">
+              <v-menu v-model="datePickerMenu" :close-on-content-click="false" transition="scale-transition" offset-y>
+                <template #activator="{ props: activatorProps }">
+                  <v-text-field :model-value="$d(newTimelineEventTimestamp)" :prepend-icon="$globals.icons.calendar"
+                    v-bind="activatorProps" readonly class="cooked-date-input" color="primary" variant="outlined"
+                    density="comfortable" width="190" />
+                </template>
+                <v-date-picker v-model="newTimelineEventTimestamp" hide-header :first-day-of-week="firstDayOfWeek"
+                  :local="$i18n.locale" @update:model-value="datePickerMenu = false" />
+              </v-menu>
+            </div>
+            <v-textarea v-model="newTimelineEvent.eventMessage" class="made-this-comment-input" autofocus
+              :label="$t('recipe.comment')" :hint="$t('recipe.how-did-it-turn-out')" persistent-hint rows="4"
+              variant="outlined" />
             <div v-if="childRecipes?.length">
               <v-card-text class="pt-6 pb-0 text-title-medium">
                 {{ $t('recipe.include-linked-recipes') }}
@@ -22,34 +34,16 @@
             </div>
             <v-container>
               <v-row class="mt-4">
-                <v-col cols="5">
-                  <v-menu v-model="datePickerMenu" :close-on-content-click="false" transition="scale-transition"
-                    offset-y>
-                    <template #activator="{ props: activatorProps }">
-                      <v-text-field :model-value="$d(newTimelineEventTimestamp)" :prepend-icon="$globals.icons.calendar"
-                        v-bind="activatorProps" readonly density="compact" min-width="160" />
-                    </template>
-                    <v-date-picker v-model="newTimelineEventTimestamp" hide-header :first-day-of-week="firstDayOfWeek"
-                      :local="$i18n.locale" @update:model-value="datePickerMenu = false" />
-                  </v-menu>
-                </v-col>
-                <v-spacer />
-                <v-col cols="auto">
-                  <AppButtonUpload v-if="!newTimelineEventImage" class="ml-auto" url="none" file-name="image"
-                    accept="image/*" :text="$t('recipe.upload-image')" :text-btn="false" :post="false"
+                <v-col cols="12" class="d-flex flex-column align-center ga-3">
+                  <AppButtonUpload v-if="!newTimelineEventImage" url="none" file-name="image" accept="image/*"
+                    :text="$t('recipe.upload-image')" :text-btn="false" :post="false" class="send-image-button"
                     @uploaded="uploadImage" />
-                  <v-btn v-if="!!newTimelineEventImage" color="error" @click="clearImage">
-                    <v-icon start>
-                      {{ $globals.icons.close }}
-                    </v-icon>
-                    {{ $t("recipe.remove-image") }}
-                  </v-btn>
                 </v-col>
               </v-row>
               <v-row v-if="newTimelineEventImage && newTimelineEventImagePreviewUrl">
                 <v-col cols="12">
-                  <ImageCropper :img="newTimelineEventImagePreviewUrl" cropper-width="100%"
-                    @save="updateUploadedImage" />
+                  <ImageCropper :img="newTimelineEventImagePreviewUrl" cropper-width="100%" @save="updateUploadedImage"
+                    @delete="clearImage" />
                 </v-col>
               </v-row>
             </v-container>
@@ -62,20 +56,17 @@
         <v-row no-gutters class="d-flex flex-wrap align-center" style="font-size: larger">
           <v-tooltip location="bottom">
             <template #activator="{ props: tooltipProps }">
-              <v-btn rounded variant="outlined" size="large" v-bind="tooltipProps" class="font-weight-400 py-2"
-                style="border-color: rgb(var(--v-theme-primary)); min-height: 64px; height: auto;"
+              <v-btn rounded variant="outlined" size="large" v-bind="tooltipProps"
+                class="font-weight-400 py-0 cooked-on-button"
+                style="border-color: rgb(var(--v-theme-primary)); min-height: 45px; height: 45px;"
                 @click="madeThisDialog = true">
                 <v-icon start size="large" color="primary">
                   {{ $globals.icons.calendar }}
                 </v-icon>
-                <span class="opacity-80">
+                <span class="opacity-80 cooked-on-label">
                   <strong>{{ $t("general.last-made") }}</strong>
-                  <br>
                   <span class="cooked-day">{{ lastMade ? $d(new Date(lastMade)) : $t("general.never") }}</span>
                 </span>
-                <v-icon end size="large" color="primary">
-                  {{ $globals.icons.createAlt }}
-                </v-icon>
               </v-btn>
             </template>
             <span>{{ $t("recipe.made-this") }}</span>
@@ -159,7 +150,7 @@ whenever(
 );
 
 const firstDayOfWeek = computed(() => {
-  return household.value?.preferences?.firstDayOfWeek || 0;
+  return household.value?.preferences?.firstDayOfWeek || 1;
 });
 
 function clearImage() {
@@ -294,3 +285,41 @@ async function createTimelineEvent() {
   emit("eventCreated", newEvent);
 }
 </script>
+
+<style scoped>
+.made-this-comment-input {
+  --v-field-border-opacity: 1;
+}
+
+.cooked-date-input {
+  --v-field-border-color: rgb(var(--v-theme-primary));
+  --v-field-border-opacity: 1;
+}
+
+.cooked-date-menu {
+  display: flex;
+  justify-content: center;
+}
+
+.send-image-button :deep(.v-btn) {
+  color: #fff;
+}
+
+:global(.cooked-dialog .v-toolbar-title),
+:global(.cooked-dialog .v-card-actions > .v-btn:last-child) {
+  color: #fff;
+}
+
+.cooked-on-button {
+  background-color: rgb(var(--v-theme-paper));
+  background-image: none;
+}
+
+.cooked-on-label {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-self: center;
+  transform: translateY(4px);
+}
+</style>

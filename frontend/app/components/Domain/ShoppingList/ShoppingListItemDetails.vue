@@ -1,55 +1,19 @@
 <template>
   <div class="d-flex ga-3">
-    <v-number-input
-      v-model="listItem.quantity"
-      hide-details
-      :label="$t('form.quantity-label-abbreviated')"
-      :min="0"
-      :precision="null"
-      style="flex: 5"
-      inset
-    />
-    <InputLabelType
-      v-model="listItem.unit"
-      v-model:item-id="listItem.unitId!"
-      :items="units"
-      :label="$t('recipe.unit')"
-      :icon="$globals.icons.units"
-      :menu-props="{ location: menuDirection }"
-      style="flex: 7"
-      create
-      @create="createAssignUnit"
-    />
+    <v-number-input v-model="listItem.quantity" hide-details :label="$t('form.quantity-label-abbreviated')" :min="0"
+      :precision="null" variant="outlined" style="flex: 5" inset />
+    <InputLabelType v-model="listItem.unit" v-model:item-id="listItem.unitId!" :items="units" :label="$t('recipe.unit')"
+      :icon="$globals.icons.units" outlined :menu-props="{ location: menuDirection }" style="flex: 7" create
+      @create="createAssignUnit" />
   </div>
-  <v-textarea
-    v-model="listItem.note"
-    clearable
-    hide-details
-    :label="$t('shopping-list.note')"
-    rows="1"
-    auto-grow
-    autocapitalize="none"
-    @keypress="handleNoteKeyPress"
-  />
+  <v-textarea v-model="listItem.note" clearable hide-details :label="$t('shopping-list.note')" variant="outlined"
+    rows="1" auto-grow autocapitalize="none" @keypress="handleNoteKeyPress" />
   <div class="d-flex flex-wrap align-end ga-3">
-    <InputLabelType
-      v-model="listItem.label"
-      v-model:item-id="listItem.labelId!"
-      :items="labels"
-      :label="$t('shopping-list.label')"
-      :menu-props="{ location: menuDirection }"
-      style="flex: 1 0 200px"
-    />
-    <BaseButton
-      v-if="listItem.labelId && listItem.food && listItem.labelId !== listItem.food.labelId"
-      small
-      color="info"
-      :icon="$globals.icons.tagArrowRight"
-      :text="$t('shopping-list.save-label')"
-      class="mt-2 align-items-flex-start"
-      style="flex-grow: 0"
-      @click="assignLabelToFood"
-    />
+    <InputLabelType v-model="listItem.label" v-model:item-id="listItem.labelId!" :items="labels"
+      :label="$t('shopping-list.label')" outlined :menu-props="{ location: menuDirection }" style="flex: 1 0 200px" />
+    <BaseButton v-if="listItem.labelId && listItem.food && listItem.labelId !== listItem.food.labelId" small
+      color="info" :icon="$globals.icons.tagArrowRight" :text="$t('shopping-list.save-label')"
+      class="mt-2 align-items-flex-start" style="flex-grow: 0" @click="assignLabelToFood" />
     <v-spacer />
   </div>
 </template>
