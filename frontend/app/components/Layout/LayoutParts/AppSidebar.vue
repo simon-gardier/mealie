@@ -323,6 +323,35 @@ watch(
     min-width: 48px !important;
     width: 48px !important;
     height: 48px !important;
+    align-self: center;
+  }
+
+  .sidebar-user-avatar-link {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+@media (min-width: 601px) {
+  .bistro-sidebar :deep(.v-list-item__prepend > .v-icon) {
+    width: 24px;
+    height: 24px;
+    font-size: 24px;
+  }
+
+  .disconnect-button,
+  .sidebar-icon-button {
+    min-width: 36px !important;
+    width: 36px !important;
+    height: 36px !important;
+    align-self: center;
+  }
+
+  .disconnect-button :deep(.v-icon),
+  .sidebar-icon-button :deep(.v-icon) {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
   }
 
   .sidebar-user-avatar-link {

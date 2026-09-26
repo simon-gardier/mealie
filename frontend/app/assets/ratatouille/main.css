@@ -156,9 +156,7 @@ body,
   overflow: hidden;
   border: 1px solid rgb(var(--v-theme-copper), 0.42);
   border-radius: 10px 16px 12px 18px;
-  background:
-    linear-gradient(125deg, rgb(var(--v-theme-paper), 0.98), rgb(var(--v-theme-surface), 0.82)),
-    rgb(var(--v-theme-paper));
+  background: rgb(var(--v-theme-surface));
 }
 
 .bistro-discovery-panel::after {
@@ -643,7 +641,6 @@ body,
   text-transform: uppercase;
 }
 
-.planner-meal-card.v-card,
 .planner-edit-card.v-card {
   border: 1px solid rgb(var(--v-theme-copper), 0.33);
   border-radius: 5px 8px 6px 7px;
@@ -652,7 +649,15 @@ body,
   box-shadow: 1px 2px 0 rgb(var(--v-theme-copper), 0.11);
 }
 
-.planner-meal-card.v-card:hover {
+.planner-meal-card .bistro-recipe-card.v-card {
+  border: 1px solid rgb(var(--v-theme-copper), 0.2);
+  border-radius: 10px;
+  background-color: color-mix(in srgb, rgb(var(--v-theme-surface-variant)) 25%, rgb(var(--v-theme-paper))) !important;
+  background-image: none !important;
+  box-shadow: 1px 2px 0 rgb(var(--v-theme-copper), 0.06);
+}
+
+.planner-meal-card .bistro-recipe-card.v-card:hover {
   border-color: rgb(var(--v-theme-tomato), 0.58);
 }
 

@@ -1,14 +1,10 @@
 <template>
-  <div class="search-container pb-8">
+  <div class="search-container">
     <form class="search-box bistro-discovery-panel pa-2" @submit.prevent="search">
       <div class="d-flex justify-center align-center ga-2 mb-2">
         <v-text-field ref="input" v-model="state.search" variant="outlined" hide-details clearable color="primary"
           class="flex-grow-1" :placeholder="$t('search.search-placeholder')" :prepend-inner-icon="$globals.icons.search"
           @click:clear="refreshResults" @keyup.enter="hideKeyboard" />
-        <v-btn icon color="error" class="random-button" :disabled="recipeCount === 0" :aria-label="$t('general.random')"
-          @click="emit('random')">
-          <v-icon>{{ $globals.icons.diceMultiple }}</v-icon>
-        </v-btn>
         <!-- <v-switch v-model="state.auto" :label="$t('search.auto-search')" inset color="primary" hide-details
           class="ml-3 mr-0 auto-search-toggle" /> -->
       </div>
@@ -75,17 +71,8 @@ import { useRecipeExplorerSearch, clearRecipeExplorerSearchState } from "~/compo
 
 const emit = defineEmits<{
   ready: [];
-  random: [];
   toggleView: [];
 }>();
-
-interface Props {
-  recipeCount?: number;
-}
-
-withDefaults(defineProps<Props>(), {
-  recipeCount: 0,
-});
 
 const auth = useMealieAuth();
 const route = useRoute();
@@ -181,15 +168,6 @@ async function setRandomOrderByWrapper() {
   await setRandomOrderBy();
 }
 </script>
-
-<style scoped>
-.random-button {
-  width: 48px;
-  height: 48px;
-  min-width: 48px;
-  border-radius: 8px;
-}
-</style>
 
 <style scoped>
 .search-row {

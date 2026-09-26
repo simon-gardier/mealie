@@ -15,6 +15,7 @@ import RecipeExplorerPage from "~/components/Domain/Recipe/RecipeExplorerPage/Re
 .recipe-title-image {
   display: flex;
   justify-content: center;
+  margin-top: 1rem;
   padding: 1rem 1rem 0;
 }
 </style>

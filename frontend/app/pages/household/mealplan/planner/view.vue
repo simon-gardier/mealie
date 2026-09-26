@@ -1,5 +1,7 @@
 <template>
   <v-container fluid class="pa-0">
+    <RecipeDialogAddToShoppingList v-if="shoppingLists" v-model="shoppingListDialog" :recipes="shoppingListRecipes"
+      :shopping-lists="shoppingLists" />
     <GroupMealPlanEntryDialog v-model="dialog.open" :entry="dialog.entry" :date="dialog.date"
       @create="actions.createOne($event)" @update="actions.updateOne($event)" />
     <MealPlanLayout :mealplans="mealplans">
@@ -25,27 +27,9 @@
                         :show-description="!mealplan.recipe"
                         :name="mealplan.recipe ? mealplan.recipe.name! : mealplan.title!"
                         :image="mealplan.recipe ? mealplan.recipe.image! : undefined"
-                        :tags="mealplan.recipe ? mealplan.recipe.tags! : []" :context-menu-leading-items="[
-                          {
-                            title: $t('meal-plan.remove-from-plan'),
-                            icon: $globals.icons.calendarRemove,
-                            color: undefined,
-                            event: 'mealplanRemove',
-                            isPublic: false,
-                          },
-                          {
-                            title: $t('meal-plan.edit-meal-plan'),
-                            icon: $globals.icons.calendarEdit,
-                            color: undefined,
-                            event: 'mealplanEdit',
-                            isPublic: false,
-                          },
-                        ]" :context-menu-use-items="contextMenuUseItems"
-                        @mealplan-remove="actions.deleteOne(mealplan.id)" @mealplan-edit="editMeal(mealplan)">
-                        <template v-if="!mealplan.recipe" #context-menu>
-                          <MealPlanNoteMenu @mealplan-remove="actions.deleteOne(mealplan.id)"
-                            @mealplan-edit="editMeal(mealplan)" />
-                        </template>
+                        :tags="mealplan.recipe ? mealplan.recipe.tags! : []"
+                        @mealplan-remove="actions.deleteOne(mealplan.id)" @mealplan-edit="editMeal(mealplan)"
+                        @add-to-shopping-list="addMealToShoppingList(mealplan)">
                       </RecipeCardMobile>
                     </SpinTransition>
                   </div>
@@ -70,8 +54,9 @@
 </template>
 
 <script setup lang="ts">
-import MealPlanNoteMenu from "~/components/Domain/Mealplan/MealPlanNoteMenu.vue";
+import RecipeDialogAddToShoppingList from "~/components/Domain/Recipe/RecipeDialogAddToShoppingList.vue";
 import RecipeCardMobile from "~/components/Domain/Recipe/RecipeCardMobile.vue";
+import { useAddToShoppingListDialog } from "~/composables/shopping-list-page/use-add-to-shopping-list-dialog";
 import type { MealsByDate } from "~/composables/use-group-mealplan";
 import type { ReadPlanEntry } from "~/lib/api/types/meal-plan";
 
@@ -81,13 +66,26 @@ defineProps<{
   loading?: boolean;
 }>();
 
-const contextMenuUseItems = { share: false };
+const { open: shoppingListDialog, shoppingLists, getShoppingLists } = useAddToShoppingListDialog();
 
 const dialog = reactive({
   open: false,
   entry: null as ReadPlanEntry | null,
   date: null as Date | null,
 });
+const shoppingListMeal = ref<ReadPlanEntry | null>(null);
+const shoppingListRecipes = computed(() => {
+  const recipe = shoppingListMeal.value?.recipe;
+  return recipe ? [{ scale: 1, ...recipe }] : [];
+});
+
+async function addMealToShoppingList(mealplan: ReadPlanEntry) {
+  if (!mealplan.recipe) return;
+
+  shoppingListMeal.value = mealplan;
+  await getShoppingLists();
+  shoppingListDialog.value = true;
+}
 
 function editMeal(mealplan: ReadPlanEntry) {
   if (!mealplan.entryType) return;

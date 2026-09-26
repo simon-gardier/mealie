@@ -16,11 +16,15 @@
         ]" item-props :height="listMode || compact ? undefined : '100%'" density="compact">
           <template #prepend>
             <slot v-if="!vertical" name="avatar">
-              <div :class="{ 'recipe-list-image-wrapper': listMode }" @click="openImage">
+              <div :class="{
+                'recipe-list-image-wrapper': listMode,
+                'recipe-compact-image-wrapper': compact,
+                'recipe-compact-image-wrapper--placeholder': compact && !image,
+              }" @click="openImage">
                 <RecipeCardImage tiny :icon-size="compact ? 32 : 100" :slug="slug" :recipe-id="recipeId"
                   :image-version="image" class="recipe-list-image"
-                  :width="listMode ? undefined : compact ? '88' : '125'"
-                  :height="listMode ? '100%' : compact ? 80 : height" />
+                  :width="listMode ? undefined : compact ? '88' : '125'" :height="listMode || compact ? '100%' : height"
+                  :min-height="compact ? 0 : undefined" />
                 <RecipeRating v-if="listMode && showRecipeContent" class="recipe-list-image-rating"
                   :model-value="rating" :recipe-id="recipeId" :slug="slug" small />
               </div>
@@ -59,12 +63,40 @@
 
               <!-- If we're not logged-in, no items display, so we hide this menu -->
               <!-- We also add padding to the v-rating above to compensate -->
-              <slot name="context-menu">
+              <template v-if="compact">
+                <v-tooltip open-delay="200" transition="slide-y-reverse-transition" density="compact" location="bottom"
+                  content-class="text-caption">
+                  <template #activator="{ props: tooltipProps }">
+                    <v-btn :icon="$globals.icons.calendarRemove" class="recipe-compact-action" variant="text"
+                      size="default" :aria-label="t('meal-plan.remove-from-plan')" v-bind="tooltipProps"
+                      @click.stop="$emit('mealplanRemove')" />
+                  </template>
+                  <span>{{ t("meal-plan.remove-from-plan") }}</span>
+                </v-tooltip>
+                <v-tooltip open-delay="200" transition="slide-y-reverse-transition" density="compact" location="bottom"
+                  content-class="text-caption">
+                  <template #activator="{ props: tooltipProps }">
+                    <v-btn :icon="$globals.icons.calendarEdit" class="recipe-compact-action" variant="text"
+                      size="default" :aria-label="t('meal-plan.edit-meal-plan')" v-bind="tooltipProps"
+                      @click.stop="$emit('mealplanEdit')" />
+                  </template>
+                  <span>{{ t("meal-plan.edit-meal-plan") }}</span>
+                </v-tooltip>
+                <v-tooltip v-if="showRecipeContent" open-delay="200" transition="slide-y-reverse-transition"
+                  density="compact" location="bottom" content-class="text-caption">
+                  <template #activator="{ props: tooltipProps }">
+                    <v-btn :icon="$globals.icons.cartCheck" class="recipe-compact-action" variant="text" size="default"
+                      :aria-label="t('recipe.add-to-list')" v-bind="tooltipProps"
+                      @click.stop="$emit('addToShoppingList')" />
+                  </template>
+                  <span>{{ t("recipe.add-to-list") }}</span>
+                </v-tooltip>
+              </template>
+              <slot v-else name="context-menu">
                 <RecipeContextMenu v-if="isOwnGroup && showRecipeContent"
                   :key="listMode ? `${recipeId}-${isFavorite}` : recipeId" :slug="slug"
-                  :menu-icon="listMode || compact ? $globals.icons.dotsVertical : $globals.icons.dotsHorizontal"
-                  :name="name" :recipe-id="recipeId" :class="listMode ? 'recipe-list-menu' : 'ml-auto'"
-                  :use-items="contextMenuItems"
+                  :menu-icon="listMode ? $globals.icons.dotsVertical : $globals.icons.dotsHorizontal" :name="name"
+                  :recipe-id="recipeId" :class="listMode ? 'recipe-list-menu' : 'ml-auto'" :use-items="contextMenuItems"
                   :leading-items="listMode ? listMenuLeadingItems : contextMenuLeadingItems"
                   :append-items="contextMenuAppendItems" @favorite="toggleFavorite" @deleted="$emit('delete', slug)"
                   @mealplan-remove="$emit('mealplanRemove')" @mealplan-edit="$emit('mealplanEdit')" />
@@ -133,6 +165,7 @@ const props = withDefaults(defineProps<Props>(), {
 defineEmits<{
   mealplanRemove: [];
   mealplanEdit: [];
+  addToShoppingList: [];
   selected: [];
   delete: [slug: string];
 }>();
@@ -249,24 +282,48 @@ async function toggleFavorite() {
 }
 
 .recipe-compact-card {
-  min-height: 80px;
+  height: 96px;
+  min-height: 96px;
   position: relative;
 }
 
 .recipe-compact-item {
-  height: 80px;
-  padding-inline-end: 40px !important;
+  height: 100%;
+  padding-inline-end: 0 !important;
   position: relative;
+}
+
+.recipe-compact-item :deep(.v-list-item__content) {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-width: 0;
 }
 
 .recipe-compact-item :deep(.v-list-item__prepend) {
   align-self: stretch;
   height: 100%;
   margin-inline-end: 0;
+  min-width: 88px;
+  width: 88px;
+}
+
+.recipe-compact-image-wrapper {
+  align-self: stretch;
+  box-sizing: border-box;
+  flex: 0 0 88px;
+  height: 100%;
+  width: 88px;
+}
+
+.recipe-compact-image-wrapper--placeholder {
+  padding-inline: 10px;
 }
 
 .recipe-compact-item :deep(.recipe-list-image) {
   height: 100% !important;
+  min-height: 0 !important;
 }
 
 .recipe-compact-item :deep(.icon-position) {
@@ -274,13 +331,14 @@ async function toggleFavorite() {
 }
 
 .recipe-compact-card .recipe-card-mobile__content {
-  inset: 0 54px 0 88px;
-  position: absolute;
-  height: 100%;
+  inset: auto;
+  position: static;
+  flex: 1 1 auto;
+  height: auto;
   justify-content: center;
   min-width: 0;
   padding: 0 0.75rem !important;
-  width: auto !important;
+  width: 100% !important;
 }
 
 .recipe-compact-title {
@@ -294,15 +352,25 @@ async function toggleFavorite() {
 }
 
 .recipe-compact-card .recipe-card-actions {
-  align-items: flex-start;
-  height: 40px;
+  align-items: center;
+  flex: 0 0 32px;
+  gap: 0;
+  height: 32px;
   justify-content: flex-end;
-  padding: 2px !important;
-  position: absolute;
-  right: 0;
-  top: 0;
-  width: 40px !important;
+  margin: 0;
+  min-height: 0 !important;
+  padding: 0 4px 0 0 !important;
+  position: static;
+  width: 100% !important;
   z-index: 1;
+}
+
+.recipe-compact-card .recipe-card-actions :deep(.recipe-compact-action) {
+  transform: translateY(-4px);
+}
+
+.recipe-compact-card .recipe-card-actions :deep(.v-icon) {
+  font-size: 18px !important;
 }
 
 /* list mode: allow multi-line wrapping, falling back to an inner scrollbar for overly long content */

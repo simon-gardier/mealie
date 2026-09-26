@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar clipped-left app color="surface" class="bistro-header d-print-none">
+  <v-app-bar clipped-left app color="surface" scroll-behavior="hide" class="bistro-header d-print-none">
     <slot />
     <RouterLink :to="routerLink" class="bistro-wordmark">
       <span>Petit Chef</span>
@@ -64,6 +64,10 @@ onBeforeUnmount(() => {
 <style scoped>
 .remy-logo {
   object-fit: contain;
+}
+
+.bistro-header {
+  transition: transform 0.2s ease;
 }
 
 .v-toolbar {
