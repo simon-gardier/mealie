@@ -1,20 +1,10 @@
 <template>
   <div v-if="items">
-    <RecipeOrganizerDialog
-      v-model="dialogs.organizer"
-      :item-type="itemType"
-    />
+    <RecipeOrganizerDialog v-model="dialogs.organizer" :item-type="itemType" />
 
-    <BaseDialog
-      v-if="deleteTarget"
-      v-model="dialogs.delete"
-      bottom-sheet
-      :title="$t('general.delete-with-name', { name: $t(translationKey) })"
-      color="error"
-      :icon="$globals.icons.alertCircle"
-      can-confirm
-      @confirm="deleteOne()"
-    >
+    <BaseDialog v-if="deleteTarget" v-model="dialogs.delete" bottom-sheet
+      :title="$t('general.delete-with-name', { name: $t(translationKey) })" color="error"
+      :icon="$globals.icons.alertCircle" can-confirm @confirm="deleteOne()">
       <v-card-text>
         <p>{{ $t("general.confirm-delete-generic-with-name", { name: $t(translationKey) }) }}</p>
         <p class="mt-4 mb-0 ml-4">
@@ -23,86 +13,37 @@
       </v-card-text>
     </BaseDialog>
 
-    <BaseDialog
-      v-if="updateTarget"
-      v-model="dialogs.update"
-      :title="$t('general.update')"
-      :icon="$globals.icons.edit"
-      can-confirm
-      @confirm="updateOne()"
-    >
+    <BaseDialog v-if="updateTarget" v-model="dialogs.update" :title="$t('general.update')" :icon="$globals.icons.edit"
+      can-confirm @confirm="updateOne()">
       <v-card-text>
-        <v-text-field
-          v-model="updateTarget.name"
-          :label="$t('general.name')"
-        />
-        <v-checkbox
-          v-if="itemType === Organizer.Tool"
-          v-model="updateTarget.onHand"
-          :label="$t('tool.on-hand')"
-        />
+        <v-text-field v-model="updateTarget.name" :label="$t('general.name')" />
+        <v-checkbox v-if="itemType === Organizer.Tool" v-model="updateTarget.onHand" :label="$t('tool.on-hand')" />
       </v-card-text>
     </BaseDialog>
 
     <v-row density="comfortable">
       <v-col>
-        <v-text-field
-          v-model="searchString"
-          variant="outlined"
-          autofocus
-          color="primary accent-3"
-          :placeholder="$t('search.search-placeholder')"
-          :prepend-inner-icon="$globals.icons.search"
-          clearable
-        />
+        <v-text-field v-model="searchString" variant="outlined" autofocus color="primary accent-3"
+          :placeholder="$t('search.search-placeholder')" :prepend-inner-icon="$globals.icons.search" clearable />
       </v-col>
     </v-row>
 
-    <v-row
-      color="transparent"
-      flat
-      class="mt-n1 rounded align-center position-relative w-100 left-0 top-0"
-    >
-      <v-icon
-        size="large"
-        start
-      >
+    <v-row color="transparent" flat class="mt-n1 rounded align-center position-relative w-100 left-0 top-0">
+      <img v-if="titleImage" :src="titleImage" alt="" aria-hidden="true" class="title-image">
+      <v-icon v-else size="large" start>
         {{ icon }}
       </v-icon>
       <v-toolbar-title class="headline">
         <slot name="title" />
       </v-toolbar-title>
       <v-spacer />
-      <BaseButton
-        create
-        @click="dialogs.organizer = true"
-      />
+      <BaseButton create @click="dialogs.organizer = true" />
     </v-row>
-    <section
-      v-for="(itms, key, idx) in itemsSorted"
-      :key="'header' + idx"
-      :class="idx === 1 ? null : 'my-4'"
-    >
-      <BaseCardSectionTitle
-        v-if="isTitle(key)"
-        :title="key"
-      />
+    <section v-for="(itms, key, idx) in itemsSorted" :key="'header' + idx" :class="idx === 1 ? null : 'my-4'">
+      <BaseCardSectionTitle v-if="isTitle(key)" :title="key" />
       <v-row>
-        <v-col
-          v-for="(item, index) in itms"
-          :key="'cat' + index"
-          cols="12"
-          :sm="12"
-          :md="6"
-          :lg="4"
-          :xl="3"
-        >
-          <v-card
-            v-if="item"
-            class="left-border"
-            hover
-            :to="`/g/${groupSlug}?${itemType}=${item.id}`"
-          >
+        <v-col v-for="(item, index) in itms" :key="'cat' + index" cols="12" :sm="12" :md="6" :lg="4" :xl="3">
+          <v-card v-if="item" class="left-border" hover :to="`/g/${groupSlug}?${itemType}=${item.id}`">
             <v-card-actions>
               <v-icon>
                 {{ icon }}
@@ -110,11 +51,8 @@
               <v-card-title class="py-1 text-truncate flex-shrink-1 flex-grow-1">
                 {{ item.name }}
               </v-card-title>
-              <ContextMenu
-                :items="[presets.delete, presets.edit]"
-                @delete="confirmDelete(item)"
-                @edit="openUpdateDialog(item)"
-              />
+              <ContextMenu :items="[presets.delete, presets.edit]" @delete="confirmDelete(item)"
+                @edit="openUpdateDialog(item)" />
             </v-card-actions>
           </v-card>
         </v-col>
@@ -141,6 +79,7 @@ interface GenericItem {
 const props = defineProps<{
   items: GenericItem[];
   icon: string;
+  titleImage?: string;
   itemType: RecipeOrganizer;
 }>();
 
@@ -263,3 +202,12 @@ function isTitle(str: number | string) {
   return typeof str === "string" && str.length === 1;
 }
 </script>
+
+<style scoped>
+.title-image {
+  width: 40px;
+  height: 40px;
+  margin-right: 4px;
+  object-fit: contain;
+}
+</style>

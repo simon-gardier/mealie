@@ -14,7 +14,7 @@
         <v-container>
           <v-row v-for="alias, i in aliases" :key="i">
             <v-col cols="10">
-              <v-text-field v-model="alias.name" :label="$t('general.name')" :rules="[validators.required]" />
+              <v-text-field v-model="alias.name" :label="$t('general.name')" :rules="[validators.required]" variant="outlined" />
             </v-col>
             <v-col cols="2">
               <BaseButtonGroup

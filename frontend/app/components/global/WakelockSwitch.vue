@@ -1,15 +1,9 @@
 <template>
-  <div
-    v-if="wakeIsSupported"
-    class="d-print-none d-flex px-2"
-    :class="$vuetify.display.smAndDown ? 'justify-center' : 'justify-end'"
-  >
-    <v-switch
-      v-model="wakeLock"
-      color="primary"
-      :label="$t('recipe.screen-awake')"
-    />
-  </div>
+  <v-list-item v-if="wakeIsSupported" :prepend-icon="$globals.icons.eye" :title="$t('recipe.screen-awake')">
+    <template #append>
+      <v-switch v-model="wakeLock" color="primary" hide-details />
+    </template>
+  </v-list-item>
 </template>
 
 <script setup lang="ts">

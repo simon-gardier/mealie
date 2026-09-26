@@ -1,124 +1,62 @@
 <template>
-  <v-container
-    v-if="shoppingListChoices && ready"
-    class="narrow-container"
-  >
-    <BaseDialog
-      v-model="state.createDialog"
-      bottom-sheet
-      :title="$t('shopping-list.create-shopping-list')"
-      :icon="$globals.icons.formatListCheck"
-      can-submit
-      :submit-disabled="!isCreateNameValid"
-      @submit="createOne"
-    >
+  <v-container v-if="shoppingListChoices && ready" class="narrow-container">
+    <BaseDialog v-model="state.createDialog" bottom-sheet :title="$t('shopping-list.create-shopping-list')"
+      :icon="$globals.icons.formatListCheck" can-submit :submit-disabled="!isCreateNameValid" @submit="createOne">
       <v-card-text>
-        <v-text-field
-          v-model.trim="state.createName"
-          autofocus
-          :label="$t('shopping-list.new-list')"
-        />
+        <v-text-field v-model.trim="state.createName" autofocus variant="outlined"
+          :label="$t('shopping-list.new-list')" />
       </v-card-text>
     </BaseDialog>
 
     <!-- Settings -->
-    <BaseDialog
-      v-model="state.ownerDialog"
-      bottom-sheet
-      :icon="$globals.icons.admin"
-      :title="$t('user.edit-user')"
-      can-confirm
-      @confirm="updateOwner"
-    >
+    <BaseDialog v-model="state.ownerDialog" bottom-sheet :icon="$globals.icons.admin" :title="$t('user.edit-user')"
+      can-confirm @confirm="updateOwner">
       <v-container>
         <v-form>
-          <v-select
-            v-model="updateUserId"
-            :items="allUsers"
-            item-title="fullName"
-            item-value="id"
-            :label="$t('general.owner')"
-            :prepend-icon="$globals.icons.user"
-          />
+          <v-select v-model="updateUserId" :items="allUsers" item-title="fullName" item-value="id"
+            :label="$t('general.owner')">
+            <template #prepend>
+              <UserAvatar v-if="updateUserId" :user-id="updateUserId" :tooltip="false" />
+            </template>
+          </v-select>
         </v-form>
       </v-container>
     </BaseDialog>
 
-    <BaseDialog
-      v-model="state.deleteDialog"
-      bottom-sheet
-      :title="$t('general.confirm')"
-      :icon="$globals.icons.alertCircle"
-      color="error"
-      can-confirm
-      @confirm="deleteOne"
-    >
+    <BaseDialog v-model="state.deleteDialog" bottom-sheet :title="$t('general.confirm')"
+      :icon="$globals.icons.alertCircle" color="error" can-confirm @confirm="deleteOne">
       <v-card-text>{{ $t('shopping-list.are-you-sure-you-want-to-delete-this-item') }}</v-card-text>
     </BaseDialog>
-    <BasePageTitle divider>
-      <template #header>
-        <v-img
-          width="100%"
-          max-height="100"
-          max-width="100"
-          src="/svgs/shopping-cart.svg"
-        />
-      </template>
+    <BasePageTitle divider title-image="/groceries.png" :title-image-alt="$t('shopping-list.shopping-lists')">
       <template #title>
         {{ $t('shopping-list.shopping-lists') }}
       </template>
     </BasePageTitle>
 
-    <v-container class="d-flex align-center justify-end px-0 pt-0 pb-4">
-      <v-checkbox
-        v-model="preferences.viewAllLists"
-        hide-details
-        :label="$t('general.show-all')"
-        class="my-0 mr-4"
-      />
-      <BaseButton
-        create
-        class="my-0"
-        @click="state.createDialog = true"
-      />
+    <v-container class="d-flex align-center justify-space-between px-0 pt-0 pb-4">
+      <v-switch v-model="onlyMyLists" hide-details :label="$t('shopping-list.only-my-lists')" class="my-0" />
+      <BaseButton create class="my-0" @click="state.createDialog = true" />
     </v-container>
 
     <v-container v-if="!shoppingListChoices.length">
-      <BasePageTitle>
-        <template #title>
-          {{ $t('shopping-list.no-shopping-lists-found') }}
-        </template>
-      </BasePageTitle>
+      <BaseNoResultsAlert :text="$t('shopping-list.no-shopping-lists-found')" />
     </v-container>
 
-    <section>
-      <v-card
-        v-for="list in shoppingListChoices"
-        :key="list.id"
-        class="my-2 left-border"
-        :to="`/shopping-lists/${list.id}`"
-      >
+    <div v-if="deletingListId" class="bistro-delete-backdrop" aria-hidden="true" @click="skipDeleteAnimation" />
+
+    <section class="bistro-scratch-note-grid">
+      <v-card v-for="list in shoppingListChoices" :key="list.id" class="bistro-scratch-note"
+        :class="{ 'bistro-scratch-note--crumpling': deletingListId === list.id }" :to="`/shopping-lists/${list.id}`">
         <v-card-title class="d-flex align-center">
-          <v-icon class="mr-2">
-            {{ $globals.icons.cartCheck }}
-          </v-icon>
+          <v-btn icon variant="plain" class="bistro-note-action bistro-note-action-owner"
+            @click.prevent="toggleOwnerDialog(list)">
+            <UserAvatar :user-id="list.userId" :tooltip="false" size="32" />
+          </v-btn>
           <span class="flex-grow-1">
             {{ list.name }}
           </span>
-          <v-btn
-            icon
-            variant="plain"
-            @click.prevent="toggleOwnerDialog(list)"
-          >
-            <v-icon>
-              {{ $globals.icons.user }}
-            </v-icon>
-          </v-btn>
-          <v-btn
-            icon
-            variant="plain"
-            @click.prevent="openDelete(list.id)"
-          >
+          <v-btn icon variant="plain" class="bistro-note-action bistro-note-action-delete"
+            @click.prevent="openDelete(list.id)">
             <v-icon>
               {{ $globals.icons.delete }}
             </v-icon>
@@ -135,6 +73,7 @@ import { useUserApi } from "~/composables/api";
 import { useAsyncKey } from "~/composables/use-utils";
 import { useShoppingListPreferences } from "~/composables/use-users/preferences";
 import type { UserOut } from "~/lib/api/types/user";
+import UserAvatar from "~/components/Domain/User/UserAvatar.vue";
 
 const auth = useMealieAuth();
 const i18n = useI18n();
@@ -149,6 +88,13 @@ useSeoMeta({
 const overrideDisableRedirect = ref(false);
 const disableRedirect = computed(() => route.query.disableRedirect === "true" || overrideDisableRedirect.value);
 const preferences = useShoppingListPreferences();
+const deletingListId = ref<string | null>(null);
+let releaseDeleteAnimation: (() => void) | undefined;
+let deleteAnimationTimer: ReturnType<typeof setTimeout> | undefined;
+const onlyMyLists = computed({
+  get: () => !preferences.value.viewAllLists,
+  set: value => preferences.value.viewAllLists = !value,
+});
 
 const state = reactive({
   createName: "",
@@ -271,10 +217,49 @@ function openDelete(id: string) {
   state.deleteTarget = id;
 }
 
+function waitForDeleteAnimation() {
+  return new Promise<void>((resolve) => {
+    const complete = () => {
+      if (deleteAnimationTimer) {
+        clearTimeout(deleteAnimationTimer);
+      }
+      deleteAnimationTimer = undefined;
+      releaseDeleteAnimation = undefined;
+      resolve();
+    };
+
+    releaseDeleteAnimation = complete;
+    deleteAnimationTimer = setTimeout(complete, 2400);
+  });
+}
+
+function skipDeleteAnimation() {
+  const target = deletingListId.value;
+  if (!target) {
+    return;
+  }
+
+  shoppingLists.value = shoppingLists.value?.filter(list => list.id !== target) ?? [];
+  releaseDeleteAnimation?.();
+}
+
 async function deleteOne() {
-  const { data } = await userApi.shopping.lists.deleteOne(state.deleteTarget);
-  if (data) {
-    refresh();
+  if (deletingListId.value || !state.deleteTarget) {
+    return;
+  }
+
+  const deleteTarget = state.deleteTarget;
+  deletingListId.value = deleteTarget;
+  await waitForDeleteAnimation();
+
+  try {
+    const { data } = await userApi.shopping.lists.deleteOne(deleteTarget);
+    if (data) {
+      refresh();
+    }
+  }
+  finally {
+    deletingListId.value = null;
   }
 }
 </script>

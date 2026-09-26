@@ -1,27 +1,15 @@
 <template>
   <div>
     <v-container class="flex-column">
-      <BasePageTitle divider>
-        <template #header>
-          <v-img
-            width="100%"
-            max-height="175"
-            max-width="175"
-            src="/svgs/recipes-create.svg"
-          />
-        </template>
+      <BasePageTitle divider title-image="/create_recipe.png" :title-image-alt="$t('recipe.recipe-creation')">
         <template #title>
           {{ $t('recipe.recipe-creation') }}
         </template>
         <template #content>
           <div class="flex-1-1 d-flex flex-column justify-center align-center ga-2">
             <p>{{ $t('recipe.select-one-of-the-various-ways-to-create-a-recipe') }}</p>
-            <div class="ml-auto">
-              <BaseOverflowButton
-                v-model="subpage"
-                rounded
-                :items="subpages"
-              />
+            <div>
+              <BaseOverflowButton v-model="subpage" rounded :items="subpages" />
             </div>
           </div>
         </template>
@@ -33,10 +21,8 @@
 
     <AdvancedOnly>
       <v-container class="d-flex justify-center align-center my-4">
-        <router-link
-          :to="`/group/migrations`"
-          class="text-primary"
-        > {{ $t('recipe.looking-for-migrations') }}</router-link>
+        <router-link :to="`/group/migrations`" class="text-primary"> {{ $t('recipe.looking-for-migrations')
+        }}</router-link>
       </v-container>
     </AdvancedOnly>
   </div>

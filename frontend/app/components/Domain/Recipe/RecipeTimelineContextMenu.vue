@@ -44,6 +44,7 @@
     >
       <template #activator="{ props: btnProps }">
         <v-btn
+          class="recipe-timeline-menu-button"
           :class="{ 'rounded-circle': props.fab }"
           :x-small="props.fab"
           :elevation="props.elevation ?? undefined"
@@ -175,3 +176,13 @@ function submitEdit() {
   recipeEventEditDialog.value = false;
 }
 </script>
+
+<style scoped>
+.recipe-timeline-menu-button {
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+}
+</style>

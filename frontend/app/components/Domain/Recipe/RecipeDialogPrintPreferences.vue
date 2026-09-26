@@ -8,96 +8,80 @@
   >
     <div class="pa-6">
       <v-container class="print-config mb-3 pa-0">
-        <v-row>
-          <v-col
-            cols="auto"
-            align-self="center"
-            class="text-center"
+        <div class="d-flex flex-column align-center mb-4">
+          <div class="text-subtitle-2 text-center mb-2">
+            {{ $t('recipe.recipe-image') }}
+          </div>
+          <v-btn-toggle
+            v-model="preferences.imagePosition"
+            mandatory="force"
+            class="mx-auto"
+            style="width: fit-content;"
           >
-            <div
-              class="text-subtitle-2"
-              style="text-align: center;"
-            >
-              {{ $t('recipe.recipe-image') }}
-            </div>
-            <v-btn-toggle
-              v-model="preferences.imagePosition"
-              mandatory="force"
-              style="width: fit-content;"
-            >
-              <v-btn :value="ImagePosition.left">
-                <v-icon>{{ $globals.icons.dockLeft }}</v-icon>
-              </v-btn>
-              <v-btn :value="ImagePosition.right">
-                <v-icon>{{ $globals.icons.dockRight }}</v-icon>
-              </v-btn>
-              <v-btn :value="ImagePosition.hidden">
-                <v-icon>{{ $globals.icons.windowClose }}</v-icon>
-              </v-btn>
-            </v-btn-toggle>
-          </v-col>
+            <v-btn :value="ImagePosition.left">
+              <v-icon>{{ $globals.icons.dockLeft }}</v-icon>
+            </v-btn>
+            <v-btn :value="ImagePosition.right">
+              <v-icon>{{ $globals.icons.dockRight }}</v-icon>
+            </v-btn>
+            <v-btn :value="ImagePosition.hidden">
+              <v-icon>{{ $globals.icons.windowClose }}</v-icon>
+            </v-btn>
+          </v-btn-toggle>
+        </div>
+
+        <v-row
+          justify="center"
+          class="mt-2"
+        >
           <v-col
-            cols="auto"
-            align-self="start"
+            cols="12"
+            class="d-flex flex-wrap justify-center ga-4"
           >
-            <v-row no-gutters>
+            <div class="d-flex flex-column">
               <v-switch
                 v-model="preferences.showDescription"
                 hide-details
                 color="primary"
                 :label="$t('recipe.description')"
               />
-            </v-row>
-            <v-row no-gutters>
               <v-switch
                 v-model="preferences.showNotes"
                 hide-details
                 color="primary"
                 :label="$t('recipe.notes')"
               />
-            </v-row>
-          </v-col>
-          <v-col
-            cols="auto"
-            align-self="start"
-          >
-            <v-row no-gutters>
+            </div>
+
+            <div class="d-flex flex-column">
               <v-switch
                 v-model="preferences.showNutrition"
                 hide-details
                 color="primary"
                 :label="$t('recipe.nutrition')"
               />
-            </v-row>
-            <v-row no-gutters>
               <v-switch
                 v-model="preferences.expandChildRecipes"
                 hide-details
                 color="primary"
                 :label="$t('recipe.include-linked-recipe-ingredients')"
               />
-            </v-row>
-          </v-col>
-          <v-col
-            cols="auto"
-            align-self="start"
-          >
-            <v-row no-gutters>
+            </div>
+
+            <div class="d-flex flex-column">
               <v-switch
                 v-model="preferences.showLinkedIngredients"
                 hide-details
                 color="primary"
                 :label="$t('recipe.linked-ingredients')"
               />
-            </v-row>
-            <v-row no-gutters>
               <v-switch
                 v-model="preferences.showSubstitutions"
                 hide-details
                 color="primary"
                 :label="$t('recipe.substitutions')"
               />
-            </v-row>
+            </div>
           </v-col>
         </v-row>
       </v-container>

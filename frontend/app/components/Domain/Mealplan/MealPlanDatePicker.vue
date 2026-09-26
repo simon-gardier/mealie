@@ -1,19 +1,11 @@
 <template>
-  <v-date-picker
-    v-model="selectedDate"
-    class="mx-auto"
-    hide-header
-    show-adjacent-months
-    color="primary"
-    :first-day-of-week="firstDayOfWeek"
-    :local="$i18n.locale"
-    :events="hasMealPlanned"
-    @update:month="updateMonth"
-    @update:year="updateYear"
-  >
+  <v-date-picker v-model="selectedDate" class="mx-auto" hide-header show-adjacent-months color="primary"
+    :first-day-of-week="firstDayOfWeek" :local="$i18n.locale" :events="hasMealPlanned" @update:month="updateMonth"
+    @update:year="updateYear">
     <template #controls="{ yearText, monthYearText, prevMonth, nextMonth, disabled }">
       <div class="d-flex justify-space-between w-100">
-        <v-btn :disabled="disabled.includes('prev-month')" :icon="$globals.icons.chevronLeft" flat density="comfortable" @click="prevMonth" />
+        <v-btn :disabled="disabled.includes('prev-month')" :icon="$globals.icons.chevronLeft" flat density="comfortable"
+          @click="prevMonth" />
         <div class="text-center">
           <div class="text-body-large">
             {{ monthYearText.split(' ')[0] }}
@@ -22,7 +14,8 @@
             {{ yearText }}
           </div>
         </div>
-        <v-btn :disabled="disabled.includes('next-month')" :icon="$globals.icons.chevronRight" flat density="comfortable" @click="nextMonth" />
+        <v-btn :disabled="disabled.includes('next-month')" :icon="$globals.icons.chevronRight" flat
+          density="comfortable" @click="nextMonth" />
       </div>
     </template>
   </v-date-picker>
@@ -48,7 +41,7 @@ const range = computed(() => ({
 const { mealplans } = useMealplans(range);
 
 const firstDayOfWeek = computed(() => {
-  return household.value?.preferences?.firstDayOfWeek || 0;
+  return household.value?.preferences?.firstDayOfWeek || 1;
 });
 
 function updateMonth(month: number) {

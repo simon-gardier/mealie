@@ -1,14 +1,7 @@
 <template>
   <div>
-    <v-btn
-      variant="outlined"
-      class="rounded-xl my-1 mx-1"
-      :to="to"
-    >
-      <v-icon
-        v-if="icon != ''"
-        start
-      >
+    <v-btn color="primary" variant="flat" class="rounded-xl my-1 mx-1" :to="to">
+      <v-icon v-if="icon != ''" start>
         {{ icon }}
       </v-icon>
       {{ text }}

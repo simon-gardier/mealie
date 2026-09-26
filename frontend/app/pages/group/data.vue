@@ -2,25 +2,15 @@
   <v-container>
     <BasePageTitle>
       <template #header>
-        <v-img
-          width="100%"
-          max-height="175"
-          max-width="175"
-          src="/svgs/manage-recipes.svg"
-        />
+        <v-img width="100%" max-height="175" max-width="175" src="/svgs/manage-recipes.svg" />
       </template>
       <template #title>
         {{ $t('data-pages.data-management') }}
       </template>
       {{ $t('data-pages.data-management-description') }}
       <template #content>
-        <div>
-          <BaseOverflowButton
-            :btn-text="buttonText"
-            mode="link"
-            rounded
-            :items="DATA_TYPE_OPTIONS"
-          />
+        <div class="d-flex w-100 justify-center">
+          <BaseOverflowButton :btn-text="buttonText" mode="link" rounded :items="DATA_TYPE_OPTIONS" />
         </div>
       </template>
     </BasePageTitle>
@@ -102,7 +92,7 @@ const buttonText = computed(() => {
   const last = route.path
     .split("/")
     .pop()
-  // convert hypenated-values to camelCase
+    // convert hypenated-values to camelCase
     ?.replace(/-([a-z])/g, function (g) {
       return g[1].toUpperCase();
     });

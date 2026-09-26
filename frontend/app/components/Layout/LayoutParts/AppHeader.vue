@@ -1,85 +1,21 @@
 <template>
-  <v-app-bar
-    clipped-left
-    density="compact"
-    app
-    color="primary"
-    dark
-    class="d-print-none"
-  >
+  <v-app-bar clipped-left app color="surface" scroll-behavior="hide" class="bistro-header d-print-none">
     <slot />
-    <RouterLink :to="routerLink">
-      <v-btn
-        icon
-        color="white"
-      >
-        <v-icon size="40"> {{ $globals.icons.primary }} </v-icon>
-      </v-btn>
+    <RouterLink :to="routerLink" class="bistro-wordmark">
+      <span>Petit Chef</span>
+      <img src="/remy_logo.png" width="63" height="63" alt="" aria-hidden="true" class="remy-logo">
     </RouterLink>
-
-    <div
-      btn
-      class="pl-2"
-    >
-      <v-toolbar-title
-        style="cursor: pointer"
-        @click="$router.push(routerLink)"
-      >
-        Mealie
-      </v-toolbar-title>
-    </div>
     <RecipeDialogSearch ref="domSearchDialog" />
 
     <v-spacer />
 
     <!-- Navigation Menu -->
     <template v-if="menu">
-      <v-responsive
-        v-if="!xs"
-        max-width="250"
-        @click="activateSearch"
-      >
-        <v-text-field
-          readonly
-          class="mt-1"
-          rounded
-          variant="solo-filled"
-          density="compact"
-          flat
-          :prepend-inner-icon="$globals.icons.search"
-          bg-color="primary-darken-1"
-          :placeholder="$t('search.search-hint')"
-        />
+      <v-responsive v-if="!xs" max-width="250" class="bistro-search-bar" @click="activateSearch">
+        <v-text-field readonly class="mt-1" rounded variant="solo" density="compact" flat
+          :prepend-inner-icon="$globals.icons.search" bg-color="background" :placeholder="$t('search.search-hint')"
+          @keydown.enter="activateSearch" @keydown.space.prevent="activateSearch" />
       </v-responsive>
-      <v-btn
-        v-else
-        icon
-        @click="activateSearch"
-      >
-        <v-icon> {{ $globals.icons.search }}</v-icon>
-      </v-btn>
-      <v-btn
-        v-if="loggedIn"
-        :variant="smAndUp ? 'text' : undefined"
-        :icon="xs"
-        @click="logout()"
-      >
-        <v-icon :start="smAndUp">
-          {{ $globals.icons.logout }}
-        </v-icon>
-        {{ smAndUp ? $t("user.logout") : "" }}
-      </v-btn>
-      <v-btn
-        v-else
-        variant="text"
-        nuxt
-        to="/login"
-      >
-        <v-icon start>
-          {{ $globals.icons.user }}
-        </v-icon>
-        {{ $t("user.login") }}
-      </v-btn>
     </template>
   </v-app-bar>
 </template>
@@ -98,7 +34,7 @@ const auth = useMealieAuth();
 const { loggedIn } = useLoggedInState();
 const route = useRoute();
 const groupSlug = computed(() => route.params.groupSlug as string || auth.user.value?.groupSlug || "");
-const { xs, smAndUp } = useDisplay();
+const { xs } = useDisplay();
 
 const routerLink = computed(() => groupSlug.value ? `/g/${groupSlug.value}` : "/");
 const domSearchDialog = ref<InstanceType<typeof RecipeDialogSearch> | null>(null);
@@ -123,17 +59,17 @@ onBeforeUnmount(() => {
   document.removeEventListener("keydown", handleKeyEvent);
 });
 
-async function logout() {
-  try {
-    await auth.signOut("/login?direct=1");
-  }
-  catch (e) {
-    console.error(e);
-  }
-}
 </script>
 
 <style scoped>
+.remy-logo {
+  object-fit: contain;
+}
+
+.bistro-header {
+  transition: transform 0.2s ease;
+}
+
 .v-toolbar {
   z-index: 2010 !important;
 }

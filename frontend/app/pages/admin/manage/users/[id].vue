@@ -1,16 +1,8 @@
 <template>
-  <v-container
-    v-if="user"
-    class="narrow-container"
-  >
+  <v-container v-if="user" class="narrow-container">
     <BasePageTitle>
       <template #header>
-        <v-img
-          width="100%"
-          max-height="125"
-          max-width="125"
-          src="/svgs/manage-profile.svg"
-        />
+        <v-img width="100%" max-height="125" max-width="125" src="/svgs/manage-profile.svg" />
       </template>
       <template #title>
         {{ $t("user.admin-user-management") }}
@@ -18,15 +10,8 @@
       {{ $t("user.changes-reflected-immediately") }}
     </BasePageTitle>
     <AppToolbar back />
-    <v-form
-      v-if="!userError"
-      ref="refNewUserForm"
-      @submit.prevent="handleSubmit"
-    >
-      <v-card
-        variant="outlined"
-        style="border-color: lightgrey;"
-      >
+    <v-form v-if="!userError" ref="refNewUserForm" @submit.prevent="handleSubmit">
+      <v-card variant="outlined" class="admin-content-card" style="border-color: lightgrey;">
         <v-sheet class="pt-4">
           <v-card-text>
             <div class="d-flex">
@@ -36,100 +21,49 @@
 
             <v-row>
               <v-col cols="6">
-                <v-select
-                  v-if="groups"
-                  v-model="user.group"
-                  disabled
-                  :items="groups"
-                  variant="solo-filled"
-                  flat
-                  item-title="name"
-                  item-value="name"
-                  :return-object="false"
-                  :label="$t('group.user-group')"
-                  :rules="[validators.required]"
-                />
+                <v-select v-if="groups" v-model="user.group" disabled :items="groups" variant="solo-filled" flat
+                  item-title="name" item-value="name" :return-object="false" :label="$t('group.user-group')"
+                  :rules="[validators.required]" />
               </v-col>
               <v-col cols="6">
-                <v-select
-                  v-if="households"
-                  v-model="user.household"
-                  :items="households"
-                  variant="solo-filled"
-                  flat
-                  item-title="name"
-                  item-value="name"
-                  :return-object="false"
-                  :label="$t('household.user-household')"
-                  :rules="[validators.required]"
-                />
+                <v-select v-if="households" v-model="user.household" :items="households" variant="solo-filled" flat
+                  item-title="name" item-value="name" :return-object="false" :label="$t('household.user-household')"
+                  :rules="[validators.required]" />
               </v-col>
             </v-row>
             <div class="d-flex py-2 pr-2">
-              <BaseButton
-                type="button"
-                :loading="generatingToken"
-                create
-                @click.prevent="handlePasswordReset"
-              >
+              <BaseButton type="button" :loading="generatingToken" create @click.prevent="handlePasswordReset">
                 {{ $t("user.generate-password-reset-link") }}
               </BaseButton>
             </div>
 
-            <div
-              v-if="resetUrl"
-              class="mb-2"
-            >
+            <div v-if="resetUrl" class="mb-2">
               <v-card-text>
                 <p class="text-center pb-0">
                   {{ resetUrl }}
                 </p>
               </v-card-text>
-              <v-card-actions
-                class="align-center pt-0"
-                style="gap: 4px"
-              >
-                <BaseButton
-                  cancel
-                  @click="resetUrl = ''"
-                >
+              <v-card-actions class="align-center pt-0" style="gap: 4px">
+                <BaseButton cancel @click="resetUrl = ''">
                   {{ $t("general.close") }}
                 </BaseButton>
                 <v-spacer />
-                <BaseButton
-                  v-if="user.email"
-                  color="info"
-                  class="mr-1"
-                  @click="sendResetEmail"
-                >
+                <BaseButton v-if="user.email" color="info" class="mr-1" @click="sendResetEmail">
                   <template #icon>
                     {{ $globals.icons.email }}
                   </template>
                   {{ $t("user.email") }}
                 </BaseButton>
-                <AppButtonCopy
-                  :icon="false"
-                  color="info"
-                  :copy-text="resetUrl"
-                />
+                <AppButtonCopy :icon="false" color="info" :copy-text="resetUrl" />
               </v-card-actions>
             </div>
 
-            <AutoForm
-              v-model="user"
-              :items="userForm"
-              update-mode
-              :disabled-fields="disabledFields"
-            />
+            <AutoForm v-model="user" :items="userForm" update-mode :disabled-fields="disabledFields" />
           </v-card-text>
         </v-sheet>
       </v-card>
       <div class="d-flex pa-2">
-        <BaseButton
-          type="submit"
-          edit
-          class="ml-auto"
-        >
+        <BaseButton type="submit" edit class="ml-auto">
           {{ $t("general.update") }}
         </BaseButton>
       </div>

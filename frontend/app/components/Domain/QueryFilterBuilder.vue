@@ -1,314 +1,147 @@
 <template>
   <v-card class="ma-0" flat fluid>
     <v-card-text class="ma-0 pa-0">
-      <VueDraggable
-        v-model="fields"
-        handle=".handle"
-        :delay="250"
-        :delay-on-touch-only="true"
-        v-bind="{
-          animation: 200,
-          group: 'recipe-instructions',
-          ghostClass: 'ghost',
-        }"
-        @start="drag = true"
-        @end="onDragEnd"
-      >
-        <v-row
-          v-for="(field, index) in fields"
-          :key="field.id"
-          class="d-flex flex-row flex-wrap mx-auto pb-2"
+      <VueDraggable v-model="fields" handle=".handle" :delay="250" :delay-on-touch-only="true" v-bind="{
+        animation: 200,
+        group: 'recipe-instructions',
+        ghostClass: 'ghost',
+      }" @start="drag = true" @end="onDragEnd">
+        <v-row v-for="(field, index) in fields" :key="field.id" class="d-flex flex-row flex-wrap mx-auto pb-2"
           :class="$vuetify.display.xs ? (Math.floor(index / 1) % 2 === 0 ? 'bg-dark' : 'bg-light') : ''"
-          style="max-width: 100%;"
-        >
+          style="max-width: 100%;">
           <!-- drag handle -->
-          <v-col
-            :cols="config.items.icon.cols(index)"
-            :sm="config.items.icon.sm(index)"
-            :class="$vuetify.display.smAndDown ? 'd-flex pa-0' : 'd-flex justify-end pr-6'"
-          >
+          <v-col :cols="config.items.icon.cols(index)" :sm="config.items.icon.sm(index)"
+            :class="$vuetify.display.smAndDown ? 'd-flex pa-0' : 'd-flex justify-end pr-6'">
             <v-icon class="handle my-auto" :size="28" style="cursor: move;">
               {{ $globals.icons.arrowUpDown }}
             </v-icon>
           </v-col>
 
           <!-- and / or  -->
-          <v-col
-            v-if="index != 0 || $vuetify.display.smAndUp"
-            :cols="config.items.logicalOperator.cols(index)"
-            :sm="config.items.logicalOperator.sm(index)"
-            :class="config.col.class"
-          >
-            <v-select
-              v-if="index"
-              :model-value="field.logicalOperator?.value"
-              :items="[logOps.AND, logOps.OR]"
-              item-title="label"
-              item-value="value"
-              variant="underlined"
-              class="text-center"
-              @update:model-value="setLogicalOperatorValue(field, index, $event as unknown as LogicalOperator)"
-            />
+          <v-col v-if="index != 0 || $vuetify.display.smAndUp" :cols="config.items.logicalOperator.cols(index)"
+            :sm="config.items.logicalOperator.sm(index)" :class="config.col.class">
+            <v-select v-if="index" :model-value="field.logicalOperator?.value" :items="[logOps.AND, logOps.OR]"
+              item-title="label" item-value="value" variant="underlined" class="text-center"
+              @update:model-value="setLogicalOperatorValue(field, index, $event as unknown as LogicalOperator)" />
           </v-col>
 
           <!-- left parenthesis -->
-          <v-col
-            v-if="showAdvanced"
-            :cols="config.items.leftParens.cols(index)"
-            :sm="config.items.leftParens.sm(index)"
-            :class="config.col.class"
-          >
-            <v-select
-              :model-value="field.leftParenthesis"
-              :items="['', '(', '((', '(((']"
-              variant="underlined"
-              class="text-center"
-              @update:model-value="setLeftParenthesisValue(field, index, $event)"
-            />
+          <v-col v-if="showAdvanced" :cols="config.items.leftParens.cols(index)" :sm="config.items.leftParens.sm(index)"
+            :class="config.col.class">
+            <v-select :model-value="field.leftParenthesis" :items="['', '(', '((', '(((']" variant="underlined"
+              class="text-center" @update:model-value="setLeftParenthesisValue(field, index, $event)" />
           </v-col>
 
           <!-- field name -->
-          <v-col
-            :cols="config.items.fieldName.cols(index)"
-            :sm="config.items.fieldName.sm(index)"
-            :class="config.col.class"
-          >
-            <v-select
-              :model-value="field.label"
-              :items="fieldDefs"
-              variant="underlined"
-              item-title="label"
-              item-value="label"
-              class="text-center"
-              @update:model-value="setField(index, $event)"
-            />
+          <v-col :cols="config.items.fieldName.cols(index)" :sm="config.items.fieldName.sm(index)"
+            :class="config.col.class">
+            <v-select :model-value="field.label" :items="fieldDefs" variant="underlined" item-title="label"
+              item-value="label" class="text-center" @update:model-value="setField(index, $event)" />
           </v-col>
 
           <!-- relational operator -->
-          <v-col
-            :cols="config.items.relationalOperator.cols(index)"
-            :sm="config.items.relationalOperator.sm(index)"
-            :class="config.col.class"
-          >
-            <v-select
-              v-if="field.type !== 'boolean'"
-              :model-value="field.relationalOperatorValue?.value"
-              :items="field.relationalOperatorChoices"
-              item-title="label"
-              item-value="value"
-              variant="underlined"
+          <v-col :cols="config.items.relationalOperator.cols(index)" :sm="config.items.relationalOperator.sm(index)"
+            :class="config.col.class">
+            <v-select v-if="field.type !== 'boolean'" :model-value="field.relationalOperatorValue?.value"
+              :items="field.relationalOperatorChoices" item-title="label" item-value="value" variant="underlined"
               class="text-center"
-              @update:model-value="setRelationalOperatorValue(field, index, $event as unknown as RelationalKeyword | RelationalOperator)"
-            />
+              @update:model-value="setRelationalOperatorValue(field, index, $event as unknown as RelationalKeyword | RelationalOperator)" />
           </v-col>
 
           <!-- field value -->
-          <v-col
-            :cols="config.items.fieldValue.cols(index)"
-            :sm="config.items.fieldValue.sm(index)"
-            :class="config.col.class"
-          >
-            <v-select
-              v-if="field.fieldChoices"
-              :model-value="field.values"
-              :items="field.fieldChoices"
-              item-title="label"
-              item-value="value"
-              multiple
-              variant="underlined"
-              @update:model-value="setFieldValues(field, index, $event)"
-            />
-            <v-text-field
-              v-else-if="field.type === 'string'"
-              :model-value="field.value"
-              variant="underlined"
-              @update:model-value="setFieldValue(field, index, $event)"
-            />
-            <v-number-input
-              v-else-if="field.type === 'number'"
-              :model-value="field.value as number || 0"
-              variant="underlined"
-              inset
-              :min="0"
-              :max="5"
-              :precision="null"
-              @update:model-value="setFieldValue(field, index, $event)"
-            />
-            <v-checkbox
-              v-else-if="field.type === 'boolean'"
-              :model-value="field.value"
-              @update:model-value="setFieldValue(field, index, $event!)"
-            />
-            <v-menu
-              v-else-if="field.type === 'date'"
-              v-model="datePickers[index]"
-              :close-on-content-click="false"
-              transition="scale-transition"
-              offset-y
-              max-width="290px"
-              min-width="auto"
-            >
+          <v-col :cols="config.items.fieldValue.cols(index)" :sm="config.items.fieldValue.sm(index)"
+            :class="config.col.class">
+            <v-select v-if="field.fieldChoices" :model-value="field.values" :items="field.fieldChoices"
+              item-title="label" item-value="value" multiple variant="underlined"
+              @update:model-value="setFieldValues(field, index, $event)" />
+            <v-text-field v-else-if="field.type === 'string'" :model-value="field.value" variant="underlined"
+              @update:model-value="setFieldValue(field, index, $event)" />
+            <v-number-input v-else-if="field.type === 'number'" :model-value="field.value as number || 0"
+              variant="underlined" inset :min="0" :max="5" :precision="null"
+              @update:model-value="setFieldValue(field, index, $event)" />
+            <v-checkbox v-else-if="field.type === 'boolean'" :model-value="field.value"
+              @update:model-value="setFieldValue(field, index, $event!)" />
+            <v-menu v-else-if="field.type === 'date'" v-model="datePickers[index]" :close-on-content-click="false"
+              transition="scale-transition" offset-y max-width="290px" min-width="auto">
               <template #activator="{ props: activatorProps }">
-                <v-text-field
-                  :model-value="$d(safeNewDate(field.value + 'T00:00:00'))"
-                  variant="underlined"
-                  color="primary"
-                  class="date-input"
-                  v-bind="activatorProps"
-                  readonly
-                />
+                <v-text-field :model-value="$d(safeNewDate(field.value + 'T00:00:00'))" variant="underlined"
+                  color="primary" class="date-input" v-bind="activatorProps" readonly />
               </template>
-              <v-date-picker
-                :model-value="safeNewDate(field.value + 'T00:00:00')"
-                hide-header
-                :first-day-of-week="firstDayOfWeek"
-                :local="$i18n.locale"
-                @update:model-value="val => setFieldValue(field, index, val ? val.toISOString().slice(0, 10) : '')"
-              />
+              <v-date-picker :model-value="safeNewDate(field.value + 'T00:00:00')" hide-header
+                :first-day-of-week="firstDayOfWeek" :local="$i18n.locale"
+                @update:model-value="val => setFieldValue(field, index, val ? val.toISOString().slice(0, 10) : '')" />
             </v-menu>
             <!--
               Relative dates are assumed to be negative intervals with a unit of days.
               The input is a *positive*, interpreted internally as a *negative* offset.
             -->
-            <v-number-input
-              v-else-if="field.type === 'relativeDate'"
+            <v-number-input v-else-if="field.type === 'relativeDate'"
               :model-value="parseRelativeDateOffset(field.value)"
-              :suffix="$t('query-filter.dates.days-ago', parseRelativeDateOffset(field.value))"
+              :suffix="$t('query-filter.dates.days-ago', parseRelativeDateOffset(field.value))" variant="underlined"
+              density="compact" inset :min="0" :precision="0" class="date-input"
+              @update:model-value="setFieldValue(field, index, $event)" />
+            <RecipeOrganizerSelector v-else-if="field.type === Organizer.Category" v-model="field.organizers"
+              :selector-type="Organizer.Category" :show-add="false" :show-label="false" :show-icon="false"
               variant="underlined"
-              density="compact"
-              inset
-              :min="0"
-              :precision="0"
-              class="date-input"
-              @update:model-value="setFieldValue(field, index, $event)"
-            />
-            <RecipeOrganizerSelector
-              v-else-if="field.type === Organizer.Category"
-              v-model="field.organizers"
-              :selector-type="Organizer.Category"
-              :show-add="false"
-              :show-label="false"
-              :show-icon="false"
+              @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])" />
+            <RecipeOrganizerSelector v-else-if="field.type === Organizer.Tag" v-model="field.organizers"
+              :selector-type="Organizer.Tag" :show-add="false" :show-label="false" :show-icon="false"
               variant="underlined"
-              @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])"
-            />
-            <RecipeOrganizerSelector
-              v-else-if="field.type === Organizer.Tag"
-              v-model="field.organizers"
-              :selector-type="Organizer.Tag"
-              :show-add="false"
-              :show-label="false"
-              :show-icon="false"
+              @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])" />
+            <RecipeOrganizerSelector v-else-if="field.type === Organizer.Tool" v-model="field.organizers"
+              :selector-type="Organizer.Tool" :show-add="false" :show-label="false" :show-icon="false"
               variant="underlined"
-              @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])"
-            />
-            <RecipeOrganizerSelector
-              v-else-if="field.type === Organizer.Tool"
-              v-model="field.organizers"
-              :selector-type="Organizer.Tool"
-              :show-add="false"
-              :show-label="false"
-              :show-icon="false"
+              @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])" />
+            <RecipeOrganizerSelector v-else-if="field.type === Organizer.Food" v-model="field.organizers"
+              :selector-type="Organizer.Food" :show-add="false" :show-label="false" :show-icon="false"
               variant="underlined"
-              @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])"
-            />
-            <RecipeOrganizerSelector
-              v-else-if="field.type === Organizer.Food"
-              v-model="field.organizers"
-              :selector-type="Organizer.Food"
-              :show-add="false"
-              :show-label="false"
-              :show-icon="false"
+              @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])" />
+            <RecipeOrganizerSelector v-else-if="field.type === Organizer.Household" v-model="field.organizers"
+              :selector-type="Organizer.Household" :show-add="false" :show-label="false" :show-icon="false"
               variant="underlined"
-              @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])"
-            />
-            <RecipeOrganizerSelector
-              v-else-if="field.type === Organizer.Household"
-              v-model="field.organizers"
-              :selector-type="Organizer.Household"
-              :show-add="false"
-              :show-label="false"
-              :show-icon="false"
+              @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])" />
+            <RecipeOrganizerSelector v-else-if="field.type === Organizer.User" v-model="field.organizers"
+              :selector-type="Organizer.User" :show-add="false" :show-label="false" :show-icon="false"
               variant="underlined"
-              @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])"
-            />
-            <RecipeOrganizerSelector
-              v-else-if="field.type === Organizer.User"
-              v-model="field.organizers"
-              :selector-type="Organizer.User"
-              :show-add="false"
-              :show-label="false"
-              :show-icon="false"
+              @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])" />
+            <RecipeOrganizerSelector v-else-if="field.type === Organizer.Label" v-model="field.organizers"
+              :selector-type="Organizer.Label" :show-add="false" :show-label="false" :show-icon="false"
               variant="underlined"
-              @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])"
-            />
-            <RecipeOrganizerSelector
-              v-else-if="field.type === Organizer.Label"
-              v-model="field.organizers"
-              :selector-type="Organizer.Label"
-              :show-add="false"
-              :show-label="false"
-              :show-icon="false"
-              variant="underlined"
-              @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])"
-            />
+              @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])" />
           </v-col>
 
           <!-- right parenthesis -->
-          <v-col
-            v-if="showAdvanced"
-            :cols="config.items.rightParens.cols(index)"
-            :sm="config.items.rightParens.sm(index)"
-            :class="config.col.class"
-          >
-            <v-select
-              :model-value="field.rightParenthesis"
-              :items="['', ')', '))', ')))']"
-              variant="underlined"
-              class="text-center"
-              @update:model-value="setRightParenthesisValue(field, index, $event)"
-            />
+          <v-col v-if="showAdvanced" :cols="config.items.rightParens.cols(index)"
+            :sm="config.items.rightParens.sm(index)" :class="config.col.class">
+            <v-select :model-value="field.rightParenthesis" :items="['', ')', '))', ')))']" variant="underlined"
+              class="text-center" @update:model-value="setRightParenthesisValue(field, index, $event)" />
           </v-col>
 
           <!-- field actions -->
-          <v-col
-            v-if="!$vuetify.display.smAndDown || index === fields.length - 1"
-            :cols="config.items.fieldActions.cols(index)"
-            :sm="config.items.fieldActions.sm(index)"
-            :class="config.col.class"
-          >
-            <BaseButtonGroup
-              :buttons="[
-                {
-                  icon: $globals.icons.delete,
-                  text: $t('general.delete'),
-                  event: 'delete',
-                  disabled: fields.length === 1,
-                },
-              ]"
-              class="my-auto"
-              @delete="removeField(index)"
-            />
+          <v-col v-if="!$vuetify.display.smAndDown || index === fields.length - 1"
+            :cols="config.items.fieldActions.cols(index)" :sm="config.items.fieldActions.sm(index)"
+            :class="config.col.class">
+            <BaseButtonGroup :buttons="[
+              {
+                icon: $globals.icons.delete,
+                text: $t('general.delete'),
+                event: 'delete',
+                disabled: fields.length === 1,
+              },
+            ]" class="my-auto" @delete="removeField(index)" />
           </v-col>
         </v-row>
       </VueDraggable>
     </v-card-text>
     <v-card-actions>
-      <v-row fluid class="d-flex justify-end ma-2">
-        <v-spacer />
-        <v-checkbox
-          v-model="showAdvanced"
-          hide-details
-          :label="$t('general.show-advanced')"
-          class="my-auto mr-4"
-          color="primary"
-        />
-        <BaseButton
-          create
-          :text="$t('general.add-field')"
-          class="my-auto"
-          @click="addField(fieldDefs[0])"
-        />
+      <v-row fluid class="d-flex align-center ma-2">
+        <div class="d-flex align-center">
+          <v-switch v-model="showAdvanced" hide-details color="primary" :label="$t('general.show-advanced')"
+            class="my-auto mr-4" />
+          <BaseButton v-if="!$slots.actions" create :text="$t('general.add-field')" class="my-auto ml-4"
+            @click="addField(fieldDefs[0])" />
+        </div>
+        <slot name="actions" :add-field="() => addField(fieldDefs[0])" />
       </v-row>
     </v-card-actions>
   </v-card>
@@ -358,7 +191,7 @@ const {
 } = useQueryFilterBuilder();
 
 const firstDayOfWeek = computed(() => {
-  return household.value?.preferences?.firstDayOfWeek || 0;
+  return household.value?.preferences?.firstDayOfWeek || 1;
 });
 
 const state = reactive({

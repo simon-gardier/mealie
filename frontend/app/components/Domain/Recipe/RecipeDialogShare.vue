@@ -1,56 +1,26 @@
 <template>
   <div>
-    <BaseDialog
-      v-model="dialog"
-      bottom-sheet
-      :title="$t('recipe-share.share-recipe')"
-      :icon="$globals.icons.link"
-    >
+    <BaseDialog v-model="dialog" bottom-sheet :title="$t('recipe-share.share-recipe')" :icon="$globals.icons.link">
       <v-card-text>
-        <v-menu
-          v-model="datePickerMenu"
-          :close-on-content-click="false"
-          transition="scale-transition"
-          offset-y
-          max-width="290px"
-          min-width="auto"
-        >
+        <v-menu v-model="datePickerMenu" :close-on-content-click="false" transition="scale-transition" offset-y
+          max-width="290px" min-width="auto">
           <template #activator="{ props: activatorProps }">
-            <v-text-field
-              :model-value="$d(expirationDate)"
-              :label="$t('recipe-share.expiration-date')"
-              :hint="$t('recipe-share.default-30-days')"
-              persistent-hint
-              :prepend-icon="$globals.icons.calendar"
-              v-bind="activatorProps"
-              readonly
-            />
+            <v-text-field :model-value="$d(expirationDate)" :label="$t('recipe-share.expiration-date')"
+              :hint="$t('recipe-share.default-30-days')" persistent-hint :prepend-icon="$globals.icons.calendar"
+              v-bind="activatorProps" readonly />
           </template>
-          <v-date-picker
-            v-model="expirationDate"
-            hide-header
-            :first-day-of-week="firstDayOfWeek"
-            :local="$i18n.locale"
-            @update:model-value="datePickerMenu = false"
-          />
+          <v-date-picker v-model="expirationDate" hide-header :first-day-of-week="firstDayOfWeek" :local="$i18n.locale"
+            @update:model-value="datePickerMenu = false" />
         </v-menu>
       </v-card-text>
       <v-card-actions class="justify-end">
-        <BaseButton
-          size="small"
-          @click="createNewToken"
-        >
+        <BaseButton size="small" @click="createNewToken">
           {{ $t("general.new") }}
         </BaseButton>
       </v-card-actions>
 
-      <v-list-item
-        v-for="token in tokens"
-        :key="token.id"
-        class="px-2"
-        style="padding-top: 8px; padding-bottom: 8px;"
-        @click="shareRecipe(token.id)"
-      >
+      <v-list-item v-for="token in tokens" :key="token.id" class="px-2" style="padding-top: 8px; padding-bottom: 8px;"
+        @click="shareRecipe(token.id)">
         <div class="d-flex align-center" style="width: 100%;">
           <v-avatar color="grey">
             <v-icon>
@@ -64,22 +34,12 @@
             </v-list-item-title>
           </div>
 
-          <v-btn
-            icon
-            variant="text"
-            class="ml-2"
-            @click.stop="deleteToken(token.id)"
-          >
+          <v-btn icon variant="text" class="ml-2" @click.stop="deleteToken(token.id)">
             <v-icon color="error-lighten-1">
               {{ $globals.icons.delete }}
             </v-icon>
           </v-btn>
-          <v-btn
-            icon
-            variant="text"
-            class="ml-2"
-            @click.stop="copyTokenLink(token.id)"
-          >
+          <v-btn icon variant="text" class="ml-2" @click.stop="copyTokenLink(token.id)">
             <v-icon color="info-lighten-1">
               {{ $globals.icons.contentCopy }}
             </v-icon>
@@ -126,7 +86,7 @@ const route = useRoute();
 const groupSlug = computed(() => route.params.groupSlug as string || auth.user.value?.groupSlug || "");
 
 const firstDayOfWeek = computed(() => {
-  return household.value?.preferences?.firstDayOfWeek || 0;
+  return household.value?.preferences?.firstDayOfWeek || 1;
 });
 
 // ============================================================

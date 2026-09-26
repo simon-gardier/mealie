@@ -1,8 +1,6 @@
 <template>
-  <v-form
-    ref="domUrlForm"
-    @submit.prevent="createFromHtmlOrJson(newRecipeData, importKeywordsAsTags, importCategories, newRecipeUrl)"
-  >
+  <v-form ref="domUrlForm"
+    @submit.prevent="createFromHtmlOrJson(newRecipeData, importKeywordsAsTags, importCategories, newRecipeUrl)">
     <div>
       <v-card-title class="headline">
         {{ $t('recipe.import-from-html-or-json') }}
@@ -13,90 +11,35 @@
         </p>
         <p>
           {{ $t("recipe.json-import-format-description-colon") }}
-          <a
-            href="https://schema.org/Recipe"
-            target="_blank"
-            class="text-primary"
-          >https://schema.org/Recipe</a>
+          <a href="https://schema.org/Recipe" target="_blank" class="text-primary">https://schema.org/Recipe</a>
         </p>
         <p v-if="aiEnabled">
           {{ $t("recipe.import-from-html-or-json-have-ai-read-it") }}
           <router-link :to="aiImporterTarget" class="text-primary">{{ $t("recipe.import-with-ai") }}</router-link>.
         </p>
-        <v-switch
-          v-model="state.isEditJSON"
-          :label="$t('recipe.json-editor')"
-          color="primary"
-          class="mt-2"
-          @change="handleIsEditJson"
-        />
-        <v-text-field
-          v-model="newRecipeUrl"
-          :label="$t('new-recipe.recipe-url')"
-          :prepend-inner-icon="$globals.icons.link"
-          validate-on="blur"
-          variant="solo-filled"
-          clearable
-          rounded
-          :rules="[validators.urlOptional]"
-          :hint="$t('new-recipe.copy-and-paste-the-source-url-of-your-data-optional')"
-          persistent-hint
-          class="mt-10 mb-4"
-          style="max-width: 500px"
-        />
-        <RecipeJsonEditor
-          v-if="state.isEditJSON"
-          v-model="newRecipeData"
-          height="250px"
-          mode="code"
-          :main-menu-bar="false"
-        />
-        <v-textarea
-          v-else
-          v-model="newRecipeData"
-          :label="$t('new-recipe.recipe-html-or-json')"
-          :prepend-inner-icon="$globals.icons.codeTags"
-          validate-on="blur"
-          autofocus
-          variant="solo-filled"
-          clearable
-          rounded
-        />
-        <v-checkbox
-          v-model="importKeywordsAsTags"
-          color="primary"
-          hide-details
-          :label="$t('recipe.import-original-keywords-as-tags')"
-        />
-        <v-checkbox
-          v-model="importCategories"
-          color="primary"
-          hide-details
-          :label="$t('recipe.import-original-categories')"
-        />
-        <v-checkbox
-          v-model="stayInEditMode"
-          color="primary"
-          hide-details
-          :label="$t('recipe.stay-in-edit-mode')"
-        />
-        <v-checkbox
-          v-model="parseRecipe"
-          color="primary"
-          hide-details
-          :label="$t('recipe.parse-recipe-ingredients-after-import')"
-        />
+        <v-switch v-model="state.isEditJSON" :label="$t('recipe.json-editor')" color="primary" class="mt-2"
+          @change="handleIsEditJson" />
+        <v-text-field v-model="newRecipeUrl" class="my-3" :label="$t('new-recipe.recipe-url')"
+          :prepend-inner-icon="$globals.icons.link" validate-on="blur" density="compact" variant="outlined" clearable
+          :rules="[validators.urlOptional]" :hint="$t('new-recipe.copy-and-paste-the-source-url-of-your-data-optional')"
+          persistent-hint style="--v-input-control-height: 60px" />
+        <RecipeJsonEditor v-if="state.isEditJSON" v-model="newRecipeData" height="250px" mode="code"
+          :main-menu-bar="false" />
+        <v-textarea v-else v-model="newRecipeData" :label="$t('new-recipe.recipe-html-or-json')"
+          :prepend-inner-icon="$globals.icons.codeTags" validate-on="blur" density="compact" autofocus
+          variant="outlined" clearable style="--v-input-control-height: 60px" />
+        <v-checkbox v-model="importKeywordsAsTags" color="primary" hide-details
+          :label="$t('recipe.import-original-keywords-as-tags')" />
+        <v-checkbox v-model="importCategories" color="primary" hide-details
+          :label="$t('recipe.import-original-categories')" />
+        <v-checkbox v-model="stayInEditMode" color="primary" hide-details :label="$t('recipe.stay-in-edit-mode')" />
+        <v-checkbox v-model="parseRecipe" color="primary" hide-details
+          :label="$t('recipe.parse-recipe-ingredients-after-import')" />
       </v-card-text>
       <v-card-actions class="justify-center">
         <div style="width: 100%" class="text-center">
           <div style="width: 250px; margin: 0 auto">
-            <BaseButton
-              :disabled="!newRecipeData"
-              rounded
-              block
-              type="submit"
-              :loading="state.loading"
-            />
+            <BaseButton :disabled="!newRecipeData" rounded block type="submit" :loading="state.loading" />
           </div>
           <v-card-text class="py-2">
             <!-- render &nbsp; to maintain layout -->
@@ -105,17 +48,9 @@
         </div>
       </v-card-actions>
       <v-expand-transition>
-        <v-alert
-          v-if="state.error"
-          color="error"
-          class="mt-6 white--text"
-        >
+        <v-alert v-if="state.error" color="error" class="mt-6 white--text">
           <v-card-title class="ma-0 pa-0">
-            <v-icon
-              start
-              color="white"
-              size="x-large"
-            >
+            <v-icon start color="white" size="x-large">
               {{ $globals.icons.robot }}
             </v-icon>
             {{ $t("new-recipe.error-title") }}
@@ -128,28 +63,15 @@
             </p>
           </div>
           <div class="d-flex row justify-space-around my-3 force-url-white">
-            <a
-              class="text-primary"
-              href="https://developers.google.com/search/docs/data-types/recipe"
-              target="_blank"
-              rel="noreferrer nofollow"
-            >
+            <a class="text-primary" href="https://developers.google.com/search/docs/data-types/recipe" target="_blank"
+              rel="noreferrer nofollow">
               {{ $t("new-recipe.google-ld-json-info") }}
             </a>
-            <a
-              class="text-primary"
-              href="https://github.com/mealie-recipes/mealie/issues"
-              target="_blank"
-              rel="noreferrer nofollow"
-            >
+            <a class="text-primary" href="https://github.com/mealie-recipes/mealie/issues" target="_blank"
+              rel="noreferrer nofollow">
               {{ $t("new-recipe.github-issues") }}
             </a>
-            <a
-              class="text-primary"
-              href="https://schema.org/Recipe"
-              target="_blank"
-              rel="noreferrer nofollow"
-            >
+            <a class="text-primary" href="https://schema.org/Recipe" target="_blank" rel="noreferrer nofollow">
               {{ $t("new-recipe.recipe-markup-specification") }}
             </a>
           </div>

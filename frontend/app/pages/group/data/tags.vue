@@ -1,34 +1,16 @@
 <template>
   <div>
     <!-- Merge Dialog -->
-    <BaseDialog
-      v-model="mergeDialog"
-      bottom-sheet
-      :icon="$globals.icons.tags"
-      :title="$t('data-pages.tags.combine-tag')"
-      can-confirm
-      @confirm="mergeTags"
-    >
+    <BaseDialog v-model="mergeDialog" bottom-sheet :icon="$globals.icons.tags"
+      :title="$t('data-pages.tags.combine-tag')" can-confirm @confirm="mergeTags">
       <v-card-text>
         <div>
           {{ $t("data-pages.tags.merge-dialog-text") }}
         </div>
-        <v-autocomplete
-          v-model="fromTag"
-          return-object
-          :items="tagStore.store.value"
-          :custom-filter="normalizeFilter"
-          item-title="name"
-          :label="$t('data-pages.tags.source-tag')"
-        />
-        <v-autocomplete
-          v-model="toTag"
-          return-object
-          :items="tagStore.store.value"
-          :custom-filter="normalizeFilter"
-          item-title="name"
-          :label="$t('data-pages.tags.target-tag')"
-        />
+        <v-autocomplete v-model="fromTag" return-object :items="tagStore.store.value" :custom-filter="normalizeFilter"
+          item-title="name" :label="$t('data-pages.tags.source-tag')" variant="outlined" />
+        <v-autocomplete v-model="toTag" return-object :items="tagStore.store.value" :custom-filter="normalizeFilter"
+          item-title="name" :label="$t('data-pages.tags.target-tag')" variant="outlined" />
 
         <template v-if="canMerge && fromTag && toTag">
           <div class="text-center">
@@ -39,18 +21,12 @@
     </BaseDialog>
 
     <!-- Delete Unused Dialog -->
-    <BaseDialog
-      v-model="deleteUnusedDialog"
-      bottom-sheet
-      :title="$t('general.confirm')"
-      :icon="$globals.icons.alertCircle"
-      color="error"
-      can-confirm
-      @confirm="confirmDeleteUnused"
-    >
+    <BaseDialog v-model="deleteUnusedDialog" bottom-sheet :title="$t('general.confirm')"
+      :icon="$globals.icons.alertCircle" color="error" can-confirm @confirm="confirmDeleteUnused">
       <v-card-text>
         {{ $t('data-pages.tags.delete-unused-confirm', { count: unusedTagIds.length }, unusedTagIds.length) }}
-        <ul style="margin: 0.5rem 0 0; padding-left: 1.25rem; font-size: 0.85rem; color: rgba(var(--v-theme-on-surface), 0.7); line-height: 1.8;">
+        <ul
+          style="margin: 0.5rem 0 0; padding-left: 1.25rem; font-size: 0.85rem; color: rgba(var(--v-theme-on-surface), 0.7); line-height: 1.8;">
           <li v-for="name in unusedTagNamesPreview" :key="name">
             {{ name }}
           </li>
@@ -61,24 +37,15 @@
       </v-card-text>
     </BaseDialog>
 
-    <GroupDataPage
-      :icon="$globals.icons.tags"
-      :title="$t('data-pages.tags.tag-data')"
-      :create-title="$t('data-pages.tags.new-tag')"
-      :edit-title="$t('data-pages.tags.edit-tag')"
-      :table-headers="tableHeaders"
-      :table-config="tableConfig"
-      :data="tagStore.store.value || []"
+    <GroupDataPage :icon="$globals.icons.tags" :title="$t('data-pages.tags.tag-data')"
+      :create-title="$t('data-pages.tags.new-tag')" :edit-title="$t('data-pages.tags.edit-tag')"
+      :table-headers="tableHeaders" :table-config="tableConfig" :data="tagStore.store.value || []"
       :bulk-actions="[{ icon: $globals.icons.delete, text: $t('general.delete'), event: 'delete-selected' }]"
-      :create-form="createForm"
-      :edit-form="editForm"
-      @create-one="handleCreate"
-      @edit-one="handleEdit"
-      @delete-one="tagStore.actions.deleteOne"
-      @bulk-action="handleBulkAction"
-    >
+      :create-form="createForm" :edit-form="editForm" @create-one="handleCreate" @edit-one="handleEdit"
+      @delete-one="tagStore.actions.deleteOne" @bulk-action="handleBulkAction">
       <template #[`item.recipeCount`]="{ item }">
-        <NuxtLink v-if="groupSlug && item.recipeCount > 0" :to="`/g/${groupSlug}?tags=${item.id}`">{{ item.recipeCount }}</NuxtLink>
+        <NuxtLink v-if="groupSlug && item.recipeCount > 0" :to="`/g/${groupSlug}?tags=${item.id}`">{{ item.recipeCount
+          }}</NuxtLink>
         <span v-else>{{ item.recipeCount || 0 }}</span>
       </template>
 

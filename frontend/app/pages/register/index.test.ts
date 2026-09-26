@@ -36,6 +36,8 @@ vi.mock("~/composables/use-users/user-registration-form", () => ({
       username: ref("user"),
       fullName: ref("Test User"),
       advancedOptions: ref(false),
+      profileFile: ref(null),
+      profileAvatar: ref(null),
       reset: mocks.resetAccount,
     },
     credentials: {

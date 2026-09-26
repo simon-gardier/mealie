@@ -1,50 +1,27 @@
 <template>
-  <v-app
-    v-if="ready"
-    dark
-  >
-    <v-card-title>
-      <slot>
-        <h1 class="mx-auto">
-          {{ $t("page.404-page-not-found") }}
-        </h1>
-      </slot>
-    </v-card-title>
-    <div class="d-flex justify-space-around">
-      <div class="d-flex align-center">
-        <p class="primary--text">
-          4
-        </p>
-        <v-icon
-          color="primary"
-          class="mx-auto mb-0"
-          size="200"
-        >
-          {{ $globals.icons.primary }}
-        </v-icon>
-        <p class="primary--text">
-          4
-        </p>
+  <v-app v-if="ready" dark class="error-page d-flex justify-center align-center">
+    <div class="error-page__content w-100">
+      <v-card-title>
+        <slot>
+          <h1 class="mx-auto text-center">
+            {{ error.statusCode === 404 ? $t("page.404-page-not-found") : $t("page.an-error-occurred") }}
+          </h1>
+        </slot>
+      </v-card-title>
+      <v-card-actions class="justify-center">
+        <slot name="actions">
+          <v-btn v-for="(button, index) in buttons" :key="index" nuxt :to="button.to" color="primary">
+            <v-icon start>
+              {{ button.icon }}
+            </v-icon>
+            {{ button.text }}
+          </v-btn>
+        </slot>
+      </v-card-actions>
+      <div class="d-flex justify-center w-100">
+        <img src="/remy_error.png" alt="" class="remy-error-image">
       </div>
     </div>
-    <v-card-actions>
-      <v-spacer />
-      <slot name="actions">
-        <v-btn
-          v-for="(button, index) in buttons"
-          :key="index"
-          nuxt
-          :to="button.to"
-          color="primary"
-        >
-          <v-icon start>
-            {{ button.icon }}
-          </v-icon>
-          {{ button.text }}
-        </v-btn>
-      </slot>
-      <v-spacer />
-    </v-card-actions>
   </v-app>
 </template>
 
@@ -56,10 +33,6 @@ const props = defineProps({
     type: Object,
     default: null,
   },
-});
-
-definePageMeta({
-  layout: "basic",
 });
 
 const i18n = useGlobalI18n();
@@ -123,9 +96,9 @@ else {
 
 useSeoMeta({
   title:
-        props.error.statusCode === 404
-          ? (i18n.t("page.404-not-found") as string)
-          : (i18n.t("page.an-error-occurred") as string),
+    props.error.statusCode === 404
+      ? (i18n.t("page.404-not-found") as string)
+      : (i18n.t("page.an-error-occurred") as string),
 });
 
 const buttons = [
@@ -138,9 +111,14 @@ h1 {
   font-size: 20px;
 }
 
-p {
-  padding-bottom: 0 !important;
-  margin-bottom: 0 !important;
-  font-size: 200px;
+.error-page__content {
+  flex: 0 1 auto;
+}
+
+.remy-error-image {
+  width: min(100%, 420px);
+  height: auto;
+  max-height: 60vh;
+  object-fit: contain;
 }
 </style>

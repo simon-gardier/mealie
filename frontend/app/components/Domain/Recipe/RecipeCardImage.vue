@@ -1,27 +1,10 @@
 <template>
-  <v-img
-    v-if="showImage"
-    :height="height"
-    cover
-    :min-height="minHeight"
-    max-height="fill-height"
-    :src="getImage(recipeId)"
-    @click="$emit('click')"
-    @load="fallBackImage = false"
-    @error="fallBackImage = true"
-  >
+  <v-img v-if="showImage" :height="height" cover :min-height="minHeight" max-height="fill-height"
+    :src="getImage(recipeId)" @click="$emit('click')" @load="fallBackImage = false" @error="fallBackImage = true">
     <slot />
   </v-img>
-  <div
-    v-else
-    class="icon-slot"
-    @click="$emit('click')"
-  >
-    <v-icon
-      color="primary"
-      class="icon-position"
-      :size="iconSize"
-    >
+  <div v-else class="icon-slot" @click="$emit('click')">
+    <v-icon color="primary" class="icon-position" :size="iconSize">
       {{ $globals.icons.primary }}
     </v-icon>
     <slot />
@@ -96,9 +79,14 @@ function getImage(recipeId: string) {
 <style scoped>
 .icon-slot {
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 }
 
-.icon-slot > div {
+.icon-slot>div {
   top: 0;
   position: absolute;
   z-index: 1;
@@ -108,7 +96,5 @@ function getImage(recipeId: string) {
   opacity: 0.8;
   display: flex !important;
   position: relative;
-  margin-left: auto !important;
-  margin-right: auto !important;
 }
 </style>

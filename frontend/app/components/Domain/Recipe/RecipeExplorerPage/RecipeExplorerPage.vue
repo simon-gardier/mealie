@@ -1,26 +1,16 @@
 <template>
-  <v-container
-    fluid
-    class="px-0"
-  >
-    <RecipeExplorerPageSearch
-      ref="searchComponent"
-      @ready="onSearchReady"
-    />
-    <v-divider />
-    <v-container class="mt-6 px-md-6 pb-16">
-      <RecipeCardSection
-        v-if="ready"
-        class="mt-n5"
-        :icon="$globals.icons.silverwareForkKnife"
-        :title="$t('general.recipes')"
-        :recipes="recipes"
-        :query="searchQuery"
-        disable-sort
-        @item-selected="onItemSelected"
-        @replace-recipes="replaceRecipes"
-        @append-recipes="appendRecipes"
-      />
+  <v-container fluid class="px-0">
+    <RecipeExplorerPageSearch ref="searchComponent" @ready="onSearchReady" @toggle-view="toggleRecipeView" />
+    <div class="random-recipe-action d-flex justify-center my-2">
+      <v-btn icon color="error" variant="text" class="random-button" :disabled="recipes.length === 0"
+        :aria-label="$t('general.random')" @click="navigateRandom">
+        <v-icon>{{ $globals.icons.diceMultiple }}</v-icon>
+      </v-btn>
+    </div>
+    <v-container class="mt-2 px-md-6 pb-16">
+      <RecipeCardSection v-if="ready" ref="recipeSection" class="mt-n5" :recipes="recipes" :query="searchQuery"
+        disable-toolbar disable-sort @item-selected="onItemSelected" @replace-recipes="replaceRecipes"
+        @append-recipes="appendRecipes" />
     </v-container>
   </v-container>
 </template>
@@ -33,6 +23,7 @@ import { useLazyRecipes } from "~/composables/recipes";
 
 const auth = useMealieAuth();
 const route = useRoute();
+const { $globals } = useNuxtApp();
 
 const { isOwnGroup } = useLoggedInState();
 const groupSlug = computed(() => route.params.groupSlug as string || auth.user.value?.groupSlug || "");
@@ -41,6 +32,7 @@ const { recipes, appendRecipes, replaceRecipes } = useLazyRecipes(isOwnGroup.val
 
 const ready = ref(false);
 const searchComponent = ref<InstanceType<typeof RecipeExplorerPageSearch>>();
+const recipeSection = ref<InstanceType<typeof RecipeCardSection>>();
 
 const searchQuery = computed(() => {
   return searchComponent.value?.passedQueryWithSeed || {};
@@ -53,4 +45,21 @@ function onSearchReady() {
 function onItemSelected(item: any, urlPrefix: string) {
   searchComponent.value?.filterItems(item, urlPrefix);
 }
+
+function navigateRandom() {
+  recipeSection.value?.navigateRandom();
+}
+
+function toggleRecipeView() {
+  recipeSection.value?.toggleMobileCards();
+}
 </script>
+
+<style scoped>
+.random-button {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: 50%;
+}
+</style>

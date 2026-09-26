@@ -1,67 +1,52 @@
 <template>
-  <v-container class="mx-0 pa-0">
-    <GroupMealPlanEntryDialog
-      v-model="dialog.open"
-      :entry="dialog.entry"
-      :date="dialog.date"
-      @create="actions.createOne($event)"
-      @update="actions.updateOne($event)"
-    />
+  <v-container fluid class="pa-0">
+    <RecipeDialogAddToShoppingList v-if="shoppingLists" v-model="shoppingListDialog" :recipes="shoppingListRecipes"
+      :shopping-lists="shoppingLists" />
+    <GroupMealPlanEntryDialog v-model="dialog.open" :entry="dialog.entry" :date="dialog.date"
+      @create="actions.createOne($event)" @update="actions.updateOne($event)" />
     <MealPlanLayout :mealplans="mealplans">
       <template #default="{ day }">
         <MealPlanDay :day="day.date" :actions="actions" :recipes="day.recipes">
-          <SpinTransition>
-            <v-card v-if="day.sections.length" variant="flat" class="pl-4 pr-2">
-              <SpinTransition>
-                <div v-for="section in day.sections" :key="section.title">
-                  <div class="py-2 d-flex flex-column">
-                    <p class="text-overline my-0">
-                      {{ section.title }}
-                    </p>
+          <template #default="{ buttons, bindings }">
+            <SpinTransition>
+              <v-card v-if="day.sections.length" color="surface-variant" variant="flat"
+                class="planner-day-menu pl-4 pr-2" style="background: rgb(var(--v-theme-surface-variant)) !important;">
+                <SpinTransition>
+                  <div v-for="section in day.sections" :key="section.title">
+                    <div class="py-2 d-flex flex-column">
+                      <p class="planner-course-label my-0">
+                        {{ section.title }}
+                      </p>
+                    </div>
+                    <SpinTransition>
+                      <RecipeCardMobile v-for="mealplan in section.meals" :key="mealplan.id"
+                        :recipe-id="mealplan.recipe ? mealplan.recipe.id! : ''" class="planner-meal-card mb-2" compact
+                        :rating="mealplan.recipe ? mealplan.recipe.rating! : 0"
+                        :slug="mealplan.recipe ? mealplan.recipe.slug! : mealplan.title!"
+                        :description="mealplan.recipe ? mealplan.recipe.description! : mealplan.text!"
+                        :show-description="!mealplan.recipe"
+                        :name="mealplan.recipe ? mealplan.recipe.name! : mealplan.title!"
+                        :image="mealplan.recipe ? mealplan.recipe.image! : undefined"
+                        :tags="mealplan.recipe ? mealplan.recipe.tags! : []"
+                        @mealplan-remove="actions.deleteOne(mealplan.id)" @mealplan-edit="editMeal(mealplan)"
+                        @add-to-shopping-list="addMealToShoppingList(mealplan)">
+                      </RecipeCardMobile>
+                    </SpinTransition>
                   </div>
-                  <SpinTransition>
-                    <RecipeCardMobile
-                      v-for="mealplan in section.meals"
-                      :key="mealplan.id"
-                      :recipe-id="mealplan.recipe ? mealplan.recipe.id! : ''"
-                      class="mb-2"
-                      :rating="mealplan.recipe ? mealplan.recipe.rating! : 0"
-                      :slug="mealplan.recipe ? mealplan.recipe.slug! : mealplan.title!"
-                      :description="mealplan.recipe ? mealplan.recipe.description! : mealplan.text!"
-                      :name="mealplan.recipe ? mealplan.recipe.name! : mealplan.title!"
-                      :image="mealplan.recipe ? mealplan.recipe.image! : undefined"
-                      :tags="mealplan.recipe ? mealplan.recipe.tags! : []"
-                      :context-menu-leading-items="[
-                        {
-                          title: $t('meal-plan.remove-from-plan'),
-                          icon: $globals.icons.calendarRemove,
-                          color: undefined,
-                          event: 'mealplanRemove',
-                          isPublic: false,
-                        },
-                        {
-                          title: $t('meal-plan.edit-meal-plan'),
-                          icon: $globals.icons.calendarEdit,
-                          color: undefined,
-                          event: 'mealplanEdit',
-                          isPublic: false,
-                        },
-                      ]"
-                      @mealplan-remove="actions.deleteOne(mealplan.id)"
-                      @mealplan-edit="editMeal(mealplan)"
-                    >
-                      <template v-if="!mealplan.recipe" #context-menu>
-                        <MealPlanNoteMenu
-                          @mealplan-remove="actions.deleteOne(mealplan.id)"
-                          @mealplan-edit="editMeal(mealplan)"
-                        />
-                      </template>
-                    </RecipeCardMobile>
-                  </SpinTransition>
+                </SpinTransition>
+                <div class="planner-day-actions d-flex justify-center">
+                  <BaseButtonGroup v-bind="bindings" :buttons="buttons" />
                 </div>
-              </SpinTransition>
-            </v-card>
-          </SpinTransition>
+              </v-card>
+              <v-card v-else color="surface-variant" variant="flat" class="planner-empty-day"
+                style="background: rgb(var(--v-theme-surface-variant)) !important;">
+                <p v-if="!loading">{{ $t('meal-plan.no-meal-planned') }}</p>
+                <div class="planner-day-actions d-flex justify-center">
+                  <BaseButtonGroup v-bind="bindings" :buttons="buttons" />
+                </div>
+              </v-card>
+            </SpinTransition>
+          </template>
         </MealPlanDay>
       </template>
     </MealPlanLayout>
@@ -69,21 +54,38 @@
 </template>
 
 <script setup lang="ts">
-import MealPlanNoteMenu from "~/components/Domain/Mealplan/MealPlanNoteMenu.vue";
+import RecipeDialogAddToShoppingList from "~/components/Domain/Recipe/RecipeDialogAddToShoppingList.vue";
 import RecipeCardMobile from "~/components/Domain/Recipe/RecipeCardMobile.vue";
+import { useAddToShoppingListDialog } from "~/composables/shopping-list-page/use-add-to-shopping-list-dialog";
 import type { MealsByDate } from "~/composables/use-group-mealplan";
 import type { ReadPlanEntry } from "~/lib/api/types/meal-plan";
 
 defineProps<{
   mealplans: MealsByDate[];
   actions: ReturnType<typeof useMealplans>["actions"];
+  loading?: boolean;
 }>();
+
+const { open: shoppingListDialog, shoppingLists, getShoppingLists } = useAddToShoppingListDialog();
 
 const dialog = reactive({
   open: false,
   entry: null as ReadPlanEntry | null,
   date: null as Date | null,
 });
+const shoppingListMeal = ref<ReadPlanEntry | null>(null);
+const shoppingListRecipes = computed(() => {
+  const recipe = shoppingListMeal.value?.recipe;
+  return recipe ? [{ scale: 1, ...recipe }] : [];
+});
+
+async function addMealToShoppingList(mealplan: ReadPlanEntry) {
+  if (!mealplan.recipe) return;
+
+  shoppingListMeal.value = mealplan;
+  await getShoppingLists();
+  shoppingListDialog.value = true;
+}
 
 function editMeal(mealplan: ReadPlanEntry) {
   if (!mealplan.entryType) return;

@@ -3,21 +3,13 @@
     <TheSnackbar />
 
     <AppHeader>
-      <v-btn
-        icon
-        @click.stop="sidebar = !sidebar"
-      >
+      <v-btn icon @click.stop="sidebar = !sidebar">
         <v-icon> {{ $globals.icons.menu }}</v-icon>
       </v-btn>
     </AppHeader>
 
-    <AppSidebar
-      v-model="sidebar"
-      :top-link="topLinks"
-      :user="{ data: true }"
-      :secondary-header="$t('sidebar.developer')"
-      :secondary-links="developerLinks"
-    />
+    <AppSidebar v-model="sidebar" :top-link="topLinks" :user="{ data: true }"
+      :secondary-header="$t('sidebar.developer')" :secondary-links="developerLinks" />
 
     <v-main>
       <v-scroll-x-transition>
@@ -43,6 +35,12 @@ const { $globals } = useNuxtApp();
 const sidebar = ref<boolean>(false);
 onMounted(() => {
   sidebar.value = display.lgAndUp.value;
+});
+
+useHead({
+  bodyAttrs: {
+    class: "admin-layout",
+  },
 });
 
 const topLinks: SidebarLinks = [

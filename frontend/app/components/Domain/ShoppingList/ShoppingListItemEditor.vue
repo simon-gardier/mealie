@@ -1,50 +1,33 @@
 <template>
-  <v-card variant="elevated" class="pa-2" border="primary s-lg opacity-100">
+  <v-card variant="elevated" class="pa-2" :class="{ 'shopping-list-item-editor--new': !allowDelete }">
     <div class="d-flex flex-column ga-3">
-      <InputLabelType
-        v-model="listItem.food"
-        v-model:item-id="listItem.foodId!"
-        :items="foods"
-        :label="$t('shopping-list.food')"
-        :icon="$globals.icons.foods"
-        :autofocus="autoFocus === 'food'"
-        create
-        @create="createAssignFood"
-      />
-      <ShoppingListItemDetails
-        v-model="listItem"
-        :labels="labels"
-        :units="units"
-        @save="$emit('save')"
-      />
+      <InputLabelType v-model="listItem.food" v-model:item-id="listItem.foodId!" :items="foods"
+        :label="$t('shopping-list.food')" :icon="$globals.icons.foods" outlined :autofocus="autoFocus === 'food'" create
+        @create="createAssignFood" />
+      <ShoppingListItemDetails v-model="listItem" :labels="labels" :units="units" @save="$emit('save')" />
     </div>
     <v-card-actions class="justify-end pa-0">
-      <BaseButtonGroup
-        :buttons="[
-          ...(allowDelete
-            ? [
-              {
-                icon: $globals.icons.delete,
-                text: $t('general.delete'),
-                event: 'delete',
-              },
-            ]
-            : []),
-          {
-            icon: $globals.icons.close,
-            text: $t('general.cancel'),
-            event: 'cancel',
-          },
-          {
-            icon: $globals.icons.save,
-            text: $t('general.save'),
-            event: 'save',
-          },
-        ]"
-        @save="$emit('save')"
-        @cancel="$emit('cancel')"
-        @delete="$emit('delete')"
-      />
+      <BaseButtonGroup :buttons="[
+        ...(allowDelete
+          ? [
+            {
+              icon: $globals.icons.delete,
+              text: $t('general.delete'),
+              event: 'delete',
+            },
+          ]
+          : []),
+        {
+          icon: $globals.icons.close,
+          text: $t('general.cancel'),
+          event: 'cancel',
+        },
+        {
+          icon: $globals.icons.save,
+          text: $t('general.save'),
+          event: 'save',
+        },
+      ]" @save="$emit('save')" @cancel="$emit('cancel')" @delete="$emit('delete')" />
     </v-card-actions>
   </v-card>
 </template>
@@ -105,3 +88,9 @@ watch(
 
 const autoFocus = computed(() => (!listItem.value.food && listItem.value.note ? "note" : "food"));
 </script>
+
+<style scoped>
+.shopping-list-item-editor--new {
+  border-radius: 16px;
+}
+</style>

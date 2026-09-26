@@ -1,134 +1,66 @@
 <template>
-  <div class="search-container pb-8">
-    <form
-      class="search-box pa-2"
-      @submit.prevent="search"
-    >
-      <div class="d-flex justify-center mb-2">
-        <v-text-field
-          ref="input"
-          v-model="state.search"
-          variant="outlined"
-          hide-details
-          clearable
-          color="primary"
-          :placeholder="$t('search.search-placeholder')"
-          :prepend-inner-icon="$globals.icons.search"
-          @keyup.enter="hideKeyboard"
-        />
+  <div class="search-container">
+    <form class="search-box bistro-discovery-panel pa-2" @submit.prevent="search">
+      <div class="d-flex justify-center align-center ga-2 mb-2">
+        <v-text-field ref="input" v-model="state.search" variant="outlined" hide-details clearable color="primary"
+          class="flex-grow-1" :placeholder="$t('search.search-placeholder')" :prepend-inner-icon="$globals.icons.search"
+          @click:clear="refreshResults" @keyup.enter="hideKeyboard" />
+        <!-- <v-switch v-model="state.auto" :label="$t('search.auto-search')" inset color="primary" hide-details
+          class="ml-3 mr-0 auto-search-toggle" /> -->
       </div>
       <div class="search-row">
         <RecipeExplorerPageSearchFilters />
-        <!-- Sort Options -->
-        <v-menu
-          offset-y
-          nudge-bottom="3"
-        >
-          <template #activator="{ props }">
-            <v-btn
-              class="ml-auto"
-              size="small"
-              color="accent"
-              v-bind="props"
-            >
-              <v-icon :start="!$vuetify.display.xs">
-                {{ state.orderDirection === "asc" ? $globals.icons.sortDescending : $globals.icons.sortAscending }}
-              </v-icon>
-              {{ $vuetify.display.xs ? null : sortText }}
-            </v-btn>
-          </template>
-          <v-card>
-            <v-list>
-              <v-list-item
-                slim
-                density="comfortable"
-                :prepend-icon="state.orderDirection === 'asc' ? $globals.icons.sortAscending : $globals.icons.sortDescending"
-                :title="state.orderDirection === 'asc' ? $t('general.sort-descending') : $t('general.sort-ascending')"
-                @click="toggleOrderDirection"
-              />
-              <v-divider />
-              <v-list-item
-                v-for="v in sortable"
-                :key="v.name"
-                :active="state.orderBy === v.value"
-                slim
-                density="comfortable"
-                @click.stop="v.value === 'random' ? setRandomOrderByWrapper() : setOrderBy(v.value)"
-              >
-                <template #prepend>
-                  <v-icon>{{ v.icon }}</v-icon>
-                </template>
-
-                <template #title>
-                  <span>{{ v.name }}</span>
-                  <v-icon
-                    v-if="v.value === 'random' && showRandomLoading"
-                    size="small"
-                    class="ml-3"
-                  >
-                    {{ $globals.icons.refreshCircle }}
-                  </v-icon>
-                </template>
-              </v-list-item>
-            </v-list>
-          </v-card>
-        </v-menu>
-
-        <!-- Settings -->
-        <v-menu
-          offset-y
-          bottom
-          start
-          nudge-bottom="3"
-          :close-on-content-click="false"
-        >
-          <template #activator="{ props }">
-            <v-btn
-              size="small"
-              color="accent"
-              dark
-              v-bind="props"
-            >
-              <v-icon size="small">
-                {{ $globals.icons.cog }}
-              </v-icon>
-            </v-btn>
-          </template>
-          <v-card>
-            <v-card-text>
-              <v-switch
-                v-model="state.auto"
-                :label="$t('search.auto-search')"
-                single-line
-                color="primary"
-              />
-              <v-btn
-                block
-                color="primary"
-                @click="reset"
-              >
-                {{ $t("general.reset") }}
+        <div class="search-actions">
+          <!-- Sort Options -->
+          <v-menu offset-y nudge-bottom="3">
+            <template #activator="{ props }">
+              <v-btn size="small" color="accent" v-bind="props">
+                <v-icon :start="!$vuetify.display.xs">
+                  {{ state.orderDirection === "asc" ? $globals.icons.sortDescending : $globals.icons.sortAscending }}
+                </v-icon>
+                {{ $vuetify.display.xs ? null : sortText }}
               </v-btn>
-            </v-card-text>
-          </v-card>
-        </v-menu>
+            </template>
+            <v-card>
+              <v-list>
+                <v-list-item slim density="comfortable"
+                  :prepend-icon="state.orderDirection === 'asc' ? $globals.icons.sortAscending : $globals.icons.sortDescending"
+                  :title="state.orderDirection === 'asc' ? $t('general.sort-descending') : $t('general.sort-ascending')"
+                  @click="toggleOrderDirection" />
+                <v-divider />
+                <v-list-item v-for="v in sortable" :key="v.name" :active="state.orderBy === v.value" slim
+                  density="comfortable"
+                  @click.stop="v.value === 'random' ? setRandomOrderByWrapper() : setOrderBy(v.value)">
+                  <template #prepend>
+                    <v-icon>{{ v.icon }}</v-icon>
+                  </template>
+
+                  <template #title>
+                    <span>{{ v.name }}</span>
+                    <v-icon v-if="v.value === 'random' && showRandomLoading" size="small" class="ml-3">
+                      {{ $globals.icons.refreshCircle }}
+                    </v-icon>
+                  </template>
+                </v-list-item>
+              </v-list>
+            </v-card>
+          </v-menu>
+          <v-btn class="search-view-toggle" size="small" color="accent" @click="emit('toggleView')" variant="flat">
+            <v-icon>{{ $globals.icons.gridView }}</v-icon>
+          </v-btn>
+          <v-btn size="small" color="accent" @click="reset" variant="flat">
+            <v-icon>{{ $globals.icons.refresh }}</v-icon>
+          </v-btn>
+        </div>
       </div>
-      <div
-        v-if="!state.auto"
-        class="search-button-container"
-      >
-        <v-btn
-          size="x-large"
-          color="primary"
-          type="submit"
-          block
-        >
+      <!-- <div v-if="!state.auto" class="search-button-container">
+        <v-btn size="x-large" color="primary" type="submit" block>
           <v-icon start>
             {{ $globals.icons.search }}
           </v-icon>
           {{ $t("search.search") }}
         </v-btn>
-      </div>
+      </div> -->
     </form>
   </div>
 </template>
@@ -139,6 +71,7 @@ import { useRecipeExplorerSearch, clearRecipeExplorerSearchState } from "~/compo
 
 const emit = defineEmits<{
   ready: [];
+  toggleView: [];
 }>();
 
 const auth = useMealieAuth();
@@ -222,6 +155,11 @@ function hideKeyboard() {
   input.value?.blur();
 }
 
+async function refreshResults() {
+  await nextTick();
+  await search();
+}
+
 // function to show refresh icon
 async function setRandomOrderByWrapper() {
   if (!showRandomLoading.value) {
@@ -237,6 +175,19 @@ async function setRandomOrderByWrapper() {
   flex-wrap: wrap;
   gap: 0.65rem;
   margin-top: 1rem;
+}
+
+.search-actions {
+  display: flex;
+  gap: 0.65rem;
+  margin-left: auto;
+}
+
+@media (max-width: 599px) {
+  .search-actions {
+    flex-basis: 100%;
+    margin-left: 0;
+  }
 }
 
 .search-container {

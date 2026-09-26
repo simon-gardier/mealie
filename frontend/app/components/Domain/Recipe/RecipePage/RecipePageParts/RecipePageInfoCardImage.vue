@@ -1,24 +1,10 @@
 <template>
-  <v-img
-    :key="imageKey"
-    :max-width="maxWidth"
-    min-height="50"
-    cover
-    width="100%"
-    :height="hideImage ? undefined : imageHeight"
-    :src="recipeImageUrl"
-    class="d-print-none"
-    :style="hideImage ? undefined : 'cursor: zoom-in'"
-    v-bind="$attrs"
-    @error="hideImage = true"
-    @click="openLightbox"
-  />
-  <RecipeImageLightbox
-    v-if="lightboxOpen"
-    v-model="lightboxOpen"
-    :image-url="recipeFullImageUrl"
-    :image-alt="recipe.name"
-  />
+  <div v-if="!hideImage" :key="imageKey" class="recipe-image-frame d-print-none" :style="frameStyle" v-bind="$attrs"
+    @click="openLightbox">
+    <v-img cover :src="recipeImageUrl" class="recipe-image-frame__image" @error="hideImage = true" />
+  </div>
+  <RecipeImageLightbox v-if="lightboxOpen" v-model="lightboxOpen" :image-url="recipeFullImageUrl"
+    :image-alt="recipe.name" />
 </template>
 
 <script setup lang="ts">
@@ -59,9 +45,9 @@ function openLightbox() {
   lightboxOpen.value = true;
 }
 
-const imageHeight = computed(() => {
-  return display.xs.value ? "200" : "400";
-});
+const frameStyle = computed(() => ({
+  maxWidth: props.maxWidth ? `min(${props.maxWidth}, 504px)` : "504px",
+}));
 
 const recipeFullImageUrl = computed(() => {
   return recipeImage(props.recipe.id, props.recipe.image, imageKey.value);
@@ -80,3 +66,33 @@ watch(
   },
 );
 </script>
+
+<style scoped>
+.recipe-image-frame {
+  aspect-ratio: 1248 / 990;
+  cursor: zoom-in;
+  isolation: isolate;
+  position: relative;
+  width: 100%;
+}
+
+.recipe-image-frame__image {
+  background: transparent;
+  bottom: 7.071%;
+  /* wider inset than the frame's outer edge so the photo stays behind the vine border instead of peeking out on the sides */
+  left: 9%;
+  position: absolute;
+  right: 9%;
+  top: 9.091%;
+  z-index: 0;
+}
+
+.recipe-image-frame::after {
+  background: url("~/assets/frame.png") center / 100% 100% no-repeat;
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 1;
+}
+</style>

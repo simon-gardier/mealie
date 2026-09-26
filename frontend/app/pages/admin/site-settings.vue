@@ -81,7 +81,7 @@
         :icon="$globals.icons.cog"
         :title="$t('settings.configuration')"
       />
-      <v-card class="mb-4">
+      <v-card class="admin-content-card mb-4">
         <template
           v-for="(check, idx) in simpleChecks"
           :key="`list-item-${idx}`"
@@ -109,10 +109,9 @@
         :title="$t('user.email')"
       />
       <v-alert
-        border="start"
-        :border-color="appConfig.emailReady ? 'success' : 'error'"
         variant="text"
         elevation="2"
+        class="admin-status-card"
       >
         <template #prepend>
           <v-icon :color="appConfig.emailReady ? 'success' : 'warning'">
@@ -193,7 +192,7 @@
         :icon="$globals.icons.cog"
         :title="$t('settings.general-about')"
       />
-      <v-card class="mb-4">
+      <v-card class="admin-content-card mb-4">
         <template v-if="appInfo && appInfo.length">
           <template
             v-for="(property, idx) in appInfo"

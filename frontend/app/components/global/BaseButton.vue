@@ -4,27 +4,22 @@
     :size="small ? 'small' : 'default'"
     :x-small="xSmall"
     :loading="loading"
+    :icon="iconOnly"
     :disabled="disabled"
     :variant="disabled ? 'tonal' : btnStyle.outlined ? 'outlined' : btnStyle.text ? 'text' : 'elevated'"
     :to="to"
     v-bind="$attrs"
     @click="download ? downloadFile() : undefined"
   >
-    <v-icon
-      v-if="!iconRight"
-      start
-    >
+    <v-icon v-if="!hideIcon && !iconRight" :start="!iconOnly">
       <slot name="icon">
         {{ icon || btnAttrs.icon }}
       </slot>
     </v-icon>
-    <slot name="default">
+    <slot v-if="!iconOnly" name="default">
       {{ text || btnAttrs.text }}
     </slot>
-    <v-icon
-      v-if="iconRight"
-      end
-    >
+    <v-icon v-if="!hideIcon && iconRight" :end="!iconOnly">
       <slot name="icon">
         {{ icon || btnAttrs.icon }}
       </slot>
@@ -58,7 +53,8 @@ const props = defineProps({
   },
   delete: {
     type: Boolean,
-    default: false },
+    default: false,
+  },
   download: {
     type: Boolean,
     default: false,
@@ -106,6 +102,14 @@ const props = defineProps({
   icon: {
     type: String,
     default: null,
+  },
+  iconOnly: {
+    type: Boolean,
+    default: false,
+  },
+  hideIcon: {
+    type: Boolean,
+    default: false,
   },
   iconRight: {
     type: Boolean,

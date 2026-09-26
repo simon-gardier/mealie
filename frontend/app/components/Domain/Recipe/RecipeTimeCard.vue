@@ -1,76 +1,39 @@
 <template v-if="_showCards">
   <div class="text-center">
     <!-- Total Time -->
-    <div
-      v-if="validateTotalTime"
-      class="time-card-flex mx-auto"
-    >
-      <v-row
-        no-gutters
-        class="d-flex flex-no-wrap align-center"
-        :style="fontSize"
-      >
-        <v-icon
-          :x-large="!small"
-          start
-          color="primary"
-        >
+    <div v-if="validateTotalTime" class="time-card-flex mx-auto">
+      <v-row no-gutters class="d-flex flex-no-wrap align-center" :style="fontSize">
+        <v-icon :x-large="!small" start color="primary">
           {{ $globals.icons.clockOutline }}
         </v-icon>
         <p class="my-0">
-          <span class="font-weight-bold opacity-80">{{ validateTotalTime.name }}</span><br>{{ validateTotalTime.value }}
+          <span class="font-weight-bold opacity-80">{{ validateTotalTime.name }}</span><br><span
+            class="recipe-time-value">{{ validateTotalTime.value }}</span>
         </p>
       </v-row>
     </div>
-    <v-divider
-      v-if="validateTotalTime && (validatePrepTime || validatePerformTime)"
-      class="my-2"
-    />
+    <v-divider v-if="validateTotalTime && (validatePrepTime || validatePerformTime)" class="my-2" />
     <!-- Prep Time & Perform Time -->
-    <div
-      v-if="validatePrepTime || validatePerformTime"
-      class="time-card-flex mx-auto"
-    >
-      <v-row
-        no-gutters
-        class="d-flex justify-center align-center"
-        :class="{ 'flex-column': $vuetify.display.smAndDown }"
-        style="width: 100%;"
-        :style="fontSize"
-      >
-        <div
-          v-if="validatePrepTime"
-          class="d-flex flex-no-wrap my-1 align-center"
-        >
-          <v-icon
-            :size="small ? 'small' : 'large'"
-            start
-            color="primary"
-          >
+    <div v-if="validatePrepTime || validatePerformTime" class="time-card-flex mx-auto">
+      <v-row no-gutters class="d-flex justify-center align-center"
+        :class="{ 'flex-column': $vuetify.display.smAndDown }" style="width: 100%;" :style="fontSize">
+        <div v-if="validatePrepTime" class="d-flex flex-no-wrap my-1 align-center">
+          <v-icon :size="small ? 'small' : 'large'" start color="primary">
             {{ $globals.icons.knife }}
           </v-icon>
           <p class="my-0">
-            <span class="font-weight-bold opacity-80">{{ validatePrepTime.name }}</span><br>{{ validatePrepTime.value }}
+            <span class="font-weight-bold opacity-80">{{ validatePrepTime.name }}</span><br><span
+              class="recipe-time-value">{{ validatePrepTime.value }}</span>
           </p>
         </div>
-        <v-divider
-          v-if="validatePrepTime && validatePerformTime"
-          vertical
-          class="mx-4"
-        />
-        <div
-          v-if="validatePerformTime"
-          class="d-flex flex-no-wrap my-1 align-center"
-        >
-          <v-icon
-            :size="small ? 'small' : 'large'"
-            start
-            color="primary"
-          >
+        <v-divider v-if="validatePrepTime && validatePerformTime" vertical class="mx-4" />
+        <div v-if="validatePerformTime" class="d-flex flex-no-wrap my-1 align-center">
+          <v-icon :size="small ? 'small' : 'large'" start color="primary">
             {{ $globals.icons.potSteam }}
           </v-icon>
           <p class="my-0">
-            <span class="font-weight-bold opacity-80">{{ validatePerformTime.name }}</span><br>{{ validatePerformTime.value }}
+            <span class="font-weight-bold opacity-80">{{ validatePerformTime.name }}</span><br><span
+              class="recipe-time-value">{{ validatePerformTime.value }}</span>
           </p>
         </div>
       </v-row>
@@ -125,9 +88,11 @@ const fontSize = computed(() => {
 .text-center {
   font-size: smaller;
 }
+
 .time-card-flex {
   width: fit-content;
 }
+
 .custom-transparent {
   opacity: 0.7;
 }

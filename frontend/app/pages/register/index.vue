@@ -1,72 +1,30 @@
 <template>
-  <v-container
-    fill-height
-    fluid
-    class="d-flex justify-center align-center flex-column fill-height"
-    :class="{
-      'bg-off-white': !$vuetify.theme.current.dark && !isDark,
-    }"
-  >
-    <v-card
-      class="d-flex flex-column w-100"
-      max-width="1200px"
-      min-height="700px"
-    >
-      <div>
-        <v-toolbar
-          width="100%"
-          color="primary"
-          style="margin-bottom: 4rem"
-          dark
-        >
-          <v-toolbar-title class="text-h4 text-center">
-            Mealie
-          </v-toolbar-title>
-        </v-toolbar>
-        <AppLogo />
-      </div>
-
+  <BaseVideoBackground src="/festin.mp4" />
+  <v-container fill-height fluid class="d-flex justify-center align-center flex-column fill-height register-background">
+    <img src="/welcome_title.png" alt="Petit Chef" class="welcome-title mb-4">
+    <v-card class="d-flex flex-column w-100 glass-card"
+      :max-width="state.ctx.state === States.Initial ? '760px' : '1200px'"
+      :min-height="state.ctx.state === States.Initial ? '400px' : '700px'">
       <!-- Form Container -->
-      <div class="d-flex justify-center grow items-center my-4">
+      <div class="d-flex justify-center align-center flex-grow-1 my-4">
         <template v-if="state.ctx.state === States.Initial">
           <v-container>
-            <v-card-title class="text-h5 my-4 mb-5 pb-0 text-center">
+            <v-card-title class="text-h5 my-4 mb-5 pb-0 text-center section-title">
               {{ $t("user-registration.user-registration") }}
             </v-card-title>
 
-            <div
-              class="d-flex flex-wrap justify-center flex-md-nowrap pa-4"
-              style="gap: 1em"
-            >
-              <v-card
-                color="primary"
-                dark
-                hover
-                width="320px"
-                @click="initial.joinGroup"
-              >
+            <div class="d-flex flex-wrap justify-center flex-md-nowrap pa-4" style="gap: 1em">
+              <v-card class="registration-choice" color="primary" dark hover width="320px" @click="initial.joinGroup">
                 <v-card-title class="d-flex align-center justify-center py-3">
-                  <v-icon
-                    size="large"
-                    start
-                  >
+                  <v-icon size="large" start>
                     {{ $globals.icons.group }}
                   </v-icon>
                   {{ $t("user-registration.join-a-group") }}
                 </v-card-title>
               </v-card>
-              <v-card
-                color="primary"
-                dark
-                hover
-                width="320px"
-                @click="initial.createGroup"
-              >
+              <v-card class="registration-choice" color="primary" dark hover width="320px" @click="initial.createGroup">
                 <v-card-title class="d-flex align-center justify-center py-3">
-                  <v-icon
-                    size="large"
-                    start
-                  >
+                  <v-icon size="large" start>
                     {{ $globals.icons.user }}
                   </v-icon>
 
@@ -79,11 +37,8 @@
 
         <template v-else-if="state.ctx.state === States.ProvideToken">
           <div>
-            <v-card-title>
-              <v-icon
-                size="large"
-                class="mr-3"
-              >
+            <v-card-title class="text-h5 section-title">
+              <v-icon size="large" class="mr-3">
                 {{ $globals.icons.group }}
               </v-icon>
               <span> {{ $t("user-registration.join-a-group") }} </span>
@@ -91,34 +46,20 @@
             <v-divider />
             <v-card-text>
               {{ $t("user-registration.provide-registration-token-description") }}
-              <v-form
-                ref="domTokenForm"
-                class="mt-4"
-                @submit.prevent
-              >
-                <v-text-field
-                  v-model="token"
-                  v-bind="inputAttrs"
-                  :label="$t('group.group-token')"
-                  :rules="[validators.required]"
-                />
+              <v-form ref="domTokenForm" class="mt-4" @submit.prevent>
+                <v-text-field v-model="token" v-bind="inputAttrs" :label="$t('group.group-token')"
+                  :rules="[validators.required]" />
               </v-form>
             </v-card-text>
             <v-divider />
             <v-card-actions class="mt-auto justify-space-between">
-              <BaseButton
-                cancel
-                @click="state.back"
-              >
+              <BaseButton class="registration-step-button" color="secondary" cancel @click="state.back">
                 <template #icon>
                   {{ $globals.icons.back }}
                 </template>
                 {{ $t("general.back") }}
               </BaseButton>
-              <BaseButton
-                icon-right
-                @click="provideToken.next"
-              >
+              <BaseButton class="registration-step-button" color="primary" icon-right @click="provideToken.next">
                 <template #icon>
                   {{ $globals.icons.forward }}
                 </template>
@@ -130,11 +71,8 @@
 
         <template v-else-if="state.ctx.state === States.ProvideGroupDetails">
           <div class="preferred-width">
-            <v-card-title>
-              <v-icon
-                size="large"
-                class="mr-3"
-              >
+            <v-card-title class="text-h5 section-title">
+              <v-icon size="large" class="mr-3">
                 {{ $globals.icons.group }}
               </v-icon>
               <span> {{ $t("user-registration.group-details") }}</span>
@@ -144,33 +82,17 @@
             </v-card-text>
             <v-divider />
             <v-card-text>
-              <v-form
-                ref="domGroupForm"
-                v-model="isGroupFormValid"
-                @submit.prevent
-              >
-                <v-text-field
-                  v-model="groupDetails.groupName.value"
-                  v-bind="inputAttrs"
-                  :label="$t('group.group-name')"
-                  :rules="[validators.required]"
-                  :error-messages="groupErrorMessages"
-                  @blur="validGroupName"
-                />
+              <v-form ref="domGroupForm" v-model="isGroupFormValid" @submit.prevent>
+                <v-text-field v-model="groupDetails.groupName.value" v-bind="inputAttrs" :label="$t('group.group-name')"
+                  :rules="[validators.required]" :error-messages="groupErrorMessages" @blur="validGroupName" />
                 <div class="mt-n4 px-2">
-                  <v-checkbox
-                    v-model="groupDetails.groupPrivate.value"
-                    hide-details
-                    :label="$t('group.settings.keep-my-recipes-private')"
-                  />
+                  <v-checkbox v-model="groupDetails.groupPrivate.value" hide-details color="primary"
+                    :label="$t('group.settings.keep-my-recipes-private')" />
                   <p class="text-caption mt-1">
                     {{ $t("group.settings.keep-my-recipes-private-description") }}
                   </p>
-                  <v-checkbox
-                    v-model="groupDetails.groupSeed.value"
-                    hide-details
-                    :label="$t('data-pages.seed-data')"
-                  />
+                  <v-checkbox v-model="groupDetails.groupSeed.value" hide-details color="primary"
+                    :label="$t('data-pages.seed-data')" />
                   <p class="text-caption mt-1">
                     {{ $t("user-registration.use-seed-data-description") }}
                   </p>
@@ -179,20 +101,14 @@
             </v-card-text>
             <v-divider />
             <v-card-actions class="justify-space-between">
-              <BaseButton
-                cancel
-                @click="state.back"
-              >
+              <BaseButton class="registration-step-button" color="secondary" cancel @click="state.back">
                 <template #icon>
                   {{ $globals.icons.back }}
                 </template>
                 {{ $t("general.back") }}
               </BaseButton>
-              <BaseButton
-                icon-right
-                :disabled="!isGroupFormValid || !groupNameValid"
-                @click="groupDetails.next"
-              >
+              <BaseButton class="registration-step-button" color="primary" icon-right :disabled="!isGroupFormValid || !groupNameValid"
+                @click="groupDetails.next">
                 <template #icon>
                   {{ $globals.icons.forward }}
                 </template>
@@ -207,20 +123,14 @@
             <UserRegistrationForm v-model="isAccountFormValid" />
             <v-divider />
             <v-card-actions class="justify-space-between">
-              <BaseButton
-                cancel
-                @click="state.back"
-              >
+              <BaseButton class="registration-step-button" color="secondary" cancel @click="state.back">
                 <template #icon>
                   {{ $globals.icons.back }}
                 </template>
                 {{ $t("general.back") }}
               </BaseButton>
-              <BaseButton
-                icon-right
-                :disabled="!isAccountFormValid"
-                @click="accountDetailsNext"
-              >
+              <BaseButton class="registration-step-button" color="primary" icon-right :disabled="!isAccountFormValid"
+                @click="accountDetailsNext">
                 <template #icon>
                   {{ $globals.icons.forward }}
                 </template>
@@ -232,37 +142,25 @@
 
         <template v-else-if="state.ctx.state === States.Confirmation">
           <div class="preferred-width">
-            <v-card-title class="mb-0 pb-0">
-              <v-icon
-                size="large"
-                class="mr-3"
-              >
+            <v-card-title class="text-h5 mb-0 pb-0 section-title">
+              <v-icon size="large" class="mr-3">
                 {{ $globals.icons.user }}
               </v-icon>
               <span>{{ $t("general.confirm") }}</span>
             </v-card-title>
             <v-list>
               <template v-for="(item, idx) in confirmationData">
-                <v-list-item
-                  v-if="item.display"
-                  :key="idx"
-                >
+                <v-list-item v-if="item.display" :key="idx">
                   <v-list-item-title> {{ item.text }} </v-list-item-title>
                   <v-list-item-subtitle> {{ item.value }} </v-list-item-subtitle>
                 </v-list-item>
-                <v-divider
-                  v-if="idx !== confirmationData.length - 1"
-                  :key="`divider-${idx}`"
-                />
+                <v-divider v-if="idx !== confirmationData.length - 1" :key="`divider-${idx}`" />
               </template>
             </v-list>
 
             <v-divider />
             <v-card-actions class="justify-space-between">
-              <BaseButton
-                cancel
-                @click="state.back"
-              >
+              <BaseButton cancel @click="state.back">
                 <template #icon>
                   {{ $globals.icons.back }}
                 </template>
@@ -279,30 +177,21 @@
         </template>
       </div>
 
-      <v-card-actions class="justify-center flex-column py-8">
-        <v-btn
-          variant="text"
-          class="mb-2"
-          to="/login"
-        >
+      <v-card-actions class="justify-center flex-wrap py-8" style="gap: 0.5rem;">
+        <BaseButton size="large" color="grey-darken-2" :icon="$globals.icons.lock" to="/login">
           {{ $t("user.login") }}
-        </v-btn>
-        <BaseButton
-          size="large"
-          color="primary"
-          :icon="$globals.icons.translate"
-          @click="langDialog = true"
-        >
+        </BaseButton>
+        <BaseButton size="large" color="grey-darken-2" :icon="$globals.icons.translate" @click="langDialog = true">
           {{ $t("language-dialog.choose-language") }}
         </BaseButton>
       </v-card-actions>
     </v-card>
     <LanguageDialog v-model="langDialog" />
+    <CinematicTransition ref="cinematicTransition" />
   </v-container>
 </template>
 
 <script setup lang="ts">
-import { useDark } from "@vueuse/core";
 import { States, RegistrationType, useRegistration } from "./states";
 import { useUserRegistrationForm } from "~/composables/use-users/user-registration-form";
 import { useRouteQuery } from "~/composables/use-router";
@@ -320,12 +209,15 @@ definePageMeta({
 });
 
 const inputAttrs = {
-  variant: "filled",
+  variant: "outlined" as const,
+  color: "primary",
+  density: "comfortable" as const,
   validateOnBlur: true,
 };
 
 const i18n = useI18n();
-const isDark = useDark();
+
+const cinematicTransition = ref<{ play: (zoomOutScale?: number, zoomInScale?: number) => Promise<void> } | null>(null);
 
 function safeValidate(form: Ref<VForm | null>) {
   if (form.value && form.value.validate) {
@@ -493,6 +385,7 @@ async function submitRegistration() {
     passwordConfirm: credentials.password2.value,
     locale: locale.value,
     advanced: accountDetails.advancedOptions.value,
+    profileImage: accountDetails.profileFile.value ? null : accountDetails.profileAvatar.value,
   };
   if (state.ctx.type === RegistrationType.CreateGroup) {
     payload.group = groupName.value;
@@ -504,9 +397,17 @@ async function submitRegistration() {
   }
   const { response, error } = await api.register.register(payload);
   if (response?.status === 201) {
+    const newUserId = response.data?.id;
+    if (newUserId && accountDetails.profileFile.value) {
+      const formData = new FormData();
+      formData.append("profile", accountDetails.profileFile.value);
+      await api.upload.file(`/api/users/${newUserId}/image`, formData);
+    }
+
     accountDetails.reset();
     credentials.reset();
     alert.success(i18n.t("user-registration.registration-success"));
+    await cinematicTransition.value?.play();
     router.push("/login");
   }
   // The Axios interceptor already shows detail.message errors.
@@ -517,34 +418,60 @@ async function submitRegistration() {
 </script>
 
 <style lang="css" scoped>
-.icon-white {
-  fill: white;
-}
-
-.icon-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
+.register-background {
   position: relative;
-  margin-top: 2.5rem;
+  z-index: 1;
+  background-color: transparent;
 }
 
-.icon-divider {
+.glass-card {
+  background-color: rgba(var(--v-theme-surface), 0.65) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 24px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+}
+
+.registration-choice {
+  border-radius: 9px 12px 10px 11px;
+}
+
+.section-title {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 3rem !important;
+}
+
+.registration-step-button {
+  font-family: "Inter", sans-serif;
+}
+
+/* The disabled state falls back to the translucent tonal variant, keep it opaque. */
+.registration-step-button.v-btn--variant-tonal {
+  background-color: rgb(var(--v-theme-surface));
+  color: rgba(var(--v-theme-on-surface), 0.6);
+}
+
+.welcome-title {
   width: 100%;
-  margin-bottom: -2.5rem;
-}
-
-.icon-avatar {
-  border-color: rgba(0, 0, 0, 0.12);
-  border: 2px;
-}
-
-.bg-off-white {
-  background: #f5f8fa;
+  max-width: 320px;
+  height: auto;
 }
 
 .preferred-width {
   width: 840px;
+  max-width: 100%;
+}
+
+@media (max-width: 600px) {
+  .register-background {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .glass-card {
+    max-width: 100% !important;
+    border-radius: 0 !important;
+  }
 }
 </style>

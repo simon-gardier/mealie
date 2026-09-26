@@ -31,6 +31,7 @@ export interface CreateUserRegistration {
   private?: boolean;
   seedData?: boolean;
   locale?: string;
+  profileImage?: string | null;
 }
 export interface CredentialsRequest {
   username: string;

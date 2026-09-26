@@ -2,64 +2,35 @@
   <v-container class="narrow-container">
     <BasePageTitle class="mb-2">
       <template #header>
-        <v-img
-          width="100%"
-          max-height="125"
-          max-width="125"
-          src="/svgs/manage-profile.svg"
-        />
+        <v-img width="100%" max-height="125" max-width="125" src="/svgs/manage-profile.svg" />
       </template>
       <template #title>
         {{ $t('user.admin-user-creation') }}
       </template>
     </BasePageTitle>
     <AppToolbar back />
-    <v-form
-      ref="refNewUserForm"
-      @submit.prevent="handleSubmit"
-    >
-      <v-card variant="outlined">
+    <v-form ref="refNewUserForm" @submit.prevent="handleSubmit">
+      <v-card variant="outlined" class="admin-content-card">
         <v-card-text>
           <v-sheet>
             <v-row>
               <v-col cols="6">
-                <v-select
-                  v-model="selectedGroup"
-                  :items="groups || []"
-                  item-title="name"
-                  return-object
-                  variant="filled"
-                  :label="$t('group.user-group')"
-                  :rules="[validators.required]"
-                />
+                <v-select v-model="selectedGroup" :items="groups || []" item-title="name" return-object variant="filled"
+                  :label="$t('group.user-group')" :rules="[validators.required]" />
               </v-col>
               <v-col cols="6">
-                <v-select
-                  v-model="newUserData.household"
-                  :disabled="!selectedGroup"
-                  :items="households"
-                  item-title="name"
-                  item-value="name"
-                  variant="filled"
-                  :label="$t('household.user-household')"
+                <v-select v-model="newUserData.household" :disabled="!selectedGroup" :items="households"
+                  item-title="name" item-value="name" variant="filled" :label="$t('household.user-household')"
                   :hint="selectedGroup ? '' : $t('group.you-must-select-a-group-before-selecting-a-household')"
-                  persistent-hint
-                  :rules="[validators.required]"
-                />
+                  persistent-hint :rules="[validators.required]" />
               </v-col>
             </v-row>
           </v-sheet>
-          <AutoForm
-            v-model="newUserData"
-            :items="userForm"
-          />
+          <AutoForm v-model="newUserData" :items="userForm" />
         </v-card-text>
       </v-card>
       <div class="d-flex pa-2">
-        <BaseButton
-          type="submit"
-          class="ml-auto"
-        />
+        <BaseButton type="submit" class="ml-auto" />
       </div>
     </v-form>
   </v-container>

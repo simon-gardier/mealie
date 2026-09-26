@@ -409,6 +409,15 @@ function createRecipeExplorerSearchState(groupSlug: ComputedRef<string>): Recipe
     },
   );
 
+  watch(
+    () => state.value.auto,
+    async (autoEnabled) => {
+      if (state.value.ready && autoEnabled) {
+        await search();
+      }
+    },
+  );
+
   // Auto-search when parameters change
   watchDebounced(
     [

@@ -1,45 +1,24 @@
 <template>
-  <div>
-    <v-card-text
-      v-if="cookbook"
-      class="px-1"
-    >
-      <v-text-field
-        v-model="cookbook.name"
-        :label="$t('cookbook.cookbook-name')"
-        variant="underlined"
-        color="primary"
-      />
-      <v-textarea
-        v-model="cookbook.description"
-        auto-grow
-        :rows="2"
-        :label="$t('recipe.description')"
-        variant="underlined"
-        color="primary"
-      />
-      <QueryFilterBuilder
-        :field-defs="fieldDefs"
-        :initial-query-filter="cookbook.queryFilter"
-        @input="handleInput"
-      />
-      <v-switch
-        v-model="cookbook.public"
-        hide-details
-        single-line
-        color="primary"
-      >
-        <template #label>
-          {{ $t('cookbook.public-cookbook') }}
-          <HelpIcon
-            size="small"
-            right
-            class="ml-2"
-          >
-            {{ $t('cookbook.public-cookbook-description') }}
-          </HelpIcon>
+  <div :class="{ 'cookbook-editor--styled': props.styled }">
+    <v-card-text v-if="cookbook" :class="{ 'cookbook-editor-body': props.styled }">
+      <v-text-field v-model="cookbook.name" :label="$t('cookbook.cookbook-name')"
+        :variant="props.styled ? 'solo' : 'underlined'" color="primary" :class="{ 'settings-input': props.styled }" />
+      <v-textarea v-model="cookbook.description" auto-grow :rows="2" :label="$t('recipe.description')"
+        :variant="props.styled ? 'solo' : 'underlined'" color="primary" :class="{ 'settings-input': props.styled }" />
+      <QueryFilterBuilder :field-defs="fieldDefs" :initial-query-filter="cookbook.queryFilter" @input="handleInput">
+        <template #actions="{ addField }">
+          <v-switch v-model="cookbook.public" hide-details single-line color="primary">
+            <template #label>
+              {{ $t('cookbook.public-cookbook') }}
+              <HelpIcon size="small" right class="ml-2">
+                {{ $t('cookbook.public-cookbook-description') }}
+              </HelpIcon>
+            </template>
+          </v-switch>
+          <v-spacer />
+          <BaseButton create :text="$t('general.add-field')" class="my-auto ml-4" @click="addField" />
         </template>
-      </v-switch>
+      </QueryFilterBuilder>
     </v-card-text>
   </div>
 </template>
@@ -51,6 +30,7 @@ import type { FieldDefinition } from "~/composables/use-query-filter-builder";
 import type { ReadCookBook } from "~/lib/api/types/cookbook";
 
 const modelValue = defineModel<ReadCookBook>({ required: true });
+const props = defineProps<{ styled?: boolean }>();
 const i18n = useI18n();
 const cookbook = toRef(modelValue);
 function handleInput(value: string | undefined) {
@@ -110,3 +90,32 @@ const fieldDefs: FieldDefinition[] = [
   },
 ];
 </script>
+
+<style scoped>
+.cookbook-editor--styled {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.cookbook-editor-body {
+  padding: 1rem;
+}
+
+.settings-input :deep(.v-field),
+.cookbook-editor--styled :deep(.v-field) {
+  background: rgba(var(--v-theme-surface), 0.72) !important;
+  border: 1px solid rgba(var(--v-theme-primary), 0.5);
+  border-radius: 10px;
+  box-shadow: none !important;
+}
+
+.settings-input :deep(.v-field__outline),
+.cookbook-editor--styled :deep(.v-field__outline) {
+  display: none;
+}
+
+.settings-input :deep(.v-field__input),
+.cookbook-editor--styled :deep(.v-field__input) {
+  padding-left: 1rem;
+}
+</style>

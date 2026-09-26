@@ -1,67 +1,30 @@
 <template>
-  <v-autocomplete
-    v-model="selected"
-    v-bind="inputAttrs"
-    v-model:search="searchInput"
-    :items="items"
-    :custom-filter="normalizeFilter"
-    :label="label"
-    chips
-    closable-chips
-    :item-title="itemTitle"
-    item-value="name"
-    multiple
-    :variant="variant"
-    :prepend-inner-icon="icon"
-    :append-icon="showAdd ? $globals.icons.create : undefined"
-    return-object
-    auto-select-first
-    class="pa-0 ma-0"
-    @update:model-value="resetSearchInput"
-    @click:append="dialog = true"
-    @keyup.enter="handleEnter"
-  >
-    <template #chip="{ item, index }">
-      <v-chip
-        :key="index"
-        class="ma-1"
-        color="accent"
-        variant="flat"
-        label
-        :text="item.name"
-        closable
-        @click:close="removeByIndex(index)"
-      />
+  <div v-if="externalChips && selected?.length" class="d-flex flex-wrap mb-2">
+    <v-chip v-for="(item, index) in selected" :key="index" class="mr-1 mb-1" color="accent" variant="flat" label
+      :text="item.name" closable @click:close="removeByIndex(index)" />
+  </div>
+  <v-autocomplete v-model="selected" v-bind="inputAttrs" v-model:search="searchInput" :items="items"
+    :custom-filter="normalizeFilter" :label="label" :chips="!externalChips" :closable-chips="!externalChips"
+    :item-title="itemTitle" item-value="name" multiple :variant="variant" :prepend-inner-icon="icon"
+    :append-icon="showAdd ? $globals.icons.create : undefined" return-object auto-select-first class="pa-0 ma-0"
+    @update:model-value="resetSearchInput" @click:append="dialog = true" @keyup.enter="handleEnter">
+    <template v-if="!externalChips" #chip="{ item, index }">
+      <v-chip :key="index" class="ma-1" color="accent" variant="flat" label :text="item.name" closable
+        @click:close="removeByIndex(index)" />
     </template>
-    <template
-      v-if="showAdd"
-      #no-data
-    >
+    <template v-if="externalChips" #selection />
+    <template v-if="showAdd" #no-data>
       <div class="caption text-center pb-2">
         {{ $t("recipe.press-enter-to-create") }}
       </div>
     </template>
-    <template
-      v-if="showAdd && searchInput"
-      #append-item
-    >
+    <template v-if="showAdd && searchInput" #append-item>
       <div class="px-2">
-        <BaseButton
-          block
-          size="small"
-          @click="createItem()"
-        />
+        <BaseButton block size="small" @click="createItem()" />
       </div>
     </template>
-    <template
-      v-if="showAdd"
-      #append
-    >
-      <RecipeOrganizerDialog
-        v-model="dialog"
-        :item-type="selectorType"
-        @created-item="appendCreated"
-      />
+    <template v-if="showAdd" #append>
+      <RecipeOrganizerDialog v-model="dialog" :item-type="selectorType" @created-item="appendCreated" />
     </template>
   </v-autocomplete>
 </template>
@@ -81,6 +44,7 @@ interface Props {
   showAdd?: boolean;
   showLabel?: boolean;
   showIcon?: boolean;
+  externalChips?: boolean;
   variant?: "filled" | "underlined" | "outlined" | "plain" | "solo" | "solo-inverted" | "solo-filled";
 }
 
@@ -89,6 +53,7 @@ const props = withDefaults(defineProps<Props>(), {
   showAdd: true,
   showLabel: true,
   showIcon: true,
+  externalChips: false,
   variant: "outlined",
 });
 

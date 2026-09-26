@@ -25,10 +25,14 @@
               {{ $d(new Date(event.timestamp || "")) }}
             </v-chip>
           </v-col>
-          <v-col v-else cols="9" class="text-wrap break-word" style="margin: auto; text-align: center">
+          <v-col
+            v-else
+            class="text-wrap break-word"
+            style="min-width: 0; margin: auto; text-align: left"
+          >
             {{ event.subject }}
           </v-col>
-          <v-col :cols="useMobileFormat ? 'auto' : '1'" class="px-0 pt-0">
+          <v-col cols="auto" class="px-0 pt-0" style="margin-right: -8px">
             <RecipeTimelineContextMenu
               v-if="currentUser && currentUser.id == event.userId && event.eventType != 'system'"
               :menu-top="false"

@@ -1,50 +1,50 @@
 <template>
   <div>
-    <slot
-      name="activator"
-      v-bind="{ open }"
-    />
-    <v-bottom-sheet
-      v-if="bottomSheet && $vuetify.display.xs"
-      v-model="dialog"
-      content-class="rounded-t-xl"
-      :content-props="{
+    <slot name="activator" v-bind="{ open }" />
+    <v-bottom-sheet v-if="bottomSheet && $vuetify.display.xs" v-model="dialog"
+      :content-class="['rounded-t-xl', contentClass]" :content-props="{
         style: 'overflow: hidden',
-      }"
-      :max-width="maxWidth ?? undefined"
-      @keydown.enter="submitOnEnter"
-      @click:outside="emit('cancel')"
-      @keydown.esc="emit('cancel')"
-    >
+      }" :max-width="maxWidth ?? undefined" @keydown.enter="submitOnEnter" @click:outside="emit('cancel')"
+      @keydown.esc="emit('cancel')">
       <BaseDialogContent v-bind="bindings">
+        <template v-if="$slots.header" #header>
+          <slot name="header" />
+        </template>
         <template #default>
           <slot v-bind="{ submitEvent }" />
         </template>
         <template #card-actions>
           <slot name="card-actions" />
+        </template>
+        <template #card-actions-left>
+          <slot name="card-actions-left" />
+        </template>
+        <template #card-actions-center>
+          <slot name="card-actions-center" />
         </template>
         <template #custom-card-action>
           <slot name="custom-card-action" />
         </template>
       </BaseDialogContent>
     </v-bottom-sheet>
-    <v-dialog
-      v-else
-      v-model="dialog"
-      :width="width"
-      :max-width="maxWidth ?? undefined"
-      :content-class="top ? 'top-dialog' : undefined"
-      :fullscreen="$vuetify.display.xs"
-      @keydown.enter="submitOnEnter"
-      @click:outside="emit('cancel')"
-      @keydown.esc="emit('cancel')"
-    >
+    <v-dialog v-else v-model="dialog" :width="width" :max-width="maxWidth ?? undefined"
+      :content-class="[top ? 'top-dialog' : undefined, contentClass]" :fullscreen="$vuetify.display.xs"
+      @keydown.enter="submitOnEnter" @click:outside="emit('cancel')" @keydown.esc="emit('cancel')">
       <BaseDialogContent v-bind="bindings">
+        <template v-if="$slots.header" #header>
+          <slot name="header" />
+        </template>
         <template #default>
           <slot v-bind="{ submitEvent }" />
         </template>
         <template #card-actions>
           <slot name="card-actions" />
+        </template>
+        <template #card-actions-left>
+          <slot name="card-actions-left" />
+        </template>
+        <template #card-actions-center>
+          <slot name="card-actions-center" />
         </template>
         <template #custom-card-action>
           <slot name="custom-card-action" />
@@ -64,6 +64,10 @@ interface DialogProps {
   color?: string;
   title?: string;
   icon?: string | null;
+  titleImage?: string | null;
+  centerTitle?: boolean;
+  contentClass?: string;
+  cancelInToolbar?: boolean;
   width?: number | string;
   maxWidth?: number | string | null;
   loading?: boolean;
@@ -73,6 +77,7 @@ interface DialogProps {
 
   // submit
   submitIcon?: string | null;
+  hideSubmitIcon?: boolean;
   submitText?: string;
   submitDisabled?: boolean;
 
@@ -83,6 +88,7 @@ interface DialogProps {
   canDelete?: boolean;
   canConfirm?: boolean;
   canSubmit?: boolean;
+  expandCardActionsLeft?: boolean;
   disableSubmitOnEnter?: boolean;
 }
 
@@ -96,6 +102,10 @@ const props = withDefaults(defineProps<DialogProps>(), {
   color: "primary",
   title: "Modal Title",
   icon: null,
+  titleImage: null,
+  centerTitle: false,
+  contentClass: "",
+  cancelInToolbar: false,
   width: "500",
   maxWidth: null,
   loading: false,
@@ -105,12 +115,14 @@ const props = withDefaults(defineProps<DialogProps>(), {
 
   // submit
   submitIcon: null,
+  hideSubmitIcon: false,
   submitDisabled: false,
 
   // actions
   canDelete: false,
   canConfirm: false,
   canSubmit: false,
+  expandCardActionsLeft: false,
   disableSubmitOnEnter: false,
 });
 const emit = defineEmits<DialogEmits>();
@@ -172,14 +184,19 @@ const bindings = computed(() => ({
   color: props.color,
   title: props.title,
   icon: props.icon,
+  titleImage: props.titleImage,
+  centerTitle: props.centerTitle,
+  cancelInToolbar: props.cancelInToolbar,
   loading: props.loading,
   submitIcon: props.submitIcon,
+  hideSubmitIcon: props.hideSubmitIcon,
   submitText: props.submitText ?? i18n.t("general.create"),
   submitDisabled: props.submitDisabled,
   cancelText: props.cancelText ?? i18n.t("general.cancel"),
   canDelete: props.canDelete,
   canConfirm: props.canConfirm,
   canSubmit: props.canSubmit,
+  expandCardActionsLeft: props.expandCardActionsLeft,
   onCancel: () => {
     emit("cancel");
     dialog.value = false;

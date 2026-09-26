@@ -151,6 +151,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   [key: string]: any;
+  favorite: [];
   deleted: [slug: string];
   print: [];
   mealplanEdit: [];

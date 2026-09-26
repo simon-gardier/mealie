@@ -1,10 +1,9 @@
-import random
 import shutil
 
 from pydantic import UUID4
 from sqlalchemy import select
 
-from mealie.assets import users as users_assets
+from mealie.assets import avatars as avatars_assets
 from mealie.core.config import get_app_settings
 from mealie.db.models.users.user_to_recipe import UserToRecipe
 from mealie.schema.user.user import PrivateUser, UserRatingOut
@@ -29,17 +28,11 @@ class RepositoryUsers(GroupRepositoryGeneric[PrivateUser, User]):
 
         return self.schema.model_validate(entry)
 
-    def create(self, user: PrivateUser | dict):  # type: ignore
+    def create(self, user: PrivateUser | dict, avatar: str | None = None):  # type: ignore
         new_user = super().create(user)
 
-        # Select Random Image
-        all_images = [
-            users_assets.img_random_1,
-            users_assets.img_random_2,
-            users_assets.img_random_3,
-        ]
-        random_image = random.choice(all_images)
-        shutil.copy(random_image, new_user.directory() / "profile.webp")
+        avatar_path = avatars_assets.get_avatar_path(avatar)
+        shutil.copy(avatar_path, new_user.directory() / "profile.webp")
 
         return new_user
 

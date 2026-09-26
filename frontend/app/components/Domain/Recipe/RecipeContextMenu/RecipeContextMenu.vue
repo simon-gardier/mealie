@@ -37,6 +37,7 @@
         v-if="isMenuContentLoaded"
         v-bind="contentProps"
         @print="$emit('print')"
+        @favorite="$emit('favorite')"
         @deleted="$emit('deleted', $event)"
         @mealplan-edit="$emit('mealplanEdit')"
         @mealplan-remove="$emit('mealplanRemove')"
@@ -98,6 +99,7 @@ const props = withDefaults(defineProps<Props>(), {
 defineEmits<{
   [key: string]: any;
   print: [];
+  favorite: [];
   deleted: [slug: string];
   mealplanRemove: [];
   mealplanEdit: [];

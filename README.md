@@ -70,6 +70,24 @@ Translations can be a great way for **non-coders** to contribute to the project.
 
 For more information, check out the translation page on the [contributor's guide](https://nightly.mealie.io/contributors/translating/).
 
+## Fork
+
+```
+git remote add upstream https://github.com/mealie-recipes/mealie.git
+git remote -v
+```
+
+```
+git fetch upstream
+git checkout mealie-next
+git merge upstream/mealie-next
+git add .
+git commit
+git push origin main
+```
+
+
+
 <!-- LICENSE -->
 ## License
 Distributed under the AGPL License. See `LICENSE` for more information.

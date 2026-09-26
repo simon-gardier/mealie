@@ -1,33 +1,13 @@
 <template>
-  <v-autocomplete
-    ref="autocompleteRef"
-    v-model="itemVal"
-    v-bind="$attrs"
-    v-model:search="searchInput"
-    item-title="name"
-    return-object
-    :items="filteredItems"
+  <v-autocomplete ref="autocompleteRef" v-model="itemVal" v-bind="$attrs" v-model:search="searchInput" item-title="name"
+    return-object :items="filteredItems"
     :prepend-inner-icon="icon || (search ? $globals.icons.search : $globals.icons.tags)"
-    :menu-icon="search ? '' : undefined"
-    :rounded="search ? true : '4px'"
-    :custom-filter="() => true"
-    :variant="search ? 'solo-filled' : undefined"
-    color="primary"
-    auto-select-first
-    clearable
-    hide-details
-    @keyup.enter="emitCreate"
-  >
-    <template
-      v-if="create"
-      #append-item
-    >
+    :menu-icon="search ? '' : undefined" :rounded="outlined ? '10px' : search ? true : '4px'"
+    :custom-filter="() => true" :variant="outlined ? 'outlined' : search ? 'solo-filled' : undefined" color="primary"
+    auto-select-first clearable hide-details @keyup.enter="emitCreate">
+    <template v-if="create" #append-item>
       <div class="px-2">
-        <BaseButton
-          block
-          size="small"
-          @click="emitCreate"
-        />
+        <BaseButton block size="small" @click="emitCreate" />
       </div>
     </template>
   </v-autocomplete>
@@ -59,6 +39,10 @@ const props = defineProps({
     default: false,
   },
   search: {
+    type: Boolean,
+    default: false,
+  },
+  outlined: {
     type: Boolean,
     default: false,
   },

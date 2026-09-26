@@ -14,7 +14,7 @@
           :style="$vuetify.display.mdAndDown ? 'flex: 1 1 100%;' : 'flex: 6 0 50px;'"
           :menu-props="{ attach: menuAttachTarget, maxHeight: '250px' }"
           density="compact"
-          variant="filled"
+          :variant="variant"
           clearable
           hide-details
           @update:model-value="emit('food-changed', i)"
@@ -24,7 +24,7 @@
           :placeholder="$t('recipe.note')"
           :style="$vuetify.display.mdAndDown ? 'flex: 1 1 0;' : 'flex: 4 0 50px;'"
           density="compact"
-          variant="filled"
+          :variant="variant"
           hide-details
         />
         <!-- left at the default size: an icon button is a 36px touch target everywhere else in
@@ -73,9 +73,13 @@ interface Props {
   // left unset inside a dialog, so the menu stays in Vuetify's overlay stack rather than being
   // teleported to the body and risking a render behind the dialog
   menuAttachTarget?: string;
+  variant?: "filled" | "outlined";
 }
 
-defineProps<Props>();
+withDefaults(defineProps<Props>(), {
+  menuAttachTarget: undefined,
+  variant: "filled",
+});
 
 const emit = defineEmits<{
   "add": [];

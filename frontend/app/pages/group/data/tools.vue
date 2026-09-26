@@ -1,21 +1,12 @@
 <template>
   <div>
-    <GroupDataPage
-      :icon="$globals.icons.tools"
-      :title="$t('data-pages.tools.tool-data')"
-      :create-title="$t('data-pages.tools.new-tool')"
-      :edit-title="$t('data-pages.tools.edit-tool')"
-      :table-headers="tableHeaders"
-      :table-config="tableConfig"
+    <GroupDataPage :icon="$globals.icons.tools" title-image="/food-icons/icons8-kitchen-room-100.png"
+      :title="$t('data-pages.tools.tool-data')" :create-title="$t('data-pages.tools.new-tool')"
+      :edit-title="$t('data-pages.tools.edit-tool')" :table-headers="tableHeaders" :table-config="tableConfig"
       :data="tools || []"
       :bulk-actions="[{ icon: $globals.icons.delete, text: $t('general.delete'), event: 'delete-selected' }]"
-      :create-form="createForm"
-      :edit-form="editForm"
-      @create-one="handleCreate"
-      @edit-one="handleEdit"
-      @delete-one="toolStore.actions.deleteOne"
-      @bulk-action="handleBulkAction"
-    >
+      :create-form="createForm" :edit-form="editForm" @create-one="handleCreate" @edit-one="handleEdit"
+      @delete-one="toolStore.actions.deleteOne" @bulk-action="handleBulkAction">
       <template #[`item.onHand`]="{ item }">
         <v-icon :color="item.onHand ? 'success' : undefined">
           {{ item.onHand ? $globals.icons.check : $globals.icons.close }}

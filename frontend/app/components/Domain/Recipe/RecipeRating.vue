@@ -1,18 +1,14 @@
 <template>
-  <div @click.prevent>
-    <v-rating
-      :model-value="displayRating"
-      :active-color="showGroupAverage ? 'grey-darken-1' : 'secondary'"
-      color="secondary-lighten-3"
-      length="5"
-      :half-increments="showGroupAverage"
-      :density="small ? 'compact' : 'default'"
-      :size="small ? 'x-small' : undefined"
-      :readonly="isReadonly"
-      :hover="!isReadonly && canHover"
-      :clearable="!!displayRating"
-      @update:model-value="updateRating(+$event)"
-    />
+  <div class="gustau-rating" @click.prevent>
+    <v-rating class="gustau-stars" :model-value="displayRating"
+      :active-color="showGroupAverage ? 'grey-darken-1' : '#ffc24a'" color="#a84b18" length="5"
+      :half-increments="showGroupAverage" :density="small ? 'compact' : 'default'" :size="small ? 'x-small' : undefined"
+      :readonly="isReadonly" :hover="!isReadonly && canHover" :clearable="!!displayRating"
+      @update:model-value="updateRating(+$event)">
+      <template #item="{ isFilled, isHovered, props: itemProps }">
+        <v-btn v-bind="itemProps" class="gustau-star" :class="{ 'gustau-star--active': isFilled || isHovered }" />
+      </template>
+    </v-rating>
   </div>
 </template>
 
@@ -92,4 +88,43 @@ async function updateRating(val?: number) {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.gustau-rating {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding-bottom: 0.25rem;
+}
+
+.gustau-stars {
+  :deep(.v-rating__wrapper) {
+    transition: transform 180ms ease;
+
+    &:nth-of-type(1),
+    &:nth-of-type(5) {
+      transform: translateY(-3px);
+    }
+
+    &:nth-of-type(2),
+    &:nth-of-type(4) {
+      transform: translateY(0);
+    }
+
+    &:nth-of-type(3) {
+      transform: translateY(3px);
+    }
+  }
+
+  :deep(.gustau-star) {
+    filter: drop-shadow(0 0 1px rgb(126 53 12 / 65%));
+    text-shadow: 0 0 2px #7e350c;
+    transition: filter 180ms ease, transform 180ms ease, color 180ms ease, text-shadow 180ms ease;
+  }
+
+  :deep(.gustau-star--active) {
+    filter: drop-shadow(0 0 2px #ffe6a0) drop-shadow(0 0 4px #f69a2c);
+    text-shadow: 0 0 3px #ffe6a0, 0 0 5px #f69a2c;
+    transform: translateY(-1px);
+  }
+}
+</style>

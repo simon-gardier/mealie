@@ -65,8 +65,7 @@ export const useMealplans = function (range: Ref<DateRange>) {
 
   const actions = {
     getAll() {
-      loading.value = true;
-      const { data: units } = useAsyncData(useAsyncKey(), async () => {
+      const { data: units, pending } = useAsyncData(useAsyncKey(), async () => {
         const query = {
           start_date: format(range.value.start, "yyyy-MM-dd"),
           end_date: format(range.value.end, "yyyy-MM-dd"),
@@ -81,7 +80,12 @@ export const useMealplans = function (range: Ref<DateRange>) {
         }
       });
 
-      loading.value = false;
+      // track the fetch's own pending state instead of resolving instantly, so
+      // consumers can distinguish "still loading" from "confirmed no meals"
+      watch(pending, (val) => {
+        loading.value = val;
+      }, { immediate: true });
+
       return units;
     },
     async refreshAll() {

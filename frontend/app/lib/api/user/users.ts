@@ -30,6 +30,7 @@ const routes = {
   users: `${prefix}/users`,
 
   usersIdImage: (id: string) => `${prefix}/users/${id}/image`,
+  usersIdImageAvatar: (id: string) => `${prefix}/users/${id}/image/avatar`,
   usersIdResetPassword: (id: string) => `${prefix}/users/${id}/reset-password`,
   usersId: (id: string) => `${prefix}/users/${id}`,
   usersIdFavorites: (id: string) => `${prefix}/users/${id}/favorites`,
@@ -90,6 +91,10 @@ export class UserApi extends BaseCRUDAPI<UserIn, UserOut, UserBase> {
   userProfileImage(id: string) {
     if (!id || id === undefined) return;
     return `/api/users/${id}/image`;
+  }
+
+  async setAvatarImage(id: string, avatar: string) {
+    return await this.requests.post(routes.usersIdImageAvatar(id), { avatar });
   }
 
   async resetPassword(payload: ResetPassword) {

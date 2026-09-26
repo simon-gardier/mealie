@@ -1,28 +1,17 @@
 <template>
-  <v-card
-    color="background"
-    flat
-    class="pb-2"
-    :class="{
-      'mt-8': section,
-    }"
-  >
+  <v-card color="background" flat class="pb-2" :class="{
+    'mt-8': section,
+  }">
     <v-card-title :class="`text-title-${size} pl-0 py-0 d-flex align-center`" style="font-weight: normal;">
       <slot name="prepend-title" />
-      <v-icon
-        v-if="icon"
-        size="small"
-        start
-      >
+      <img v-if="titleImage" :src="titleImage" alt="" aria-hidden="true" class="title-image">
+      <v-icon v-else-if="icon" size="small" start>
         {{ icon }}
       </v-icon>
       {{ title }}
       <slot name="append-title" />
     </v-card-title>
-    <v-card-text
-      v-if="$slots.default"
-      class="pt-2 pl-0"
-    >
+    <v-card-text v-if="$slots.default" class="pt-2 pl-0">
       <p class="pb-0 mb-0">
         <slot />
       </p>
@@ -47,9 +36,22 @@ defineProps({
     type: String,
     default: "",
   },
+  titleImage: {
+    type: String,
+    default: "",
+  },
   section: {
     type: Boolean,
     default: false,
   },
 });
 </script>
+
+<style scoped>
+.title-image {
+  width: 28px;
+  height: 28px;
+  margin-right: 4px;
+  object-fit: contain;
+}
+</style>

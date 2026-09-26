@@ -1,25 +1,10 @@
 <template>
-  <v-tooltip
-    location="bottom"
-    nudge-right="50"
-    :color="buttonStyle ? 'info' : 'secondary'"
-  >
+  <v-tooltip location="bottom" nudge-right="50" :color="buttonStyle ? 'info' : 'secondary'">
     <template #activator="{ props: tooltipProps }">
-      <v-btn
-        v-if="isFavorite || showAlways"
-        icon
-        :variant="buttonStyle ? 'flat' : undefined"
-        :rounded="buttonStyle ? 'circle' : undefined"
-        size="small"
-        :color="buttonStyle ? 'info' : 'secondary'"
-        :fab="buttonStyle"
-        v-bind="{ ...tooltipProps, ...$attrs }"
-        @click.prevent="toggleFavorite"
-      >
-        <v-icon
-          :size="!buttonStyle ? undefined : 'x-large'"
-          :color="buttonStyle ? 'white' : 'secondary'"
-        >
+      <v-btn v-if="isFavorite || showAlways" icon :variant="buttonStyle ? 'flat' : undefined"
+        :rounded="buttonStyle ? 'circle' : undefined" size="small" :color="buttonStyle ? 'info' : 'secondary'"
+        :fab="buttonStyle" v-bind="{ ...tooltipProps, ...$attrs }" @click.prevent="toggleFavorite">
+        <v-icon :size="!buttonStyle ? undefined : 'x-large'" :color="buttonStyle ? 'white' : 'secondary'">
           {{ isFavorite ? $globals.icons.heart : $globals.icons.heartOutline }}
         </v-icon>
       </v-btn>
@@ -31,6 +16,7 @@
 <script setup lang="ts">
 import { useUserSelfRatings } from "~/composables/use-users";
 import { useUserApi } from "~/composables/api";
+import { playRecipeSynesthesia } from "~/plugins/recipe-synesthesia.client";
 
 interface Props {
   recipeId?: string;
@@ -57,6 +43,7 @@ async function toggleFavorite() {
   if (!auth.user.value) return;
   if (!isFavorite.value) {
     await api.users.addFavorite(auth.user.value?.id, props.recipeId);
+    playRecipeSynesthesia();
   }
   else {
     await api.users.removeFavorite(auth.user.value?.id, props.recipeId);

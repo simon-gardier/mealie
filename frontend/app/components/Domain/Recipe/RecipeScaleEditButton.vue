@@ -1,123 +1,23 @@
 <template>
-  <div v-if="yieldDisplay">
-    <div class="text-center d-flex align-center">
-      <div>
-        <v-menu
-          v-model="menu"
-          :disabled="!canEditScale"
-          offset-y
-          top
-          nudge-top="6"
-          :close-on-content-click="false"
-        >
-          <template #activator="{ props: activatorProps }">
-            <v-tooltip
-              v-if="canEditScale"
-              size="small"
-              location="top"
-              color="secondary-darken-1"
-            >
-              <template #activator="{ props: tooltipProps }">
-                <v-card
-                  class="pa-1 px-2"
-                  dark
-                  color="secondary-darken-1"
-                  size="small"
-                  v-bind="{ ...activatorProps, ...tooltipProps }"
-                  :style="{ cursor: canEditScale ? '' : 'default' }"
-                >
-                  <v-icon
-                    v-if="canEditScale"
-                    size="small"
-                    class="mr-2"
-                  >
-                    {{ $globals.icons.edit }}
-                  </v-icon>
-                  <!-- eslint-disable-next-line vue/no-v-html -->
-                  <span v-html="yieldDisplay" />
-                </v-card>
-              </template>
-              <span> {{ $t("recipe.edit-scale") }} </span>
-            </v-tooltip>
-            <v-card
-              v-else
-              class="pa-1 px-2"
-              dark
-              color="secondary-darken-1"
-              size="small"
-              v-bind="activatorProps"
-              :style="{ cursor: canEditScale ? '' : 'default' }"
-            >
-              <v-icon
-                v-if="canEditScale"
-                size="small"
-                class="mr-2"
-              >
-                {{ $globals.icons.edit }}
-              </v-icon>
-              <!-- eslint-disable-next-line vue/no-v-html -->
-              <span v-html="yieldDisplay" />
-            </v-card>
-          </template>
-          <v-card min-width="300px">
-            <v-card-title class="mb-0">
-              {{ $t("recipe.servings") }}
-            </v-card-title>
-            <v-card-text class="mt-n5">
-              <div class="mt-4 d-flex align-center">
-                <v-number-input
-                  :model-value="yieldQuantity"
-                  :precision="null"
-                  :min="0"
-                  variant="underlined"
-                  control-variant="hidden"
-                  @update:model-value="recalculateScale($event || 0)"
-                />
-                <v-tooltip
-                  location="end"
-                  color="secondary-darken-1"
-                >
-                  <template #activator="{ props: resetTooltipProps }">
-                    <v-btn
-                      v-bind="resetTooltipProps"
-                      icon
-                      flat
-                      class="mx-1"
-                      size="small"
-                      @click="scale = 1"
-                    >
-                      <v-icon>
-                        {{ $globals.icons.undo }}
-                      </v-icon>
-                    </v-btn>
-                  </template>
-                  <span> {{ $t("recipe.reset-servings-count") }} </span>
-                </v-tooltip>
-              </div>
-            </v-card-text>
-          </v-card>
-        </v-menu>
-      </div>
-      <BaseButtonGroup
-        v-if="canEditScale"
-        class="pl-2"
-        :large="false"
-        :buttons="[
-          {
-            icon: $globals.icons.minus,
-            text: $t('recipe.decrease-scale-label'),
-            event: 'decrement',
-            disabled: disableDecrement,
-          },
-          {
-            icon: $globals.icons.createAlt,
-            text: $t('recipe.increase-scale-label'),
-            event: 'increment',
-          },
-        ]"
-        @decrement="recalculateScale(yieldQuantity - 1)"
-        @increment="recalculateScale(yieldQuantity + 1)"
-      />
+  <div v-if="yieldDisplay" class="w-100">
+    <div class="text-center d-flex align-center justify-center">
+      <BaseButtonGroup v-if="canEditScale" class="pr-2" :large="false" rounded :buttons="[{
+        icon: $globals.icons.minus,
+        text: $t('recipe.decrease-scale-label'),
+        event: 'decrement',
+        disabled: disableDecrement,
+      }]" @decrement="recalculateScale(yieldQuantity - 1)" />
+      <v-number-input :model-value="yieldQuantity" :label="$t('recipe.servings')" :min="1" :precision="null"
+        :disabled="!canEditScale" control-variant="hidden" density="compact" hide-details variant="solo"
+        class="portion-input flex-grow-0" style="width: 90px; min-width: 90px; max-width: 90px"
+        @update:model-value="recalculateScale" />
+      <BaseButtonGroup v-if="canEditScale" class="pl-2" :large="false" rounded :buttons="[
+        {
+          icon: $globals.icons.createAlt,
+          text: $t('recipe.increase-scale-label'),
+          event: 'increment',
+        },
+      ]" @increment="recalculateScale(yieldQuantity + 1)" />
     </div>
   </div>
 </template>
@@ -137,11 +37,10 @@ const props = withDefaults(defineProps<Props>(), {
 const scale = defineModel<number>({ required: true });
 
 const i18n = useI18n();
-const menu = ref<boolean>(false);
 const canEditScale = computed(() => props.editScale && props.recipeServings > 0);
 
-function recalculateScale(newYield: number) {
-  if (isNaN(newYield) || newYield <= 0) {
+function recalculateScale(newYield: number | null) {
+  if (newYield === null || !Number.isFinite(newYield) || newYield <= 0) {
     return;
   }
 
@@ -169,3 +68,29 @@ const disableDecrement = computed(() => {
   return yieldQuantity.value <= 1;
 });
 </script>
+
+<style scoped>
+.portion-input,
+.portion-input :deep(.v-field),
+.portion-input :deep(.v-field--disabled) {
+  opacity: 1 !important;
+  background-color: rgb(var(--v-theme-surface)) !important;
+}
+
+.portion-input {
+  border: 1px solid #212121;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.portion-input :deep(.v-field) {
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.portion-input :deep(.v-field__input) {
+  justify-content: center;
+  text-align: center;
+}
+</style>

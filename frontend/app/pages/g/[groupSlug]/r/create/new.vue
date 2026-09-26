@@ -5,37 +5,17 @@
     </v-card-title>
     <v-card-text>
       {{ $t('recipe.create-a-recipe-by-providing-the-name-all-recipes-must-have-unique-names') }}
-      <v-form
-        ref="domCreateByName"
-        @submit.prevent
-      >
-        <v-text-field
-          v-model="newRecipeName"
-          :label="$t('recipe.recipe-name')"
-          :prepend-inner-icon="$globals.icons.primary"
-          validate-on="blur"
-          autofocus
-          variant="solo-filled"
-          clearable
-          class="rounded-lg mt-2"
-          color="primary"
-          rounded
-          :rules="[validators.required]"
-          :hint="$t('recipe.new-recipe-names-must-be-unique')"
-          persistent-hint
-          @keyup.enter="createByName(newRecipeName)"
-        />
+      <v-form ref="domCreateByName" @submit.prevent>
+        <v-text-field v-model="newRecipeName" class="my-3" :label="$t('recipe.recipe-name')"
+          :prepend-inner-icon="$globals.icons.primary" validate-on="blur" density="compact" autofocus variant="outlined"
+          clearable :rules="[validators.required]" :hint="$t('recipe.new-recipe-names-must-be-unique')" persistent-hint
+          style="--v-input-control-height: 60px" @keyup.enter="createByName(newRecipeName)" />
       </v-form>
     </v-card-text>
     <v-card-actions class="justify-center">
       <div style="width: 250px">
-        <BaseButton
-          :disabled="newRecipeName.trim() === ''"
-          rounded
-          block
-          :loading="state.loading"
-          @click="createByName(newRecipeName)"
-        />
+        <BaseButton :disabled="newRecipeName.trim() === ''" rounded block :loading="state.loading"
+          @click="createByName(newRecipeName)" />
       </div>
     </v-card-actions>
   </div>
@@ -64,7 +44,7 @@ function handleResponse(response: AxiosResponse<string> | null, edit = false) {
     state.loading = false;
     return;
   }
-  router.push(`/g/${groupSlug.value}/r/${response.data}?edit=${edit.toString()}`);
+  router.push(`/g/${groupSlug.value}/r/${response.data}?edit=${edit.toString()}&celebrate=true`);
 }
 
 const newRecipeName = ref("");
