@@ -95,6 +95,15 @@ body,
   background-image: none;
 }
 
+.v-theme--light .v-field {
+  background-color: #fff;
+}
+
+.login-background .v-field,
+.register-background .v-field {
+  background-color: rgb(var(--v-theme-paper));
+}
+
 .admin-layout .v-field {
   border: 1px solid rgba(var(--v-theme-primary), 0.45);
   box-shadow: none !important;
@@ -655,10 +664,12 @@ body,
   background-color: color-mix(in srgb, rgb(var(--v-theme-surface-variant)) 25%, rgb(var(--v-theme-paper))) !important;
   background-image: none !important;
   box-shadow: 1px 2px 0 rgb(var(--v-theme-copper), 0.06);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .planner-meal-card .bistro-recipe-card.v-card:hover {
-  border-color: rgb(var(--v-theme-tomato), 0.58);
+  border-color: rgb(var(--v-theme-copper), 0.42);
+  box-shadow: 1px 2px 0 rgb(var(--v-theme-copper), 0.12);
 }
 
 .planner-meal-card .recipe-card-mobile__content {

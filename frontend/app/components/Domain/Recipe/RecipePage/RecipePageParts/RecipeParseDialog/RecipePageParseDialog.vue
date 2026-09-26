@@ -56,10 +56,12 @@
 import { ParseStep, useParseIngredientsDialog } from "~/composables/recipes/use-parse-ingredients-dialog";
 import type { NoUndefinedField } from "~/lib/api/types/non-generated";
 import type { RecipeIngredient } from "~/lib/api/types/recipe";
+import type { Parser } from "~/lib/api/user/recipes/recipe";
 
 const props = defineProps<{
   modelValue: boolean;
   ingredients: NoUndefinedField<RecipeIngredient[]>;
+  initialParser?: Parser | null;
 }>();
 
 const emit = defineEmits<{
@@ -70,6 +72,8 @@ const emit = defineEmits<{
 const dialogState = useParseIngredientsDialog(props.ingredients, ings => emit("save", ings));
 
 const {
+  parser,
+  parserPreferences,
   dontShowInfoPage,
   parsedIngs,
   currentIng,
@@ -96,6 +100,7 @@ watch(() => props.modelValue, () => {
     return;
   }
 
+  parser.value = props.initialParser ?? parserPreferences.value.parser;
   parseIngredients();
 });
 </script>

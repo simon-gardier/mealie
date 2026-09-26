@@ -10,7 +10,7 @@
     rows="1" auto-grow autocapitalize="none" @keypress="handleNoteKeyPress" />
   <div class="d-flex flex-wrap align-end ga-3">
     <InputLabelType v-model="listItem.label" v-model:item-id="listItem.labelId!" :items="labels"
-      :label="$t('shopping-list.label')" outlined :menu-props="{ location: menuDirection }" style="flex: 1 0 200px" />
+      :label="$t('shopping-list.label')" outlined :menu-props="{ location: menuDirection }" style="flex: 1 0 100%" />
     <BaseButton v-if="listItem.labelId && listItem.food && listItem.labelId !== listItem.food.labelId" small
       color="info" :icon="$globals.icons.tagArrowRight" :text="$t('shopping-list.save-label')"
       class="mt-2 align-items-flex-start" style="flex-grow: 0" @click="assignLabelToFood" />

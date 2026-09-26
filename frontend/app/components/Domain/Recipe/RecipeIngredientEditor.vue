@@ -254,8 +254,6 @@ const foodData = useFoodData();
 const foodAutocomplete = ref<HTMLInputElement>();
 const { search: foodSearch, filtered: filteredFoods } = useSearch(foodStore.store);
 
-// the substitution pickers offer every food; unlike the main field they can't create one,
-// since a substitute the user has to invent is what the note is for
 const allFoods = computed(() => foodStore.store.value);
 
 const showCreateFood = computed(() =>

@@ -6,6 +6,7 @@
       <div class="d-flex ga-2 align-center flex-wrap">
         <v-autocomplete
           v-model="substitution.substituteFoodId"
+          :search="foodSearch.get(substitution) || ''"
           :items="foods"
           :custom-filter="normalizeFilter"
           item-value="id"
@@ -17,8 +18,15 @@
           :variant="variant"
           clearable
           hide-details
+          @update:search="foodSearch.set(substitution, $event)"
           @update:model-value="emit('food-changed', i)"
-        />
+        >
+          <template #append-item>
+            <div v-if="canCreateFood(substitution)" class="px-2">
+              <BaseButton block size="small" @click="createAssignFood(substitution, i)" />
+            </div>
+          </template>
+        </v-autocomplete>
         <v-text-field
           v-model="substitution.note"
           :placeholder="$t('recipe.note')"
@@ -32,6 +40,7 @@
         <v-btn
           icon
           variant="plain"
+          class="flex-shrink-0"
           :title="$t('general.delete')"
           @click="emit('delete', i)"
         >
@@ -55,6 +64,7 @@
 
 <script setup lang="ts">
 import { normalizeFilter } from "~/composables/use-utils";
+import { useFoodData, useFoodStore } from "~/composables/store";
 import type { IngredientFood } from "~/lib/api/types/recipe";
 
 /**
@@ -76,10 +86,35 @@ interface Props {
   variant?: "filled" | "outlined";
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   menuAttachTarget: undefined,
-  variant: "filled",
+  variant: "outlined",
 });
+
+const foodSearch = reactive(new WeakMap<EditableSubstitution, string>());
+const foodStore = useFoodStore();
+const foodData = useFoodData();
+
+function canCreateFood(substitution: EditableSubstitution) {
+  const name = foodSearch.get(substitution)?.trim();
+  return !!name && !props.foods.some(food => food.name.toLowerCase() === name.toLowerCase());
+}
+
+async function createAssignFood(substitution: EditableSubstitution, index: number) {
+  const name = foodSearch.get(substitution)?.trim();
+  if (!name || !canCreateFood(substitution)) {
+    return;
+  }
+
+  foodData.data.name = name;
+  const food = await foodStore.actions.createOne(foodData.data);
+  foodData.reset();
+  if (food) {
+    substitution.substituteFoodId = food.id;
+    foodSearch.delete(substitution);
+    emit("food-changed", index);
+  }
+}
 
 const emit = defineEmits<{
   "add": [];

@@ -15,8 +15,9 @@
             :label="labels[key].label"
             :suffix="labels[key].suffix"
             density="compact"
+            hide-details
             autocomplete="off"
-            variant="underlined"
+            variant="outlined"
             inset
             :precision="null"
             :min="0"

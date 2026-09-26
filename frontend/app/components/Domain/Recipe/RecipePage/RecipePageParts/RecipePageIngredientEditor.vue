@@ -6,12 +6,37 @@
           {{ $t("recipe.ingredients") }}
         </h2>
         <div v-if="!hasFoodOrUnit" class="d-flex align-center ga-1">
-          <v-btn color="info" @click="toggleIsParsing(true)">
-            <v-icon start>
-              {{ $globals.icons.robot }}
-            </v-icon>
-            {{ $t('recipe.parse') }}
-          </v-btn>
+          <v-menu>
+            <template #activator="{ props }">
+              <v-btn
+                color="info"
+                v-bind="props"
+              >
+                <v-icon start>
+                  {{ $globals.icons.robot }}
+                </v-icon>
+                {{ $t('recipe.parse') }}
+                <v-icon end>
+                  {{ $globals.icons.chevronDown }}
+                </v-icon>
+              </v-btn>
+            </template>
+            <v-list>
+              <v-list-item
+                :title="$t('recipe.parser.natural-language-processor')"
+                @click="selectParser('nlp')"
+              />
+              <v-list-item
+                :title="$t('recipe.parser.brute-parser')"
+                @click="selectParser('brute')"
+              />
+              <v-list-item
+                v-if="group?.aiProviderSettings?.aiEnabled"
+                :title="$t('recipe.parser.openai-parser')"
+                @click="selectParser('openai')"
+              />
+            </v-list>
+          </v-menu>
           <v-menu location="bottom" content-class="ingredient-info-tooltip">
             <template #activator="{ props }">
               <v-btn v-bind="props" icon variant="text" color="info"
@@ -76,15 +101,20 @@ import type { NoUndefinedField } from "~/lib/api/types/non-generated";
 import type { Recipe, RecipeIngredient } from "~/lib/api/types/recipe";
 import RecipeIngredientEditor from "~/components/Domain/Recipe/RecipeIngredientEditor.vue";
 import RecipeDialogBulkAdd from "~/components/Domain/Recipe/RecipeDialogBulkAdd.vue";
-import { usePageState } from "~/composables/recipe-page/shared-state";
 import { uuid4 } from "~/composables/use-utils";
+import type { Parser } from "~/lib/api/user/recipes/recipe";
 
 const recipe = defineModel<NoUndefinedField<Recipe>>({ required: true });
+const emit = defineEmits<{ selectParser: [parser: Parser] }>();
 const ingredientsWithRecipe = new Map<string, boolean>();
 
 const drag = ref(false);
 const domBulkAddDialog = ref<InstanceType<typeof RecipeDialogBulkAdd> | null>(null);
-const { toggleIsParsing } = usePageState(recipe.value.slug);
+const { group } = useGroupSelf();
+
+function selectParser(parser: Parser) {
+  emit("selectParser", parser);
+}
 
 const hasFoodOrUnit = computed(() => {
   if (!recipe.value) {

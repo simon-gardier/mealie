@@ -69,7 +69,7 @@
                   <template #activator="{ props: tooltipProps }">
                     <v-btn :icon="$globals.icons.calendarRemove" class="recipe-compact-action" variant="text"
                       size="default" :aria-label="t('meal-plan.remove-from-plan')" v-bind="tooltipProps"
-                      @click.stop="$emit('mealplanRemove')" />
+                      @click.stop.prevent="$emit('mealplanRemove')" />
                   </template>
                   <span>{{ t("meal-plan.remove-from-plan") }}</span>
                 </v-tooltip>
@@ -78,7 +78,7 @@
                   <template #activator="{ props: tooltipProps }">
                     <v-btn :icon="$globals.icons.calendarEdit" class="recipe-compact-action" variant="text"
                       size="default" :aria-label="t('meal-plan.edit-meal-plan')" v-bind="tooltipProps"
-                      @click.stop="$emit('mealplanEdit')" />
+                      @click.stop.prevent="$emit('mealplanEdit')" />
                   </template>
                   <span>{{ t("meal-plan.edit-meal-plan") }}</span>
                 </v-tooltip>
@@ -87,7 +87,7 @@
                   <template #activator="{ props: tooltipProps }">
                     <v-btn :icon="$globals.icons.cartCheck" class="recipe-compact-action" variant="text" size="default"
                       :aria-label="t('recipe.add-to-list')" v-bind="tooltipProps"
-                      @click.stop="$emit('addToShoppingList')" />
+                      @click.stop.prevent="$emit('addToShoppingList')" />
                   </template>
                   <span>{{ t("recipe.add-to-list") }}</span>
                 </v-tooltip>

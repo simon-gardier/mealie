@@ -243,7 +243,7 @@ export function useParseIngredientsDialog(
       state.loadingCount += 1;
       const { data, error } = await api.recipes.parseIngredients(parser.value, ingsAsString);
       if (error || !data) {
-        throw new Error("Failed to parse ingredients");
+        throw error || new Error("Failed to parse ingredients");
       }
 
       // Restore section titles from original ingredients — the parser doesn't return them
@@ -269,7 +269,8 @@ export function useParseIngredientsDialog(
     }
     catch (error) {
       console.error("Error parsing ingredients:", error);
-      alert.error(i18n.t("events.something-went-wrong"));
+      const responseData = (error as { response?: { data?: { reason?: string; detail?: { reason?: string; message?: string } } } })?.response?.data;
+      alert.error(responseData?.reason || responseData?.detail?.reason || responseData?.detail?.message || i18n.t("events.something-went-wrong"));
     }
     finally {
       state.loadingCount -= 1;

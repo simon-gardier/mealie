@@ -7,7 +7,7 @@
         {{ $t("general.discard-changes-description") }}
       </v-card-text>
     </BaseDialog>
-    <RecipePageParseDialog :model-value="isParsing" :ingredients="recipe.recipeIngredient"
+    <RecipePageParseDialog :model-value="isParsing" :ingredients="recipe.recipeIngredient" :initial-parser="selectedParser"
       :width="$vuetify.display.smAndDown ? '100%' : '80%'" @update:model-value="toggleIsParsing"
       @save="saveParsedIngredients" />
     <v-container v-show="!isCookMode" key="recipe-page" class="px-0" :class="{ 'pa-0': $vuetify.display.smAndDown }">
@@ -30,7 +30,7 @@
             <RecipePageInfoEditor v-if="isEditMode" v-model="recipe" />
           </div>
           <div>
-            <RecipePageIngredientEditor v-if="isEditForm" v-model="recipe" />
+            <RecipePageIngredientEditor v-if="isEditForm" v-model="recipe" @select-parser="startParsing" />
           </div>
           <!--
             This section contains the 2 column layout for the recipe steps and other content.
@@ -174,6 +174,7 @@ import {
 import { useCookModeQuery, type BooleanString } from "~/composables/recipe-page/use-cook-mode-query";
 import type { NoUndefinedField } from "~/lib/api/types/non-generated";
 import type { Recipe, RecipeCategory, RecipeIngredient, RecipeTag, RecipeTool } from "~/lib/api/types/recipe";
+import type { Parser } from "~/lib/api/user/recipes/recipe";
 import { useRouteQuery } from "~/composables/use-router";
 import { useUserApi } from "~/composables/api";
 import { uuid4, deepCopy } from "~/composables/use-utils";
@@ -206,6 +207,12 @@ const router = useRouter();
 const api = useUserApi();
 const { pageMode, setMode, isEditForm, isEditJSON, isCookMode, isEditMode, isParsing, toggleCookMode, toggleIsParsing }
   = usePageState(recipe.value.slug);
+const selectedParser = ref<Parser | null>(null);
+
+function startParsing(parser: Parser) {
+  selectedParser.value = parser;
+  toggleIsParsing(true);
+}
 useAmbianceMusic(isCookMode, "assets/End_Creditouilles-Michael_Giacchino_cooking_mode.mp3");
 const { deactivateNavigationWarning } = useNavigationWarning();
 const domBulkAddDialog = ref<InstanceType<typeof RecipeDialogBulkAdd> | null>(null);

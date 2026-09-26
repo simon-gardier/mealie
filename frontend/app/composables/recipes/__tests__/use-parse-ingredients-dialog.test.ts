@@ -414,7 +414,13 @@ describe("useParseIngredientsDialog", () => {
       await promise;
       expect(state.step).toBe(ParseStep.PARSE);
       expect(state.loadingCount).toBe(0);
-      expect(mockParseIngredients).toHaveBeenCalled();
+      expect(mockParseIngredients).toHaveBeenCalledWith("nlp", ["4 unit ingredient"]);
+    });
+    test("uses the selected parser", async () => {
+      const wrapped = wrapper();
+      wrapped.vm.setParser("brute");
+      await wrapped.vm.parseIngredients();
+      expect(mockParseIngredients).toHaveBeenCalledWith("brute", ["4 unit ingredient"]);
     });
     test("only makes one call at a time", async () => {
       const wrapped = wrapper();
@@ -467,6 +473,11 @@ describe("useParseIngredientsDialog", () => {
       expect(state.step).toBe(ParseStep.PARSE);
       expect(state.loadingCount).toBe(0);
       expect(mockError).toHaveBeenCalled();
+    });
+    test("displays the analyzer's reason on failure", async () => {
+      mockParseIngredients.mockResolvedValue({ data: null, error: { response: { data: { detail: { reason: "AI provider is unavailable" } } } } });
+      await wrapper().vm.parseIngredients();
+      expect(mockError).toHaveBeenCalledWith("AI provider is unavailable");
     });
   });
   describe("create and alias food and unit", () => {

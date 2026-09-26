@@ -136,12 +136,13 @@
       }" @start="drag = true" @end="onDragEnd">
       <TransitionGroup type="transition">
         <div v-for="(step, index) in instructionList" :key="step.id!" class="list-group-item">
-          <v-sheet v-if="step.id && showTitleEditor[step.id]" color="primary" class="mt-6 mb-2 d-flex align-center"
+          <v-sheet v-if="step.id && showTitleEditor[step.id]" :color="isEditForm ? 'transparent' : 'primary'"
+            class="mt-6 mb-2 d-flex align-center"
             :class="isEditForm ? 'pa-2' : 'pa-3'" style="border-radius: 6px; cursor: pointer; width: 100%;"
             @click="toggleCollapseSection(index)">
             <template v-if="isEditForm">
-              <v-text-field v-model="step.title" class="pa-0" density="compact" variant="solo" flat
-                :placeholder="$t('recipe.section-title')" bg-color="primary" hide-details />
+              <v-text-field v-model="step.title" class="recipe-section-title-input" density="compact" variant="plain" flat
+                :placeholder="$t('recipe.section-title')" hide-details />
             </template>
             <template v-else>
               <v-toolbar-title class="section-title-text">
@@ -155,7 +156,7 @@
               :elevation="isHovering ? 12 : 2" :ripple="false" @click="toggleDisabled(index)">
               <v-card-title class="recipe-step-title pt-3 pb-0">
                 <div class="d-flex align-center w-100">
-                  <v-text-field v-if="isEditForm" v-model="step.summary" class="headline" hide-details density="compact"
+                  <v-text-field v-if="isEditForm" v-model="step.summary" class="recipe-step-title-input headline" hide-details density="compact"
                     variant="solo" flat :placeholder="$t('recipe.step-index', { step: index + 1 })">
                     <template #prepend>
                       <v-icon size="26" class="handle">
@@ -867,6 +868,15 @@ function openImageUpload(index: number) {
 
 .v-card--link:before {
   background: none;
+}
+
+.recipe-section-title-input :deep(.v-field),
+.recipe-step-title-input :deep(.v-field) {
+  border: 1px solid rgb(var(--v-theme-primary));
+}
+
+.recipe-section-title-input :deep(.v-field__input) {
+  padding-left: 8px;
 }
 
 /** Select all li under .markdown class */
