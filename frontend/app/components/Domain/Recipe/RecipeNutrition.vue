@@ -5,7 +5,7 @@
         {{ $t("recipe.nutrition") }}
       </v-card-title>
       <v-divider class="mx-2 my-1" />
-      <v-card-text v-if="edit">
+      <v-card-text v-if="edit" class="d-flex flex-column ga-2">
         <div
           v-for="(item, key, index) in modelValue"
           :key="index"
