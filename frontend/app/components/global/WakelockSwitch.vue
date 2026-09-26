@@ -1,5 +1,5 @@
 <template>
-  <v-list-item v-if="wakeIsSupported" :title="$t('recipe.screen-awake')">
+  <v-list-item v-if="wakeIsSupported" :prepend-icon="$globals.icons.eye" :title="$t('recipe.screen-awake')">
     <template #append>
       <v-switch v-model="wakeLock" color="primary" hide-details />
     </template>

@@ -21,7 +21,7 @@
         <p class="h4">
           {{ $t('data-pages.recipes.confirm-delete-recipes') }}
         </p>
-        <v-card variant="outlined">
+        <v-card variant="outlined" rounded="lg">
           <v-virtual-scroll height="400" item-height="25" :items="selected">
             <template #default="{ item }">
               <v-list-item class="pb-2">
@@ -36,7 +36,7 @@
           {{ $t('data-pages.recipes.the-following-recipes-selected-length-will-be-exported',
             [selected.length]) }}
         </p>
-        <v-card variant="outlined">
+        <v-card variant="outlined" rounded="lg">
           <v-virtual-scroll height="400" item-height="25" :items="selected">
             <template #default="{ item }">
               <v-list-item class="pb-2">
@@ -57,7 +57,7 @@
       </v-card-text>
       <v-card-text v-else-if="dialog.mode == MODES.changeOwner">
         <v-select v-model="selectedOwner" :items="allUsers" item-title="fullName" item-value="id"
-          :label="$t('general.owner')" hide-details>
+          :label="$t('general.owner')" variant="outlined" hide-details>
           <template #prepend>
             <UserAvatar :user-id="selectedOwner" :tooltip="false" />
           </template>
@@ -104,10 +104,10 @@
           }}
         </p>
       </v-card-actions>
-      <div class="mx-2 clip-width bistro-recipe-search-bar">
-        <v-text-field v-model="search" variant="underlined" :label="$t('search.search')" />
+      <div class="mx-2 mb-3 clip-width">
+        <v-text-field v-model="search" variant="outlined" hide-details :label="$t('search.search')" />
       </div>
-      <v-card>
+      <v-card rounded="lg">
         <RecipeDataTable v-model="selected" :loading="loading" :recipes="allRecipes" :show-headers="headers"
           :search="search" />
         <v-card-actions class="justify-end">
@@ -132,7 +132,7 @@
       <v-card-actions class="mt-n5 mb-1">
         <BaseButton delete @click="purgeExportsDialog = true" />
       </v-card-actions>
-      <v-card>
+      <v-card rounded="lg">
         <GroupExportData :exports="groupExports" />
       </v-card>
     </section>

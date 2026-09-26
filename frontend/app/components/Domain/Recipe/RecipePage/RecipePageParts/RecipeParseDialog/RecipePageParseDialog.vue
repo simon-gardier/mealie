@@ -1,19 +1,22 @@
 <template>
-  <BaseDialog :model-value="modelValue" :title="$t('recipe.parse-ingredients')" :icon="$globals.icons.fileSign"
-    disable-submit-on-enter @update:model-value="emit('update:modelValue', $event)">
-    <v-container fluid class="pa-2 ma-0">
-      <div v-if="showReviewProgress" class="ingredient-review-progress mb-4" role="status">
-        <div class="d-flex align-center justify-space-between mb-1">
-          <span class="text-caption text-medium-emphasis">
-            {{ $t('recipe.parser.ingredients-review-progress', {
-              current: state.reviewedCount,
-              total: state.reviewTotal,
-            }) }}
-          </span>
-        </div>
+  <BaseDialog :model-value="modelValue"
+    :title="state.step === ParseStep.REVIEW ? $t('recipe.parser.review-parsed-ingredients') : $t('recipe.parse-ingredients')"
+    :icon="state.step === ParseStep.REVIEW ? null : $globals.icons.fileSign" disable-submit-on-enter
+    @update:model-value="emit('update:modelValue', $event)">
+    <template #header>
+      <div v-if="showReviewProgress && state.step !== ParseStep.REVIEW" class="ingredient-review-progress-header"
+        role="status">
+        <span class="text-caption">
+          {{ $t('recipe.parser.ingredients-review-progress', {
+            current: state.reviewedCount,
+            total: state.reviewTotal,
+          }) }}
+        </span>
         <v-progress-linear :model-value="reviewProgress" color="success" height="6" rounded
           :aria-label="$t('recipe.parser.review-parsed-ingredients')" />
       </div>
+    </template>
+    <v-container fluid class="pa-2 ma-0">
       <SwipeTransition direction="left">
         <!-- These wrapping divs appear to be load-bearing in making sure the transition renders correctly -->
         <div v-if="state.step === ParseStep.LOADING">
@@ -27,9 +30,7 @@
           <ParseDialogParse :dialog-state="dialogState" />
         </div>
         <div v-else>
-          <ParseDialogReview v-model="parsedIngs" :available-parsers="availableParsers" :parser="parser"
-            :show-nlp-language-hint="showNlpLanguageHint" @parse="parseIngredients"
-            @change-parser="(newParser) => parser = newParser" />
+          <ParseDialogReview v-model="parsedIngs" />
         </div>
       </SwipeTransition>
     </v-container>
@@ -69,9 +70,6 @@ const emit = defineEmits<{
 const dialogState = useParseIngredientsDialog(props.ingredients, ings => emit("save", ings));
 
 const {
-  availableParsers,
-  parser,
-  showNlpLanguageHint,
   dontShowInfoPage,
   parsedIngs,
   currentIng,
@@ -103,7 +101,9 @@ watch(() => props.modelValue, () => {
 </script>
 
 <style scoped>
-.ingredient-review-progress {
-  padding: 0 12px 8px;
+.ingredient-review-progress-header {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0 8px;
 }
 </style>

@@ -5,13 +5,15 @@
     </template>
     <v-toolbar dark density="comfortable" :color="color" class="px-3 position-relative top-0 left-0 w-100"
       :class="{ 'dialog-title-centered': centerTitle }">
-      <img v-if="titleImage" :src="titleImage" alt="" aria-hidden="true" class="title-image">
-      <v-icon v-else-if="icon" size="large">
-        {{ icon }}
-      </v-icon>
-      <v-toolbar-title class="headline">
-        {{ title }}
-      </v-toolbar-title>
+      <slot name="header">
+        <img v-if="titleImage" :src="titleImage" alt="" aria-hidden="true" class="title-image">
+        <v-icon v-else-if="icon" size="large">
+          {{ icon }}
+        </v-icon>
+        <v-toolbar-title class="headline">
+          {{ title }}
+        </v-toolbar-title>
+      </slot>
       <v-spacer v-if="centerTitle" />
       <v-btn v-if="cancelInToolbar" :aria-label="cancelLabel" :title="cancelLabel" icon variant="text"
         @click="emit('cancel')">

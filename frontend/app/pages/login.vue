@@ -1,5 +1,6 @@
 <template>
   <div>
+    <BaseVideoBackground src="/festin.mp4" />
     <v-container fluid class="d-flex justify-center align-center flex-column fill-height login-background">
       <v-alert v-if="isFirstLogin" class="my-4" type="info" :icon="$globals.icons.information"
         :style="{ flex: 'none' }">
@@ -21,7 +22,7 @@
         </div>
       </v-alert>
       <img src="/welcome_title.png" alt="Petit Chef" class="welcome-title mb-4">
-      <v-card tag="section" class="d-flex flex-column align-center w-100 glass-card" max-width="600">
+      <v-card tag="section" class="d-flex flex-column align-center w-100 login-card" max-width="600">
         <v-card-title class="text-h5 text-center justify-center pb-3 login-title">
           {{ $t('user.sign-in') }}
         </v-card-title>
@@ -50,10 +51,7 @@
             <div v-if="$appInfo.enableOidc && $appInfo.allowPasswordLogin"
               class="d-flex my-4 justify-center align-center" width="80%">
               <v-divider class="div-width" />
-              <span class="absolute px-2" :class="{
-                'bg-white': !$vuetify.theme.current.dark && !isDark,
-                'bg-grey-darken-4': $vuetify.theme.current.dark || isDark,
-              }">
+              <span class="absolute px-2 login-divider-text">
                 {{ $t("user.or") }}
               </span>
             </div>
@@ -99,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { useDark, useSessionStorage, whenever } from "@vueuse/core";
+import { useSessionStorage, whenever } from "@vueuse/core";
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 import { usePasswordField } from "~/composables/use-passwords";
 import { alert } from "~/composables/use-toast";
@@ -107,11 +105,11 @@ import { useAsyncKey } from "~/composables/use-utils";
 import { isSafeRedirectTarget } from "~/lib/validators/redirect";
 import type { AppStartupInfo } from "~/lib/api/types/admin";
 import { useUserActivityPreferences } from "~/composables/use-users/preferences";
+import { useAccountSelected } from "~/composables/use-remembered-accounts";
 
 definePageMeta({
   layout: "blank",
 });
-const isDark = useDark();
 
 const router = useRouter();
 const route = useRoute();
@@ -124,6 +122,7 @@ const isDemo = ref(false);
 const isFirstLogin = ref(false);
 const activityPreferences = useUserActivityPreferences();
 const { getDefaultActivityRoute } = useDefaultActivity();
+const accountSelected = useAccountSelected();
 
 // Survives the page reload that happens during OIDC redirect
 const pendingShareRedirect = useSessionStorage<string | null>("pwa_share_redirect", null);
@@ -131,6 +130,8 @@ const pendingShareRedirect = useSessionStorage<string | null>("pwa_share_redirec
 const cinematicTransition = ref<{ play: (zoomOutScale?: number, zoomInScale?: number) => Promise<void> } | null>(null);
 
 async function navigateWithCinematic(target: string) {
+  // Signing in is itself an account choice, so don't bounce through the picker afterwards.
+  accountSelected.value = true;
   await cinematicTransition.value?.play();
   router.push(target);
 }
@@ -158,7 +159,8 @@ const footerLinks = computed(() => [
 ]);
 
 const form = reactive({
-  email: "",
+  // Prefilled when arriving from the account picker
+  email: (route.query.username as string) || "",
   password: "",
   // Defaults on: this is a self-hosted app people mostly reach from their own devices, and an
   // unticked box now ends the session when the browser closes.
@@ -304,6 +306,32 @@ function alertOnError(error: any) {
 :deep(.v-field__input) {
   opacity: 1 !important;
 }
+
+/* Everything outside the inputs sits directly on the video, so keep it light. */
+.login-title,
+.login-divider-text,
+.login-card :deep(.v-selection-control .v-label),
+.login-card :deep(.v-btn--variant-text) {
+  color: #fff;
+  opacity: 1;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+.login-card :deep(.v-divider) {
+  border-color: rgba(255, 255, 255, 0.6);
+  opacity: 1;
+}
+
+@media (max-width: 600px) {
+  .login-background {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .login-card {
+    max-width: 100% !important;
+  }
+}
 </style>
 
 <style lang="css">
@@ -312,13 +340,14 @@ function alertOnError(error: any) {
 }
 
 .login-background {
-  background-image: url("/salle_wallpaper.jpg");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  position: relative;
+  z-index: 1;
+  background-color: transparent;
 }
 
 .login-footer {
+  position: relative;
+  z-index: 1;
   background-color: #212121;
 }
 
@@ -334,6 +363,12 @@ function alertOnError(error: any) {
   border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 24px !important;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+}
+
+.login-card {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .welcome-title {

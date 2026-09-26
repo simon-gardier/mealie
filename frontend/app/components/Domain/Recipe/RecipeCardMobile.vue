@@ -17,8 +17,9 @@
           <template #prepend>
             <slot v-if="!vertical" name="avatar">
               <div :class="{ 'recipe-list-image-wrapper': listMode }" @click="openImage">
-                <RecipeCardImage tiny :icon-size="compact ? 32 : 100" :slug="slug" :recipe-id="recipeId" :image-version="image"
-                  class="recipe-list-image" :width="listMode ? undefined : compact ? '88' : '125'"
+                <RecipeCardImage tiny :icon-size="compact ? 32 : 100" :slug="slug" :recipe-id="recipeId"
+                  :image-version="image" class="recipe-list-image"
+                  :width="listMode ? undefined : compact ? '88' : '125'"
                   :height="listMode ? '100%' : compact ? 80 : height" />
                 <RecipeRating v-if="listMode && showRecipeContent" class="recipe-list-image-rating"
                   :model-value="rating" :recipe-id="recipeId" :slug="slug" small />
@@ -49,20 +50,22 @@
           <slot name="actions">
             <v-card-actions class="recipe-card-actions w-100 my-0 px-1 py-0"
               :class="{ 'recipe-list-actions': listMode }">
-              <RecipeFavoriteBadge v-if="!compact && !listMode && isOwnGroup && showRecipeContent" :recipe-id="recipeId" show-always
-                class="ma-0 pa-0" />
-              <div v-else-if="!compact && !listMode" class="my-0 px-1 py-0" /> <!-- Empty div to keep the layout consistent -->
-              <RecipeCardRating v-if="!compact && !listMode && showRecipeContent" :class="[{ 'pb-2': !isOwnGroup }, 'ml-n2']"
-                :model-value="rating" :recipe-id="recipeId" />
+              <RecipeFavoriteBadge v-if="!compact && !listMode && isOwnGroup && showRecipeContent" :recipe-id="recipeId"
+                show-always class="ma-0 pa-0" />
+              <div v-else-if="!compact && !listMode" class="my-0 px-1 py-0" />
+              <!-- Empty div to keep the layout consistent -->
+              <RecipeCardRating v-if="!compact && !listMode && showRecipeContent"
+                :class="[{ 'pb-2': !isOwnGroup }, 'ml-n2']" :model-value="rating" :recipe-id="recipeId" />
 
               <!-- If we're not logged-in, no items display, so we hide this menu -->
               <!-- We also add padding to the v-rating above to compensate -->
               <slot name="context-menu">
                 <RecipeContextMenu v-if="isOwnGroup && showRecipeContent"
                   :key="listMode ? `${recipeId}-${isFavorite}` : recipeId" :slug="slug"
-                  :menu-icon="listMode || compact ? $globals.icons.dotsVertical : $globals.icons.dotsHorizontal" :name="name"
-                  :recipe-id="recipeId" :class="listMode ? 'recipe-list-menu' : 'ml-auto'"
-                  :use-items="contextMenuItems" :leading-items="listMode ? listMenuLeadingItems : contextMenuLeadingItems"
+                  :menu-icon="listMode || compact ? $globals.icons.dotsVertical : $globals.icons.dotsHorizontal"
+                  :name="name" :recipe-id="recipeId" :class="listMode ? 'recipe-list-menu' : 'ml-auto'"
+                  :use-items="contextMenuItems"
+                  :leading-items="listMode ? listMenuLeadingItems : contextMenuLeadingItems"
                   :append-items="contextMenuAppendItems" @favorite="toggleFavorite" @deleted="$emit('delete', slug)"
                   @mealplan-remove="$emit('mealplanRemove')" @mealplan-edit="$emit('mealplanEdit')" />
               </slot>
@@ -296,8 +299,8 @@ async function toggleFavorite() {
   justify-content: flex-end;
   padding: 2px !important;
   position: absolute;
-  right: 14px;
-  top: 4px;
+  right: 0;
+  top: 0;
   width: 40px !important;
   z-index: 1;
 }

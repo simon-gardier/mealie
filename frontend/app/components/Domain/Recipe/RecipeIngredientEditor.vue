@@ -84,7 +84,7 @@
                   </div>
                 </template>
               </v-autocomplete>
-              <div v-if="$slots.foodAction" class="attached-field-action">
+              <div v-if="$slots.foodAction" class="attached-field-action food-action">
                 <slot name="foodAction" />
               </div>
             </div>
@@ -388,11 +388,21 @@ function quantityFilter(e: KeyboardEvent) {
 
 .attached-field-action {
   margin-top: -1px;
+  padding: 0.5rem;
+}
+
+.food-action {
+  border: 0;
+}
+
+.food-action:has(.ingredient-action-button) {
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.6);
+  border-radius: 0 0 10px 11px;
 }
 
 .attached-field-action :deep(.v-btn) {
   width: 100%;
-  border-radius: 0 0 10px 11px;
+  border-radius: 6px;
   box-shadow: none;
 }
 </style>

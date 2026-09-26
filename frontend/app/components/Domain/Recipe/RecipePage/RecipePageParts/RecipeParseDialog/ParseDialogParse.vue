@@ -18,37 +18,38 @@
         :food-error="!!currentMissingFood"
         :food-error-tooltip="$t('recipe.parser.this-food-could-not-be-parsed-automatically')">
         <template #unitAction>
-        <BaseButton v-if="currentMissingUnit && !currentIng.ingredient.unit?.id" :icon="$globals.icons.units"
-          block color="warning" :loading="state.loading.unit" @click="createMissingUnit">
-          {{ $t("recipe.parser.missing-unit", { unit: currentMissingUnit }) }}
-        </BaseButton>
-        <BaseButton v-if="
-          currentMissingUnit
-          && currentIng.ingredient.unit?.id
-          && currentMissingUnit.toLowerCase() != currentIng.ingredient.unit?.name.toLowerCase()
-        " :icon="$globals.icons.units" block color="warning" :loading="state.loading.unit"
-          @click="addMissingUnitAsAlias">
-          {{ $t("recipe.parser.add-text-as-alias-for-item", {
-            text: currentMissingUnit, item:
-              quote(currentIng.ingredient.unit.name) }) }}
-        </BaseButton>
+          <BaseButton v-if="currentMissingUnit && !currentIng.ingredient.unit?.id" :icon="$globals.icons.units" block
+            color="warning" class="ingredient-action-button" :loading="state.loading.unit" @click="createMissingUnit">
+            {{ $t("recipe.parser.missing-unit", { unit: currentMissingUnit }) }}
+          </BaseButton>
+          <BaseButton v-if="
+            currentMissingUnit
+            && currentIng.ingredient.unit?.id
+            && currentMissingUnit.toLowerCase() != currentIng.ingredient.unit?.name.toLowerCase()
+          " :icon="$globals.icons.units" block color="warning" class="ingredient-action-button"
+            :loading="state.loading.unit" @click="addMissingUnitAsAlias">
+            {{ $t("recipe.parser.add-text-as-alias-for-item", {
+              text: currentMissingUnit, item:
+                quote(currentIng.ingredient.unit.name)
+            }) }}
+          </BaseButton>
         </template>
         <template #foodAction>
-        <BaseButton v-if="currentMissingFood && !currentIng.ingredient.food?.id"
-          :icon="$globals.icons.information" block color="warning" :loading="state.loading.food"
-          @click="createMissingFood">
-          {{ $t("recipe.parser.missing-food", { food: quote(currentMissingFood) }) }}
-        </BaseButton>
-        <BaseButton v-if="
-          currentMissingFood
-          && currentIng.ingredient.food?.id
-          && currentMissingFood.toLowerCase() != currentIng.ingredient.food?.name.toLowerCase()
-        " :icon="$globals.icons.information" block color="warning" :loading="state.loading.food"
-          @click="addMissingFoodAsAlias">
-          {{ $t("recipe.parser.add-text-as-alias-for-item", {
-            text: currentMissingFood, item:
-              quote(currentIng.ingredient.food.name) }) }}
-        </BaseButton>
+          <BaseButton v-if="currentMissingFood && !currentIng.ingredient.food?.id" block color="success"
+            class="ingredient-action-button" hide-icon :loading="state.loading.food" @click="createMissingFood">
+            {{ $t("recipe.parser.missing-food", { food: quote(currentMissingFood) }) }}
+          </BaseButton>
+          <BaseButton v-if="
+            currentMissingFood
+            && currentIng.ingredient.food?.id
+            && currentMissingFood.toLowerCase() != currentIng.ingredient.food?.name.toLowerCase()
+          " block color="success" class="ingredient-action-button" hide-icon :loading="state.loading.food"
+            @click="addMissingFoodAsAlias">
+            {{ $t("recipe.parser.add-text-as-alias-for-item", {
+              text: currentMissingFood, item:
+                quote(currentIng.ingredient.food.name)
+            }) }}
+          </BaseButton>
         </template>
       </RecipeIngredientEditor>
     </div>
@@ -105,5 +106,16 @@ const {
   font-size: 1.8rem;
   line-height: 1.3;
   margin: 0;
+}
+
+.ingredient-action-button {
+  height: auto !important;
+  min-height: 36px;
+}
+
+:deep(.ingredient-action-button .v-btn__content) {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: center;
 }
 </style>

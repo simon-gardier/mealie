@@ -182,6 +182,7 @@ import RecipeNotes from "~/components/Domain/Recipe/RecipeNotes.vue";
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 import { useNavigationWarning } from "~/composables/use-navigation-warning";
 import { useHouseholdSelf } from "~/composables/use-households";
+import { useAmbianceMusic } from "~/composables/use-ambiance-music";
 
 const recipe = defineModel<NoUndefinedField<Recipe>>({ required: true });
 
@@ -205,6 +206,7 @@ const router = useRouter();
 const api = useUserApi();
 const { pageMode, setMode, isEditForm, isEditJSON, isCookMode, isEditMode, isParsing, toggleCookMode, toggleIsParsing }
   = usePageState(recipe.value.slug);
+useAmbianceMusic(isCookMode, "assets/End_Creditouilles-Michael_Giacchino_cooking_mode.mp3");
 const { deactivateNavigationWarning } = useNavigationWarning();
 const domBulkAddDialog = ref<InstanceType<typeof RecipeDialogBulkAdd> | null>(null);
 const notLinkedIngredients = computed(() => {

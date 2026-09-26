@@ -1,9 +1,9 @@
 <template>
-  <v-app-bar clipped-left density="compact" app color="surface" class="bistro-header d-print-none">
+  <v-app-bar clipped-left app color="surface" class="bistro-header d-print-none">
     <slot />
     <RouterLink :to="routerLink" class="bistro-wordmark">
       <span>Petit Chef</span>
-      <img src="/remy_logo.png" width="42" height="42" alt="" aria-hidden="true" class="remy-logo">
+      <img src="/remy_logo.png" width="63" height="63" alt="" aria-hidden="true" class="remy-logo">
     </RouterLink>
     <RecipeDialogSearch ref="domSearchDialog" />
 

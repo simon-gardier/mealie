@@ -5,3 +5,10 @@
 .v-tab {
   text-transform: none !important;
 }
+
+.v-field.v-field--variant-filled .v-field__outline::before,
+.v-field.v-field--variant-filled .v-field__outline::after,
+.v-field.v-field--variant-underlined .v-field__outline::before,
+.v-field.v-field--variant-underlined .v-field__outline::after {
+  display: none !important;
+}

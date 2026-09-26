@@ -223,4 +223,18 @@ const topLinks = computed<SideBarLink[]>(() => [
 .create-menu-item {
   --v-list-prepend-gap: 12px;
 }
+
+@media (max-width: 600px) {
+  .sidebar-create-button {
+    min-height: 72px !important;
+    height: 72px !important;
+    font-size: 1.3125rem !important;
+  }
+
+  .sidebar-create-button :deep(.v-icon) {
+    width: 30px !important;
+    height: 30px !important;
+    font-size: 30px !important;
+  }
+}
 </style>

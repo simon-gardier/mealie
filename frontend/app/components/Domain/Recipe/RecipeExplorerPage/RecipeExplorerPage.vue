@@ -2,7 +2,6 @@
   <v-container fluid class="px-0">
     <RecipeExplorerPageSearch ref="searchComponent" :recipe-count="recipes.length" @ready="onSearchReady"
       @random="navigateRandom" @toggle-view="toggleRecipeView" />
-    <v-divider />
     <v-container class="mt-6 px-md-6 pb-16">
       <RecipeCardSection v-if="ready" ref="recipeSection" class="mt-n5" :recipes="recipes" :query="searchQuery"
         disable-toolbar disable-sort @item-selected="onItemSelected" @replace-recipes="replaceRecipes"

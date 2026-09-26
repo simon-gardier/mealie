@@ -134,19 +134,20 @@
         :labels="allLabels || []" :units="allUnits || []" :foods="allFoods || []" @cancel="createEditorOpen = false"
         @save="createListItem" />
 
-      <div v-else class="mb-3">
+      <div v-else class="mb-3 d-flex justify-center">
         <ShoppingListItemEditor v-if="createEditorOpen" v-model="createListItemData" class="my-4"
           :labels="allLabels || []" :units="allUnits || []" :foods="allFoods || []" :allow-delete="false"
           @delete="createEditorOpen = false" @cancel="createEditorOpen = false" @save="createListItem" />
-        <InputLabelType v-else :items="allFoods" :label="$t('shopping-list.add-item')" :icon="$globals.icons.foods"
-          search outlined @focus="createEditorOpen = true" />
+        <BaseButton v-else create small :text="$t('shopping-list.add-item')" style="height: 48px"
+          @click="createEditorOpen = true" />
       </div>
 
       <TransitionGroup name="scroll-x-transition">
         <BaseExpansionPanels v-for="(value, key) in itemsByLabel" :key="key" :v-model="0" start-open>
           <v-expansion-panel class="shopping-list-section">
             <!-- the label colour fills the header bar; an uncoloured (or unlabelled) header is muted instead -->
-            <v-expansion-panel-title :color="getLabelColor(key) || 'primary'" class="body-1 section-title">
+            <v-expansion-panel-title :color="value[0]?.label?.color || getLabelColor(key) || 'primary'"
+              class="body-1 section-title">
               <span>{{ key }}</span>
               <span class="section-count">{{ value.length }}</span>
             </v-expansion-panel-title>
@@ -211,18 +212,28 @@
     <!-- Recipe References -->
     <v-lazy v-if="shoppingList.recipeReferences && shoppingList.recipeReferences.length > 0" class="mt-6">
       <section>
-        <div>
+        <div class="d-flex align-center">
           <span>
             <v-icon start class="mb-1">
               {{ $globals.icons.silverwareForkKnife }}
             </v-icon>
           </span>
-          {{ $t('shopping-list.linked-recipes-count', shoppingList.recipeReferences
+          <span>{{ $t('shopping-list.linked-recipes-count', shoppingList.recipeReferences
             ? shoppingList.recipeReferences.length
-            : 0) }}
+            : 0) }}</span>
+          <v-tooltip location="top">
+            <template #activator="{ props: tooltipProps }">
+              <v-btn v-bind="tooltipProps" icon variant="text" size="x-small" class="ms-1"
+                :aria-label="$t('shopping-list.linked-recipes-quantity-info')">
+                <v-icon size="small">{{ $globals.icons.informationOutline }}</v-icon>
+              </v-btn>
+            </template>
+            <span>{{ $t('shopping-list.linked-recipes-quantity-info') }}</span>
+          </v-tooltip>
         </div>
         <v-divider />
-        <RecipeList :recipes="recipeList" show-description :disabled="isOffline">
+        <RecipeList :recipes="recipeList" show-description :disabled="isOffline"
+          class="shopping-list-linked-recipes">
           <template v-for="(recipe, index) in recipeList" #[`actions-${recipe.id}`]
             :key="'item-actions-decrease' + recipe.id">
             <v-list-item-action>
@@ -259,6 +270,7 @@ import ShoppingListAddItemForm from "~/components/Domain/ShoppingList/ShoppingLi
 import ShoppingListItem from "~/components/Domain/ShoppingList/ShoppingListItem.vue";
 import ShoppingListItemEditor from "~/components/Domain/ShoppingList/ShoppingListItemEditor.vue";
 import UserAvatar from "~/components/Domain/User/UserAvatar.vue";
+import { useAmbianceMusic } from "~/composables/use-ambiance-music";
 import { useShoppingListPage } from "~/composables/shopping-list-page/use-shopping-list-page";
 import { useLabelStore, useUnitStore, useFoodStore } from "~/composables/store";
 import { useUserApi } from "~/composables/api";
@@ -378,6 +390,8 @@ const {
   addRecipeReferenceToList,
   refresh,
 } = shoppingListPage;
+
+useAmbianceMusic(() => Boolean(shoppingList.value), "assets/Souped_Up_-_Michael_Giacchino-list.mp3");
 </script>
 
 <style>
@@ -416,18 +430,26 @@ const {
 
   /* slim header: a low bar with bold text, keeping the label colour as its fill */
   .shopping-list-section .section-title {
-    min-height: 30px !important;
+    min-height: 45px !important;
     padding: 2px 10px;
     font-size: 0.9rem;
     font-weight: 700;
     color: white !important;
     filter: saturate(1.3);
+    position: sticky;
+    top: 3rem;
+    z-index: 3;
+    border-radius: 8px 8px 0 0;
   }
 
   .shopping-list-section .v-expansion-panel-text__wrapper,
   .v-expansion-panel-text__wrapper {
     padding: 2px 0 2px 12px;
     background-color: rgb(var(--v-theme-paper));
+  }
+
+  .shopping-list-section .v-expansion-panel-text__wrapper {
+    border-radius: 0 0 8px 8px;
   }
 
   .v-expansion-panel-title {
@@ -487,8 +509,7 @@ const {
   /* no border and no shadow around a group: the coloured header is what marks it */
   .shopping-list-section {
     border: none;
-    overflow: hidden;
-    border-radius: 16px;
+    border-radius: 8px;
   }
 
   .shopping-list-section .v-expansion-panel__shadow {
@@ -510,6 +531,15 @@ const {
 
 .shopping-list-checked-section {
   overflow: hidden;
-  border-radius: 16px;
+  border-radius: 8px;
+}
+
+.shopping-list-linked-recipes .v-sheet {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.shopping-list-linked-recipes {
+  overflow: visible;
 }
 </style>

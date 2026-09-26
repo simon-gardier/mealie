@@ -7,7 +7,7 @@
       </v-btn>
       <RouterLink to="/" class="bistro-wordmark d-flex align-center ga-2">
         <span>Petit Chef</span>
-        <img src="/remy_logo.png" width="42" height="42" alt="" aria-hidden="true" class="remy-logo">
+        <img src="/remy_logo.png" width="63" height="63" alt="" aria-hidden="true" class="remy-logo">
       </RouterLink>
     </div>
 
@@ -81,14 +81,14 @@
             <UserAvatar list :user-id="sessionUser.id" :tooltip="false" />
           </RouterLink>
           <div class="d-flex align-center ga-1">
-            <v-btn v-if="loggedIn && announcementsEnabled" variant="flat" rounded="circle" size="small" color="info"
-              class="sidebar-icon-button" :aria-label="$t('announcements.announcements')"
-              @click.stop="() => showAnnouncementsDialog = !showAnnouncementsDialog">
-              <v-badge :model-value="Boolean(newAnnouncements.length)" color="accent" :content="newAnnouncements.length"
-                floating offset-x="7" offset-y="-5">
+            <v-badge v-if="loggedIn && announcementsEnabled" :model-value="Boolean(newAnnouncements.length)"
+              color="accent" :content="newAnnouncements.length" floating :offset-x="8" :offset-y="8">
+              <v-btn variant="flat" rounded="circle" size="small" color="info" class="sidebar-icon-button"
+                :aria-label="$t('announcements.announcements')"
+                @click.stop="() => showAnnouncementsDialog = !showAnnouncementsDialog">
                 <v-icon :icon="$globals.icons.bullhornVariant" color="white" />
-              </v-badge>
-            </v-btn>
+              </v-btn>
+            </v-badge>
             <v-menu location="end bottom" :offset="15" :z-index="3000" content-class="sidebar-settings-menu">
               <template #activator="{ props: hoverProps }">
                 <v-btn v-bind="hoverProps" variant="flat" rounded="circle" size="small" color="info"
@@ -107,9 +107,15 @@
                   @click="toggleDark" />
                 <v-divider class="my-2" />
                 <WakelockSwitch />
-                <v-list-item :title="$t('settings.disable-cheese-drop')">
+                <v-list-item :prepend-icon="$globals.icons.volumeHigh" :title="$t('settings.ambiance-music')"
+                  @click.stop>
                   <template #append>
-                    <v-switch v-model="disableCheeseDrop" color="primary" hide-details />
+                    <v-switch v-model="ambianceMusicEnabled" color="primary" hide-details />
+                  </template>
+                </v-list-item>
+                <v-list-item :prepend-icon="$globals.icons.bread" :title="$t('settings.enable-cheese-drop')">
+                  <template #append>
+                    <v-switch v-model="cheeseDropEnabled" color="primary" hide-details />
                   </template>
                 </v-list-item>
                 <v-divider v-if="loggedIn" class="my-2" />
@@ -142,6 +148,7 @@ import AnnouncementDialog from "~/components/Domain/Announcement/AnnouncementDia
 import UserAvatar from "~/components/Domain/User/UserAvatar.vue";
 import { useToggleDarkMode } from "~/composables/use-utils";
 import { useAnnouncements } from "~/composables/use-announcements";
+import { useAmbianceMusicEnabled } from "~/composables/use-ambiance-music";
 
 const props = defineProps({
   user: {
@@ -171,6 +178,11 @@ const userProfileLink = computed(() => auth.user.value ? "/user/profile" : undef
 
 const toggleDark = useToggleDarkMode();
 const disableCheeseDrop = useLocalStorage("disable-cheese-drop", false);
+const cheeseDropEnabled = computed({
+  get: () => !disableCheeseDrop.value,
+  set: (enabled: boolean) => disableCheeseDrop.value = !enabled,
+});
+const ambianceMusicEnabled = useAmbianceMusicEnabled();
 
 async function logout() {
   try {
@@ -215,6 +227,7 @@ watch(
 
 .bistro-sidebar {
   z-index: 2021 !important;
+  width: 280px !important;
   top: 0 !important;
   height: 100vh !important;
   max-height: 100vh !important;
@@ -223,13 +236,6 @@ watch(
 
 .bistro-sidebar :deep(.v-navigation-drawer__content) {
   padding-top: 0;
-}
-
-@media (max-width: 600px) {
-  .bistro-sidebar {
-    width: 100vw !important;
-    max-width: 100vw !important;
-  }
 }
 
 @media print {
@@ -287,5 +293,41 @@ watch(
 
 :deep(.sidebar-settings-menu) {
   z-index: 3000 !important;
+}
+
+@media (max-width: 600px) {
+  .bistro-sidebar {
+    width: 100vw !important;
+    max-width: 100vw !important;
+  }
+
+  .bistro-sidebar :deep(.v-list-item) {
+    min-height: 56px;
+  }
+
+  .bistro-sidebar :deep(.v-list-item-title) {
+    font-size: 1rem;
+  }
+
+  .bistro-sidebar :deep(.v-list-item__prepend > .v-icon) {
+    font-size: 24px;
+  }
+
+  .sidebar-user-panel {
+    min-height: 68px;
+    padding: 12px;
+  }
+
+  .disconnect-button,
+  .sidebar-icon-button {
+    min-width: 48px !important;
+    width: 48px !important;
+    height: 48px !important;
+  }
+
+  .sidebar-user-avatar-link {
+    width: 48px;
+    height: 48px;
+  }
 }
 </style>

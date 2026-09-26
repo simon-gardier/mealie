@@ -30,20 +30,20 @@
             <v-text-field v-else-if="inputField.type === fieldTypes.TEXT || inputField.type === fieldTypes.PASSWORD"
               v-model="model[inputField.varName]" :readonly="fieldState[inputField.varName]?.readonly"
               :disabled="fieldState[inputField.varName]?.disabled"
-              :type="inputField.type === fieldTypes.PASSWORD ? 'password' : 'text'" variant="solo-filled" flat
+              :type="inputField.type === fieldTypes.PASSWORD ? 'password' : 'text'" :variant="variant" flat
               density="comfortable" :label="inputField.label" :name="inputField.varName" :hint="inputField.hint || ''"
               :rules="!(inputField.disableUpdate && updateMode) ? inputField.rules || [] : []" validate-on="input" />
 
             <!-- Text Area -->
             <v-textarea v-else-if="inputField.type === fieldTypes.TEXT_AREA" v-model="model[inputField.varName]"
               :readonly="fieldState[inputField.varName]?.readonly" :disabled="fieldState[inputField.varName]?.disabled"
-              variant="solo-filled" flat rows="3" auto-grow density="comfortable" :label="inputField.label"
+              :variant="variant" flat rows="3" auto-grow density="comfortable" :label="inputField.label"
               :name="inputField.varName" :hint="inputField.hint || ''"
               :rules="!(inputField.disableUpdate && updateMode) ? inputField.rules || [] : []" validate-on="input" />
 
             <!-- Number Input -->
             <v-number-input v-else-if="inputField.type === fieldTypes.NUMBER" v-model="model[inputField.varName]"
-              variant="solo-filled" flat :control-variant="inputField.numberInputConfig?.controlVariant"
+              :variant="variant" flat :control-variant="inputField.numberInputConfig?.controlVariant"
               density="comfortable" :label="inputField.label" :name="inputField.varName"
               :min="inputField.numberInputConfig?.min" :max="inputField.numberInputConfig?.max"
               :precision="inputField.numberInputConfig?.precision" :hint="inputField.hint"
@@ -53,9 +53,9 @@
             <!-- Option Select -->
             <v-select v-else-if="inputField.type === fieldTypes.SELECT" v-model="model[inputField.varName]"
               :readonly="fieldState[inputField.varName]?.readonly" :disabled="fieldState[inputField.varName]?.disabled"
-              variant="solo-filled" flat :label="inputField.label" :name="inputField.varName"
-              :items="inputField.options" item-title="text" :item-value="inputField.selectReturnValue || 'text'"
-              :return-object="false" :hint="inputField.hint" density="comfortable" persistent-hint
+              :variant="variant" flat :label="inputField.label" :name="inputField.varName" :items="inputField.options"
+              item-title="text" :item-value="inputField.selectReturnValue || 'text'" :return-object="false"
+              :hint="inputField.hint" density="comfortable" persistent-hint
               :rules="!(inputField.disableUpdate && updateMode) ? inputField.rules || [] : []" validate-on="input" />
 
             <!-- Color Picker -->
@@ -81,6 +81,10 @@ const model = defineModel<Record<string, any> | any[]>({
 const isValid = defineModel("isValid", { type: Boolean, default: false });
 
 const props = defineProps({
+  variant: {
+    type: String as PropType<"solo-filled" | "outlined">,
+    default: "solo-filled",
+  },
   updateMode: {
     default: false,
     type: Boolean,

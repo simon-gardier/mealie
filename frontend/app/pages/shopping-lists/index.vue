@@ -48,15 +48,13 @@
       <v-card v-for="list in shoppingListChoices" :key="list.id" class="bistro-scratch-note"
         :class="{ 'bistro-scratch-note--crumpling': deletingListId === list.id }" :to="`/shopping-lists/${list.id}`">
         <v-card-title class="d-flex align-center">
+          <v-btn icon variant="plain" class="bistro-note-action bistro-note-action-owner"
+            @click.prevent="toggleOwnerDialog(list)">
+            <UserAvatar :user-id="list.userId" :tooltip="false" size="32" />
+          </v-btn>
           <span class="flex-grow-1">
             {{ list.name }}
           </span>
-          <v-btn icon variant="plain" class="bistro-note-action bistro-note-action-owner"
-            @click.prevent="toggleOwnerDialog(list)">
-            <v-icon>
-              {{ $globals.icons.user }}
-            </v-icon>
-          </v-btn>
           <v-btn icon variant="plain" class="bistro-note-action bistro-note-action-delete"
             @click.prevent="openDelete(list.id)">
             <v-icon>

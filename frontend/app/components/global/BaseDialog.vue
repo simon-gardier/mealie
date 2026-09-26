@@ -7,6 +7,9 @@
       }" :max-width="maxWidth ?? undefined" @keydown.enter="submitOnEnter" @click:outside="emit('cancel')"
       @keydown.esc="emit('cancel')">
       <BaseDialogContent v-bind="bindings">
+        <template v-if="$slots.header" #header>
+          <slot name="header" />
+        </template>
         <template #default>
           <slot v-bind="{ submitEvent }" />
         </template>
@@ -28,6 +31,9 @@
       :content-class="[top ? 'top-dialog' : undefined, contentClass]" :fullscreen="$vuetify.display.xs"
       @keydown.enter="submitOnEnter" @click:outside="emit('cancel')" @keydown.esc="emit('cancel')">
       <BaseDialogContent v-bind="bindings">
+        <template v-if="$slots.header" #header>
+          <slot name="header" />
+        </template>
         <template #default>
           <slot v-bind="{ submitEvent }" />
         </template>

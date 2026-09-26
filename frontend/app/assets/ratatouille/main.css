@@ -74,8 +74,10 @@ body,
 }
 
 .v-application {
+  background-color: rgb(var(--v-theme-paper));
   background-image: radial-gradient(rgb(var(--v-theme-copper), 0.2) 1px, transparent 1px);
   background-size: 14px 14px;
+  background-attachment: fixed;
 }
 
 .v-btn:not(.v-btn--icon) {

@@ -160,7 +160,10 @@ export function useParseIngredientsDialog(
       return;
     }
 
-    const potentialMatch = createdFoods.get(food.toLowerCase());
+    const normalizedFood = food.toLowerCase();
+    const potentialMatch = createdFoods.get(normalizedFood)
+      || foodStore.store.value.find(existingFood => existingFood.name.toLowerCase() === normalizedFood
+        || existingFood.aliases?.some(alias => alias.name.toLowerCase() === normalizedFood));
     if (potentialMatch) {
       ing.ingredient.food = potentialMatch;
       currentMissingFood.value = "";
@@ -261,6 +264,7 @@ export function useParseIngredientsDialog(
       createdUnits.clear();
       createdFoods.clear();
       currentIngShouldDelete.value = false;
+      await foodStore.actions.refresh();
       nextIngredient();
     }
     catch (error) {

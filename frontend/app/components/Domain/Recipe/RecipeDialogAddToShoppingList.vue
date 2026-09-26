@@ -12,8 +12,9 @@
       <v-card-text>
         <v-card v-for="list in filteredShoppingLists" :key="list.id" hover class="my-2 left-border"
           @click="openShoppingListIngredientDialog(list)">
-          <v-card-title class="py-2">
+          <v-card-title class="d-flex align-center justify-space-between py-2">
             {{ list.name }}
+            <UserAvatar :user-id="list.userId" :tooltip="false" size="32" class="ms-3 flex-shrink-0" />
           </v-card-title>
         </v-card>
       </v-card-text>
@@ -115,6 +116,7 @@ import { alert } from "~/composables/use-toast";
 import { useShoppingListPreferences } from "~/composables/use-users/preferences";
 import type { RecipeIngredient, ShoppingListAddRecipeParamsBulk, ShoppingListSummary } from "~/lib/api/types/household";
 import type { Recipe } from "~/lib/api/types/recipe";
+import UserAvatar from "~/components/Domain/User/UserAvatar.vue";
 import RecipeIngredientListItem from "./RecipeIngredientListItem.vue";
 
 export interface RecipeWithScale extends Recipe {

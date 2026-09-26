@@ -8,9 +8,9 @@
           {{ $t("data-pages.foods.merge-dialog-text") }}
         </div>
         <v-autocomplete v-model="fromFood" return-object :items="foods" :custom-filter="normalizeFilter"
-          item-title="name" :label="$t('data-pages.foods.source-food')" />
+          item-title="name" :label="$t('data-pages.foods.source-food')" variant="outlined" />
         <v-autocomplete v-model="toFood" return-object :items="foods" :custom-filter="normalizeFilter" item-title="name"
-          :label="$t('data-pages.foods.target-food')" />
+          :label="$t('data-pages.foods.target-food')" variant="outlined" />
 
         <template v-if="canMerge && fromFood && toFood">
           <div class="text-center">
@@ -62,8 +62,8 @@
         </v-card>
 
         <v-autocomplete v-model="bulkAssignLabelId" clearable :items="allLabels" :custom-filter="normalizeFilter"
-          item-value="id" item-title="name" :label="$t('data-pages.foods.food-label')" />
-        <v-card variant="outlined">
+          item-value="id" item-title="name" :label="$t('data-pages.foods.food-label')" variant="outlined" />
+        <v-card variant="outlined" rounded="lg">
           <v-virtual-scroll height="400" item-height="25" :items="bulkAssignTarget">
             <template #default="{ item }">
               <v-list-item class="pb-2">

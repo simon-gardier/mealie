@@ -5,7 +5,8 @@
     @confirm="emit('create-one', createForm.data)">
     <div class="mx-2 mt-2">
       <slot name="create-dialog-top" />
-      <AutoForm v-model="createForm.data" v-model:is-valid="createFormValid" :items="createForm.items" class="py-2" />
+      <AutoForm v-model="createForm.data" v-model:is-valid="createFormValid" :items="createForm.items"
+        variant="outlined" class="py-2" />
     </div>
   </BaseDialog>
 
@@ -15,7 +16,8 @@
     @confirm="emit('edit-one', editForm.data)">
     <div class="mx-2 mt-2">
       <slot name="edit-dialog-top" />
-      <AutoForm v-model="editForm.data" v-model:is-valid="editFormValid" :items="editForm.items" class="py-2" />
+      <AutoForm v-model="editForm.data" v-model:is-valid="editFormValid" :items="editForm.items" variant="outlined"
+        class="py-2" />
     </div>
     <template #custom-card-action>
       <slot name="edit-dialog-custom-action" />
@@ -42,7 +44,7 @@
       <p class="h4">
         {{ $t('general.confirm-delete-generic-items') }}
       </p>
-      <v-card variant="outlined">
+      <v-card variant="outlined" rounded="lg">
         <v-virtual-scroll height="400" item-height="25" :items="bulkDeleteTarget">
           <template #default="{ item }">
             <v-list-item class="pb-2">

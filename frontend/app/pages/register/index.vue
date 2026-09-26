@@ -1,4 +1,5 @@
 <template>
+  <BaseVideoBackground src="/festin.mp4" />
   <v-container fill-height fluid class="d-flex justify-center align-center flex-column fill-height register-background">
     <img src="/welcome_title.png" alt="Petit Chef" class="welcome-title mb-4">
     <v-card class="d-flex flex-column w-100 glass-card"
@@ -52,13 +53,13 @@
             </v-card-text>
             <v-divider />
             <v-card-actions class="mt-auto justify-space-between">
-              <BaseButton class="registration-step-button" cancel @click="state.back">
+              <BaseButton class="registration-step-button" color="secondary" cancel @click="state.back">
                 <template #icon>
                   {{ $globals.icons.back }}
                 </template>
                 {{ $t("general.back") }}
               </BaseButton>
-              <BaseButton class="registration-step-button" icon-right @click="provideToken.next">
+              <BaseButton class="registration-step-button" color="primary" icon-right @click="provideToken.next">
                 <template #icon>
                   {{ $globals.icons.forward }}
                 </template>
@@ -100,13 +101,13 @@
             </v-card-text>
             <v-divider />
             <v-card-actions class="justify-space-between">
-              <BaseButton class="registration-step-button" cancel @click="state.back">
+              <BaseButton class="registration-step-button" color="secondary" cancel @click="state.back">
                 <template #icon>
                   {{ $globals.icons.back }}
                 </template>
                 {{ $t("general.back") }}
               </BaseButton>
-              <BaseButton class="registration-step-button" icon-right :disabled="!isGroupFormValid || !groupNameValid"
+              <BaseButton class="registration-step-button" color="primary" icon-right :disabled="!isGroupFormValid || !groupNameValid"
                 @click="groupDetails.next">
                 <template #icon>
                   {{ $globals.icons.forward }}
@@ -122,13 +123,13 @@
             <UserRegistrationForm v-model="isAccountFormValid" />
             <v-divider />
             <v-card-actions class="justify-space-between">
-              <BaseButton class="registration-step-button" cancel @click="state.back">
+              <BaseButton class="registration-step-button" color="secondary" cancel @click="state.back">
                 <template #icon>
                   {{ $globals.icons.back }}
                 </template>
                 {{ $t("general.back") }}
               </BaseButton>
-              <BaseButton class="registration-step-button" icon-right :disabled="!isAccountFormValid"
+              <BaseButton class="registration-step-button" color="primary" icon-right :disabled="!isAccountFormValid"
                 @click="accountDetailsNext">
                 <template #icon>
                   {{ $globals.icons.forward }}
@@ -418,10 +419,9 @@ async function submitRegistration() {
 
 <style lang="css" scoped>
 .register-background {
-  background-image: url("/eifel_remy_wallpaper.jpg");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  position: relative;
+  z-index: 1;
+  background-color: transparent;
 }
 
 .glass-card {
@@ -446,6 +446,12 @@ async function submitRegistration() {
   font-family: "Inter", sans-serif;
 }
 
+/* The disabled state falls back to the translucent tonal variant, keep it opaque. */
+.registration-step-button.v-btn--variant-tonal {
+  background-color: rgb(var(--v-theme-surface));
+  color: rgba(var(--v-theme-on-surface), 0.6);
+}
+
 .welcome-title {
   width: 100%;
   max-width: 320px;
@@ -454,5 +460,18 @@ async function submitRegistration() {
 
 .preferred-width {
   width: 840px;
+  max-width: 100%;
+}
+
+@media (max-width: 600px) {
+  .register-background {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .glass-card {
+    max-width: 100% !important;
+    border-radius: 0 !important;
+  }
 }
 </style>

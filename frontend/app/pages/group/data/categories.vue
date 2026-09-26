@@ -1,56 +1,38 @@
 <template>
   <div>
     <!-- Merge Dialog -->
-    <BaseDialog
-      v-model="mergeDialog"
-      bottom-sheet
-      :icon="$globals.icons.categories"
-      :title="$t('data-pages.categories.combine-category')"
-      can-confirm
-      @confirm="mergeCategories"
-    >
+    <BaseDialog v-model="mergeDialog" bottom-sheet :icon="$globals.icons.categories"
+      :title="$t('data-pages.categories.combine-category')" can-confirm @confirm="mergeCategories">
       <v-card-text>
         <div>
           {{ $t("data-pages.categories.merge-dialog-text") }}
         </div>
-        <v-autocomplete
-          v-model="fromCategory"
-          return-object
-          :items="categoryStore.store.value"
-          :custom-filter="normalizeFilter"
-          item-title="name"
-          :label="$t('data-pages.categories.source-category')"
-        />
-        <v-autocomplete
-          v-model="toCategory"
-          return-object
-          :items="categoryStore.store.value"
-          :custom-filter="normalizeFilter"
-          item-title="name"
-          :label="$t('data-pages.categories.target-category')"
-        />
+        <v-autocomplete v-model="fromCategory" return-object :items="categoryStore.store.value"
+          :custom-filter="normalizeFilter" item-title="name" :label="$t('data-pages.categories.source-category')"
+          variant="outlined" />
+        <v-autocomplete v-model="toCategory" return-object :items="categoryStore.store.value"
+          :custom-filter="normalizeFilter" item-title="name" :label="$t('data-pages.categories.target-category')"
+          variant="outlined" />
 
         <template v-if="canMerge && fromCategory && toCategory">
           <div class="text-center">
-            {{ $t("data-pages.categories.merge-category-example", { category1: fromCategory.name, category2: toCategory.name }) }}
+            {{ $t("data-pages.categories.merge-category-example", {
+              category1: fromCategory.name, category2:
+                toCategory.name }) }}
           </div>
         </template>
       </v-card-text>
     </BaseDialog>
 
     <!-- Delete Unused Dialog -->
-    <BaseDialog
-      v-model="deleteUnusedDialog"
-      bottom-sheet
-      :title="$t('general.confirm')"
-      :icon="$globals.icons.alertCircle"
-      color="error"
-      can-confirm
-      @confirm="confirmDeleteUnused"
-    >
+    <BaseDialog v-model="deleteUnusedDialog" bottom-sheet :title="$t('general.confirm')"
+      :icon="$globals.icons.alertCircle" color="error" can-confirm @confirm="confirmDeleteUnused">
       <v-card-text>
-        {{ $t('data-pages.categories.delete-unused-confirm', { count: unusedCategoryIds.length }, unusedCategoryIds.length) }}
-        <ul style="margin: 0.5rem 0 0; padding-left: 1.25rem; font-size: 0.85rem; color: rgba(var(--v-theme-on-surface), 0.7); line-height: 1.8;">
+        {{ $t('data-pages.categories.delete-unused-confirm', { count: unusedCategoryIds.length },
+          unusedCategoryIds.length)
+        }}
+        <ul
+          style="margin: 0.5rem 0 0; padding-left: 1.25rem; font-size: 0.85rem; color: rgba(var(--v-theme-on-surface), 0.7); line-height: 1.8;">
           <li v-for="name in unusedCategoryNamesPreview" :key="name">
             {{ name }}
           </li>
@@ -61,24 +43,15 @@
       </v-card-text>
     </BaseDialog>
 
-    <GroupDataPage
-      :icon="$globals.icons.categories"
-      :title="$t('data-pages.categories.category-data')"
-      :create-title="$t('data-pages.categories.new-category')"
-      :edit-title="$t('data-pages.categories.edit-category')"
-      :table-headers="tableHeaders"
-      :table-config="tableConfig"
-      :data="categoryStore.store.value || []"
+    <GroupDataPage :icon="$globals.icons.categories" :title="$t('data-pages.categories.category-data')"
+      :create-title="$t('data-pages.categories.new-category')" :edit-title="$t('data-pages.categories.edit-category')"
+      :table-headers="tableHeaders" :table-config="tableConfig" :data="categoryStore.store.value || []"
       :bulk-actions="[{ icon: $globals.icons.delete, text: $t('general.delete'), event: 'delete-selected' }]"
-      :create-form="createForm"
-      :edit-form="editForm"
-      @create-one="handleCreate"
-      @edit-one="handleEdit"
-      @delete-one="categoryStore.actions.deleteOne"
-      @bulk-action="handleBulkAction"
-    >
+      :create-form="createForm" :edit-form="editForm" @create-one="handleCreate" @edit-one="handleEdit"
+      @delete-one="categoryStore.actions.deleteOne" @bulk-action="handleBulkAction">
       <template #[`item.recipeCount`]="{ item }">
-        <NuxtLink v-if="groupSlug && item.recipeCount > 0" :to="`/g/${groupSlug}?categories=${item.id}`">{{ item.recipeCount }}</NuxtLink>
+        <NuxtLink v-if="groupSlug && item.recipeCount > 0" :to="`/g/${groupSlug}?categories=${item.id}`">{{
+          item.recipeCount }}</NuxtLink>
         <span v-else>{{ item.recipeCount || 0 }}</span>
       </template>
 
