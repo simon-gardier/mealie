@@ -1,7 +1,8 @@
 <template>
-  <v-navigation-drawer ref="target" permanent rounded="t-xl" location="bottom" class="pa-4 pt-2 mb-0" width="100%"
-    rail-width="85" :rail="rail" elevation="4">
-    <div class="d-flex flex-column ga-3">
+  <v-navigation-drawer ref="target" permanent rounded="t-xl" location="bottom" class="pa-4 pt-0 mb-0"
+    :width="drawerHeight" rail-width="92" :rail="rail" elevation="4">
+    <!-- top padding lives inside the scrollable content so the floating label isn't clipped -->
+    <div ref="contentRef" class="d-flex flex-column ga-3 pt-3">
       <div class="position-relative">
         <InputLabelType ref="foodInputRef" v-model="listItem.food" v-model:item-id="listItem.foodId!" :items="foods"
           :label="rail ? $t('shopping-list.add-item') : $t('shopping-list.food')" :icon="$globals.icons.foods"
@@ -27,7 +28,7 @@ import type { ShoppingListItemOut } from "~/lib/api/types/household";
 import type { MultiPurposeLabelOut } from "~/lib/api/types/labels";
 import type { IngredientFood, IngredientUnit } from "~/lib/api/types/recipe";
 import ShoppingListItemDetails from "./ShoppingListItemDetails.vue";
-import { onClickOutside } from "@vueuse/core";
+import { onClickOutside, useElementSize } from "@vueuse/core";
 
 // modelValue as reactive v-model
 const listItem = defineModel<ShoppingListItemOut>({ required: true });
@@ -53,11 +54,21 @@ defineEmits<{
 
 const { createAssignFood } = useShoppingListItemEditor(listItem);
 
-const { smAndDown } = useDisplay();
+const { smAndDown, height: viewportHeight } = useDisplay();
 const menuDirection = computed(() => smAndDown.value ? "top" : "bottom");
 
 const foodInputRef = ref<{ focus: () => void } | null>(null);
 const rail = ref(true);
+
+// For a bottom drawer Vuetify uses `width` as the drawer's height, so it has to
+// track the form's actual height instead of being a fixed/percentage value
+const contentRef = ref<HTMLElement | null>(null);
+const { height: contentHeight } = useElementSize(contentRef, undefined, { box: "border-box" });
+const DRAWER_PADDING = 16;
+const drawerHeight = computed(() => {
+  const desired = Math.ceil(contentHeight.value) + DRAWER_PADDING;
+  return Math.min(desired, Math.round(viewportHeight.value * 0.9));
+});
 
 async function expandAndFocus() {
   rail.value = false;

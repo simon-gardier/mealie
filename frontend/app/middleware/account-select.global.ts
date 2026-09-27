@@ -22,7 +22,7 @@ function isSkipped(path: string) {
 
 /**
  * Sends a returning, still-authenticated visitor through the account picker before letting them
- * back into the app. Only runs once per browser session.
+ * back into the app. Only runs once per day.
  */
 export default defineNuxtRouteMiddleware((to) => {
   if (import.meta.server) {

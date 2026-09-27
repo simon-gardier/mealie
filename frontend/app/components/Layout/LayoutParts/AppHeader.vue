@@ -71,6 +71,6 @@ onBeforeUnmount(() => {
 }
 
 .v-toolbar {
-  z-index: 2010 !important;
+  z-index: 1000 !important;
 }
 </style>

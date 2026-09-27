@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="d-flex justify-end flex-wrap align-stretch">
-      <RecipePageInfoCardImage v-if="landscape && recipe.image" :recipe="recipe" />
+      <RecipePageInfoCardImage v-if="landscape && recipe.image" :recipe="recipe" class="mt-4" />
       <v-card :width="landscape || !recipe.image ? '100%' : '50%'" flat color="transparent"
         class="d-flex flex-column justify-center align-center">
         <v-card-text>

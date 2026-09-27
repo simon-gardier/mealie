@@ -47,6 +47,11 @@ body,
   text-decoration-color: currentColor;
 }
 
+.recipe-step-complete {
+  filter: brightness(0.94);
+  transition: filter 250ms ease;
+}
+
 .recipe-step-complete .recipe-step-instructions>*:nth-child(1) {
   transition-delay: 320ms;
 }
