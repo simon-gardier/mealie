@@ -96,5 +96,6 @@ export default defineI18nConfig(() => {
     datetimeFormats: datetimeFormats as any,
     fallbackLocale: "en-US",
     fallbackWarn: true,
+    postTranslation: message => message.replace(/\bMealie\b/gi, "Petit Chef"),
   };
 });

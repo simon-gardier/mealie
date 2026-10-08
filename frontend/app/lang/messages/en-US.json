@@ -42,7 +42,7 @@
     "event-delete-confirmation": "Are you sure you want to delete this event?",
     "event-deleted": "Event Deleted",
     "event-updated": "Event Updated",
-    "new-notification-form-description": "Mealie uses the Apprise library to generate notifications. They offer many options for services to use for notifications. Refer to their wiki for a comprehensive guide on how to create the URL for your service. If available, selecting the type of your notification may include extra features.",
+    "new-notification-form-description": "Petit Chef uses the Apprise library to generate notifications. They offer many options for services to use for notifications. Refer to their wiki for a comprehensive guide on how to create the URL for your service. If available, selecting the type of your notification may include extra features.",
     "something-went-wrong": "Something Went Wrong!",
     "test-message-sent": "Test Message Sent",
     "message-sent": "Message Sent",
@@ -342,7 +342,7 @@
     "recipe-migration": "Recipe Migration",
     "chowdown": {
       "description": "Migrate data from Chowdown",
-      "description-long": "Mealie natively supports the chowdown repository format. Download the code repository as a .zip file and upload it below.",
+      "description-long": "Petit Chef natively supports the chowdown repository format. Download the code repository as a .zip file and upload it below.",
       "title": "Chowdown"
     },
     "nextcloud": {
@@ -351,52 +351,52 @@
       "title": "Nextcloud Cookbook"
     },
     "copymethat": {
-      "description-long": "Mealie can import recipes from Copy Me That. Export your recipes in HTML format, then upload the .zip below.",
+      "description-long": "Petit Chef can import recipes from Copy Me That. Export your recipes in HTML format, then upload the .zip below.",
       "title": "Copy Me That Recipe Manager"
     },
     "paprika": {
-      "description-long": "Mealie can import recipes from the Paprika application. Export your recipes from paprika, rename the export extension to .zip and upload it below.",
+      "description-long": "Petit Chef can import recipes from the Paprika application. Export your recipes from paprika, rename the export extension to .zip and upload it below.",
       "title": "Paprika Recipe Manager"
     },
     "mealie-pre-v1": {
-      "description-long": "Mealie can import recipes from the Mealie application from a pre v1.0 release. Export your recipes from your old instance, and upload the zip file below. Note that only recipes can be imported from the export.",
-      "title": "Mealie Pre v1.0"
+      "description-long": "Petit Chef can import recipes from the Petit Chef application from a pre v1.0 release. Export your recipes from your old instance, and upload the zip file below. Note that only recipes can be imported from the export.",
+      "title": "Petit Chef Pre v1.0"
     },
     "tandoor": {
-      "description-long": "Mealie can import recipes from Tandoor. Export your data in the \"Default\" format, then upload the .zip below.",
+      "description-long": "Petit Chef can import recipes from Tandoor. Export your data in the \"Default\" format, then upload the .zip below.",
       "title": "Tandoor Recipes"
     },
     "cookn": {
-      "description-long": "Mealie can import recipes from DVO Cook'n X3. Export a cookbook or menu in the \"Cook'n\" format, rename the export extension to .zip, then upload the .zip below.",
+      "description-long": "Petit Chef can import recipes from DVO Cook'n X3. Export a cookbook or menu in the \"Cook'n\" format, rename the export extension to .zip, then upload the .zip below.",
       "title": "DVO Cook'n X3"
     },
     "recipe-data-migrations": "Recipe Data Migrations",
-    "recipe-data-migrations-explanation": "Recipes can be migrated from another supported application to Mealie. This is a great way to get started with Mealie.",
-    "coming-from-another-application-or-an-even-older-version-of-mealie": "Coming from another application or an even older version of Mealie? Check out migrations and see if your data can be imported.",
+    "recipe-data-migrations-explanation": "Recipes can be migrated from another supported application to Petit Chef. This is a great way to get started with Petit Chef.",
+    "coming-from-another-application-or-an-even-older-version-of-mealie": "Coming from another application or an even older version of Petit Chef? Check out migrations and see if your data can be imported.",
     "choose-migration-type": "Choose Migration Type",
     "tag-all-recipes": "Tag all recipes with {tag-name} tag",
     "recipe-1": "Recipe 1",
     "recipe-2": "Recipe 2",
     "plantoeat": {
       "title": "Plan to Eat",
-      "description-long": "Mealie can import recipes from Plan to Eat. Upload a ZIP archive, CSV, or TXT file exported from Plan to Eat."
+      "description-long": "Petit Chef can import recipes from Plan to Eat. Upload a ZIP archive, CSV, or TXT file exported from Plan to Eat."
     },
     "myrecipebox": {
       "title": "My Recipe Box",
-      "description-long": "Mealie can import recipes from My Recipe Box. Export your recipes in CSV format, then upload the .csv file below."
+      "description-long": "Petit Chef can import recipes from My Recipe Box. Export your recipes in CSV format, then upload the .csv file below."
     },
     "recipekeeper": {
       "title": "Recipe Keeper",
-      "description-long": "Mealie can import recipes from Recipe Keeper. Export your recipes in zip format, then upload the .zip file below."
+      "description-long": "Petit Chef can import recipes from Recipe Keeper. Export your recipes in zip format, then upload the .zip file below."
     }
   },
   "new-recipe": {
     "bulk-add": "Bulk Add",
-    "error-details": "Only websites containing ld+json or microdata can be imported by Mealie. Most major recipe websites support this data structure. If your site cannot be imported but there is json data in the log, please submit a github issue with the URL and data.",
+    "error-details": "Only websites containing ld+json or microdata can be imported by Petit Chef. Most major recipe websites support this data structure. If your site cannot be imported but there is json data in the log, please submit a github issue with the URL and data.",
     "error-title": "Looks Like We Couldn't Find Anything",
     "github-issues": "GitHub Issues",
     "google-ld-json-info": "Google ld+json Info",
-    "html-or-json-error-details": "Mealie could not find a recipe in the data you provided. Only ld+json or microdata containing a schema.org Recipe can be imported. If you're pasting JSON, make sure it declares both \"@context\": \"https://schema.org/\" and \"@type\": \"Recipe\".",
+    "html-or-json-error-details": "Petit Chef could not find a recipe in the data you provided. Only ld+json or microdata containing a schema.org Recipe can be imported. If you're pasting JSON, make sure it declares both \"@context\": \"https://schema.org/\" and \"@type\": \"Recipe\".",
     "paste-in-your-recipe-data-each-line-will-be-treated-as-an-item-in-a-list": "Paste in your recipe data. Each line will be treated as an item in a list",
     "recipe-markup-specification": "Recipe Markup Specification",
     "recipe-url": "Recipe URL",
@@ -531,7 +531,7 @@
     "failed-to-add-to-timeline": "Failed to add to timeline",
     "failed-to-update-recipe": "Failed to update recipe",
     "added-to-timeline-but-failed-to-add-image": "Added to timeline, but failed to add image",
-    "api-extras-description": "Recipes extras are a key feature of the Mealie API. They allow you to create custom JSON key/value pairs within a recipe, to reference from 3rd party applications. You can use these keys to provide information, for example to trigger automations or custom messages to relay to your desired device.",
+    "api-extras-description": "Recipes extras are a key feature of the Petit Chef API. They allow you to create custom JSON key/value pairs within a recipe, to reference from 3rd party applications. You can use these keys to provide information, for example to trigger automations or custom messages to relay to your desired device.",
     "message-key": "Message Key",
     "parse": "Parse",
     "ingredients-not-parsed-description": "It looks like your ingredients aren't parsed yet. Click the \"{parse}\" button below to parse your ingredients into structured foods.",
@@ -549,12 +549,12 @@
     "import-with-ai": "Import with AI",
     "import-with-ai-description": "Create a recipe from just about anything using AI. Give it a link, upload photos of a recipe, paste a recipe as text, HTML, or JSON, or use any combination of the three. Everything you provide is read together as a single recipe.",
     "import-with-ai-subtitle": "Import from text, photos, or URL",
-    "import-with-ai-video-description": "You can import from videos too, like those on Instagram or YouTube. Paste the video's URL and Mealie will transcribe it, along with anything else you provide.",
+    "import-with-ai-video-description": "You can import from videos too, like those on Instagram or YouTube. Paste the video's URL and Petit Chef will transcribe it, along with anything else you provide.",
     "import-with-ai-without-ai-question": "Want to create a recipe without using AI?",
     "import-with-ai-use-url-import": "Use the URL importer",
     "import-with-ai-url-hint": "Optional. Saved as the recipe's source. Videos are transcribed; other pages are read for their content.",
     "import-with-ai-content": "Recipe text, HTML, JSON, or notes",
-    "import-with-ai-content-hint": "Optional. Paste a recipe, or the contents of a page Mealie can't reach. Combined with anything else you provide, so you can also use it for notes, like what to name the recipe or a detail to correct.",
+    "import-with-ai-content-hint": "Optional. Paste a recipe, or the contents of a page Petit Chef can't reach. Combined with anything else you provide, so you can also use it for notes, like what to name the recipe or a detail to correct.",
     "import-with-ai-provider-required": "To import recipes with AI, configure a default provider in your group's AI settings.",
     "import-with-ai-image-provider-required": "To create recipes from photos, configure an image provider in your group's AI settings.",
     "import-with-ai-error-details": "AI was unable to create a recipe from what you provided. Check that it contains a recipe, and try again.",
@@ -571,8 +571,8 @@
     "create-a-recipe-by-providing-the-name-all-recipes-must-have-unique-names": "Create a recipe by providing the name. All recipes must have unique names.",
     "new-recipe-names-must-be-unique": "New recipe names must be unique",
     "scrape-recipe": "Scrape Recipe",
-    "scrape-recipe-description": "Scrape a recipe by url. Provide the url for the site you want to scrape, and Mealie will attempt to scrape the recipe from that site and add it to your collection.",
-    "scrape-recipe-description-transcription": "You can also provide the url to a video and Mealie will attempt to transcribe it into a recipe.",
+    "scrape-recipe-description": "Scrape a recipe by url. Provide the url for the site you want to scrape, and Petit Chef will attempt to scrape the recipe from that site and add it to your collection.",
+    "scrape-recipe-description-transcription": "You can also provide the url to a video and Petit Chef will attempt to transcribe it into a recipe.",
     "scrape-recipe-have-a-lot-of-recipes": "Have a lot of recipes you want to scrape at once?",
     "scrape-recipe-suggest-bulk-importer": "Try out the bulk importer",
     "scrape-recipe-have-ai-read-the-page": "Want AI to read the page instead?",
@@ -586,22 +586,22 @@
     "stay-in-edit-mode": "Stay in Edit mode",
     "parse-recipe-ingredients-after-import": "Parse recipe ingredients after import",
     "import-from-zip": "Import from Zip",
-    "import-from-zip-description": "Import a single recipe that was exported from another Mealie instance.",
+    "import-from-zip-description": "Import a single recipe that was exported from another Petit Chef instance.",
     "import-from-html-or-json": "Import from HTML or JSON",
-    "import-from-html-or-json-description": "Import a single recipe from raw HTML or JSON. This is useful if you have a recipe from a site that Mealie can't scrape normally, or from some other external source.",
+    "import-from-html-or-json-description": "Import a single recipe from raw HTML or JSON. This is useful if you have a recipe from a site that Petit Chef can't scrape normally, or from some other external source.",
     "json-import-format-description-colon": "To import via JSON, it must be in valid format:",
     "text-editor": "Text Editor",
     "json-editor": "JSON Editor",
-    "zip-files-must-have-been-exported-from-mealie": ".zip files must have been exported from Mealie",
+    "zip-files-must-have-been-exported-from-mealie": ".zip files must have been exported from Petit Chef",
     "recipe-bulk-importer": "Recipe Bulk Importer",
-    "recipe-bulk-importer-description": "The Bulk recipe importer allows you to import multiple recipes at once by queueing the sites on the backend and running the task in the background. This can be useful when initially migrating to Mealie, or when you want to import a large number of recipes.",
+    "recipe-bulk-importer-description": "The Bulk recipe importer allows you to import multiple recipes at once by queueing the sites on the backend and running the task in the background. This can be useful when initially migrating to Petit Chef, or when you want to import a large number of recipes.",
     "set-categories-and-tags": "Set Categories and Tags",
     "bulk-imports": "Bulk Imports",
     "bulk-import-process-has-started": "Bulk Import process has started",
     "bulk-import-process-has-failed": "Bulk import process has failed",
     "report-deletion-failed": "Report deletion failed",
     "recipe-debugger": "Recipe Debugger",
-    "recipe-debugger-description": "Grab the URL of the recipe you want to debug and paste it here. The URL will be scraped by the recipe scraper and the results will be displayed. If you don't see any data returned, the site you are trying to scrape is not supported by Mealie or its scraper library.",
+    "recipe-debugger-description": "Grab the URL of the recipe you want to debug and paste it here. The URL will be scraped by the recipe scraper and the results will be displayed. If you don't see any data returned, the site you are trying to scrape is not supported by Petit Chef or its scraper library.",
     "use-openai": "Use OpenAI",
     "recipe-debugger-use-openai-description": "Use OpenAI to parse the results instead of relying on the scraper library. When creating a recipe via URL, this is done automatically if the scraper library fails, but you may test it manually here.",
     "debug": "Debug",
@@ -700,7 +700,7 @@
       "create-heading": "Create A Backup",
       "delete-backup": "Delete Backup",
       "error-creating-backup-see-log-file": "Error Creating Backup. See Log File",
-      "experimental-description": "Backups are total snapshots of the database and data directory of the site. This includes all data and cannot be set to exclude subsets of data. You can think of this as a snapshot of Mealie at a specific time. These serve as a database agnostic way to export and import data, or back up the site to an external location.",
+      "experimental-description": "Backups are total snapshots of the database and data directory of the site. This includes all data and cannot be set to exclude subsets of data. You can think of this as a snapshot of Petit Chef at a specific time. These serve as a database agnostic way to export and import data, or back up the site to an external location.",
       "backup-restore": "Backup Restore",
       "back-restore-description": "Restoring this backup will overwrite all the current data in your database and in the data directory and replace them with the contents of this backup. {cannot-be-undone} If the restoration is successful, you will be logged out.",
       "cannot-be-undone": "This action cannot be undone - use with caution.",
@@ -755,7 +755,7 @@
     "general-about": "General About",
     "application-version": "Application Version",
     "application-version-error-text": "Your current version ({0}) does not match the latest release. Considering updating to the latest version ({1}).",
-    "mealie-is-up-to-date": "Mealie is up to date",
+    "mealie-is-up-to-date": "Petit Chef is up to date",
     "secure-site": "Secure Site",
     "secure-site-error-text": "Serve via localhost or secure with https. Clipboard and additional browser APIs may not work.",
     "secure-site-success-text": "Site is accessed by localhost or https",
@@ -895,7 +895,7 @@
     "user-details": "User Details",
     "user-name": "User Name",
     "authentication-method": "Authentication Method",
-    "authentication-method-hint": "This specifies how a user will authenticate with Mealie. If you're not sure, choose 'Mealie'",
+    "authentication-method-hint": "This specifies how a user will authenticate with Petit Chef. If you're not sure, choose 'Petit Chef'",
     "permissions": "Permissions",
     "administrator": "Administrator",
     "user-can-invite-other-to-group": "User can invite others to group",
@@ -914,7 +914,7 @@
   "language-dialog": {
     "translated": "translated",
     "choose-language": "Choose Language",
-    "select-description": "Choose the language for the Mealie UI. The setting only applies to you, not other users.",
+    "select-description": "Choose the language for the Petit Chef UI. The setting only applies to you, not other users.",
     "how-to-contribute-description": "Is something not translated yet, mistranslated, or your language missing from the list? {read-the-docs-link} on how to contribute!",
     "read-the-docs": "Read the docs"
   },
@@ -1058,7 +1058,7 @@
     "group-details": "Group Details",
     "group-details-description": "Before you create an account you'll need to create a group. Your group will only contain you, but you'll be able to invite others later. Members in your group can share meal plans, shopping lists, recipes, and more!",
     "use-seed-data": "Use Seed Data",
-    "use-seed-data-description": "Mealie ships with a collection of Foods, Units, and Labels that can be used to populate your group with helpful data for organizing your recipes. These are translated into the language you currently have selected. You can always add to or modify this data later.",
+    "use-seed-data-description": "Petit Chef ships with a collection of Foods, Units, and Labels that can be used to populate your group with helpful data for organizing your recipes. These are translated into the language you currently have selected. You can always add to or modify this data later.",
     "account-details": "Account Details",
     "choose-avatar": "Choose an Avatar",
     "choose-avatar-description": "Pick one of the avatars below, or upload your own from your device.",
@@ -1127,7 +1127,7 @@
       "actions-title": "Actions"
     },
     "ingredients-natural-language-processor": "Ingredients Natural Language Processor",
-    "ingredients-natural-language-processor-explanation": "Mealie uses Conditional Random Fields (CRFs) for parsing and processing ingredients. The model used for ingredients is based off a data set of over 100,000 ingredients from a dataset compiled by the New York Times. Note that as the model is trained in English only, you may have varied results when using the model in other languages. This page is a playground for testing the model.",
+    "ingredients-natural-language-processor-explanation": "Petit Chef uses Conditional Random Fields (CRFs) for parsing and processing ingredients. The model used for ingredients is based off a data set of over 100,000 ingredients from a dataset compiled by the New York Times. Note that as the model is trained in English only, you may have varied results when using the model in other languages. This page is a playground for testing the model.",
     "ingredients-natural-language-processor-explanation-2": "It's not perfect, but it yields great results in general and is a good starting point for manually parsing ingredients into individual fields. Alternatively, you can also use the \"Brute\" processor that uses a pattern matching technique to identify ingredients.",
     "nlp": "NLP",
     "brute": "Brute",
@@ -1139,13 +1139,13 @@
     "parser": "Parser",
     "setup": {
       "first-time-setup": "First Time Setup",
-      "welcome-to-mealie-get-started": "Welcome to Mealie! Let's get started",
-      "previous-mealie-instance": "Did you have a previous Mealie instance?",
+      "welcome-to-mealie-get-started": "Welcome to Petit Chef! Let's get started",
+      "previous-mealie-instance": "Did you have a previous Petit Chef instance?",
       "already-set-up-bring-to-homepage": "I'm already set up, just bring me to the homepage",
       "common-settings-for-new-sites": "Here are some common settings for new sites",
       "setup-complete": "Setup Complete!",
-      "here-are-a-few-things-to-help-you-get-started": "Here are a few things to help you get started with Mealie",
-      "restore-from-v1-backup": "Have a backup from a previous instance of Mealie v1? You can restore it here.",
+      "here-are-a-few-things-to-help-you-get-started": "Here are a few things to help you get started with Petit Chef",
+      "restore-from-v1-backup": "Have a backup from a previous instance of Petit Chef v1? You can restore it here.",
       "manage-profile-or-get-invite-link": "Manage your own profile, or grab an invite link to share with others."
     },
     "debug-openai-services": "Debug OpenAI Services",
@@ -1163,7 +1163,7 @@
     "account-summary": "Account Summary",
     "account-summary-description": "Here's a summary of your group's information.",
     "household-statistics": "Household Statistics",
-    "household-statistics-description": "Your Household Statistics provide some insight how you're using Mealie.",
+    "household-statistics-description": "Your Household Statistics provide some insight how you're using Petit Chef.",
     "personal": "Personal",
     "personal-description": "These are settings that are personal to you. Changes here won't affect other users.",
     "user-settings": "User Settings",
@@ -1184,7 +1184,7 @@
     "notifiers": "Notifiers",
     "notifiers-description": "Set up email and push notifications that trigger on specific events.",
     "manage-data": "Manage Data",
-    "manage-data-description": "Manage your Mealie data; Foods, Units, Categories, Tags and more.",
+    "manage-data-description": "Manage your Petit Chef data; Foods, Units, Categories, Tags and more.",
     "data-migrations": "Data Migrations",
     "data-migrations-description": "Migrate your existing data from other applications like Nextcloud Recipes and Chowdown.",
     "email-sent": "Email Sent",
@@ -1208,7 +1208,7 @@
     "hide-cookbooks-from-other-households": "Hide Cookbooks from Other Households",
     "hide-cookbooks-from-other-households-description": "When enabled, only cookbooks from your household will appear on the sidebar",
     "public-cookbook": "Public Cookbook",
-    "public-cookbook-description": "Public Cookbooks can be shared with non-mealie users and will be displayed on your groups page.",
+    "public-cookbook-description": "Public Cookbooks can be shared with people without a Petit Chef account and will be displayed on your groups page.",
     "cookbook-name": "Cookbook Name",
     "household-cookbook-name": "{0} Cookbook {1}",
     "create-a-cookbook": "Create a Cookbook",
@@ -1254,7 +1254,7 @@
     "announcements": "Announcements",
     "all-announcements": "All announcements",
     "mark-all-as-read": "Mark All as Read",
-    "show-announcements-from-mealie": "Show announcements from Mealie",
-    "show-announcements-setting-description": "Whether or not you want to allow users to see announcements from Mealie. When enabled users can still opt-out from seeing them in their user settings"
+    "show-announcements-from-mealie": "Show announcements from Petit Chef",
+    "show-announcements-setting-description": "Whether or not you want to allow users to see announcements from Petit Chef. When enabled users can still opt-out from seeing them in their user settings"
   }
 }

@@ -1,7 +1,7 @@
 <template>
   <div>
     <p>
-      Welcome to Mealie! If this is your first time seeing announcements, here's what to expect.
+      Welcome to Petit Chef! If this is your first time seeing announcements, here's what to expect.
     </p>
     <div class="mb-2">
       Announcements are reserved for things like:
@@ -51,7 +51,7 @@ const { user } = useMealieAuth();
 
 <script lang="ts">
 export const meta: AnnouncementMeta = {
-  title: "Welcome to Mealie 🎉",
+  title: "Welcome to Petit Chef 🎉",
 };
 </script>
 

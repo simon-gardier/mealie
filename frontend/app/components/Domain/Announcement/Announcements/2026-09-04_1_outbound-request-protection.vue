@@ -1,12 +1,12 @@
 <template>
   <div>
     <p>
-      Mealie now checks where its own outgoing requests are going. Anything the server fetches on your
+      Petit Chef now checks where its own outgoing requests are going. Anything the server fetches on your
       behalf, such as importing a recipe from a URL, downloading a recipe image, sending a webhook, or
       running a recipe action, is only allowed to reach addresses on the public internet.
     </p>
     <p>
-      This protects your network: without it, someone could use one of those features to make your Mealie
+      This protects your network: without it, someone could use one of those features to make your Petit Chef
       server reach devices it can see but they can't.
     </p>
     <div v-if="user?.admin">
@@ -46,7 +46,7 @@
         allowed, including public ones. It takes precedence over the allow list.
       </p>
       <p>
-        Notifiers are unaffected. They send through the Apprise library rather than Mealie's own HTTP
+        Notifiers are unaffected. They send through the Apprise library rather than Petit Chef's own HTTP
         client, so they are not covered by these checks.
         <br>
         <v-btn
@@ -62,7 +62,7 @@
     <div v-else>
       <p>
         If a webhook or recipe action of yours has stopped working, or a recipe URL that used to import no
-        longer does, let your server admin know. It may be pointing at an address Mealie no longer reaches
+        longer does, let your server admin know. It may be pointing at an address Petit Chef no longer reaches
         by default, and they can allow it on the server.
       </p>
     </div>

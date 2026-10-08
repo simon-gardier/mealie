@@ -40,7 +40,7 @@ export const useUserForm = () => {
       type: fieldTypes.SELECT,
       hint: i18n.t("user.authentication-method-hint"),
       disableCreate: true,
-      options: [{ text: "Mealie" }, { text: "LDAP" }, { text: "OIDC" }],
+      options: [{ text: "Petit Chef" }, { text: "LDAP" }, { text: "OIDC" }],
     },
     {
       section: i18n.t("user.permissions"),

@@ -1,13 +1,13 @@
 <template>
   <div>
     <p>
-      Importing recipes from a URL is now more reliable. Mealie does a better job of looking like a real
+      Importing recipes from a URL is now more reliable. Petit Chef does a better job of looking like a real
       browser, rotates between several browser signatures, and retries more intelligently when a site
       pushes back. This works out of the box, with no configuration.
     </p>
     <p>
       Some sites sit behind bot protection (such as Cloudflare) that blocks requests made by a server, no
-      matter how they're made. For those, Mealie can now optionally fall back to two extra layers.
+      matter how they're made. For those, Petit Chef can now optionally fall back to two extra layers.
     </p>
     <div class="mb-2">
       <ul class="ml-6">
@@ -17,19 +17,19 @@
         </li>
         <li>
           <strong>FlareSolverr support</strong>, which hands the page to a real headless browser as a last
-          resort. This helps with challenges that Mealie can't get past on its own.
+          resort. This helps with challenges that Petit Chef can't get past on its own.
         </li>
       </ul>
     </div>
     <div v-if="user?.admin">
       <hr class="mt-2 mb-4">
       <p>
-        Both are optional and off by default, so nothing changes unless you configure them. Mealie
+        Both are optional and off by default, so nothing changes unless you configure them. Petit Chef
         escalates only as far as it needs to for each import: a direct fetch first, then the proxy (if
         set), then FlareSolverr (if set, and only when the page is still blocked).
       </p>
       <p>
-        Both are enabled with environment variables. Mealie does not ship or manage either one. You supply
+        Both are enabled with environment variables. Petit Chef does not ship or manage either one. You supply
         the proxy, and host FlareSolverr yourself (it runs nicely as a sidecar container). See the
         configuration docs for the settings, setup details, and an example compose file:
         <br>

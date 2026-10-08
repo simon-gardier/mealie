@@ -199,7 +199,7 @@ const _content: Record<string, MigrationContent> = {
     tree: [
       {
         icon: $globals.icons.zip,
-        title: "mealie.zip",
+        title: "petit-chef.zip",
         children: [
           {
             title: "recipes",

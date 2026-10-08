@@ -1,7 +1,7 @@
 <template>
   <div>
     <p>
-      To harden Mealie against malicious content, <code>&lt;iframe&gt;</code> embeds in recipe
+      To harden Petit Chef against malicious content, <code>&lt;iframe&gt;</code> embeds in recipe
       instructions, notes, and descriptions are now restricted to a trusted set of hosts.
     </p>
     <div class="mb-2">

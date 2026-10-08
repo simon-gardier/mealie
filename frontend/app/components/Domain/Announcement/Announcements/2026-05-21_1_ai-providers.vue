@@ -1,6 +1,6 @@
 <template>
   <div>
-    <p>AI providers can now be configured directly in Mealie, without managing environment variables or secrets.</p>
+    <p>AI providers can now be configured directly in Petit Chef, without managing environment variables or secrets.</p>
     <div class="mb-2">
       AI providers enable features such as:
       <ul class="ml-6">

@@ -14,7 +14,7 @@
         dark
       >
         <v-toolbar-title class="headline text-h4 text-center mx-0">
-          Mealie
+          Petit Chef
         </v-toolbar-title>
       </v-toolbar>
 

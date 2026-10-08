@@ -1,12 +1,12 @@
 <template>
   <div>
     <p>
-      If your server signs users in with an external identity provider (OIDC), Mealie now requires that
+      If your server signs users in with an external identity provider (OIDC), Petit Chef now requires that
       provider to confirm the user's email address before allowing the login.
     </p>
     <p>
       This prevents an unverified, self-asserted email address from being used to match (and sign in) to
-      an existing Mealie account.
+      an existing Petit Chef account.
     </p>
     <div v-if="user?.admin">
       <hr class="mt-2 mb-4">

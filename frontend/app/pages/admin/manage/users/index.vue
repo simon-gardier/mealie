@@ -73,6 +73,9 @@
             {{ item.admin ? $globals.icons.checkboxMarkedCircle : $globals.icons.windowClose }}
           </v-icon>
         </template>
+        <template #[`item.authMethod`]="{ item }">
+          {{ item.authMethod === "Mealie" ? "Petit Chef" : item.authMethod }}
+        </template>
         <template #[`item.actions`]="{ item }">
           <v-btn
             icon
