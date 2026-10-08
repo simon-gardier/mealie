@@ -86,6 +86,11 @@ git commit
 git push origin main
 ```
 
+### AI setuo
+Name: Gemini
+Model: gemini-3.1-flash-lite
+API key: https://aistudio.google.com/api-keys
+URL: https://generativelanguage.googleapis.com/v1beta/openai/
 
 
 <!-- LICENSE -->
