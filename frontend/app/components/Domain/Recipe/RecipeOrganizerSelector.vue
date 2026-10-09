@@ -30,7 +30,7 @@
     :custom-filter="normalizeFilter"
     :label="label"
     :chips="!externalChips"
-    :closable-chips="!externalChips"
+    :closable-chips="false"
     :item-title="itemTitle"
     item-value="name"
     multiple
@@ -39,7 +39,7 @@
     :append-icon="showAdd ? $globals.icons.create : undefined"
     return-object
     auto-select-first
-    class="pa-0 ma-0"
+    class="organizer-selector pa-0 ma-0"
     @update:model-value="resetSearchInput"
     @click:append="dialog = true"
     @keyup.enter="handleEnter"
@@ -47,6 +47,7 @@
     <template v-if="!externalChips" #chip="{ internalItem: item, index }">
       <v-chip
         :key="item.raw.id ?? item.value"
+        :closable="false"
         class="organizer-chip ma-1"
         color="primary"
         variant="tonal"
@@ -266,6 +267,10 @@ function resetSearchInput() {
 </script>
 
 <style scoped>
+.organizer-selector :deep(.v-autocomplete__selection) {
+  height: auto;
+  align-self: center;
+}
 .v-autocomplete {
   /* This aligns the input with other standard input fields */
   margin-top: 6px;

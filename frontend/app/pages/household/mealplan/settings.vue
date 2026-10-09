@@ -45,6 +45,10 @@
         class="mt-10"
         :title="$t('meal-plan.recipe-rules')"
       />
+      <BaseEmptyState
+        v-if="rulesStatus === 'success' && allRules.length === 0"
+        :message="$t('meal-plan.no-current-rules')"
+      />
       <div>
         <div
           v-for="rule in allRules"
@@ -135,7 +139,7 @@ async function refreshAll() {
   }
 }
 
-useAsyncData(useAsyncKey(), async () => {
+const { status: rulesStatus } = useAsyncData(useAsyncKey(), async () => {
   await refreshAll();
 });
 
