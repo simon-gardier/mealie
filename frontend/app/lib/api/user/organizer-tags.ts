@@ -13,8 +13,8 @@ const routes = {
 };
 
 export class TagsAPI extends BaseCRUDAPI<TagIn, RecipeTagResponse> {
-  baseRoute: string = routes.tags;
-  itemRoute = routes.tagsId;
+  override baseRoute: string = routes.tags;
+  override itemRoute = routes.tagsId;
 
   async bySlug(slug: string) {
     return await this.requests.get<RecipeTagResponse>(routes.tagsSlug(slug));

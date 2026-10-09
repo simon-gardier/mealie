@@ -1,8 +1,16 @@
 <template>
-  <RecipeDialogAddToShoppingList v-model="shoppingListDialog" :recipes="recipesWithScales"
-    :shopping-lists="shoppingLists" />
-  <GroupMealPlanEntryDialog v-model="dialog.open" :entry="dialog.entry" :date="dialog.date"
-    @create="actions.createOne($event)" @update="actions.updateOne($event)" />
+  <RecipeDialogAddToShoppingList
+    v-model="shoppingListDialog"
+    :recipes="recipesWithScales"
+    :shopping-lists="shoppingLists"
+  />
+  <GroupMealPlanEntryDialog
+    v-model="dialog.open"
+    :entry="dialog.entry"
+    :date="dialog.date"
+    @create="actions.createOne($event)"
+    @update="actions.updateOne($event)"
+  />
   <template v-if="inlineActions">
     <MealPlanDayHeader :day="day" />
     <slot />

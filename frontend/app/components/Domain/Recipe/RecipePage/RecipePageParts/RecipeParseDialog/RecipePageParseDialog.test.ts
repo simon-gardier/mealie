@@ -7,7 +7,7 @@ const mocks = vi.hoisted(() => ({ next: vi.fn(), previous: vi.fn(), save: vi.fn(
 vi.mock("~/composables/recipes/use-parse-ingredients-dialog", () => ({
   ParseStep: { LOADING: 0, INFO: 1, PARSE: 2, REVIEW: 3 },
   useParseIngredientsDialog: () => ({
-    state: reactive(mocks.state), parser: ref("brute"), parserPreferences: ref({ parser: "brute" }),
+    state: reactive(mocks.state), parser: ref("brute"), defaultParser: ref("openai"),
     dontShowInfoPage: ref(false), parsedIngs: ref([]), currentIng: ref({ input: "milk", ingredient: {} }),
     autoParsedIngredientsCount: ref(0), ingredientsToReviewCount: ref(3), nextStep: vi.fn(),
     saveIngs: mocks.save, nextIngredient: mocks.next, previousIngredient: mocks.previous,

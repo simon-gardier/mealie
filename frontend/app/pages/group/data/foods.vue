@@ -67,7 +67,7 @@
           <template #item="{ item, props }">
             <v-list-item v-bind="props">
               <v-list-item-subtitle>
-                {{ item.raw.progress }}% {{ $t("language-dialog.translated") }}
+                {{ item.progress }}% {{ $t("language-dialog.translated") }}
               </v-list-item-subtitle>
             </v-list-item>
           </template>

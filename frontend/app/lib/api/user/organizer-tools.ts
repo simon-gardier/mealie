@@ -11,8 +11,8 @@ const routes = {
 };
 
 export class ToolsApi extends BaseCRUDAPI<RecipeToolCreate, RecipeTool> {
-  baseRoute: string = routes.tools;
-  itemRoute = routes.toolsId;
+  override baseRoute: string = routes.tools;
+  override itemRoute = routes.toolsId;
 
   async bySlug(slug: string) {
     return await this.requests.get<RecipeToolResponse>(routes.toolsSlug(slug));

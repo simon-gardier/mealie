@@ -87,7 +87,7 @@ interface Props {
   description?: string | null;
   rating?: number;
   ratingColor?: string;
-  image?: string;
+  image?: unknown;
   tags?: Array<any>;
   recipeId: string;
   imageHeight?: number;

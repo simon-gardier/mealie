@@ -17,7 +17,7 @@ export function useShoppingListCopy() {
     // If the list has no labeled items at all, everything is grouped under the single
     // "no label" bucket. In that case the heading is just noise, so we skip it.
     const noLabelText = t("shopping-list.no-label");
-    const onlyHasNoLabelGroup = labelGroups.length === 1 && labelGroups[0][0] === noLabelText;
+    const onlyHasNoLabelGroup = labelGroups.length === 1 && labelGroups[0]?.[0] === noLabelText;
 
     labelGroups.forEach(([label, items], idx) => {
       if (idx) {

@@ -1,6 +1,15 @@
 <template>
-  <v-img v-if="showImage" :height="height" cover :min-height="minHeight" max-height="fill-height"
-    :src="getImage(recipeId)" @click="$emit('click')" @load="fallBackImage = false" @error="fallBackImage = true">
+  <v-img
+    v-if="showImage"
+    :height="height"
+    cover
+    :min-height="minHeight"
+    max-height="fill-height"
+    :src="getImage(recipeId)"
+    @click="$emit('click')"
+    @load="fallBackImage = false"
+    @error="fallBackImage = true"
+  >
     <slot />
   </v-img>
   <div v-else class="icon-slot" @click="$emit('click')">
@@ -33,7 +42,7 @@ const props = withDefaults(defineProps<Props>(), {
   large: null,
   iconSize: 100,
   slug: null,
-  imageVersion: null,
+  imageVersion: undefined,
   height: "100%",
   minHeight: 125,
 });
@@ -86,7 +95,7 @@ function getImage(recipeId: string) {
   height: 100%;
 }
 
-.icon-slot>div {
+.icon-slot > div {
   top: 0;
   position: absolute;
   z-index: 1;

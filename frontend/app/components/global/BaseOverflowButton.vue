@@ -90,7 +90,7 @@
           v-if="!item.hide"
           :key="index"
         >
-          <v-list-item :base-color="getActionColor(item, $globals.icons.delete)" @click="$emit(item.event)">
+          <v-list-item :base-color="getActionColor(item, $globals.icons.delete)" @click="item.event && emit(item.event)">
             <template
               v-if="item.icon"
               #prepend
@@ -114,6 +114,8 @@
 
 <script setup lang="ts">
 import { getActionColor } from "~/lib/action-color";
+
+const emit = defineEmits<(event: string) => void>();
 
 const MODES = {
   model: "model",

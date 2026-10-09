@@ -35,8 +35,8 @@
                       </p>
                     </div>
                     <VueDraggable
-                      v-if="slots[dateKey(day.date)]"
-                      v-model="slots[dateKey(day.date)][section.value]"
+                      v-if="slots[dateKey(day.date)]?.[section.value]"
+                      :model-value="mealsFor(day.date, section.value)"
                       group="planner-meals"
                       handle=".planner-drag-handle"
                       :sort="false"
@@ -52,10 +52,11 @@
                       :class="{ 'planner-drop-zone-active': dragging }"
                       :data-date="dateKey(day.date)"
                       :data-type="section.value"
+                      @update:model-value="setMealsFor(day.date, section.value, $event)"
                       @start="dragging = true"
                       @end="finishMove"
                     >
-                      <div v-for="mealplan in slots[dateKey(day.date)][section.value]" :key="mealplan.id" :data-meal-id="mealplan.id" class="planner-meal-drag-item">
+                      <div v-for="mealplan in mealsFor(day.date, section.value)" :key="mealplan.id" :data-meal-id="mealplan.id" class="planner-meal-drag-item">
                         <v-btn
                           icon
                           variant="text"
@@ -135,6 +136,13 @@ function finishMove(event: SortableEvent) {
   const type = event.to.dataset.type as PlanEntryType | undefined;
   if (date && type) void move(Number(event.item.dataset.mealId), date, type);
   else dragging.value = false;
+}
+function mealsFor(date: Date, type: PlanEntryType) {
+  return slots[dateKey(date)]?.[type] ?? [];
+}
+function setMealsFor(date: Date, type: PlanEntryType, meals: ReadPlanEntry[]) {
+  const day = slots[dateKey(date)];
+  if (day) day[type] = meals;
 }
 const { open: shoppingListDialog, shoppingLists, getShoppingLists } = useAddToShoppingListDialog();
 

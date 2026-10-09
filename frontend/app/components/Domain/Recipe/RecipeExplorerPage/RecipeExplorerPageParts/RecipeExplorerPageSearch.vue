@@ -2,9 +2,19 @@
   <div class="search-container">
     <form class="search-box bistro-discovery-panel pa-2" @submit.prevent="search">
       <div class="d-flex justify-center align-center ga-2 mb-2">
-        <v-text-field ref="input" v-model="state.search" variant="filled" hide-details clearable color="primary"
-          class="flex-grow-1" :placeholder="$t('search.search-placeholder')" :prepend-inner-icon="$globals.icons.search"
-          @click:clear="refreshResults" @keyup.enter="hideKeyboard" />
+        <v-text-field
+          ref="input"
+          v-model="state.search"
+          variant="filled"
+          hide-details
+          clearable
+          color="primary"
+          class="flex-grow-1"
+          :placeholder="$t('search.search-placeholder')"
+          :prepend-inner-icon="$globals.icons.search"
+          @click:clear="refreshResults"
+          @keyup.enter="hideKeyboard"
+        />
         <!-- <v-switch v-model="state.auto" :label="$t('search.auto-search')" inset color="primary" hide-details
           class="ml-3 mr-0 auto-search-toggle" /> -->
       </div>
@@ -23,14 +33,22 @@
             </template>
             <v-card>
               <v-list>
-                <v-list-item slim density="comfortable"
+                <v-list-item
+                  slim
+                  density="comfortable"
                   :prepend-icon="state.orderDirection === 'asc' ? $globals.icons.sortAscending : $globals.icons.sortDescending"
                   :title="state.orderDirection === 'asc' ? $t('general.sort-descending') : $t('general.sort-ascending')"
-                  @click="toggleOrderDirection" />
+                  @click="toggleOrderDirection"
+                />
                 <v-divider />
-                <v-list-item v-for="v in sortable" :key="v.name" :active="state.orderBy === v.value" slim
+                <v-list-item
+                  v-for="v in sortable"
+                  :key="v.name"
+                  :active="state.orderBy === v.value"
+                  slim
                   density="comfortable"
-                  @click.stop="v.value === 'random' ? setRandomOrderByWrapper() : setOrderBy(v.value)">
+                  @click.stop="v.value === 'random' ? setRandomOrderByWrapper() : setOrderBy(v.value)"
+                >
                   <template #prepend>
                     <v-icon>{{ v.icon }}</v-icon>
                   </template>
@@ -45,10 +63,10 @@
               </v-list>
             </v-card>
           </v-menu>
-          <v-btn class="search-view-toggle" size="small" color="accent" @click="emit('toggleView')" variant="flat">
+          <v-btn class="search-view-toggle" size="small" color="accent" variant="flat" @click="emit('toggleView')">
             <v-icon>{{ $globals.icons.gridView }}</v-icon>
           </v-btn>
-          <v-btn size="small" color="accent" @click="reset" variant="flat">
+          <v-btn size="small" color="accent" variant="flat" @click="reset">
             <v-icon>{{ $globals.icons.refresh }}</v-icon>
           </v-btn>
         </div>

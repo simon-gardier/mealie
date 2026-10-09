@@ -125,7 +125,7 @@ const state = reactive({
   headers: [
     {
       title: i18n.t("group.group"),
-      align: "start",
+      align: "start" as const,
       sortable: false,
       value: "id",
     },

@@ -1,8 +1,14 @@
 <template>
   <div>
     <!-- Merge Dialog -->
-    <BaseDialog v-model="mergeDialog" bottom-sheet :icon="$globals.icons.units"
-      :title="$t('data-pages.units.combine-unit')" can-confirm @confirm="mergeUnits">
+    <BaseDialog
+      v-model="mergeDialog"
+      bottom-sheet
+      :icon="$globals.icons.units"
+      :title="$t('data-pages.units.combine-unit')"
+      can-confirm
+      @confirm="mergeUnits"
+    >
       <v-card-text>
         <i18n-t keypath="data-pages.units.combine-unit-description">
           <template #source-unit-will-be-deleted>
@@ -10,10 +16,25 @@
           </template>
         </i18n-t>
 
-        <v-autocomplete v-model="fromUnit" return-object :items="unitStore" :custom-filter="normalizeFilter"
-          item-title="name" :label="$t('data-pages.units.source-unit')" variant="filled" class="mt-2" />
-        <v-autocomplete v-model="toUnit" return-object :items="unitStore" :custom-filter="normalizeFilter"
-          item-title="name" :label="$t('data-pages.units.target-unit')" variant="filled" />
+        <v-autocomplete
+          v-model="fromUnit"
+          return-object
+          :items="unitStore"
+          :custom-filter="normalizeFilter"
+          item-title="name"
+          :label="$t('data-pages.units.source-unit')"
+          variant="filled"
+          class="mt-2"
+        />
+        <v-autocomplete
+          v-model="toUnit"
+          return-object
+          :items="unitStore"
+          :custom-filter="normalizeFilter"
+          item-title="name"
+          :label="$t('data-pages.units.target-unit')"
+          variant="filled"
+        />
 
         <template v-if="canMerge && fromUnit && toUnit">
           <div class="text-center">
@@ -24,22 +45,42 @@
     </BaseDialog>
 
     <!-- Alias Sub-Dialog -->
-    <RecipeDataAliasManagerDialog v-if="editForm.data" v-model="aliasManagerDialog" :data="editForm.data" can-submit
-      @submit="updateUnitAlias" @cancel="aliasManagerDialog = false" />
+    <RecipeDataAliasManagerDialog
+      v-if="editForm.data"
+      v-model="aliasManagerDialog"
+      :data="editForm.data"
+      can-submit
+      @submit="updateUnitAlias"
+      @cancel="aliasManagerDialog = false"
+    />
 
     <!-- Seed Dialog -->
-    <BaseDialog v-model="seedDialog" bottom-sheet :icon="$globals.icons.foods" :title="$t('data-pages.seed-data')"
-      can-confirm @confirm="seedDatabase">
+    <BaseDialog
+      v-model="seedDialog"
+      bottom-sheet
+      :icon="$globals.icons.foods"
+      :title="$t('data-pages.seed-data')"
+      can-confirm
+      @confirm="seedDatabase"
+    >
       <v-card-text>
         <div class="pb-2">
           {{ $t("data-pages.units.seed-dialog-text") }}
         </div>
-        <v-autocomplete v-model="locale" :items="locales" item-title="name" :label="$t('data-pages.select-language')"
-          class="my-3" hide-details variant="filled" offset>
+        <v-autocomplete
+          v-model="locale"
+          :items="locales"
+          item-title="name"
+          :label="$t('data-pages.select-language')"
+          class="my-3"
+          hide-details
+          variant="filled"
+          offset
+        >
           <template #item="{ item, props }">
             <v-list-item v-bind="props">
               <v-list-item-subtitle>
-                {{ item.raw.progress }}% {{ $t("language-dialog.translated") }}
+                {{ item.progress }}% {{ $t("language-dialog.translated") }}
               </v-list-item-subtitle>
             </v-list-item>
           </template>
@@ -51,12 +92,22 @@
       </v-card-text>
     </BaseDialog>
 
-    <GroupDataPage :icon="$globals.icons.units" :title="$t('general.units')"
-      :create-title="$t('data-pages.units.create-unit')" :edit-title="$t('data-pages.units.edit-unit')"
-      :table-headers="tableHeaders" :table-config="tableConfig" :data="unitStore || []"
+    <GroupDataPage
+      :icon="$globals.icons.units"
+      :title="$t('general.units')"
+      :create-title="$t('data-pages.units.create-unit')"
+      :edit-title="$t('data-pages.units.edit-unit')"
+      :table-headers="tableHeaders"
+      :table-config="tableConfig"
+      :data="unitStore || []"
       :bulk-actions="[{ icon: $globals.icons.delete, text: $t('general.delete'), event: 'delete-selected' }]"
-      :create-form="createForm" :edit-form="editForm" @create-one="handleCreate" @edit-one="handleEdit"
-      @delete-one="unitActions.deleteOne" @bulk-action="handleBulkAction">
+      :create-form="createForm"
+      :edit-form="editForm"
+      @create-one="handleCreate"
+      @edit-one="handleEdit"
+      @delete-one="unitActions.deleteOne"
+      @bulk-action="handleBulkAction"
+    >
       <template #table-button-row>
         <BaseButton :icon="$globals.icons.externalLink" @click="mergeDialog = true">
           {{ $t('data-pages.combine') }}
@@ -223,7 +274,8 @@ const formItems = computed<AutoFormItems>(() => [
   {
     section: i18n.t("data-pages.units.standardization"),
     sectionDetails: i18n.t("data-pages.units.standardization-description"),
-    cols: 2,
+    cols: 4,
+    label: i18n.t("data-pages.units.standard-quantity"),
     varName: "standardQuantity",
     type: fieldTypes.NUMBER,
     numberInputConfig: {
@@ -234,7 +286,8 @@ const formItems = computed<AutoFormItems>(() => [
     },
   },
   {
-    cols: 10,
+    cols: 8,
+    label: i18n.t("data-pages.units.standard-unit"),
     varName: "standardUnit",
     type: fieldTypes.SELECT,
     selectReturnValue: "value",

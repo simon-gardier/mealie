@@ -14,7 +14,7 @@ import { useAsyncKey } from "~/composables/use-utils";
 import RecipePage from "~/components/Domain/Recipe/RecipePage/RecipePage.vue";
 import { usePublicExploreApi } from "~/composables/api/api-client";
 import { useRecipe } from "~/composables/recipes";
-import type { Recipe } from "~/lib/api/types/recipe";
+import { recipeView, type RecipeView } from "~/lib/recipe/recipe-view";
 
 const auth = useMealieAuth();
 const { isOwnGroup } = useLoggedInState();
@@ -25,11 +25,11 @@ useSeoMeta({ title });
 const router = useRouter();
 const slug = route.params.slug as string;
 
-const recipe = ref<Recipe | null>(null);
+const recipe = ref<RecipeView | null>(null);
 function loadRecipe() {
   const { recipe: data } = useRecipe(slug);
   watch(data, (value) => {
-    recipe.value = value;
+    recipe.value = value ? recipeView(value) : null;
   });
 }
 
@@ -45,7 +45,7 @@ async function loadPublicRecipe() {
 
     return data;
   });
-  recipe.value = data.value;
+  recipe.value = data.value ? recipeView(data.value) : null;
 }
 
 if (isOwnGroup.value) {

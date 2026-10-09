@@ -6,7 +6,7 @@ vi.mock("~/composables/use-group-webhooks", () => ({ timeLocalToUTC: (time: stri
 
 test("hour and minute choices save a 24-hour time without modifying the original webhook", async () => {
   vi.stubGlobal("useSeoMeta", vi.fn());
-  const webhook = { id: "hook", name: "Dinner", url: "https://example.com", enabled: true, scheduledTime: "02:00" };
+  const webhook = { id: "hook", groupId: "group", householdId: "household", name: "Dinner", url: "https://example.com", enabled: true, scheduledTime: "02:00" };
   const wrapper = mount(GroupWebhookEditor, {
     props: { webhook },
     global: {

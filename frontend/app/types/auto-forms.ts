@@ -21,7 +21,7 @@ export interface FormSelectOption {
 export interface FormFieldNumberInputConfig {
   min?: number;
   max?: number;
-  precision?: number;
+  precision?: number | null;
   controlVariant?: "split" | "default" | "hidden" | "stacked";
 }
 

@@ -1,14 +1,44 @@
 /* Headings share Petit Chef's Fraunces identity; controls keep their own sans-serif typography.
    Include teleported dialogs without applying heading typography to menu/list labels. */
-:is(.v-application, .v-overlay-container) :is(h1, h2, h3, h4, h5, h6,
-  .v-card-title, .v-card-subtitle, .v-toolbar-title, .page-title, .page-subtitle,
-  .dialog-title, .dialog-subtitle, .section-subtitle, .subtitle-1) {
+:is(.v-application, .v-overlay-container)
+  :is(
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    .v-card-title,
+    .v-card-subtitle,
+    .v-toolbar-title,
+    .page-title,
+    .page-subtitle,
+    .dialog-title,
+    .dialog-subtitle,
+    .section-subtitle,
+    .subtitle-1
+  ) {
   font-family: var(--bistro-heading) !important;
 }
 @media print {
-  :is(.v-application, .v-overlay-container) :is(h1, h2, h3, h4, h5, h6,
-    .v-card-title, .v-card-subtitle, .v-toolbar-title, .page-title, .page-subtitle,
-    .dialog-title, .dialog-subtitle, .section-subtitle, .subtitle-1) {
+  :is(.v-application, .v-overlay-container)
+    :is(
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      .v-card-title,
+      .v-card-subtitle,
+      .v-toolbar-title,
+      .page-title,
+      .page-subtitle,
+      .dialog-title,
+      .dialog-subtitle,
+      .section-subtitle,
+      .subtitle-1
+    ) {
     font-family: var(--bistro-body) !important;
   }
 }
@@ -88,7 +118,9 @@
   color: rgb(var(--v-theme-text-primary));
 }
 
-a:not(.v-btn):not(.v-list-item):not(.text-media-foreground):not(.bistro-wordmark):not(:where(.ingredient-recipe-link a)) {
+a:not(.v-btn):not(.v-list-item):not(.text-media-foreground):not(.bistro-wordmark):not(
+    :where(.ingredient-recipe-link a)
+  ) {
   color: rgb(var(--v-theme-primary));
 }
 
@@ -120,6 +152,7 @@ a:not(.v-btn):not(.v-list-item):not(.text-media-foreground):not(.bistro-wordmark
 /* Shared Petit Chef popup language: matches the approved Add ingredient menu.
    Target Vuetify's teleported content, including internal select/search menus. */
 .v-menu > .v-overlay__content > .v-list,
+.v-menu > .v-overlay__content > .v-sheet:has(> .v-list),
 .v-menu > .v-overlay__content > .v-card,
 .v-menu > .v-overlay__content > .recipe-context-menu-body {
   border-radius: 14px;
@@ -128,14 +161,17 @@ a:not(.v-btn):not(.v-list-item):not(.text-media-foreground):not(.bistro-wordmark
   color: rgb(var(--v-theme-on-surface));
 }
 .v-menu > .v-overlay__content > .v-list,
+.v-menu > .v-overlay__content > .v-sheet > .v-list,
 .v-menu > .v-overlay__content > .v-card > .v-list,
 .v-menu > .v-overlay__content > .recipe-context-menu-body > .v-list {
   padding: 4px !important;
 }
-.v-menu > .v-overlay__content > .v-card:has(> .v-list) {
+.v-menu > .v-overlay__content > .v-card:has(> .v-list),
+.v-menu > .v-overlay__content > .v-sheet:has(> .v-list) {
   padding: 0 !important;
 }
 .v-menu > .v-overlay__content > .v-card > .v-list,
+.v-menu > .v-overlay__content > .v-sheet > .v-list,
 .v-menu > .v-overlay__content > .recipe-context-menu-body > .v-list {
   border: 0;
 }
@@ -201,15 +237,29 @@ a:not(.v-btn):not(.v-list-item):not(.text-media-foreground):not(.bistro-wordmark
   letter-spacing: normal;
 }
 
-.v-menu .v-card-title { font-size: 18px; font-weight: 600; line-height: 1.4; }
-.v-menu .v-card-text { font-size: 14px; line-height: 1.5; }
+.v-menu .v-card-title {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.v-menu .v-card-text {
+  font-size: 14px;
+  line-height: 1.5;
+}
 .v-menu .v-field input,
 .v-dialog .v-field input,
-.v-dialog .v-field textarea { font-size: 16px; line-height: 1.5; }
+.v-dialog .v-field textarea {
+  font-size: 16px;
+  line-height: 1.5;
+}
 
-.v-dialog > .v-overlay__content > .v-card { border-radius: 20px; }
+.v-dialog > .v-overlay__content > .v-card {
+  border-radius: 20px;
+}
 @media (max-width: 600px) {
-  .v-dialog--fullscreen > .v-overlay__content > .v-card { border-radius: 0; }
+  .v-dialog--fullscreen > .v-overlay__content > .v-card {
+    border-radius: 0;
+  }
 }
 
 /* Focus/error styling must change the border variable, not just outline text color.
@@ -243,24 +293,25 @@ a:not(.v-btn):not(.v-list-item):not(.text-media-foreground):not(.bistro-wordmark
 }
 
 /* Visible neutral outlines on elevated dialog and sheet surfaces. */
-:is(.v-dialog, .v-bottom-sheet) .v-field--variant-outlined:not(.v-field--focused):not(.v-field--error):not(.v-field--disabled) {
+:is(.v-dialog, .v-bottom-sheet)
+  .v-field--variant-outlined:not(.v-field--focused):not(.v-field--error):not(.v-field--disabled) {
   --v-field-border-color: rgb(var(--v-theme-field-border)) !important;
   --v-field-border-opacity: 1;
 }
 
 /* Select/autocomplete options are renderless virtual rows in Vuetify 4.
    Keep their gaps inside the measured border box, not in external margins. */
-.v-menu > .v-overlay__content:has(> .v-list--navigable),
-.recipe-editor-overlay:has(> .v-list--navigable) {
+.v-menu > .v-overlay__content:has(.v-list--navigable),
+.recipe-editor-overlay:has(.v-list--navigable) {
   border-radius: 14px;
 }
-.v-overlay__content > .v-list--navigable {
+.v-overlay__content .v-list--navigable {
   padding: 4px !important;
   border-radius: 14px;
   border: 1px solid rgb(var(--v-theme-separator));
   background-color: rgb(var(--v-theme-surface-elevated));
 }
-.v-overlay__content > .v-list--navigable .v-list-item {
+.v-overlay__content .v-list--navigable .v-list-item {
   margin: 0 !important;
   border-radius: 8px;
   border-bottom: 4px solid transparent;
@@ -268,17 +319,17 @@ a:not(.v-btn):not(.v-list-item):not(.text-media-foreground):not(.bistro-wordmark
   min-height: 48px;
   padding-inline: 12px;
 }
-.v-overlay__content > .v-list--navigable .v-list-item:last-child {
+.v-overlay__content .v-list--navigable .v-list-item:last-child {
   border-bottom-width: 0;
   min-height: 44px;
 }
-.v-overlay__content > .v-list--navigable .v-list-item > .v-list-item__overlay,
-.v-overlay__content > .v-list--navigable .v-list-item > .v-list-item__underlay {
+.v-overlay__content .v-list--navigable .v-list-item > .v-list-item__overlay,
+.v-overlay__content .v-list--navigable .v-list-item > .v-list-item__underlay {
   bottom: 4px;
   border-radius: 8px;
 }
-.v-overlay__content > .v-list--navigable .v-list-item:last-child > .v-list-item__overlay,
-.v-overlay__content > .v-list--navigable .v-list-item:last-child > .v-list-item__underlay {
+.v-overlay__content .v-list--navigable .v-list-item:last-child > .v-list-item__overlay,
+.v-overlay__content .v-list--navigable .v-list-item:last-child > .v-list-item__underlay {
   bottom: 0;
 }
 
@@ -298,14 +349,23 @@ a:not(.v-btn):not(.v-list-item):not(.text-media-foreground):not(.bistro-wordmark
 }
 
 /* Reserve room for both the inside-floating label and readable value. */
-.v-input:is(.v-input--density-compact, .v-input--density-comfortable) .v-field--variant-filled:not(.v-field--no-label):not(.v-field--single-line) {
+.v-input:is(.v-input--density-compact, .v-input--density-comfortable)
+  .v-field--variant-filled:not(.v-field--no-label):not(.v-field--single-line) {
   --v-input-control-height: 56px;
   --v-field-padding-bottom: 8px;
 }
 
-.shopping-tags-reorder-dialog .base-dialog-card > .v-spacer { display: none; }
-.shopping-tags-reorder-body { padding: 16px; }
-.shopping-tags-reorder-list { display: flex; flex-direction: column; gap: 8px; }
+.shopping-tags-reorder-dialog .base-dialog-card > .v-spacer {
+  display: none;
+}
+.shopping-tags-reorder-body {
+  padding: 16px;
+}
+.shopping-tags-reorder-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 .shopping-tag-reorder-row {
   padding: 4px 8px;
   min-height: 52px;
@@ -313,7 +373,42 @@ a:not(.v-btn):not(.v-list-item):not(.text-media-foreground):not(.bistro-wordmark
   border-radius: 12px;
   background: rgba(var(--v-theme-fill), 0.5);
 }
-.shopping-tags-reorder-dialog .base-dialog-card > .v-card-actions { padding: 8px 16px; }
+.shopping-tags-reorder-dialog .base-dialog-card > .v-card-actions {
+  padding: 8px 16px;
+}
+
+/* Keep the modal backdrop opaque as a layer so its blur remains full strength. */
+:is(.v-dialog, .v-bottom-sheet) > .v-overlay__scrim {
+  background: rgba(var(--v-theme-media-scrim), 0.24);
+  opacity: 1;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.navigation-button.v-btn {
+  min-height: 44px;
+  max-width: 100%;
+  height: auto;
+  padding: 10px 14px;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  font: 500 14px var(--bistro-body);
+  text-transform: none;
+  letter-spacing: 0;
+}
+.navigation-button .v-btn__content {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.navigation-button .v-icon {
+  font-size: 20px;
+}
+.navigation-button:focus-visible {
+  outline: 2px solid rgb(var(--v-theme-primary));
+  outline-offset: 2px;
+}
 
 /* Recipe names use label colors; blue remains reserved for actions. */
 .bistro-recipe-card .recipe-card-mobile__title,
@@ -323,7 +418,8 @@ a:not(.v-btn):not(.v-list-item):not(.text-media-foreground):not(.bistro-wordmark
   color: rgb(var(--v-theme-text-primary)) !important;
 }
 
-.bistro-recipe-card .recipe-card-description {
+.bistro-recipe-card .recipe-card-description,
+.bistro-recipe-card .recipe-card-empty-message {
   color: rgb(var(--v-theme-text-secondary)) !important;
   opacity: 1;
 }

@@ -6,10 +6,21 @@
       </v-card-title>
       <v-card-text>
         {{ $t('recipe.import-from-zip-description') }}
-        <v-file-input v-model="newRecipeZip" accept=".zip" label=".zip" class="my-3" density="compact"
-          variant="filled" style="--v-input-control-height: 60px" clearable truncate-length="100"
-          :hint="$t('recipe.zip-files-must-have-been-exported-from-mealie')" persistent-hint prepend-icon=""
-          :prepend-inner-icon="$globals.icons.zip" />
+        <v-file-input
+          v-model="newRecipeZip"
+          accept=".zip"
+          label=".zip"
+          class="my-3"
+          density="compact"
+          variant="filled"
+          style="--v-input-control-height: 60px"
+          clearable
+          truncate-length="100"
+          :hint="$t('recipe.zip-files-must-have-been-exported-from-mealie')"
+          persistent-hint
+          prepend-icon=""
+          :prepend-inner-icon="$globals.icons.zip"
+        />
       </v-card-text>
       <v-card-actions class="justify-center">
         <div style="width: 250px">

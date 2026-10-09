@@ -13,6 +13,6 @@ export class MultiPurposeLabelsApi extends BaseCRUDAPI<
   MultiPurposeLabelOut,
   MultiPurposeLabelUpdate
 > {
-  baseRoute = routes.labels;
-  itemRoute = routes.labelsId;
+  override baseRoute = routes.labels;
+  override itemRoute = routes.labelsId;
 }

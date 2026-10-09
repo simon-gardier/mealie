@@ -5,16 +5,28 @@
     </v-avatar>
 
     <div class="d-flex flex-wrap justify-center" style="gap: 0.5rem; max-width: 420px;">
-      <v-avatar v-for="name in presetAvatars" :key="name" size="56" class="avatar-option"
-        :class="{ 'avatar-option--selected': !localFileUrl && modelValue === name }" style="cursor: pointer;"
-        @click="selectPreset(name)">
+      <v-avatar
+        v-for="name in presetAvatars"
+        :key="name"
+        size="56"
+        class="avatar-option"
+        :class="{ 'avatar-option--selected': !localFileUrl && modelValue === name }"
+        style="cursor: pointer;"
+        @click="selectPreset(name)"
+      >
         <v-img :src="getPresetAvatarUrl(name)" :alt="name" />
       </v-avatar>
     </div>
 
-    <AppButtonUpload class="mt-3" file-name="profile" accept="image/*" :post="!!userId"
-      :url="userId ? `/api/users/${userId}/image` : ''" :text="$t('user-registration.upload-from-device')"
-      @uploaded="onUploaded" />
+    <AppButtonUpload
+      class="mt-3"
+      file-name="profile"
+      accept="image/*"
+      :post="!!userId"
+      :url="userId ? `/api/users/${userId}/image` : ''"
+      :text="$t('user-registration.upload-from-device')"
+      @uploaded="onUploaded"
+    />
   </div>
 </template>
 

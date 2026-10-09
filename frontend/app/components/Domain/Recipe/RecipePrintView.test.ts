@@ -61,8 +61,9 @@ test("all print options preserve titles, unresolved ingredients, notes, substitu
   expect(wrapper.text()).toContain("Conseil");
   expect(JSON.stringify(recipe)).toBe(before);
   if (process.env.PETIT_CHEF_PRINT_AUDIT) {
-    const source = readFileSync("app/components/Domain/Recipe/RecipePrintView.vue", "utf8").split("<style scoped>")[1].split("</style>")[0];
-    const id = wrapper.html().match(/data-v-[a-f0-9]+/)![0];
+    const source = readFileSync("app/components/Domain/Recipe/RecipePrintView.vue", "utf8").split("<style scoped>")[1]?.split("</style>")[0];
+    const id = wrapper.html().match(/data-v-[a-f0-9]+/)?.[0];
+    if (!source || !id) throw new Error("The print audit requires scoped styles and a rendered scope id.");
     const css = compileStyle({ source, filename: "RecipePrintView.vue", id, scoped: true }).code;
     writeFileSync(process.env.PETIT_CHEF_PRINT_AUDIT, `<html><head><meta charset="utf-8"><style>:root{--v-theme-print-background:255,255,255;--v-theme-print-foreground:0,0,0;--v-theme-separator:198,198,200}body{margin:0}@page{size:A4;margin:14mm}${css}</style></head><body>${wrapper.html()}</body></html>`);
   }

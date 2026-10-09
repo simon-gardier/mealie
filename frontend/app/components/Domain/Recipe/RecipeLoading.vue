@@ -3,7 +3,7 @@
     <span class="recipe-loading__spinner" aria-hidden="true">
       <span v-for="segment in 12" :key="segment" :style="{ '--segment': segment - 1 }" />
     </span>
-    <span>{{ label || $t('general.loading-recipes') }}</span>
+    <span><slot>{{ label ?? $t('general.loading-recipes') }}</slot></span>
   </div>
 </template>
 

@@ -6,8 +6,7 @@
       class="star"
       :class="{
         'star-half': star === 'half',
-        'text-secondary': !showGroupAverage,
-        'text-secondary': showGroupAverage,
+        'text-secondary': true,
       }"
     >
       <!-- We render both the full and empty stars for "half" stars because they're layered over each other -->

@@ -11,8 +11,8 @@ const routes = {
 };
 
 export class AdminUsersApi extends BaseCRUDAPI<UserIn, UserOut, UserOut> {
-  baseRoute: string = routes.adminUsers;
-  itemRoute = routes.adminUsersId;
+  override baseRoute: string = routes.adminUsers;
+  override itemRoute = routes.adminUsersId;
 
   async unlockAllUsers(force = false) {
     return await this.requests.post<UnlockResults>(routes.adminResetLockedUsers(force), {});

@@ -2,8 +2,13 @@
   <div>
     <BaseVideoBackground src="/festin.mp4" />
     <v-container fluid class="d-flex justify-center align-center flex-column fill-height login-background">
-      <v-alert v-if="isFirstLogin" class="my-4" type="info" :icon="$globals.icons.information"
-        :style="{ flex: 'none' }">
+      <v-alert
+        v-if="isFirstLogin"
+        class="my-4"
+        type="info"
+        :icon="$globals.icons.information"
+        :style="{ flex: 'none' }"
+      >
         <div>
           <p class="mb-3">
             {{ $t('user.it-looks-like-this-is-your-first-time-logging-in') }}
@@ -28,28 +33,62 @@
         </v-card-title>
         <v-card-text class="w-100">
           <v-form @submit.prevent="authenticate">
-            <v-text-field v-if="$appInfo.allowPasswordLogin" id="username" v-model="form.email"
-              :prepend-inner-icon="$globals.icons.email" variant="filled" color="primary" density="comfortable"
-              width="100%" autofocus autocomplete="username" name="username" :label="$t('user.email-or-username')"
-              type="text" />
-            <v-text-field v-if="$appInfo.allowPasswordLogin" id="password" v-model="form.password"
-              :prepend-inner-icon="$globals.icons.lock" :append-inner-icon="passwordIcon" variant="filled"
-              color="primary" density="comfortable" autocomplete="current-password" name="password"
-              :label="$t('user.password')" :type="inputType" @click:append-inner="togglePasswordShow" />
+            <v-text-field
+              v-if="$appInfo.allowPasswordLogin"
+              id="username"
+              v-model="form.email"
+              :prepend-inner-icon="$globals.icons.email"
+              variant="filled"
+              color="primary"
+              density="comfortable"
+              width="100%"
+              autofocus
+              autocomplete="username"
+              name="username"
+              :label="$t('user.email-or-username')"
+              type="text"
+            />
+            <v-text-field
+              v-if="$appInfo.allowPasswordLogin"
+              id="password"
+              v-model="form.password"
+              :prepend-inner-icon="$globals.icons.lock"
+              :append-inner-icon="passwordIcon"
+              variant="filled"
+              color="primary"
+              density="comfortable"
+              autocomplete="current-password"
+              name="password"
+              :label="$t('user.password')"
+              :type="inputType"
+              @click:append-inner="togglePasswordShow"
+            />
             <div v-if="$appInfo.allowPasswordLogin" class="d-flex justify-center mt-n2">
               <v-checkbox v-model="form.remember" color="primary" :label="$t('user.remember-me')" />
             </div>
             <v-card-actions v-if="$appInfo.allowPasswordLogin" class="justify-center pt-0">
               <div class="max-button">
-                <v-btn :loading="loggingIn" :disabled="oidcLoggingIn" variant="elevated" color="primary" type="submit"
-                  size="large" rounded class="rounded-xl" block>
+                <v-btn
+                  :loading="loggingIn"
+                  :disabled="oidcLoggingIn"
+                  variant="elevated"
+                  color="primary"
+                  type="submit"
+                  size="large"
+                  rounded
+                  class="rounded-xl"
+                  block
+                >
                   {{ $t("user.login") }}
                 </v-btn>
               </div>
             </v-card-actions>
 
-            <div v-if="$appInfo.enableOidc && $appInfo.allowPasswordLogin"
-              class="d-flex my-4 justify-center align-center" width="80%">
+            <div
+              v-if="$appInfo.enableOidc && $appInfo.allowPasswordLogin"
+              class="d-flex my-4 justify-center align-center"
+              width="80%"
+            >
               <v-divider class="div-width" />
               <span class="absolute px-2 login-divider-text">
                 {{ $t("user.or") }}
@@ -57,8 +96,16 @@
             </div>
             <v-card-actions v-if="$appInfo.enableOidc" class="justify-center">
               <div class="max-button">
-                <v-btn :loading="oidcLoggingIn" color="primary" size="large" variant="elevated" rounded
-                  class="rounded-xl" block @click="() => oidcAuthenticate()">
+                <v-btn
+                  :loading="oidcLoggingIn"
+                  color="primary"
+                  size="large"
+                  variant="elevated"
+                  rounded
+                  class="rounded-xl"
+                  block
+                  @click="() => oidcAuthenticate()"
+                >
                   {{ $t("user.login-oidc") }} {{ $appInfo.oidcProviderName }}
                 </v-btn>
               </div>

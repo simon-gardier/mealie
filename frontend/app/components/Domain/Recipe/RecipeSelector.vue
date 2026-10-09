@@ -78,7 +78,7 @@
 
       <div ref="sentinel" />
 
-      <v-progress-circular v-if="loading" indeterminate color="primary" class="d-block mx-auto my-3" />
+      <AppLoader v-if="loading" small />
     </div>
   </div>
 </template>

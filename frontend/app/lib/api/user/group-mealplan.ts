@@ -10,8 +10,8 @@ const routes = {
 };
 
 export class MealPlanAPI extends BaseCRUDAPI<CreatePlanEntry, ReadPlanEntry, UpdatePlanEntry> {
-  baseRoute = routes.mealplan;
-  itemRoute = routes.mealplanId;
+  override baseRoute = routes.mealplan;
+  override itemRoute = routes.mealplanId;
 
   async setRandom(payload: CreateRandomEntry) {
     return await this.requests.post<ReadPlanEntry>(routes.random, payload);

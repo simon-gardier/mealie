@@ -10,10 +10,10 @@ const routes = {
 };
 
 export class UnitAPI extends BaseCRUDAPI<CreateIngredientUnit, IngredientUnit> {
-  baseRoute: string = routes.unit;
-  itemRoute = routes.unitsUnit;
+  override baseRoute: string = routes.unit;
+  override itemRoute = routes.unitsUnit;
 
   merge(fromId: string, toId: string) {
-    return this.requests.put<IngredientUnit>(routes.merge, { fromUnit: fromId, toUnit: toId });
+    return this.requests.put<IngredientUnit, { fromUnit: string; toUnit: string }>(routes.merge, { fromUnit: fromId, toUnit: toId });
   }
 }

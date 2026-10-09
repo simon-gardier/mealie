@@ -165,7 +165,7 @@ function handleRowClick(item: UserOut) {
 const headers = [
   {
     title: i18n.t("user.user-id"),
-    align: "start",
+    align: "start" as const,
     value: "id",
   },
   { title: i18n.t("user.username"), value: "username" },
@@ -175,7 +175,7 @@ const headers = [
   { title: i18n.t("household.household"), value: "household" },
   { title: i18n.t("user.auth-method"), value: "authMethod" },
   { title: i18n.t("user.admin"), value: "admin" },
-  { title: i18n.t("general.delete"), value: "actions", sortable: false, align: "center" },
+  { title: i18n.t("general.delete"), value: "actions", sortable: false, align: "center" as const },
 ];
 
 async function unlockAllUsers(): Promise<void> {

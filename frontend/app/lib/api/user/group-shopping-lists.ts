@@ -26,8 +26,8 @@ const routes = {
 };
 
 export class ShoppingListsApi extends BaseCRUDAPI<ShoppingListCreate, ShoppingListOut, ShoppingListUpdate> {
-  baseRoute = routes.shoppingLists;
-  itemRoute = routes.shoppingListsId;
+  override baseRoute = routes.shoppingLists;
+  override itemRoute = routes.shoppingListsId;
 
   async addRecipes(itemId: string, data: ShoppingListAddRecipeParamsBulk[]) {
     return await this.requests.post(routes.shoppingListIdAddRecipe(itemId), data);
@@ -47,8 +47,8 @@ export class ShoppingListItemsApi extends BaseCRUDAPI<
   ShoppingListItemOut,
   ShoppingListItemUpdateBulk
 > {
-  baseRoute = routes.shoppingListItems;
-  itemRoute = routes.shoppingListItemsId;
+  override baseRoute = routes.shoppingListItems;
+  override itemRoute = routes.shoppingListItemsId;
 
   async createMany(items: ShoppingListItemCreate[]) {
     return await this.requests.post(routes.shoppingListItemsCreateBulk, items);

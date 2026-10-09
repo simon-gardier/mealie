@@ -6,10 +6,12 @@ import type { Recipe } from "~/lib/api/types/recipe";
 
 const groupRecipeActions = ref<GroupRecipeActionOut[] | null>(null);
 const loading = ref(false);
+const initialized = ref(false);
 
 export function resetGroupRecipeActions() {
   groupRecipeActions.value = null;
   loading.value = false;
+  initialized.value = false;
 }
 
 export function useGroupRecipeActionData() {
@@ -41,9 +43,12 @@ export const useGroupRecipeActions = function (
 
   async function refreshGroupRecipeActions() {
     loading.value = true;
-    const { data } = await api.groupRecipeActions.getAll(1, -1, { orderBy, orderDirection });
-    groupRecipeActions.value = data?.items || null;
-    loading.value = false;
+    try {
+      const { data } = await api.groupRecipeActions.getAll(1, -1, { orderBy, orderDirection });
+      groupRecipeActions.value = data?.items || null;
+      initialized.value = !!data;
+    }
+    finally { loading.value = false; }
   }
 
   const recipeActions = computed<GroupRecipeActionOut[] | null>(() => {
@@ -88,6 +93,7 @@ export const useGroupRecipeActions = function (
       api.groupRecipeActions,
       groupRecipeActions,
       loading,
+      initialized,
       { orderBy: orderBy },
     ),
   };

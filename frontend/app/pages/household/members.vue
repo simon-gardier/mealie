@@ -124,6 +124,7 @@ import type { UserOut } from "~/lib/api/types/user";
 import UserAvatar from "~/components/Domain/User/UserAvatar.vue";
 
 const api = useUserApi();
+const { user: sessionUser } = useMealieAuth();
 const i18n = useI18n();
 
 useSeoMeta({
@@ -133,14 +134,14 @@ useSeoMeta({
 const members = ref<UserOut[] | null[]>([]);
 
 const headers = [
-  { title: "", value: "avatar", sortable: false, align: "center" },
+  { title: "", value: "avatar", sortable: false, align: "center" as const },
   { title: i18n.t("user.username"), value: "username" },
   { title: i18n.t("user.full-name"), value: "fullName" },
   { title: i18n.t("user.admin"), value: "admin" },
-  { title: i18n.t("group.manage"), value: "manage", sortable: false, align: "center" },
-  { title: i18n.t("settings.organize"), value: "organize", sortable: false, align: "center" },
-  { title: i18n.t("group.invite"), value: "invite", sortable: false, align: "center" },
-  { title: i18n.t("group.manage-household"), value: "manageHousehold", sortable: false, align: "center" },
+  { title: i18n.t("group.manage"), value: "manage", sortable: false, align: "center" as const },
+  { title: i18n.t("settings.organize"), value: "organize", sortable: false, align: "center" as const },
+  { title: i18n.t("group.invite"), value: "invite", sortable: false, align: "center" as const },
+  { title: i18n.t("group.manage-household"), value: "manageHousehold", sortable: false, align: "center" as const },
 ];
 
 async function refreshMembers() {

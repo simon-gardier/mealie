@@ -13,8 +13,8 @@
           <v-number-input
             :decimal-separator="quantityDecimalSeparator"
             :model-value="parseNutritionValue(modelValue[key])"
-            :label="labels[key].label"
-            :suffix="labels[key].suffix"
+            :label="labels[key]?.label"
+            :suffix="labels[key]?.suffix"
             density="compact"
             hide-details
             autocomplete="off"

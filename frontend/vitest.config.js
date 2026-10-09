@@ -4,7 +4,7 @@ import AutoImport from "unplugin-auto-import/vite";
 
 export default {
   plugins: [
-    vue(),
+    vue({ template: { transformAssetUrls: { includeAbsolute: false } } }),
     AutoImport({
       imports: ["vue", "@vueuse/core", "vue-i18n"],
       dts: false,

@@ -71,7 +71,7 @@ export function sanitizeMarkdownHtml(rawHtml: string | null | undefined, allowed
     if (data.attrName === "style") {
       const styles = data.attrValue.split(";").filter((style) => {
         const [property] = style.split(":");
-        return ALLOWED_STYLE_PROPERTIES.includes(property.trim().toLowerCase());
+        return !!property && ALLOWED_STYLE_PROPERTIES.includes(property.trim().toLowerCase());
       });
       data.attrValue = styles.join(";");
     }
@@ -90,9 +90,8 @@ export function sanitizeMarkdownHtml(rawHtml: string | null | undefined, allowed
     ALLOWED_ATTR: allowIframe ? [...BASE_ALLOWED_ATTR, ...IFRAME_ALLOWED_ATTR] : BASE_ALLOWED_ATTR,
   });
 
-  Object.values(DOMPurifyHook).forEach((hook) => {
-    DOMPurify.removeHook(hook);
-  });
+  DOMPurify.removeHook("uponSanitizeAttribute");
+  if (allowIframe) DOMPurify.removeHook("afterSanitizeAttributes");
 
   return sanitized;
 }

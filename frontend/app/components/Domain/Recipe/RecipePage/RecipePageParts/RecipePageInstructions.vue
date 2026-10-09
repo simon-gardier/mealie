@@ -441,15 +441,15 @@
 </template>
 
 <script setup lang="ts">
+import type { RecipeView } from "~/lib/recipe/recipe-view";
 import { usePencilScratch } from "~/composables/use-pencil-scratch";
 import { VueDraggable } from "vue-draggable-plus";
 import { computed, nextTick, onMounted, ref, watch } from "vue";
-import type { RecipeStep, RecipeNote, RecipeIngredient, RecipeAsset, Recipe } from "~/lib/api/types/recipe";
+import type { RecipeStep, RecipeNote, RecipeIngredient, RecipeAsset } from "~/lib/api/types/recipe";
 import { uuid4 } from "~/composables/use-utils";
 import { useUserApi, useStaticRoutes } from "~/composables/api";
 import { usePageState } from "~/composables/recipe-page/shared-state";
 import { useExtractIngredientReferences } from "~/composables/recipe-page/use-extract-ingredient-references";
-import type { NoUndefinedField } from "~/lib/api/types/non-generated";
 import DropZone from "~/components/global/DropZone.vue";
 import { alert } from "~/composables/use-toast";
 import RecipeIngredients from "~/components/Domain/Recipe/RecipeIngredients.vue";
@@ -467,7 +467,7 @@ const assets = defineModel<RecipeAsset[]>("assets", { required: true, default: (
 
 const props = defineProps({
   recipe: {
-    type: Object as () => NoUndefinedField<Recipe>,
+    type: Object as () => RecipeView,
     required: true,
   },
   scale: {
@@ -796,18 +796,20 @@ const groupedUsedIngredients = computed((): Record<string, RecipeIngredient[]> =
 const mergeHistory = ref<MergerHistory[]>([]);
 
 function mergeAbove(target: number, source: number) {
-  if (target < 0) {
+  const targetStep = instructionList.value[target];
+  const sourceStep = instructionList.value[source];
+  if (target < 0 || !targetStep || !sourceStep || target === source) {
     return;
   }
 
   mergeHistory.value.push({
     target,
     source,
-    targetText: instructionList.value[target].text,
-    sourceText: instructionList.value[source].text,
+    targetText: targetStep.text,
+    sourceText: sourceStep.text,
   });
 
-  instructionList.value[target].text += " " + instructionList.value[source].text;
+  targetStep.text += " " + sourceStep.text;
   instructionList.value.splice(source, 1);
 }
 
@@ -822,7 +824,9 @@ function undoMerge(event: KeyboardEvent) {
       return;
     }
 
-    instructionList.value[lastMerge.target].text = lastMerge.targetText;
+    const targetStep = instructionList.value[lastMerge.target];
+    if (!targetStep) return;
+    targetStep.text = lastMerge.targetText;
     instructionList.value.splice(lastMerge.source, 0, {
       id: uuid4(),
       title: "",
@@ -834,11 +838,14 @@ function undoMerge(event: KeyboardEvent) {
 }
 
 function moveTo(dest: string, source: number) {
+  const step = instructionList.value[source];
+  if (!step) return;
+  instructionList.value.splice(source, 1);
   if (dest === "top") {
-    instructionList.value.unshift(instructionList.value.splice(source, 1)[0]);
+    instructionList.value.unshift(step);
   }
   else {
-    instructionList.value.push(instructionList.value.splice(source, 1)[0]);
+    instructionList.value.push(step);
   }
 }
 
@@ -870,7 +877,7 @@ function toggleCollapseSection(index: number) {
   const sectionSteps: number[] = [];
 
   for (let i = index; i < instructionList.value.length; i++) {
-    if (!(i === index) && hasSectionTitle(instructionList.value[i].title!)) {
+    if (!(i === index) && hasSectionTitle(instructionList.value[i]?.title ?? "")) {
       break;
     }
     else {
@@ -954,10 +961,12 @@ function notifyUnsupportedDrop() {
 }
 
 function embedAsset(index: number, asset: RecipeAsset) {
+  const step = instructionList.value[index];
+  if (!step) return;
   emit("update:assets", [...(assets.value ?? []), asset]);
   const assetUrl = recipeAssetPath(props.recipe.id, asset.fileName as string);
   const text = `<img src="${assetUrl}" height="100%" width="100%"/>`;
-  instructionList.value[index].text += text;
+  step.text += text;
 }
 
 function openImageUpload(index: number) {

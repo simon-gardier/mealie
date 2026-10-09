@@ -77,7 +77,7 @@
       <RecipeIngredientEditor
         v-for="(ingredient, index) in recipe.recipeIngredient"
         :key="ingredient.referenceId"
-        v-model="recipe.recipeIngredient[index]"
+        :model-value="ingredient"
         :is-recipe="ingredientIsRecipe(ingredient)"
         enable-drag-handle
         enable-context-menu
@@ -85,6 +85,7 @@
         compact
         context-menu-below
         show-substitution-controls
+        @update:model-value="recipe.recipeIngredient[index] = $event"
         @delete="recipe.recipeIngredient.splice(index, 1)"
         @insert-above="insertNewIngredient(index)"
         @insert-below="insertNewIngredient(index + 1)"
@@ -114,14 +115,14 @@
               density="comfortable"
               :prepend-icon="$globals.icons.foods"
               :title="$t('new-recipe.add-food')"
-              @click="addIngredient"
+              @click="addIngredient()"
             />
             <v-list-item
               slim
               density="comfortable"
               :prepend-icon="$globals.icons.silverwareForkKnife"
               :title="$t('new-recipe.add-recipe')"
-              @click="addRecipe"
+              @click="addRecipe()"
             />
             <v-list-item
               slim
@@ -138,15 +139,15 @@
 </template>
 
 <script setup lang="ts">
+import type { RecipeView } from "~/lib/recipe/recipe-view";
 import { VueDraggable } from "vue-draggable-plus";
-import type { NoUndefinedField } from "~/lib/api/types/non-generated";
-import type { Recipe, RecipeIngredient } from "~/lib/api/types/recipe";
+import type { RecipeIngredient } from "~/lib/api/types/recipe";
 import RecipeIngredientEditor from "~/components/Domain/Recipe/RecipeIngredientEditor.vue";
 import RecipeDialogBulkAdd from "~/components/Domain/Recipe/RecipeDialogBulkAdd.vue";
 import { uuid4 } from "~/composables/use-utils";
 import type { Parser } from "~/lib/api/user/recipes/recipe";
 
-const recipe = defineModel<NoUndefinedField<Recipe>>({ required: true });
+const recipe = defineModel<RecipeView>({ required: true });
 const emit = defineEmits<{ selectParser: [parser: Parser] }>();
 const ingredientsWithRecipe = new Map<string, boolean>();
 
@@ -202,7 +203,6 @@ function addIngredient(ingredients: Array<string> | null = null) {
     });
 
     if (newIngredients) {
-      // @ts-expect-error - prop can be null-type by NoUndefinedField type forces it to be set
       recipe.value.recipeIngredient.push(...newIngredients);
     }
   }
@@ -211,9 +211,7 @@ function addIngredient(ingredients: Array<string> | null = null) {
       referenceId: uuid4(),
       title: "",
       note: "",
-      // @ts-expect-error - prop can be null-type by NoUndefinedField type forces it to be set
       unit: undefined,
-      // @ts-expect-error - prop can be null-type by NoUndefinedField type forces it to be set
       food: undefined,
       quantity: 0,
     });
@@ -237,7 +235,6 @@ function addRecipe(recipes: Array<string> | null = null) {
     });
 
     if (newRecipes) {
-      // @ts-expect-error - prop can be null-type by NoUndefinedField type forces it to be set
       recipe.value.recipeIngredient.push(...newRecipes);
     }
   }
@@ -246,9 +243,7 @@ function addRecipe(recipes: Array<string> | null = null) {
       referenceId: refId,
       title: "",
       note: "",
-      // @ts-expect-error - prop can be null-type by NoUndefinedField type forces it to be set
       unit: undefined,
-      // @ts-expect-error - prop can be null-type by NoUndefinedField type forces it to be set
       referencedRecipe: undefined,
       quantity: 1,
     });
@@ -260,9 +255,7 @@ function insertNewIngredient(dest: number) {
     referenceId: uuid4(),
     title: "",
     note: "",
-    // @ts-expect-error - prop can be null-type by NoUndefinedField type forces it to be set
     unit: undefined,
-    // @ts-expect-error - prop can be null-type by NoUndefinedField type forces it to be set
     food: undefined,
     quantity: 0,
   });

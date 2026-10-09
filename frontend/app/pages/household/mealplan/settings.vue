@@ -47,7 +47,7 @@
       />
       <div>
         <div
-          v-for="(rule, idx) in allRules"
+          v-for="rule in allRules"
           :key="rule.id"
         >
           <v-card class="my-2 left-border">
@@ -75,90 +75,21 @@
             </v-card-title>
             <v-card-text>
               <template v-if="!editState[rule.id]">
-                <div v-if="rule.categories">
-                  <h4 class="py-1">
-                    {{ $t("category.categories") }}:
-                  </h4>
-                  <RecipeChips
-                    v-if="rule.categories.length"
-                    :items="rule.categories"
-                    small
-                    class="pb-3"
-                  />
-                  <v-card-text
-                    v-else
-                    label
-                    class="ma-0 px-0 pt-0 pb-3"
-                    text-color="accent"
-                    size="small"
-                    dark
-                  >
-                    {{ $t("meal-plan.any-category") }}
-                  </v-card-text>
-                </div>
-
-                <div v-if="rule.tags">
-                  <h4 class="py-1">
-                    {{ $t("tag.tags") }}:
-                  </h4>
-                  <RecipeChips
-                    v-if="rule.tags.length"
-                    :items="rule.tags"
-                    url-prefix="tags"
-                    small
-                    class="pb-3"
-                  />
-                  <v-card-text
-                    v-else
-                    label
-                    class="ma-0 px-0 pt-0 pb-3"
-                    text-color="accent"
-                    size="small"
-                    dark
-                  >
-                    {{ $t("meal-plan.any-tag") }}
-                  </v-card-text>
-                </div>
-                <div v-if="rule.households">
-                  <h4 class="py-1">
-                    {{ $t("household.households") }}:
-                  </h4>
-                  <div v-if="rule.households.length">
-                    <v-chip
-                      v-for="household in rule.households"
-                      :key="household.id"
-                      label
-                      class="ma-1"
-                      color="accent"
-                      size="small"
-                      dark
-                    >
-                      {{ household.name }}
-                    </v-chip>
-                  </div>
-                  <v-card-text
-                    v-else
-                    label
-                    class="ma-0 px-0 pt-0 pb-3"
-                    text-color="accent"
-                    size="small"
-                    dark
-                  >
-                    {{ $t("meal-plan.any-household") }}
-                  </v-card-text>
-                </div>
+                <p class="text-secondary" style="overflow-wrap: anywhere">
+                  {{ rule.queryFilterString }}
+                </p>
               </template>
               <template v-else>
                 <GroupMealPlanRuleForm
-                  v-model:day="allRules[idx].day"
-                  v-model:entry-type="allRules[idx].entryType"
-                  v-model:query-filter-string="allRules[idx].queryFilterString"
-                  :query-filter="allRules[idx].queryFilter"
+                  v-model:day="rule.day"
+                  v-model:entry-type="rule.entryType"
+                  v-model:query-filter-string="rule.queryFilterString"
+                  :query-filter="rule.queryFilter"
                 />
                 <div class="d-flex justify-end">
                   <BaseButton
                     update
-                    :disabled="!allRules[idx].queryFilterString"
+                    :disabled="!rule.queryFilterString"
                     @click="updateRule(rule)"
                   />
                 </div>
@@ -176,7 +107,6 @@ import { useUserApi } from "~/composables/api";
 import type { PlanRulesCreate, PlanRulesOut } from "~/lib/api/types/meal-plan";
 import GroupMealPlanRuleForm from "~/components/Domain/Household/GroupMealPlanRuleForm.vue";
 import { useAsyncKey } from "~/composables/use-utils";
-import RecipeChips from "~/components/Domain/Recipe/RecipeChips.vue";
 
 const api = useUserApi();
 const i18n = useI18n();

@@ -27,9 +27,9 @@ body,
   letter-spacing: -0.025em;
 }
 
-.recipe-step-summary>*,
-.summary-wrapper>span,
-.recipe-step-instructions>* {
+.recipe-step-summary > *,
+.summary-wrapper > span,
+.recipe-step-instructions > * {
   text-decoration-line: line-through;
   text-decoration-style: wavy;
   text-decoration-color: transparent;
@@ -38,9 +38,9 @@ body,
   transition: text-decoration-color 650ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.recipe-step-complete .recipe-step-summary>*,
-.recipe-step-complete .summary-wrapper>span,
-.recipe-step-complete .recipe-step-instructions>* {
+.recipe-step-complete .recipe-step-summary > *,
+.recipe-step-complete .summary-wrapper > span,
+.recipe-step-complete .recipe-step-instructions > * {
   text-decoration-color: currentColor;
 }
 
@@ -49,23 +49,23 @@ body,
   transition: filter 250ms ease;
 }
 
-.recipe-step-complete .recipe-step-instructions>*:nth-child(1) {
+.recipe-step-complete .recipe-step-instructions > *:nth-child(1) {
   transition-delay: 320ms;
 }
 
-.recipe-step-complete .recipe-step-instructions>*:nth-child(2) {
+.recipe-step-complete .recipe-step-instructions > *:nth-child(2) {
   transition-delay: 520ms;
 }
 
-.recipe-step-complete .recipe-step-instructions>*:nth-child(3) {
+.recipe-step-complete .recipe-step-instructions > *:nth-child(3) {
   transition-delay: 720ms;
 }
 
-.recipe-step-complete .recipe-step-instructions>*:nth-child(4) {
+.recipe-step-complete .recipe-step-instructions > *:nth-child(4) {
   transition-delay: 920ms;
 }
 
-.recipe-step-complete .recipe-step-instructions>*:nth-child(5) {
+.recipe-step-complete .recipe-step-instructions > *:nth-child(5) {
   transition-delay: 1120ms;
 }
 
@@ -74,12 +74,26 @@ body,
   font-family: "Fraunces", Georgia, serif;
 }
 
+/* Retain the original dots as an opt-in fallback for future use. */
+.v-application {
+  --bistro-dotted-background: radial-gradient(circle, rgba(var(--v-theme-separator), 0.4) 1.5px, transparent 1.5px);
+  --bistro-page-pattern: var(--bistro-dotted-background);
+  --bistro-page-pattern-size: 18px 18px;
+}
+.v-application.v-theme--dark {
+  --bistro-page-pattern: var(--bistro-dotted-background);
+}
+.v-application.bistro-background-dots {
+  --bistro-page-pattern: var(--bistro-dotted-background);
+  --bistro-page-pattern-size: 18px 18px;
+}
+
 /* Paint the pattern on the main content itself, including long scrollable pages. */
 .v-application,
 .app-main {
   background-color: rgb(var(--v-theme-background));
-  background-image: radial-gradient(circle, rgba(var(--v-theme-separator), 0.4) 1.5px, transparent 1.5px);
-  background-size: 18px 18px;
+  background-image: var(--bistro-page-pattern);
+  background-size: var(--bistro-page-pattern-size);
   background-repeat: repeat;
   background-attachment: fixed;
 }
@@ -107,8 +121,6 @@ body,
 .register-background .v-field {
   background-color: rgb(var(--v-theme-surface));
 }
-
-
 
 .admin-layout .base-dialog-card {
   border: 1px solid rgba(var(--v-theme-primary), 0.45);
@@ -208,13 +220,15 @@ body,
   aspect-ratio: 1 / 1.08;
   min-height: 310px;
   border: 1px solid rgb(var(--v-theme-separator), 0.45);
-  border-radius: 6px;
+  border-radius: 0;
   background: rgb(var(--v-theme-surface)) !important;
   background-color: rgb(var(--v-theme-surface)) !important;
   background-image: none !important;
   box-shadow: 0 4px 12px rgb(var(--v-theme-shadow), 0.06);
   transform: rotate(var(--note-tilt, 0deg));
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .bistro-recipe-grid .bistro-recipe-card.v-card,
@@ -291,7 +305,7 @@ body,
   aspect-ratio: 1 / 1;
   min-width: 0;
   border: 1px solid rgb(var(--v-theme-separator), 0.26);
-  border-radius: 2px;
+  border-radius: 0;
   background: rgb(var(--v-theme-surface));
   --note-tilt: 0deg;
   transform: rotate(var(--note-tilt));
@@ -385,7 +399,7 @@ body,
   text-align: center;
 }
 
-.bistro-scratch-note .v-card-title>span {
+.bistro-scratch-note .v-card-title > span {
   flex: 0 1 auto;
 }
 
@@ -500,12 +514,11 @@ body,
     margin: 0;
   }
 
-  .bistro-recipe-grid>.v-col {
+  .bistro-recipe-grid > .v-col {
     width: auto;
     max-width: none;
     padding: 0;
   }
-
 }
 
 @media (max-width: 599px) {
@@ -519,7 +532,6 @@ body,
 }
 
 @media (prefers-reduced-motion: reduce) {
-
   .bistro-recipe-card,
   .bistro-recipe-card *,
   .bistro-scratch-note,
@@ -587,7 +599,7 @@ body,
   padding-top: 0.35rem;
 }
 
-.planner-grid .col-borders>.v-card {
+.planner-grid .col-borders > .v-card {
   margin-bottom: 0.55rem;
   border: 1px solid rgb(var(--v-theme-separator), 0.72) !important;
   border-radius: 7px 9px 7px 8px !important;
@@ -596,7 +608,7 @@ body,
   box-shadow: 2px 3px 0 rgb(var(--v-theme-shadow), 0.16);
 }
 
-.planner-grid .col-borders>.v-card p {
+.planner-grid .col-borders > .v-card p {
   color: rgb(var(--v-theme-text-primary));
   font-family: var(--bistro-heading);
   font-size: 1.05rem;
@@ -658,7 +670,9 @@ body,
   background-color: color-mix(in srgb, rgb(var(--v-theme-surface-variant)) 25%, rgb(var(--v-theme-surface))) !important;
   background-image: none !important;
   box-shadow: 1px 2px 0 rgb(var(--v-theme-shadow), 0.06);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .planner-meal-card .bistro-recipe-card.v-card:hover {
@@ -693,11 +707,17 @@ body,
   .planner-grid .col-borders {
     padding-inline: 0.1rem;
   }
-
 }
 
 /* Recipe items share the search panel's corner shape. */
-.bistro-recipe-card.v-card,
-.bistro-recipe-grid .bistro-recipe-card.v-card {
+.bistro-recipe-card.v-card {
   border-radius: 10px 16px 12px 18px;
+}
+
+/* Taped paper notes keep square corners, unlike ordinary recipe cards. */
+.bistro-recipe-grid .bistro-recipe-card.v-card,
+.bistro-recipe-grid .bistro-recipe-card .v-img,
+.bistro-recipe-grid .bistro-recipe-card .recipe-card-footer,
+.bistro-scratch-note.v-card {
+  border-radius: 0 !important;
 }

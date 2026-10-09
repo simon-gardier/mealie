@@ -187,6 +187,7 @@
                   <template #activator="{ props: tooltipProps }">
                     <v-btn
                       :icon="$globals.icons.cartCheck"
+                      :disabled="!canAddToShoppingList"
                       class="recipe-compact-action"
                       variant="text"
                       size="default"
@@ -195,9 +196,24 @@
                       @click.stop.prevent="$emit('addToShoppingList')"
                     />
                   </template>
-                  <span>{{ t("recipe.add-to-list") }}</span>
+                  <span>{{ t(canAddToShoppingList ? "recipe.add-to-list" : "shopping-list.analyze-before-adding") }}</span>
                 </v-tooltip>
-                <span v-else class="recipe-compact-action-placeholder" aria-hidden="true" />
+                <v-menu v-if="showRecipeContent && !canAddToShoppingList" location="bottom" max-width="320">
+                  <template #activator="{ props: infoProps }">
+                    <v-btn
+                      v-bind="infoProps"
+                      :icon="$globals.icons.information"
+                      variant="text"
+                      color="primary"
+                      :aria-label="t('shopping-list.analyze-before-adding')"
+                      @click.stop.prevent
+                    />
+                  </template>
+                  <v-sheet color="surface-elevated" class="pa-4 text-body-2" rounded="lg">
+                    {{ t('shopping-list.analyze-before-adding') }}
+                  </v-sheet>
+                </v-menu>
+                <span v-if="!showRecipeContent" class="recipe-compact-action-placeholder" aria-hidden="true" />
               </template>
               <slot v-else name="context-menu">
                 <RecipeContextMenu
@@ -237,7 +253,8 @@ import RecipeChips from "./RecipeChips.vue";
 import RecipeContextMenu from "./RecipeContextMenu/RecipeContextMenu.vue";
 import RecipeFavoriteBadge from "./RecipeFavoriteBadge.vue";
 import type { ContextMenuItem } from "./RecipeContextMenu/RecipeContextMenu.vue";
-import { useStaticRoutes } from "~/composables/api";
+import { useStaticRoutes, useUserApi } from "~/composables/api";
+import { canScaleShoppingRecipe } from "~/lib/shopping-recipe-portions";
 import { useUserSelfRatings } from "~/composables/use-users";
 import { playRecipeSynesthesia } from "~/plugins/recipe-synesthesia.client";
 
@@ -246,7 +263,7 @@ interface Props {
   slug: string;
   description: string;
   rating?: number;
-  image?: string;
+  image?: unknown;
   tags?: Array<any>;
   recipeId: string;
   vertical?: boolean;
@@ -307,6 +324,16 @@ const contextMenuItems = computed(() => ({
   ...props.contextMenuUseItems,
 }));
 const showRecipeContent = computed(() => props.recipeId && props.slug);
+const canAddToShoppingList = ref(false);
+const recipeApi = useUserApi();
+watch(() => [props.slug, props.compact, props.listMode] as const, async ([slug, compact, listMode], _, onCleanup) => {
+  canAddToShoppingList.value = false;
+  if (!slug || compact || listMode) return;
+  let active = true;
+  onCleanup(() => { active = false; });
+  const { data } = await recipeApi.recipes.getOne(slug);
+  if (active) canAddToShoppingList.value = canScaleShoppingRecipe(data?.recipeIngredient);
+}, { immediate: true });
 const recipeRoute = computed<string>(() => {
   return showRecipeContent.value ? `/g/${groupSlug.value}/r/${props.slug}` : "";
 });

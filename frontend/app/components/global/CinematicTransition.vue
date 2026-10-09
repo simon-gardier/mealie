@@ -1,8 +1,12 @@
 <template>
   <Teleport to="body">
     <div v-if="visible" class="cinematic-overlay" :class="{ 'cinematic-overlay--black': zoomIn }">
-      <img src="/welcome_title.png" alt="" class="cinematic-title"
-        :class="{ 'cinematic-title--zoom-in': zoomIn, 'cinematic-title--zoom-out': zoomOut }">
+      <img
+        src="/welcome_title.png"
+        alt=""
+        class="cinematic-title"
+        :class="{ 'cinematic-title--zoom-in': zoomIn, 'cinematic-title--zoom-out': zoomOut }"
+      >
     </div>
   </Teleport>
 </template>
@@ -81,6 +85,8 @@ defineExpose({ play });
 .cinematic-title--zoom-out {
   transform: scale(v-bind(zoomOutScaleRef));
   opacity: 0;
-  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1), opacity 900ms ease;
+  transition:
+    transform 900ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 900ms ease;
 }
 </style>

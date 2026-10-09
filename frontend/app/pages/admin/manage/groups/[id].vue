@@ -15,8 +15,13 @@
         <v-card-text>
           <v-text-field v-model="group.name" :label="$t('group.group-name')" />
           <GroupPreferencesEditor v-if="group.preferences" v-model="group.preferences" />
-          <GroupAIProviderSettingsEditor v-if="group.aiProviderSettings" v-model="group.aiProviderSettings"
-            @create="handleCreateProvider" @update="handleUpdateProvider" @delete="handleDeleteProvider" />
+          <GroupAIProviderSettingsEditor
+            v-if="group.aiProviderSettings"
+            v-model="group.aiProviderSettings"
+            @create="handleCreateProvider"
+            @update="handleUpdateProvider"
+            @delete="handleDeleteProvider"
+          />
         </v-card-text>
       </v-card>
       <div class="d-flex pa-2">

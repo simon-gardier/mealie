@@ -39,12 +39,12 @@
               class="timeline-recipe-card"
               disable-highlight
               :vertical="useMobileFormat"
-              :name="recipe.name"
-              :slug="recipe.slug"
-              :description="recipe.description"
-              :rating="recipe.rating"
+              :name="recipe.name ?? ''"
+              :slug="recipe.slug ?? ''"
+              :description="recipe.description ?? ''"
+              :rating="recipe.rating ?? undefined"
               :image="recipe.image"
-              :recipe-id="recipe.id"
+              :recipe-id="recipe.id ?? ''"
               :is-flat="false"
             >
               <template #actions>
@@ -52,13 +52,13 @@
                   <RecipeRating
                     v-if="showRecipeContent"
                     class="timeline-recipe-rating"
-                    :model-value="recipe.rating"
-                    :recipe-id="recipe.id"
+                    :model-value="recipe.rating ?? undefined"
+                    :recipe-id="recipe.id ?? undefined"
                     :slug="recipe.slug"
                   />
-                  <div v-if="isOwnGroup && showRecipeContent" class="timeline-recipe-actions">
+                  <div v-if="isOwnGroup && showRecipeContent && recipe.id && recipe.slug" class="timeline-recipe-actions">
                     <RecipeFavoriteBadge :recipe-id="recipe.id" show-always />
-                    <RecipeContextMenu :slug="recipe.slug" :name="recipe.name" :recipe-id="recipe.id" :menu-icon="$globals.icons.dotsHorizontal" />
+                    <RecipeContextMenu :slug="recipe.slug" :name="recipe.name ?? ''" :recipe-id="recipe.id" :menu-icon="$globals.icons.dotsHorizontal" />
                   </div>
                 </div>
               </template>

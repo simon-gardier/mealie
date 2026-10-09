@@ -828,7 +828,16 @@ describe("useParseIngredientsDialog", () => {
   });
 
   describe("locale-aware parser default", () => {
+    test("defaults to AI when a provider is enabled", () => {
+      parsingStorageEmpty = true;
+      const { parser, defaultParser } = wrapper().vm;
+      expect(lastDefaultParser).toBe("openai");
+      expect(parser).toBe("openai");
+      expect(defaultParser).toBe("openai");
+    });
+
     test("an English locale with nothing stored keeps the natural language processor", () => {
+      group.value.aiProviderSettings.aiEnabled = false;
       parsingStorageEmpty = true;
       const { parser, showNlpLanguageHint } = wrapper().vm;
       expect(lastDefaultParser).toBe("nlp");
@@ -837,6 +846,7 @@ describe("useParseIngredientsDialog", () => {
     });
 
     test("another locale with nothing stored starts on the brute parser", () => {
+      group.value.aiProviderSettings.aiEnabled = false;
       i18n.global.locale = "de-DE";
       parsingStorageEmpty = true;
       const { parser, showNlpLanguageHint } = wrapper().vm;

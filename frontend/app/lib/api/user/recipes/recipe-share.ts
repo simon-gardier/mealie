@@ -10,8 +10,8 @@ const routes = {
 };
 
 export class RecipeShareApi extends BaseCRUDAPI<RecipeShareTokenCreate, RecipeShareToken> {
-  baseRoute: string = routes.shareToken;
-  itemRoute = routes.shareTokenId;
+  override baseRoute: string = routes.shareToken;
+  override itemRoute = routes.shareTokenId;
 
   getZipRedirectUrl(tokenId: string) {
     return routes.shareTokenIdZip(tokenId);

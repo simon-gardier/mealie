@@ -179,7 +179,7 @@ const headersWithoutActions = computed(() =>
 
 const activeHeaders = computed(() => [
   ...headersWithoutActions.value,
-  { title: "", value: "actions", show: true, align: "end" },
+  { title: "", value: "actions", show: true, align: "end" as const },
 ]);
 
 const selected = ref<any[]>([]);

@@ -2,6 +2,7 @@
   <!-- Create Dialog -->
   <BaseDialog
     v-model="createDialog"
+    :content-class="dialogClass"
     :title="createTitle || $t('general.create')"
     :icon="icon"
     color="primary"
@@ -17,16 +18,17 @@
         v-model="createForm.data"
         v-model:is-valid="createFormValid"
         :items="createForm.items"
-        variant="filled"
+        :variant="formVariant"
         class="py-2"
       />
+      <slot name="create-dialog-bottom" />
     </div>
   </BaseDialog>
 
   <!-- Edit Dialog -->
   <BaseDialog
     v-model="editDialog"
-    content-class="group-data-edit-dialog"
+    :content-class="['group-data-edit-dialog', dialogClass].filter(Boolean).join(' ')"
     cancel-in-toolbar
     :title="editTitle || $t('general.edit')"
     :icon="icon"
@@ -43,7 +45,7 @@
         v-model="editForm.data"
         v-model:is-valid="editFormValid"
         :items="editForm.items"
-        variant="filled"
+        :variant="formVariant"
         class="py-2"
       />
       <slot name="edit-dialog-bottom" />
@@ -148,6 +150,8 @@ const editForm = defineModel<{ items: AutoFormItems; data: Record<string, any> }
 const editDialog = defineModel("editDialog", { type: Boolean, default: false });
 
 const props = defineProps({
+  dialogClass: { type: String, default: "" },
+  formVariant: { type: String as PropType<"filled" | "outlined">, default: "filled" },
   icon: {
     type: String,
     required: true,

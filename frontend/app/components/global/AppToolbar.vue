@@ -4,13 +4,13 @@
     flat
   >
     <BaseButton
-      color="null"
-      rounded
-      secondary
+      color="primary"
+      variant="text"
+      class="navigation-button"
       @click="$router.go(-1)"
     >
       <template #icon>
-        {{ $globals.icons.arrowLeftBold }}
+        {{ $globals.icons.back }}
       </template>
       {{ $t('general.back') }}
     </BaseButton>

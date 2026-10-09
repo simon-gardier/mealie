@@ -2,8 +2,8 @@ import { config } from "@vue/test-utils";
 import { createI18n } from "vue-i18n";
 
 (globalThis as typeof globalThis & {
-  defineNuxtPlugin: (plugin: (nuxtApp: { hook: () => void }) => unknown) => unknown;
-}).defineNuxtPlugin = plugin => plugin({ hook: () => { } });
+  defineNuxtPlugin: (plugin: (nuxtApp: { hook: () => void; vueApp: { onUnmount: () => void } }) => unknown) => unknown;
+}).defineNuxtPlugin = plugin => plugin({ hook: () => { }, vueApp: { onUnmount: () => { } } });
 
 function loadEnLocales() {
   // eslint-disable-next-line @typescript-eslint/no-require-imports

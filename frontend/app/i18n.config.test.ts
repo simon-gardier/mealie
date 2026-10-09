@@ -4,7 +4,7 @@ import { h } from "vue";
 import { createI18n, I18nT } from "vue-i18n";
 import type { PostTranslationHandler, VueMessageType } from "vue-i18n";
 
-async function createTranslationPlugin(locale: string) {
+async function createTranslationPlugin(locale: "en-US" | "fr-FR") {
   vi.stubGlobal("defineI18nConfig", (factory: () => unknown) => factory);
   try {
     const { default: factory } = await import("./i18n.config");
@@ -30,7 +30,7 @@ describe("Petit Chef translations", () => {
   test.each([
     ["en-US", "Welcome to Petit Chef", "Contribute: Read the docs"],
     ["fr-FR", "Bienvenue sur Petit Chef", "Contribuer : Read the docs"],
-  ])("preserves interpolated links in %s", async (locale, brand, contribution) => {
+  ] as const)("preserves interpolated links in %s", async (locale, brand, contribution) => {
     const i18n = await createTranslationPlugin(locale);
     expect(i18n.global.t("brand")).toBe(brand);
 

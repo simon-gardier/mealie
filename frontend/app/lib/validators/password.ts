@@ -22,9 +22,10 @@ export function scorePassword(pass: string): number {
   // award every unique letter until 5 repetitions
   const letters: { [key: string]: number } = {};
 
-  for (let i = 0; i < pass.length; i++) {
-    letters[pass[i]] = (letters[pass[i]] || 0) + 1;
-    score += 5.0 / letters[pass[i]];
+  for (const letter of pass) {
+    const count = (letters[letter] || 0) + 1;
+    letters[letter] = count;
+    score += 5.0 / count;
   }
 
   // bonus points for mixing it up

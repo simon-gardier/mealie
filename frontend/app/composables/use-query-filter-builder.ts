@@ -267,7 +267,7 @@ export function useQueryFilterBuilder() {
       }
     }
     updatedField.relationalOperatorChoices = operatorChoices;
-    if (!operatorChoices.includes(updatedField.relationalOperatorValue)) {
+    if (!operatorChoices.includes(updatedField.relationalOperatorValue) && operatorChoices[0]) {
       updatedField.relationalOperatorValue = operatorChoices[0];
     }
 

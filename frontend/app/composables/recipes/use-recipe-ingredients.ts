@@ -124,7 +124,7 @@ export function useIngredientTextParser() {
           returnQty += fraction[0];
         }
 
-        if (fraction[1] > 0) {
+        if ((fraction[1] ?? 0) > 0) {
           returnQty += includeFormating
             ? `<sup>${fraction[1]}</sup><span>&frasl;</span><sub>${fraction[2]}</sub>`
             : ` ${fraction[1]}/${fraction[2]}`;

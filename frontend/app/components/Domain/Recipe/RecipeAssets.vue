@@ -229,7 +229,7 @@ const iconOptions = [
 const serverBase = useRequestURL().origin;
 
 function getIconDefinition(icon: string) {
-  return iconOptions.find(item => item.name === icon) || iconOptions[0];
+  return iconOptions.find(item => item.name === icon) || { name: "mdi-file", title: i18n.t("asset.file"), icon: $globals.icons.file };
 }
 
 function isImage(fileName?: string | null) {
@@ -277,7 +277,8 @@ function assetEmbed(name: string) {
   return `<img src="${serverBase}${assetURL(name)}" height="100%" width="100%" />`;
 }
 
-function setFileObject(fileObject: File) {
+function setFileObject(fileObject: unknown) {
+  if (!(fileObject instanceof File)) return;
   state.fileObject = fileObject;
   // If the user didn't provide a name, default to the file base name
   if (!state.newAsset.name?.trim()) {

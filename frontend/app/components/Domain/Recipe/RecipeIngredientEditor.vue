@@ -279,7 +279,7 @@
         <v-btn
           variant="text"
           color="error"
-          class="text-none"
+          class="text-none ingredient-editor-delete"
           :icon="compact"
           :aria-label="$t('general.delete')"
           :disabled="deleteDisabled"
@@ -460,7 +460,11 @@ const btns = computed(() => {
 const foodStore = useFoodStore();
 const foodData = useFoodData();
 const foodAutocomplete = ref<HTMLInputElement>();
-const { search: foodSearch, filtered: filteredFoods } = useSearch(foodStore.store);
+const { search: foodSearch, filtered: filteredFoods } = useSearch(computed(() =>
+  model.value.food && !foodStore.store.value.some(food => food.id === model.value.food?.id)
+    ? [...foodStore.store.value, model.value.food]
+    : foodStore.store.value,
+));
 
 const allFoods = computed(() => foodStore.store.value);
 
@@ -499,7 +503,11 @@ watch(loading, (val) => {
 const unitStore = useUnitStore();
 const unitsData = useUnitData();
 const unitAutocomplete = ref<HTMLInputElement>();
-const { search: unitSearch, filtered: filteredUnits } = useSearch(unitStore.store);
+const { search: unitSearch, filtered: filteredUnits } = useSearch(computed(() =>
+  model.value.unit && !unitStore.store.value.some(unit => unit.id === model.value.unit?.id)
+    ? [...unitStore.store.value, model.value.unit]
+    : unitStore.store.value,
+));
 
 const showCreateUnit = computed(() =>
   !!unitSearch.value
@@ -715,6 +723,15 @@ function quantityFilter(e: KeyboardEvent) {
   gap: 16px 12px !important;
   padding-top: 16px !important;
 }
+.ingredient-editor-compact {
+  width: 100%;
+  max-width: 1080px;
+  box-sizing: border-box;
+}
+.ingredient-editor-compact .ingredient-editor-heading {
+  flex: 0 0 auto;
+  margin-right: 12px;
+}
 .ingredient-editor-compact .ingredient-editor-toolbar {
   flex-wrap: nowrap;
   justify-content: flex-start;
@@ -723,7 +740,7 @@ function quantityFilter(e: KeyboardEvent) {
   gap: 8px;
 }
 .ingredient-editor-compact .ingredient-editor-toolbar > .v-btn:first-of-type:not(.v-btn--icon) {
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   min-width: 0;
   height: auto;
   min-height: 44px;
@@ -737,6 +754,10 @@ function quantityFilter(e: KeyboardEvent) {
   flex: 0 0 44px;
   width: 44px;
   height: 44px;
+}
+.ingredient-editor-compact .ingredient-editor-toolbar > .ml-auto {
+  margin-left: 0 !important;
+  flex: 0 0 auto;
 }
 @media (min-width: 360px) and (max-width: 600px) {
   .ingredient-editor-compact .ingredient-labeled-grid {

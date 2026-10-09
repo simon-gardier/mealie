@@ -87,12 +87,11 @@
 </template>
 
 <script setup lang="ts">
+import type { RecipeView } from "~/lib/recipe/recipe-view";
 import { useQuantityInput } from "~/composables/use-quantity-input";
 import { validators } from "~/composables/use-validators";
-import type { NoUndefinedField } from "~/lib/api/types/non-generated";
-import type { Recipe } from "~/lib/api/types/recipe";
 
 const { quantityDecimalSeparator, onQuantityInput, onQuantityPaste } = useQuantityInput();
 
-const recipe = defineModel<NoUndefinedField<Recipe>>({ required: true });
+const recipe = defineModel<RecipeView>({ required: true });
 </script>

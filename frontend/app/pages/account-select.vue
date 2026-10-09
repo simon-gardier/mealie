@@ -208,7 +208,9 @@ onMounted(() => {
 .account-select-avatar {
   border: 3px solid rgba(var(--v-theme-media-foreground), 0.6);
   box-shadow: 0 8px 24px rgba(var(--v-theme-media-scrim), 0.45);
-  transition: transform 200ms ease, border-color 200ms ease;
+  transition:
+    transform 200ms ease,
+    border-color 200ms ease;
 }
 
 .account-select-button:hover .account-select-avatar,

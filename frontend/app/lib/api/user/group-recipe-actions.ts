@@ -10,8 +10,8 @@ const routes = {
 };
 
 export class GroupRecipeActionsAPI extends BaseCRUDAPI<CreateGroupRecipeAction, GroupRecipeActionOut> {
-  baseRoute = routes.groupRecipeActions;
-  itemRoute = routes.groupRecipeActionsId;
+  override baseRoute = routes.groupRecipeActions;
+  override itemRoute = routes.groupRecipeActionsId;
 
   async triggerAction(id: string | number, recipeSlug: string, recipeScale: number) {
     return await this.requests.post(routes.groupRecipeActionsIdTriggerRecipeSlug(id, recipeSlug), { recipe_scale: recipeScale });

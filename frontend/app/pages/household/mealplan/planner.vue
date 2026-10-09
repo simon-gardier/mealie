@@ -1,14 +1,23 @@
 <template>
   <v-container class="planner-page">
-    <RecipeDialogAddToShoppingList v-if="shoppingLists" v-model="shoppingListDialog" :recipes="weekRecipesWithScales"
-      :shopping-lists="shoppingLists" />
+    <RecipeDialogAddToShoppingList
+      v-if="shoppingLists"
+      v-model="shoppingListDialog"
+      :recipes="weekRecipesWithScales"
+      :shopping-lists="shoppingLists"
+    />
     <div class="planner-title-image">
       <v-img src="/menus.png" :alt="$t('meal-plan.dinner-this-week')" max-width="360" />
     </div>
     <div class="planner-date-nav">
       <v-btn :icon="$globals.icons.chevronLeft" variant="text" density="comfortable" @click="() => changeWeek(-1)" />
-      <v-menu v-model="state.picker" :close-on-content-click="false" transition="scale-transition" offset-y
-        min-width="auto">
+      <v-menu
+        v-model="state.picker"
+        :close-on-content-click="false"
+        transition="scale-transition"
+        offset-y
+        min-width="auto"
+      >
         <template #activator="{ props }">
           <v-btn color="primary" class="planner-date-nav__range" v-bind="props">
             <v-icon start>
@@ -19,17 +28,34 @@
         </template>
 
         <v-card>
-          <MealPlanDatePicker v-model="state.range" hide-header :multiple="'range'" :first-day-of-week="firstDayOfWeek"
-            :local="$i18n.locale" />
+          <MealPlanDatePicker
+            v-model="state.range"
+            hide-header
+            :multiple="'range'"
+            :first-day-of-week="firstDayOfWeek"
+            :local="$i18n.locale"
+          />
 
           <v-card-text>
-            <v-number-input v-model="numberOfDaysPast" :min="0" inset :label="$t('meal-plan.numberOfDaysPast-label')"
-              :hint="$t('meal-plan.numberOfDaysPast-hint')" persistent-hint />
+            <v-number-input
+              v-model="numberOfDaysPast"
+              :min="0"
+              inset
+              :label="$t('meal-plan.numberOfDaysPast-label')"
+              :hint="$t('meal-plan.numberOfDaysPast-hint')"
+              persistent-hint
+            />
           </v-card-text>
 
           <v-card-text>
-            <v-number-input v-model="numberOfDays" :min="1" inset :label="$t('meal-plan.numberOfDays-label')"
-              :hint="$t('meal-plan.numberOfDays-hint')" persistent-hint />
+            <v-number-input
+              v-model="numberOfDays"
+              :min="1"
+              inset
+              :label="$t('meal-plan.numberOfDays-label')"
+              :hint="$t('meal-plan.numberOfDays-hint')"
+              persistent-hint
+            />
           </v-card-text>
         </v-card>
       </v-menu>
@@ -40,10 +66,20 @@
     </div>
 
     <div class="planner-bottom-actions">
-      <BaseButton color="primary" :icon="$globals.icons.cartCheck" :text="$t('meal-plan.add-to-shopping-list')"
-        :disabled="!hasRecipes" @click="addAllToList" />
-      <v-btn :icon="$globals.icons.cog" variant="text" :aria-label="$t('general.settings')"
-        :title="$t('general.settings')" @click="router.push('/household/mealplan/settings')" />
+      <BaseButton
+        color="primary"
+        :icon="$globals.icons.cartCheck"
+        :text="$t('meal-plan.add-to-shopping-list')"
+        :disabled="!hasRecipes"
+        @click="addAllToList"
+      />
+      <v-btn
+        :icon="$globals.icons.cog"
+        variant="text"
+        :aria-label="$t('general.settings')"
+        :title="$t('general.settings')"
+        @click="router.push('/household/mealplan/settings')"
+      />
     </div>
 
     <v-row />

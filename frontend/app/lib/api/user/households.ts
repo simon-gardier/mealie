@@ -31,8 +31,8 @@ const routes = {
 };
 
 export class HouseholdAPI extends BaseCRUDAPIReadOnly<HouseholdSummary> {
-  baseRoute = routes.households;
-  itemRoute = routes.householdsId;
+  override baseRoute = routes.households;
+  override itemRoute = routes.householdsId;
   /** Returns the Household Data for the Current User
    */
   async getCurrentUserHousehold() {

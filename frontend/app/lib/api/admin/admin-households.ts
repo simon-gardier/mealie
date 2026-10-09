@@ -9,6 +9,6 @@ const routes = {
 };
 
 export class AdminHouseholdsApi extends BaseCRUDAPI<HouseholdCreate, HouseholdInDB, UpdateHouseholdAdmin> {
-  baseRoute: string = routes.adminHouseholds;
-  itemRoute = routes.adminHouseholdsId;
+  override baseRoute: string = routes.adminHouseholds;
+  override itemRoute = routes.adminHouseholdsId;
 }

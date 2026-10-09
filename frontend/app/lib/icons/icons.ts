@@ -8,9 +8,7 @@ import {
   mdiAlertOutline,
   mdiApi,
   mdiArrowLeftBold,
-  mdiArrowLeftBoldOutline,
   mdiArrowRightBold,
-  mdiArrowRightBoldOutline,
   mdiArrowDown,
   mdiArrowUp,
   mdiAutoFix,
@@ -285,7 +283,7 @@ export const icons = {
   wave: mdiHandWaveOutline,
 
   // Crud
-  backArrow: mdiArrowLeftBoldOutline,
+  backArrow: mdiChevronLeft,
   createAlt: mdiPlus,
   create: mdiPlusCircle,
   delete: mdiDelete,
@@ -312,8 +310,8 @@ export const icons = {
   group: mdiAccountGroup,
   accountPlusOutline: mdiAccountPlusOutline,
 
-  forward: mdiArrowRightBoldOutline,
-  back: mdiArrowLeftBoldOutline,
+  forward: mdiChevronRight,
+  back: mdiChevronLeft,
   slotMachine: mdiSlotMachine,
   chevronDown: mdiChevronDown,
   chevronRight: mdiChevronRight,

@@ -1,7 +1,7 @@
 <template>
   <div class="print-container">
     <RecipePrintView
-      :recipe="recipe"
+      :recipe="recipeView(recipe)"
       :scale="scale"
       dense
     />
@@ -11,6 +11,7 @@
 <script setup lang="ts">
 import RecipePrintView from "~/components/Domain/Recipe/RecipePrintView.vue";
 import type { Recipe } from "~/lib/api/types/recipe";
+import { recipeView } from "~/lib/recipe/recipe-view";
 
 interface Props {
   recipe: Recipe;

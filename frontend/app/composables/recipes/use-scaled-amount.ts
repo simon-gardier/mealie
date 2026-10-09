@@ -14,7 +14,7 @@ function formatQuantity(val: number): string {
     valString += fraction[0];
   }
 
-  if (fraction[1] > 0) {
+  if ((fraction[1] ?? 0) > 0) {
     valString += `<sup>${fraction[1]}</sup><span>&frasl;</span><sub>${fraction[2]}</sub>`;
   }
 

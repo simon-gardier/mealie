@@ -13,13 +13,12 @@
 </template>
 
 <script setup lang="ts">
+import type { RecipeView } from "~/lib/recipe/recipe-view";
 import { computed } from "vue";
 import { usePageUser } from "~/composables/recipe-page/shared-state";
 import { useHouseholdStore, useUserStore } from "~/composables/store";
-import type { NoUndefinedField } from "~/lib/api/types/non-generated";
-import type { Recipe } from "~/lib/api/types/recipe";
 
-const recipe = defineModel<NoUndefinedField<Recipe>>({ required: true });
+const recipe = defineModel<RecipeView>({ required: true });
 
 const { user } = usePageUser();
 const { store: allUsers } = useUserStore();

@@ -8,7 +8,7 @@ export interface IAlias {
 }
 
 export interface ISearchableItem {
-  id: string;
+  id?: string | null;
   name: string;
   pluralName?: string | null;
   abbreviation?: string | null;

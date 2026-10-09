@@ -112,6 +112,10 @@ async function upload() {
   }
 
   const file = selectedFiles.value[0];
+  if (!file) {
+    isSelecting.value = false;
+    return;
+  }
   const formData = new FormData();
   formData.append(props.fileName, file);
 

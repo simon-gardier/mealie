@@ -2,6 +2,7 @@ import { describe, expect, test, vi } from "vitest";
 import { ref } from "vue";
 import { useStoreActions } from "../use-actions-factory";
 import type { BaseCRUDAPI } from "~/lib/api/base/base-clients";
+import type { BoundT } from "../types";
 
 describe("useStoreActions", () => {
   const mockApi = {
@@ -9,7 +10,7 @@ describe("useStoreActions", () => {
     createOne: vi.fn(),
     updateOne: vi.fn(),
     deleteOne: vi.fn(),
-  } as unknown as BaseCRUDAPI<unknown, unknown, unknown>;
+  } as unknown as BaseCRUDAPI<unknown, BoundT, unknown>;
 
   const mockStore = ref([]);
   const mockLoading = ref(false);

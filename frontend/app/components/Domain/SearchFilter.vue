@@ -149,7 +149,7 @@ const selected = computed<ISearchableItem[]>({
 });
 
 const selectedRadio = computed<null | ISearchableItem>({
-  get: () => (selected.value.length > 0 ? selected.value[0] : null),
+  get: () => selected.value[0] ?? null,
   set: (value: ISearchableItem | null) => {
     const next = value ? [value] : [];
     selected.value = next;

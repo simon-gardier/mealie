@@ -181,7 +181,9 @@ function toggleEventTypeOption(option: TimelineEventType) {
 
 // Timeline Actions
 async function updateTimelineEvent(index: number, event: RecipeTimelineEventUpdate) {
-  const eventId = timelineEvents.value[index].id;
+  const currentEvent = timelineEvents.value[index];
+  if (!currentEvent) return;
+  const eventId = currentEvent.id;
   const { response } = await api.recipes.updateTimelineEvent(eventId, event);
   if (response?.status !== 200) {
     alert.error(i18n.t("events.something-went-wrong") as string);
@@ -195,7 +197,9 @@ async function updateTimelineEvent(index: number, event: RecipeTimelineEventUpda
 }
 
 async function deleteTimelineEvent(index: number) {
-  const { response } = await api.recipes.deleteTimelineEvent(timelineEvents.value[index].id);
+  const currentEvent = timelineEvents.value[index];
+  if (!currentEvent) return;
+  const { response } = await api.recipes.deleteTimelineEvent(currentEvent.id);
   if (response?.status !== 200) {
     alert.error(i18n.t("events.something-went-wrong") as string);
     return;

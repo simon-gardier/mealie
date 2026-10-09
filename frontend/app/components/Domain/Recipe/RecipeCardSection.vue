@@ -72,8 +72,12 @@
             </v-list-item>
           </v-list>
         </v-menu>
-        <v-btn :icon="$vuetify.display.xs" variant="text" :aria-label="$t('general.toggle-view')"
-          @click="toggleMobileCards()">
+        <v-btn
+          :icon="$vuetify.display.xs"
+          variant="text"
+          :aria-label="$t('general.toggle-view')"
+          @click="toggleMobileCards()"
+        >
           <v-icon :start="!$vuetify.display.xs">
             {{ $globals.icons.gridView }}
           </v-icon>
@@ -84,19 +88,44 @@
     </div>
     <div v-if="recipes && ready">
       <div class="mt-2">
-        <BaseNoResultsAlert v-if="!loading && recipes.length === 0" :text="$t('search.no-results')"
-          class="my-8 mx-auto" />
+        <BaseNoResultsAlert
+          v-if="!loading && recipes.length === 0"
+          :text="$t('search.no-results')"
+          class="my-8 mx-auto"
+        />
         <v-row v-if="!useMobileCards" class="bistro-recipe-grid">
-          <v-col v-for="(recipe, index) in recipes" :key="recipe.id!" :sm="6" :md="6" :lg="6" :xl="6">
-            <RecipeCard :name="recipe.name!" :description="recipe.description!" :slug="recipe.slug!"
-              :rating="recipe.rating!" :image="recipe.image!" :tags="recipe.tags!" :recipe-id="recipe.id!"
-              :style="getRecipeCardStyle(recipe, index)" />
+          <v-col
+            v-for="(recipe, index) in recipes"
+            :key="recipe.id!"
+            :sm="6"
+            :md="6"
+            :lg="6"
+            :xl="6"
+          >
+            <RecipeCard
+              :name="recipe.name!"
+              :description="recipe.description!"
+              :slug="recipe.slug!"
+              :rating="recipe.rating!"
+              :image="recipe.image!"
+              :tags="recipe.tags!"
+              :recipe-id="recipe.id!"
+              :style="getRecipeCardStyle(recipe, index)"
+            />
           </v-col>
         </v-row>
         <v-row v-else density="comfortable" class="bistro-recipe-list">
           <v-col v-for="recipe in recipes" :key="recipe.id!" cols="12">
-            <RecipeCardMobile :name="recipe.name!" :description="recipe.description!" :slug="recipe.slug!"
-              :rating="recipe.rating!" :image="recipe.image!" :tags="recipe.tags!" :recipe-id="recipe.id!" list-mode />
+            <RecipeCardMobile
+              :name="recipe.name!"
+              :description="recipe.description!"
+              :slug="recipe.slug!"
+              :rating="recipe.rating!"
+              :image="recipe.image!"
+              :tags="recipe.tags!"
+              :recipe-id="recipe.id!"
+              list-mode
+            />
           </v-col>
         </v-row>
       </div>

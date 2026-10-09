@@ -169,7 +169,14 @@
       <nuxt-link class="mt-5 d-flex flex-column justify-center text-center text-primary" :to="`/group`"> {{
         $t('profile.looking-for-privacy-settings') }} </nuxt-link>
       <div class="d-flex flex-wrap justify-center mt-5">
-        <v-btn variant="tonal" class="my-1 mx-1" :to="`/user/profile`" nuxt exact>
+        <v-btn
+          variant="text"
+          color="primary"
+          class="navigation-button my-1 mx-1"
+          :to="`/user/profile`"
+          nuxt
+          exact
+        >
           <v-icon start>
             {{ $globals.icons.backArrow }}
           </v-icon>

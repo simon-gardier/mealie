@@ -439,6 +439,7 @@ function addIdToNode(counter: number, node: TreeNode): number {
 
 for (const key in _content) {
   const migration = _content[key];
+  if (!migration) continue;
   if (migration.tree && Array.isArray(migration.tree)) {
     let counter = 1;
     migration.tree.forEach((node: TreeNode) => {
@@ -449,7 +450,8 @@ for (const key in _content) {
 
 console.log(_content);
 
-function setFileObject(fileObject: File) {
+function setFileObject(fileObject: unknown) {
+  if (!(fileObject instanceof File)) return;
   state.fileObject = fileObject;
 }
 

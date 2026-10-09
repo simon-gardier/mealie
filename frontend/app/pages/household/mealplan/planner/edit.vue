@@ -159,8 +159,11 @@ function onMoveCallback(evt: SortableEvent) {
   const toMealsByIndex = parseInt(evt.to.getAttribute("data-index") ?? "");
 
   if (!isNaN(fromMealsByIndex) && !isNaN(toMealsByIndex)) {
-    const destDate = props.mealplans[toMealsByIndex].date;
-    const mealData = mealplansByDate[destDate.toString()][evt.newIndex as number];
+    const destination = props.mealplans[toMealsByIndex];
+    if (!destination || evt.newIndex === undefined) return;
+    const destDate = destination.date;
+    const mealData = mealplansByDate[destDate.toString()]?.[evt.newIndex];
+    if (!mealData) return;
 
     mealData.date = format(destDate, "yyyy-MM-dd");
 

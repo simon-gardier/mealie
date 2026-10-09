@@ -63,7 +63,7 @@ async function insertGroupSlugIntoRoute() {
 
   // insert groupSlug into URL
   const routeComponents = routeVal.split("/");
-  if (routeComponents.length < 2 || routeComponents[1].toLowerCase() !== "g") {
+  if (routeComponents[1]?.toLowerCase() !== "g") {
     replaceRoute = true;
     routeVal = `/g/${groupSlug.value}${routeVal}`;
   }

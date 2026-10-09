@@ -100,7 +100,7 @@
                       style="display: none"
                       @bulk-data="addStep"
                     />
-                    <div class="d-inline-flex my-2">
+                    <div class="d-inline-flex my-2 recipe-section-add-action">
                       <v-btn color="primary" variant="tonal" class="split-main" @click="addStep()">
                         <v-icon start>
                           {{ $globals.icons.createAlt }}
@@ -223,6 +223,7 @@
 </template>
 
 <script setup lang="ts">
+import { recipeView, type RecipeView } from "~/lib/recipe/recipe-view";
 import "~/assets/recipe-editor.css";
 import { invoke, until } from "@vueuse/core";
 import type { RouteLocationNormalized } from "vue-router";
@@ -258,7 +259,7 @@ import { useNavigationWarning } from "~/composables/use-navigation-warning";
 import { useHouseholdSelf } from "~/composables/use-households";
 import { useAmbianceMusic } from "~/composables/use-ambiance-music";
 
-const recipe = defineModel<NoUndefinedField<Recipe>>({ required: true });
+const recipe = defineModel<RecipeView>({ required: true });
 
 const display = useDisplay();
 const auth = useMealieAuth();
@@ -320,7 +321,7 @@ function hasUnsavedChanges(): boolean {
 
 function restoreOriginalRecipe() {
   if (originalRecipe.value) {
-    recipe.value = deepCopy(originalRecipe.value) as NoUndefinedField<Recipe>;
+    recipe.value = recipeView(deepCopy(originalRecipe.value));
   }
 }
 
@@ -436,7 +437,7 @@ async function saveRecipe() {
     setMode(PageMode.VIEW);
   }
   if (data?.slug) {
-    recipe.value = data as NoUndefinedField<Recipe>;
+    recipe.value = recipeView(data);
     originalRecipe.value = deepCopy(recipe.value);
     if (data.slug !== route.params.slug) {
       router.replace(`/g/${groupSlug.value}/r/` + data.slug);

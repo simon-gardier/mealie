@@ -197,7 +197,6 @@ export default defineNuxtConfig({
       // END: MESSAGE_LOCALES
     ],
     strategy: "no_prefix",
-    lazy: true,
     langDir: "./../app/lang/locales", // note: we need to up one ../ because the default root of lang dir is the /frontend/i18n, which can not be configured
     defaultLocale: "en-US",
     detectBrowserLanguage: {

@@ -24,8 +24,8 @@ const routes = {
 };
 
 export class GroupAPI extends BaseCRUDAPI<GroupBase, GroupInDB, GroupAdminUpdate> {
-  baseRoute = routes.groups;
-  itemRoute = routes.groupsId;
+  override baseRoute = routes.groups;
+  override itemRoute = routes.groupsId;
   /** Returns the Group Data for the Current User
    */
   async getCurrentUserGroup() {

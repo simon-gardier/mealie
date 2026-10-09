@@ -12,6 +12,7 @@
 <script setup lang="ts">
 import RecipePage from "~/components/Domain/Recipe/RecipePage/RecipePage.vue";
 import { usePublicApi } from "~/composables/api/api-client";
+import { recipeView } from "~/lib/recipe/recipe-view";
 
 definePageMeta({
   layout: "basic",
@@ -42,6 +43,6 @@ const { data: recipe } = await useAsyncData("recipe", async () => {
     title.value = data?.name || "";
   }
 
-  return data;
+  return data ? recipeView(data) : null;
 });
 </script>

@@ -5,7 +5,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   const pileExplosionThreshold = 18;
   let activeCheeses = 0;
   let pileMode = false;
-  let pileClearTimer: ReturnType<typeof window.setTimeout> | undefined;
+  let pileClearTimer: number | undefined;
 
   function clearPile(explode = false) {
     if (pileClearTimer) {
@@ -29,7 +29,8 @@ export default defineNuxtPlugin((nuxtApp) => {
           { duration: 650, easing: "cubic-bezier(0.2, 0.75, 0.3, 1)", fill: "forwards" },
         );
         burst.onfinish = () => piledCheese.remove();
-      } else {
+      }
+      else {
         const fade = piledCheese.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 600, easing: "ease-out", fill: "forwards" });
         fade.onfinish = () => piledCheese.remove();
       }
@@ -132,7 +133,8 @@ export default defineNuxtPlugin((nuxtApp) => {
       cheese.style.transform = `translate(calc(-50% + ${horizontalDistance}px), calc(-50% + ${verticalDistance}px)) rotate(${rotation}deg)`;
       if (elapsed < flightTime) {
         window.requestAnimationFrame(animateCheese);
-      } else {
+      }
+      else {
         settleCheese();
       }
     }
@@ -141,7 +143,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   }
 
   document.addEventListener("click", dropCheese, true);
-  nuxtApp.hook("app:beforeUnmount", () => {
+  nuxtApp.vueApp.onUnmount(() => {
     document.removeEventListener("click", dropCheese, true);
   });
 });

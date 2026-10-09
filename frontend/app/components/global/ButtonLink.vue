@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-btn color="primary" variant="flat" class="rounded-xl my-1 mx-1" :to="to">
+    <v-btn color="primary" variant="text" class="navigation-button my-1" :to="to">
       <v-icon v-if="icon != ''" start>
         {{ icon }}
       </v-icon>

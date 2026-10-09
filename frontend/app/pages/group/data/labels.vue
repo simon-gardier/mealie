@@ -11,6 +11,8 @@
       :bulk-actions="[{ icon: $globals.icons.delete, text: $t('general.delete'), event: 'delete-selected' }]"
       :create-form="createForm"
       :edit-form="editForm"
+      dialog-class="label-editor-dialog"
+      form-variant="filled"
       @create-one="handleCreate"
       @edit-one="handleEdit"
       @delete-one="labelStore.actions.deleteOne"
@@ -23,14 +25,6 @@
         >
           {{ item.name }}
         </MultiPurposeLabel>
-      </template>
-
-      <template #create-dialog-top>
-        <MultiPurposeLabel v-if="createForm.data.name" :label="createForm.data" class="my-2" />
-      </template>
-
-      <template #edit-dialog-top>
-        <MultiPurposeLabel v-if="editForm.data.name" :label="editForm.data" class="my-2" />
       </template>
     </GroupDataPage>
   </div>
@@ -120,3 +114,26 @@ async function handleBulkAction(event: string, items: MultiPurposeLabelSummary[]
   }
 }
 </script>
+
+<style>
+.label-editor-dialog .v-card > .mx-2.mt-2 {
+  margin: 0 !important;
+  padding: 16px 24px 24px;
+}
+.label-editor-dialog .v-form > .v-card {
+  background: transparent;
+  border: 0;
+  margin: 0 !important;
+}
+.label-editor-dialog .v-form .v-col {
+  padding-inline: 0 !important;
+}
+.label-editor-dialog .v-form .v-input {
+  margin-bottom: 8px;
+}
+@media (max-width: 600px) {
+  .label-editor-dialog .v-card > .mx-2.mt-2 {
+    padding: 16px;
+  }
+}
+</style>

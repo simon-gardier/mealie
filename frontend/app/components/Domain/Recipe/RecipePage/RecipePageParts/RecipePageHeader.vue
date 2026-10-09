@@ -70,6 +70,7 @@
 </template>
 
 <script setup lang="ts">
+import type { RecipeView } from "~/lib/recipe/recipe-view";
 import BaseLoadingSpinner from "~/components/global/BaseLoadingSpinner.vue";
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 import { useRecipePermissions } from "~/composables/recipes";
@@ -79,12 +80,10 @@ import RecipePageEditorToolbar from "~/components/Domain/Recipe/RecipePage/Recip
 import RecipePageEditorOwnerSelect from "~/components/Domain/Recipe/RecipePage/RecipePageParts/RecipePageEditorOwnerSelect.vue";
 import { useStaticRoutes, useUserApi } from "~/composables/api";
 import type { HouseholdSummary } from "~/lib/api/types/household";
-import type { Recipe } from "~/lib/api/types/recipe";
-import type { NoUndefinedField } from "~/lib/api/types/non-generated";
 import { usePageState, usePageUser, PageMode } from "~/composables/recipe-page/shared-state";
 
 interface Props {
-  recipe: NoUndefinedField<Recipe>;
+  recipe: RecipeView;
   recipeScale?: number;
   landscape?: boolean;
 }

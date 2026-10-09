@@ -1,6 +1,5 @@
-import { useAsyncKey } from "../use-utils";
 import { useUserApi } from "~/composables/api";
-import type { VForm } from "~/types/vuetify";
+import type { VForm } from "~/types/auto-forms";
 import type { RecipeTool } from "~/lib/api/types/recipe";
 
 export const useTools = function (eager = true) {
@@ -13,66 +12,72 @@ export const useTools = function (eager = true) {
   const api = useUserApi();
   const loading = ref(false);
   const validForm = ref(false);
+  const tools = ref<RecipeTool[]>([]);
 
   const actions = {
     getAll() {
       loading.value = true;
-      const units = useAsyncData(useAsyncKey(), async () => {
-        const { data } = await api.tools.getAll();
-
-        if (data) {
-          return data.items;
-        }
-        else {
-          return null;
-        }
-      });
-
-      loading.value = false;
-      return units;
+      return actions.refreshAll();
     },
 
     async refreshAll() {
       loading.value = true;
-      const { data } = await api.tools.getAll();
-
-      if (data) {
-        tools.value = data.items;
+      try {
+        const { data } = await api.tools.getAll();
+        if (data) {
+          tools.value = data.items;
+        }
       }
-
-      loading.value = false;
+      finally { loading.value = false; }
     },
 
     async createOne(domForm: VForm | null = null) {
-      if (domForm && !domForm.validate()) {
+      if (loading.value) return;
+      if (domForm && !(await domForm.validate()).valid) {
         validForm.value = false;
+        return;
       }
 
       loading.value = true;
 
-      const { data } = await api.tools.createOne(workingToolData);
+      try {
+        const { data } = await api.tools.createOne(workingToolData);
 
-      if (data) {
-        tools.value?.push(data);
+        if (data) {
+          tools.value?.push(data);
+          domForm?.reset();
+          this.reset();
+        }
       }
-
-      domForm?.reset();
-      this.reset();
+      finally { loading.value = false; }
     },
 
     async updateOne() {
+      if (loading.value) return;
       loading.value = true;
-      const { data } = await api.tools.updateOne(workingToolData.id, workingToolData);
-      if (data) {
-        tools.value?.push(data);
+      try {
+        const { data } = await api.tools.updateOne(workingToolData.id, workingToolData);
+        if (data) {
+          const index = tools.value.findIndex(tool => tool.id === data.id);
+          if (index >= 0) tools.value[index] = data;
+          else tools.value.push(data);
+          this.reset();
+        }
       }
-      this.reset();
+      finally { loading.value = false; }
     },
 
-    async deleteOne(id: number) {
+    async deleteOne(id: string) {
+      if (loading.value) return;
       loading.value = true;
-      await api.tools.deleteOne(id);
-      this.reset();
+      try {
+        const { error } = await api.tools.deleteOne(id);
+        if (!error) {
+          tools.value = tools.value.filter(tool => tool.id !== id);
+          this.reset();
+        }
+      }
+      finally { loading.value = false; }
     },
 
     reset() {
@@ -83,14 +88,7 @@ export const useTools = function (eager = true) {
     },
   };
 
-  const tools = (() => {
-    if (eager) {
-      return actions.getAll();
-    }
-    else {
-      return ref([]);
-    }
-  })();
+  if (eager) onMounted(() => actions.refreshAll());
 
   return {
     tools,

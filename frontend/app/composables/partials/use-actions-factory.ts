@@ -4,7 +4,7 @@ import type { BaseCRUDAPI, BaseCRUDAPIReadOnly } from "~/lib/api/base/base-clien
 import type { QueryValue } from "~/lib/api/base/route";
 
 interface ReadOnlyStoreActions<T extends BoundT> {
-  getAll(page?: number, perPage?: number, params?: any): AsyncData<T[] | null, NuxtError<unknown> | null>;
+  getAll(page?: number, perPage?: number, params?: any): AsyncData<T[] | undefined, NuxtError<unknown> | undefined>;
   refresh(page?: number, perPage?: number, params?: any): Promise<void>;
 }
 

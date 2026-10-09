@@ -2,7 +2,7 @@
   <v-dialog
     v-model="model"
     fullscreen
-    scrim="transparent"
+    :scrim="true"
     transition="fade-transition"
   >
     <div

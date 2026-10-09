@@ -146,7 +146,7 @@ const updateMode = ref(false);
 const headers = [
   {
     title: i18n.t("household.household"),
-    align: "start",
+    align: "start" as const,
     sortable: false,
     value: "id",
   },

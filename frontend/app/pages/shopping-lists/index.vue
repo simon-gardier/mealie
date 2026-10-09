@@ -173,7 +173,8 @@ watch(
   () => shoppingListChoices,
   () => {
     if (!disableRedirect.value && shoppingListChoices.value.length === 1) {
-      navigateTo(`/shopping-lists/${shoppingListChoices.value[0].id}`);
+      const choice = shoppingListChoices.value[0];
+      if (choice) navigateTo(`/shopping-lists/${choice.id}`);
     }
     else {
       ready.value = true;

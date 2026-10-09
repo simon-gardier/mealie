@@ -1,7 +1,11 @@
 <template>
   <div>
-    <BasePageTitle v-if="groupName" class="mt-n4 pt-8" title-image="/history.png"
-      :title-image-alt="$t('recipe.timeline')">
+    <BasePageTitle
+      v-if="groupName"
+      class="mt-n4 pt-8"
+      title-image="/history.png"
+      :title-image-alt="$t('recipe.timeline')"
+    >
       <template #title>
         {{ $t("recipe.group-global-timeline", { groupName }) }}
       </template>

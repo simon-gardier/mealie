@@ -13,7 +13,7 @@
         <v-card-text>
           <div class="d-flex align-center">
             <v-text-field
-              v-model="model[index]['title']"
+              v-model="note.title"
               class="flex-grow-1"
               variant="filled"
               hide-details
@@ -67,7 +67,7 @@
           </div>
           <v-textarea
             v-if="!preview.get(note)"
-            v-model="model[index]['text']"
+            v-model="note.text"
             variant="filled"
             auto-grow
             :label="$t('recipe.note')"
@@ -89,7 +89,7 @@
     </div>
 
     <div v-if="edit" class="d-flex justify-center">
-      <BaseButton variant="tonal" class="my-2" @click="addNote">
+      <BaseButton variant="tonal" class="my-2 recipe-section-add-action" @click="addNote">
         {{ $t("recipe.editor.add-note") }}
       </BaseButton>
     </div>

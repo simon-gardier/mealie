@@ -4,18 +4,20 @@
       v-if="!isEditMode"
       v-model.number="scale"
       :recipe-servings="recipeServings"
-      :edit-scale="hasFoodOrUnit && !isEditMode"
+      :edit-scale="ingredientsAnalyzed && !isEditMode"
+      :analysis-required="!ingredientsAnalyzed"
+      :unanalyzed-subrecipes="unanalyzedSubrecipeNames(recipe.recipeIngredient)"
     />
   </div>
 </template>
 
 <script setup lang="ts">
+import type { RecipeView } from "~/lib/recipe/recipe-view";
 import RecipeScaleEditButton from "~/components/Domain/Recipe/RecipeScaleEditButton.vue";
-import type { NoUndefinedField } from "~/lib/api/types/non-generated";
-import type { Recipe } from "~/lib/api/types/recipe";
 import { usePageState } from "~/composables/recipe-page/shared-state";
+import { canScaleShoppingRecipe, unanalyzedSubrecipeNames } from "~/lib/shopping-recipe-portions";
 
-const props = withDefaults(defineProps<{ recipe: NoUndefinedField<Recipe>; compact?: boolean }>(), {
+const props = withDefaults(defineProps<{ recipe: RecipeView; compact?: boolean }>(), {
   compact: false,
 });
 
@@ -27,14 +29,5 @@ const recipeServings = computed<number>(() => {
   return props.recipe.recipeServings || props.recipe.recipeYieldQuantity || 1;
 });
 
-const hasFoodOrUnit = computed(() => {
-  if (props.recipe.recipeIngredient) {
-    for (const ingredient of props.recipe.recipeIngredient) {
-      if (ingredient.food || ingredient.unit) {
-        return true;
-      }
-    }
-  }
-  return false;
-});
+const ingredientsAnalyzed = computed(() => canScaleShoppingRecipe(props.recipe.recipeIngredient));
 </script>

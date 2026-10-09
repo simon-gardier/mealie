@@ -1,10 +1,21 @@
 <template>
-  <v-card variant="elevated" class="pa-2 shopping-list-item-editor"
-    :class="{ 'shopping-list-item-editor--new': !allowDelete }">
+  <v-card
+    variant="elevated"
+    class="pa-2 shopping-list-item-editor"
+    :class="{ 'shopping-list-item-editor--new': !allowDelete }"
+  >
     <div class="d-flex flex-column ga-3">
-      <InputLabelType v-model="listItem.food" v-model:item-id="listItem.foodId!" :items="foods"
-        :label="$t('shopping-list.food')" :icon="$globals.icons.foods" outlined :autofocus="autoFocus === 'food'" create
-        @create="createAssignFood" />
+      <InputLabelType
+        v-model="listItem.food"
+        v-model:item-id="listItem.foodId!"
+        :items="foods"
+        :label="$t('shopping-list.food')"
+        :icon="$globals.icons.foods"
+        outlined
+        :autofocus="autoFocus === 'food'"
+        create
+        @create="createAssignFood"
+      />
       <ShoppingListItemDetails v-model="listItem" :labels="labels" :units="units" @save="$emit('save')" />
     </div>
     <v-card-actions class="justify-space-between pa-0">

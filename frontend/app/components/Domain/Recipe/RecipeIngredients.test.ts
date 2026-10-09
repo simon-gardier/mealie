@@ -65,15 +65,15 @@ describe("RecipeIngredients", () => {
 
   test("restores checked ingredients from session storage by reference id", async () => {
     const firstWrapper = mountIngredients([ingredients.curryPaste, ingredients.coconutMilk]);
-    await firstWrapper.findAll(".checkbox")[0].trigger("click");
+    await firstWrapper.findAll(".checkbox")[0]?.trigger("click");
     await nextTick();
 
-    expect(firstWrapper.findAll(".checkbox")[0].attributes("aria-pressed")).toBe("true");
+    expect(firstWrapper.findAll(".checkbox")[0]?.attributes("aria-pressed")).toBe("true");
     firstWrapper.unmount();
 
     const secondWrapper = mountIngredients([ingredients.coconutMilk, ingredients.curryPaste]);
 
-    expect(secondWrapper.findAll(".checkbox")[0].attributes("aria-pressed")).toBe("false");
-    expect(secondWrapper.findAll(".checkbox")[1].attributes("aria-pressed")).toBe("true");
+    expect(secondWrapper.findAll(".checkbox")[0]?.attributes("aria-pressed")).toBe("false");
+    expect(secondWrapper.findAll(".checkbox")[1]?.attributes("aria-pressed")).toBe("true");
   });
 });

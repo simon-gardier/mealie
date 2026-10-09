@@ -1,23 +1,27 @@
 <template>
   <v-text-field
     v-model="modelValue"
+    :variant="variant"
     :label="$t('general.color')"
   >
-    <template #prepend>
+    <template #append-inner>
       <v-btn
         class="elevation-0"
-        size="small"
-        height="30px"
-        width="30px"
-        :color="modelValue || 'grey'"
+        icon
+        variant="text"
+        height="44"
+        width="44"
+        color="primary"
+        :aria-label="$t('general.random-color')"
+        :title="$t('general.random-color')"
         @click="setRandomHex"
       >
-        <v-icon color="media-foreground">
+        <v-icon>
           {{ $globals.icons.refreshCircle }}
         </v-icon>
       </v-btn>
     </template>
-    <template #append>
+    <template #prepend-inner>
       <v-menu
         v-model="menu"
         start
@@ -26,9 +30,17 @@
         :close-on-content-click="false"
       >
         <template #activator="{ props }">
-          <v-icon v-bind="props">
-            {{ $globals.icons.formatColorFill }}
-          </v-icon>
+          <v-btn
+            v-bind="props"
+            class="color-swatch"
+            :style="{ backgroundColor: modelValue || undefined }"
+            variant="outlined"
+            width="36"
+            height="36"
+            min-width="36"
+            :aria-label="$t('general.choose-color')"
+            :title="$t('general.choose-color')"
+          />
         </template>
         <v-card>
           <v-card-text class="pa-0">
@@ -47,6 +59,7 @@
 </template>
 
 <script setup lang="ts">
+defineProps<{ variant?: "filled" | "outlined" | "plain" | "underlined" | "solo" | "solo-filled" | "solo-inverted" }>();
 const modelValue = defineModel({
   type: String,
   required: true,
@@ -64,3 +77,10 @@ function setRandomHex() {
   modelValue.value = getRandomHex();
 }
 </script>
+
+<style scoped>
+.color-swatch {
+  border-radius: 8px;
+  margin-inline-end: 8px;
+}
+</style>

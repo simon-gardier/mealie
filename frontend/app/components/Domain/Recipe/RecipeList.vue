@@ -104,6 +104,10 @@ const listItemDescriptions = computed<string[]>(() => {
   const listItemDescriptions: string[] = [];
   for (let i = 0; i < props.recipes.length; i++) {
     const itemRef = props.listItem?.recipeReferences[i];
+    if (!itemRef) {
+      listItemDescriptions.push("");
+      continue;
+    }
     const quantity = (itemRef.recipeQuantity || 1) * (itemRef.recipeScale || 1);
 
     let listItemDescription = "";
@@ -113,7 +117,7 @@ const listItemDescriptions = computed<string[]>(() => {
         listItemDescription += fraction[0];
       }
 
-      if (fraction[1] > 0) {
+      if ((fraction[1] ?? 0) > 0) {
         listItemDescription += ` <sup>${fraction[1]}</sup>&frasl;<sub>${fraction[2]}</sub>`;
       }
       else {

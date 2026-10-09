@@ -69,7 +69,7 @@
                     v-model="childRecipe.checked"
                     hide-details
                     density="compact"
-                    :label="childRecipe.name"
+                    :label="childRecipe.name ?? undefined"
                     class="my-0 py-0"
                     color="primary"
                     @click.stop
@@ -303,7 +303,7 @@ async function createTimelineEvent() {
         newTimelineEventImageName.value,
       );
       if (imageResponse.data) {
-        newEvent.image = imageResponse.data.image;
+        newEvent.image = "has image";
       }
     }
     catch (error) {

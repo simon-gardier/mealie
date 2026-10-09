@@ -71,11 +71,12 @@ export default defineNuxtPlugin((nuxtApp) => {
     const ratio = Math.min(window.devicePixelRatio || 1, 2, Math.sqrt(2_400_000 / (width * height)));
     canvas.width = Math.round(width * ratio);
     canvas.height = Math.round(height * ratio);
-    const context = canvas.getContext("2d");
-    if (!context) {
+    const canvasContext = canvas.getContext("2d");
+    if (!canvasContext) {
       animation.remove();
       return;
     }
+    const context = canvasContext;
     context.setTransform(ratio, 0, 0, ratio, 0, 0);
 
     const startedAt = performance.now();
@@ -120,7 +121,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   document.addEventListener(FAVORITED_EVENT, playSynesthesia);
   document.addEventListener("pointerdown", stopOnPointerDown);
-  nuxtApp.hook("app:beforeUnmount", () => {
+  nuxtApp.vueApp.onUnmount(() => {
     document.removeEventListener(FAVORITED_EVENT, playSynesthesia);
     document.removeEventListener("pointerdown", stopOnPointerDown);
   });

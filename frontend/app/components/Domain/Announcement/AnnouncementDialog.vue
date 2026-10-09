@@ -78,8 +78,10 @@
       />
       <BaseButton
         :disabled="isLastAnnouncement(currentAnnouncement.key)"
-        color="info"
-        :icon="$globals.icons.arrowRightBold"
+        color="primary"
+        variant="tonal"
+        class="navigation-button"
+        :icon="$globals.icons.forward"
         icon-right
         :text="$t('general.next')"
         @click="nextAnnouncement"

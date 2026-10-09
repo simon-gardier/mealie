@@ -1,32 +1,18 @@
 <template>
-  <div
-    class="mx-auto my-3 justify-center"
-    style="display: flex;"
+  <RecipeLoading
+    v-if="loading"
+    :label="waitingTextCalculated"
+    :class="{ 'app-loader-compact': small || tiny }"
   >
-    <div class="text-center">
-      <v-progress-circular
-        :width="size.width"
-        :size="size.size"
-        color="primary"
-        indeterminate
-      >
-        <v-icon
-          :size="size.icon"
-          color="primary"
-        >
-          {{ $globals.icons.primary }}
-        </v-icon>
-      </v-progress-circular>
-      <div :class="large ? 'text-title-large mt-5' : 'text-body-large mt-3'">
-        <slot>
-          {{ (small || tiny) ? "" : waitingTextCalculated }}
-        </slot>
-      </div>
-    </div>
-  </div>
+    <template v-if="$slots.default" #default>
+      <slot />
+    </template>
+  </RecipeLoading>
 </template>
 
 <script setup lang="ts">
+import RecipeLoading from "~/components/Domain/Recipe/RecipeLoading.vue";
+
 const props = defineProps({
   loading: {
     type: Boolean,
@@ -54,35 +40,13 @@ const props = defineProps({
   },
 });
 
-const size = computed(() => {
-  if (props.tiny) {
-    return {
-      width: 2,
-      icon: 0,
-      size: 25,
-    };
-  }
-  if (props.small) {
-    return {
-      width: 2,
-      icon: 30,
-      size: 50,
-    };
-  }
-  else if (props.large) {
-    return {
-      width: 4,
-      icon: 120,
-      size: 200,
-    };
-  }
-  return {
-    width: 3,
-    icon: 75,
-    size: 125,
-  };
-});
-
 const i18n = useI18n();
-const waitingTextCalculated = props.waitingText == null ? i18n.t("general.loading") : props.waitingText;
+const waitingTextCalculated = computed(() => props.waitingText ?? i18n.t("general.loading"));
 </script>
+
+<style scoped>
+.app-loader-compact {
+  min-height: 44px;
+  padding: 8px;
+}
+</style>

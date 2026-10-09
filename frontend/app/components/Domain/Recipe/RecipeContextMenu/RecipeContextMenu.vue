@@ -16,6 +16,7 @@
       <template #activator="{ props: activatorProps }">
         <v-btn
           icon
+          :aria-label="$t('general.actions')"
           :variant="fab ? 'tonal' : undefined"
           :rounded="fab ? 'circle' : undefined"
           :size="fab ? 'small' : undefined"

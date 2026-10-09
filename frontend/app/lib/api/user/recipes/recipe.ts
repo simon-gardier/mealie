@@ -92,8 +92,8 @@ export type RecipeSearchQuery = {
 };
 
 export class RecipeAPI extends BaseCRUDAPI<CreateRecipe, Recipe, Recipe> {
-  baseRoute: string = routes.recipesBase;
-  itemRoute = routes.recipesRecipeSlug;
+  override baseRoute: string = routes.recipesBase;
+  override itemRoute = routes.recipesRecipeSlug;
 
   comments: CommentsApi;
   share: RecipeShareApi;

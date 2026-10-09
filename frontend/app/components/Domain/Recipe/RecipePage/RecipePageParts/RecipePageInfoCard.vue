@@ -61,17 +61,16 @@
 </template>
 
 <script setup lang="ts">
+import type { RecipeView } from "~/lib/recipe/recipe-view";
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 import RecipeRating from "~/components/Domain/Recipe/RecipeRating.vue";
 import RecipeLastMade from "~/components/Domain/Recipe/RecipeLastMade.vue";
 import RecipeTimeCard from "~/components/Domain/Recipe/RecipeTimeCard.vue";
 import RecipeYield from "~/components/Domain/Recipe/RecipeYield.vue";
 import RecipePageInfoCardImage from "~/components/Domain/Recipe/RecipePage/RecipePageParts/RecipePageInfoCardImage.vue";
-import type { Recipe } from "~/lib/api/types/recipe";
-import type { NoUndefinedField } from "~/lib/api/types/non-generated";
 
 interface Props {
-  recipe: NoUndefinedField<Recipe>;
+  recipe: RecipeView;
   recipeScale?: number;
   landscape: boolean;
 }

@@ -1,11 +1,24 @@
 <template>
   <div>
-    <BaseDialog v-model="dialog" width="500" :title="properties.title" :icon="properties.icon" can-submit
-      :submit-disabled="!name" @submit="select">
+    <BaseDialog
+      v-model="dialog"
+      width="500"
+      :title="properties.title"
+      :icon="properties.icon"
+      can-submit
+      :submit-disabled="!name"
+      @submit="select"
+    >
       <v-form>
         <v-card-text>
-          <v-text-field v-model="name" :label="properties.label" :rules="[rules.required]" density="default"
-            variant="filled" autofocus />
+          <v-text-field
+            v-model="name"
+            :label="properties.label"
+            :rules="[rules.required]"
+            density="default"
+            variant="filled"
+            autofocus
+          />
           <v-checkbox v-if="itemType === Organizer.Tool" v-model="onHand" :label="$t('tool.on-hand')" />
         </v-card-text>
       </v-form>

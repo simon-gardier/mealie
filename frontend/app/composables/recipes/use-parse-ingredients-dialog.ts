@@ -1,4 +1,4 @@
-import { ingredientAnalysisErrorKey } from "~/lib/ingredient-analysis-error";
+import { ingredientAnalysisErrorKey, ingredientAnalysisErrorReason } from "~/lib/ingredient-analysis-error";
 import { alert } from "~/composables/use-toast";
 import type { NoUndefinedField } from "~/lib/api/types/non-generated";
 import type { IngredientFood, IngredientUnit, ParsedIngredient, RecipeIngredient } from "~/lib/api/types/recipe";
@@ -16,7 +16,7 @@ export const enum ParseStep {
 }
 
 export function useParseIngredientsDialog(
-  ingredients: NoUndefinedField<RecipeIngredient[]>,
+  ingredients: RecipeIngredient[],
   onSave: (ingredients: NoUndefinedField<RecipeIngredient>[]) => void,
 ) {
   const { ingredientToParserString } = useIngredientTextParser();
@@ -33,7 +33,10 @@ export function useParseIngredientsDialog(
   // The natural language parser is trained on English recipes, so it isn't a sensible default for
   // other languages: it recognises the quantity but leaves the unit in the food name.
   const isEnglishLocale = computed(() => (i18n.locale.value || "").toLowerCase().startsWith("en"));
-  const parserPreferences = useParsingPreferences(isEnglishLocale.value ? "nlp" : "brute");
+  const defaultParser = computed<Parser>(() => group.value?.aiProviderSettings?.aiEnabled
+    ? "openai"
+    : isEnglishLocale.value ? "nlp" : "brute");
+  const parserPreferences = useParsingPreferences(defaultParser.value);
   const parser = ref<Parser>(parserPreferences.value.parser || "nlp");
   const showNlpLanguageHint = computed(() => parser.value === "nlp" && !isEnglishLocale.value);
   const dontShowInfoPage = ref(parserPreferences.value.dontShowInfoPage);
@@ -400,7 +403,7 @@ export function useParseIngredientsDialog(
     }
     catch (error) {
       console.error("Error parsing ingredients:", error);
-      alert.error(i18n.t(ingredientAnalysisErrorKey(parser.value, error)));
+      alert.error(ingredientAnalysisErrorReason(error) || i18n.t(ingredientAnalysisErrorKey(parser.value, error)));
     }
     finally {
       state.loadingCount -= 1;
@@ -579,6 +582,7 @@ export function useParseIngredientsDialog(
     currentIngHasError,
     availableParsers,
     parserPreferences,
+    defaultParser,
     parser,
     showNlpLanguageHint,
     dontShowInfoPage,

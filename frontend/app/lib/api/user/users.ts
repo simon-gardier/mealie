@@ -45,8 +45,8 @@ const routes = {
 };
 
 export class UserApi extends BaseCRUDAPI<UserIn, UserOut, UserBase> {
-  baseRoute: string = routes.users;
-  itemRoute = (itemid: string) => routes.usersId(itemid);
+  override baseRoute: string = routes.users;
+  override itemRoute = (itemid: string) => routes.usersId(itemid);
 
   async addFavorite(id: string, slug: string) {
     return await this.requests.post(routes.usersIdFavoritesSlug(id, slug), {});
@@ -81,7 +81,7 @@ export class UserApi extends BaseCRUDAPI<UserIn, UserOut, UserBase> {
   }
 
   async createAPIToken(tokenName: LongLiveTokenIn) {
-    return await this.requests.post<LongLiveTokenOut>(routes.usersApiTokens, tokenName);
+    return await this.requests.post<LongLiveTokenOut & { token: string }>(routes.usersApiTokens, tokenName);
   }
 
   async deleteAPIToken(tokenId: number) {

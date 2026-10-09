@@ -33,7 +33,7 @@ function updateHeaderOffset() {
     "--bistro-header-bottom", `${element.getBoundingClientRect().bottom}px`,
   );
 }
-useResizeObserver(header, updateHeaderOffset);
+useResizeObserver(computed(() => header.value?.$el), updateHeaderOffset);
 onMounted(updateHeaderOffset);
 
 const auth = useMealieAuth();

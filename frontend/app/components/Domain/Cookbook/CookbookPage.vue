@@ -1,10 +1,19 @@
 <template>
   <div>
     <!-- Edit Dialog -->
-    <BaseDialog v-if="editTarget" v-model="dialogStates.edit" width="100%" max-width="1100px"
-      :icon="$globals.icons.pages" :title="$t('general.edit')" :submit-icon="$globals.icons.save"
-      :submit-text="$t('general.save')" :submit-disabled="!editTarget.queryFilterString" can-submit
-      @submit="editCookbook">
+    <BaseDialog
+      v-if="editTarget"
+      v-model="dialogStates.edit"
+      width="100%"
+      max-width="1100px"
+      :icon="$globals.icons.pages"
+      :title="$t('general.edit')"
+      :submit-icon="$globals.icons.save"
+      :submit-text="$t('general.save')"
+      :submit-disabled="!editTarget.queryFilterString"
+      can-submit
+      @submit="editCookbook"
+    >
       <v-card-text>
         <CookbookEditor v-model="editTarget" />
       </v-card-text>
@@ -26,8 +35,15 @@
       </v-sheet>
 
       <v-container class="pa-0">
-        <RecipeCardSection class="mb-5 mx-1" :recipes="recipes" :query="{ cookbook: slug }" @sort-recipes="assignSorted"
-          @replace-recipes="replaceRecipes" @append-recipes="appendRecipes" @delete="removeRecipe">
+        <RecipeCardSection
+          class="mb-5 mx-1"
+          :recipes="recipes"
+          :query="{ cookbook: slug }"
+          @sort-recipes="assignSorted"
+          @replace-recipes="replaceRecipes"
+          @append-recipes="appendRecipes"
+          @delete="removeRecipe"
+        >
           <template #toolbar-actions>
             <v-btn v-if="canEdit" :icon="$vuetify.display.xs" variant="text" @click="handleEditCookbook">
               <v-icon :start="!$vuetify.display.xs">
@@ -81,7 +97,7 @@ const dialogStates = reactive({
 const editTarget = ref<ReadCookBook | null>(null);
 function handleEditCookbook() {
   dialogStates.edit = true;
-  editTarget.value = book.value;
+  editTarget.value = book.value ?? null;
 }
 
 async function editCookbook() {

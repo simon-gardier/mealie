@@ -23,11 +23,12 @@
           <v-list-item v-for="(tool, index) in recipe.tools" :key="index" density="compact" class="px-1">
             <template #prepend>
               <v-checkbox
-                v-model="recipeTools[index].onHand"
+                :model-value="recipeTools[index]?.onHand ?? false"
                 hide-details
                 class="pt-0 py-auto"
                 color="primary"
                 density="compact"
+                @update:model-value="setToolOnHand(index, $event)"
                 @change="updateTool(index)"
               />
             </template>
@@ -42,11 +43,11 @@
 </template>
 
 <script setup lang="ts">
+import type { RecipeView } from "~/lib/recipe/recipe-view";
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 import { usePageState, usePageUser } from "~/composables/recipe-page/shared-state";
 import { useToolStore } from "~/composables/store";
-import type { NoUndefinedField } from "~/lib/api/types/non-generated";
-import type { Recipe, RecipeTool } from "~/lib/api/types/recipe";
+import type { RecipeTool } from "~/lib/api/types/recipe";
 import RecipeIngredients from "~/components/Domain/Recipe/RecipeIngredients.vue";
 import RecipePageScale from "~/components/Domain/Recipe/RecipePage/RecipePageParts/RecipePageScale.vue";
 
@@ -55,7 +56,7 @@ interface RecipeToolWithOnHand extends RecipeTool {
 }
 
 interface Props {
-  recipe: NoUndefinedField<Recipe>;
+  recipe: RecipeView;
   scale: number;
   isCookMode?: boolean;
   ingredientStorageKey?: string;
@@ -88,9 +89,15 @@ watch(() => props.recipe.tools, () => {
   }
 }, { immediate: true });
 
+function setToolOnHand(index: number, value: boolean | null) {
+  const tool = recipeTools.value[index];
+  if (tool) tool.onHand = !!value;
+}
+
 function updateTool(index: number) {
   if (user.id && user.householdSlug && toolStore) {
     const tool = recipeTools.value[index];
+    if (!tool) return;
     if (tool.onHand && !tool.householdsWithTool?.includes(user.householdSlug)) {
       if (!tool.householdsWithTool) {
         tool.householdsWithTool = [user.householdSlug];

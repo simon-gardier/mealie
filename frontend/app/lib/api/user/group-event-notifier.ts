@@ -13,8 +13,8 @@ export class GroupEventNotifierApi extends BaseCRUDAPI<
   GroupEventNotifierOut,
   GroupEventNotifierUpdate
 > {
-  baseRoute = routes.eventNotifier;
-  itemRoute = routes.eventNotifierId;
+  override baseRoute = routes.eventNotifier;
+  override itemRoute = routes.eventNotifierId;
 
   async test(itemId: string) {
     return await this.requests.post(`${this.baseRoute}/${itemId}/test`, {});

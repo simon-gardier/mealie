@@ -2,9 +2,16 @@
   <div v-if="items">
     <RecipeOrganizerDialog v-model="dialogs.organizer" :item-type="itemType" />
 
-    <BaseDialog v-if="deleteTarget" v-model="dialogs.delete" bottom-sheet
-      :title="$t('general.delete-with-name', { name: $t(translationKey) })" color="error"
-      :icon="$globals.icons.alertCircle" can-confirm @confirm="deleteOne()">
+    <BaseDialog
+      v-if="deleteTarget"
+      v-model="dialogs.delete"
+      bottom-sheet
+      :title="$t('general.delete-with-name', { name: $t(translationKey) })"
+      color="error"
+      :icon="$globals.icons.alertCircle"
+      can-confirm
+      @confirm="deleteOne()"
+    >
       <v-card-text>
         <p>{{ $t("general.confirm-delete-generic-with-name", { name: $t(translationKey) }) }}</p>
         <p class="mt-4 mb-0 ml-4">
@@ -13,8 +20,14 @@
       </v-card-text>
     </BaseDialog>
 
-    <BaseDialog v-if="updateTarget" v-model="dialogs.update" :title="$t('general.update')" :icon="$globals.icons.edit"
-      can-confirm @confirm="updateOne()">
+    <BaseDialog
+      v-if="updateTarget"
+      v-model="dialogs.update"
+      :title="$t('general.update')"
+      :icon="$globals.icons.edit"
+      can-confirm
+      @confirm="updateOne()"
+    >
       <v-card-text>
         <v-text-field v-model="updateTarget.name" :label="$t('general.name')" />
         <v-checkbox v-if="itemType === Organizer.Tool" v-model="updateTarget.onHand" :label="$t('tool.on-hand')" />
@@ -23,8 +36,15 @@
 
     <v-row density="comfortable">
       <v-col>
-        <v-text-field v-model="searchString" variant="filled" autofocus color="primary accent-3"
-          :placeholder="$t('search.search-placeholder')" :prepend-inner-icon="$globals.icons.search" clearable />
+        <v-text-field
+          v-model="searchString"
+          variant="filled"
+          autofocus
+          color="primary accent-3"
+          :placeholder="$t('search.search-placeholder')"
+          :prepend-inner-icon="$globals.icons.search"
+          clearable
+        />
       </v-col>
     </v-row>
 
@@ -42,7 +62,15 @@
     <section v-for="(itms, key, idx) in itemsSorted" :key="'header' + idx" :class="idx === 1 ? null : 'my-4'">
       <BaseCardSectionTitle v-if="isTitle(key)" :title="key" />
       <v-row>
-        <v-col v-for="(item, index) in itms" :key="'cat' + index" cols="12" :sm="12" :md="6" :lg="4" :xl="3">
+        <v-col
+          v-for="(item, index) in itms"
+          :key="'cat' + index"
+          cols="12"
+          :sm="12"
+          :md="6"
+          :lg="4"
+          :xl="3"
+        >
           <v-card v-if="item" class="left-border" hover :to="`/g/${groupSlug}?${itemType}=${item.id}`">
             <v-card-actions>
               <v-icon>
@@ -51,8 +79,11 @@
               <v-card-title class="py-1 text-truncate flex-shrink-1 flex-grow-1">
                 {{ item.name }}
               </v-card-title>
-              <ContextMenu :items="[presets.delete, presets.edit]" @delete="confirmDelete(item)"
-                @edit="openUpdateDialog(item)" />
+              <ContextMenu
+                :items="[presets.delete, presets.edit]"
+                @delete="confirmDelete(item)"
+                @edit="openUpdateDialog(item)"
+              />
             </v-card-actions>
           </v-card>
         </v-col>
@@ -61,7 +92,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends { id?: string | null; name: string; slug?: string; onHand?: boolean }">
 import Fuse from "fuse.js";
 import { useContextPresets } from "~/composables/use-context-presents";
 import RecipeOrganizerDialog from "~/components/Domain/Recipe/RecipeOrganizerDialog.vue";
@@ -69,22 +100,15 @@ import { Organizer, type RecipeOrganizer } from "~/lib/api/types/non-generated";
 import { useRouteQuery } from "~/composables/use-router";
 import { deepCopy } from "~/composables/use-utils";
 
-interface GenericItem {
-  id: string;
-  name: string;
-  slug: string;
-  onHand: boolean;
-}
-
 const props = defineProps<{
-  items: GenericItem[];
+  items: T[];
   icon: string;
   titleImage?: string;
   itemType: RecipeOrganizer;
 }>();
 
 const emit = defineEmits<{
-  update: [item: GenericItem];
+  update: [item: T];
   delete: [id: string];
 }>();
 
@@ -129,23 +153,23 @@ const translationKey = computed<string>(() => {
   return typeMap[props.itemType] || "";
 });
 
-const deleteTarget = ref<GenericItem | null>(null);
-const updateTarget = ref<GenericItem | null>(null);
+const deleteTarget = shallowRef<T | null>(null);
+const updateTarget = shallowRef<T | null>(null);
 
-function confirmDelete(item: GenericItem) {
+function confirmDelete(item: T) {
   deleteTarget.value = item;
   dialogs.value.delete = true;
 }
 
 function deleteOne() {
-  if (!deleteTarget.value) {
+  if (!deleteTarget.value?.id) {
     return;
   }
 
   emit("delete", deleteTarget.value.id);
 }
 
-function openUpdateDialog(item: GenericItem) {
+function openUpdateDialog(item: T) {
   updateTarget.value = deepCopy(item);
   dialogs.value.update = true;
 }
@@ -167,7 +191,7 @@ const fuse = computed(() => {
   return new Fuse(props.items, state.options);
 });
 
-const fuzzyItems = computed<GenericItem[]>(() => {
+const fuzzyItems = computed<T[]>(() => {
   if (searchString.value.trim() === "") {
     return props.items;
   }
@@ -179,7 +203,7 @@ const fuzzyItems = computed<GenericItem[]>(() => {
 // Sorted Items
 
 const itemsSorted = computed(() => {
-  const byLetter: { [key: string]: Array<GenericItem> } = {};
+  const byLetter: { [key: string]: Array<T> } = {};
 
   if (!fuzzyItems.value) {
     return byLetter;
@@ -188,7 +212,7 @@ const itemsSorted = computed(() => {
   [...fuzzyItems.value]
     .sort((a, b) => a.name.localeCompare(b.name))
     .forEach((item) => {
-      const letter = item.name[0].toUpperCase();
+      const letter = item.name.charAt(0).toUpperCase();
       if (!byLetter[letter]) {
         byLetter[letter] = [];
       }

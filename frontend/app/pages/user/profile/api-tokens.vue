@@ -7,7 +7,7 @@
       <template #title>
         {{ $t("settings.token.api-tokens") }}
       </template>
-      {{ $t('settings.token.you-have-token-count', user.tokens!.length) }}
+      {{ $t('settings.token.you-have-token-count', user?.tokens?.length || 0) }}
     </BasePageTitle>
     <section class="d-flex justify-center">
       <v-card class="mt-4 pa-4" width="100%" flat>
@@ -53,7 +53,7 @@
           </BaseButton>
           <v-spacer />
           <AppButtonCopy v-if="createdToken" :icon="false" color="info" :copy-text="createdToken" />
-          <BaseButton v-else key="generate-button" :disabled="name == ''" @click="createToken(name)">
+          <BaseButton v-else key="generate-button" :disabled="!name.trim() || loading" :loading="loading" @click="createToken(name)">
             {{ $t('settings.token.generate') }}
           </BaseButton>
         </v-card-actions>
@@ -142,21 +142,20 @@ function resetCreate() {
 
 async function createToken(name: string) {
   if (loading.value) {
-    resetCreate();
     return;
   }
-
+  if (!name.trim() || !domNewTokenForm.value || !(await domNewTokenForm.value.validate()).valid) {
+    return;
+  }
   loading.value = true;
+  try {
+    const { data } = await api.users.createAPIToken({ name });
 
-  if (!domNewTokenForm?.value?.validate()) {
-    return;
+    if (data) {
+      createdToken.value = data.token;
+    }
   }
-
-  const { data } = await api.users.createAPIToken({ name });
-
-  if (data) {
-    createdToken.value = data.token;
-  }
+  finally { loading.value = false; }
 }
 
 function openDeleteDialog(id: number) {

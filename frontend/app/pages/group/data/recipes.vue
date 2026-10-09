@@ -1,16 +1,33 @@
 <template>
   <v-container fluid>
     <!-- Export Purge Confirmation Dialog -->
-    <BaseDialog v-model="purgeExportsDialog" bottom-sheet :title="$t('data-pages.recipes.purge-exports')" color="error"
-      :icon="$globals.icons.alertCircle" can-confirm @confirm="purgeExports()">
+    <BaseDialog
+      v-model="purgeExportsDialog"
+      bottom-sheet
+      :title="$t('data-pages.recipes.purge-exports')"
+      color="error"
+      :icon="$globals.icons.alertCircle"
+      can-confirm
+      @confirm="purgeExports()"
+    >
       <v-card-text> {{ $t('data-pages.recipes.are-you-sure-you-want-to-delete-all-export-data') }} </v-card-text>
     </BaseDialog>
 
     <!-- Base Dialog Object -->
-    <BaseDialog ref="domDialog" v-model="dialog.state" bottom-sheet width="650px"
-      :color="dialog.mode == MODES.delete ? 'error' : undefined" :icon="dialog.icon" :title="dialog.title"
-      :submit-text="$t('general.submit')" :can-submit="dialog.mode != MODES.delete"
-      :can-delete="dialog.mode == MODES.delete" @submit="dialog.callback" @delete="dialog.callback">
+    <BaseDialog
+      ref="domDialog"
+      v-model="dialog.state"
+      bottom-sheet
+      width="650px"
+      :color="dialog.mode == MODES.delete ? 'error' : undefined"
+      :icon="dialog.icon"
+      :title="dialog.title"
+      :submit-text="$t('general.submit')"
+      :can-submit="dialog.mode != MODES.delete"
+      :can-delete="dialog.mode == MODES.delete"
+      @submit="dialog.callback"
+      @delete="dialog.callback"
+    >
       <v-card-text v-if="dialog.mode == MODES.tag">
         <RecipeOrganizerSelector v-model="toSetTags" selector-type="tags" />
       </v-card-text>
@@ -34,7 +51,7 @@
       <v-card-text v-else-if="dialog.mode == MODES.export">
         <p class="h4">
           {{ $t('data-pages.recipes.the-following-recipes-selected-length-will-be-exported',
-            [selected.length]) }}
+                [selected.length]) }}
         </p>
         <v-card variant="outlined" rounded="lg">
           <v-virtual-scroll height="400" item-height="25" :items="selected">
@@ -56,8 +73,15 @@
         </p>
       </v-card-text>
       <v-card-text v-else-if="dialog.mode == MODES.changeOwner">
-        <v-select v-model="selectedOwner" :items="allUsers" item-title="fullName" item-value="id"
-          :label="$t('general.owner')" variant="filled" hide-details>
+        <v-select
+          v-model="selectedOwner"
+          :items="allUsers"
+          item-title="fullName"
+          item-value="id"
+          :label="$t('general.owner')"
+          variant="filled"
+          hide-details
+        >
           <template #prepend>
             <UserAvatar :user-id="selectedOwner" :tooltip="false" />
           </template>
@@ -89,15 +113,32 @@
             </v-card-title>
             <v-divider class="mx-2" />
             <v-card-text class="mt-n5">
-              <v-checkbox v-for="(_, key) in headers" :key="key" v-model="headers[key]" density="compact" flat inset
-                :label="headerLabels[key]" hide-details />
+              <v-checkbox
+                v-for="(_, key) in headers"
+                :key="key"
+                v-model="headers[key]"
+                density="compact"
+                flat
+                inset
+                :label="headerLabels[key]"
+                hide-details
+              />
             </v-card-text>
           </v-card>
         </v-menu>
-        <BaseOverflowButton :disabled="selected.length < 1" mode="event" color="info" variant="elevated"
-          :items="actions" @export-selected="openDialog(MODES.export)" @tag-selected="openDialog(MODES.tag)"
-          @categorize-selected="openDialog(MODES.category)" @delete-selected="openDialog(MODES.delete)"
-          @update-settings="openDialog(MODES.updateSettings)" @change-owner="openDialog(MODES.changeOwner)" />
+        <BaseOverflowButton
+          :disabled="selected.length < 1"
+          mode="event"
+          color="info"
+          variant="elevated"
+          :items="actions"
+          @export-selected="openDialog(MODES.export)"
+          @tag-selected="openDialog(MODES.tag)"
+          @categorize-selected="openDialog(MODES.category)"
+          @delete-selected="openDialog(MODES.delete)"
+          @update-settings="openDialog(MODES.updateSettings)"
+          @change-owner="openDialog(MODES.changeOwner)"
+        />
 
         <p v-if="selected.length > 0" class="text-caption my-auto ml-5">
           {{ $t('general.selected-count', selected.length)
@@ -108,13 +149,21 @@
         <v-text-field v-model="search" variant="filled" hide-details :label="$t('search.search')" />
       </div>
       <v-card rounded="lg">
-        <RecipeDataTable v-model="selected" :loading="loading" :recipes="allRecipes" :show-headers="headers"
-          :search="search" />
+        <RecipeDataTable
+          v-model="selected"
+          :loading="loading"
+          :recipes="allRecipes"
+          :show-headers="headers"
+          :search="search"
+        />
         <v-card-actions class="justify-end">
-          <BaseButton color="info" @click="
-            selectAll();
-          openDialog(MODES.export);
-          ">
+          <BaseButton
+            color="info"
+            @click="
+              selectAll();
+              openDialog(MODES.export);
+            "
+          >
             <template #icon>
               {{ $globals.icons.database }}
             </template>

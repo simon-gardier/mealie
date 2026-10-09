@@ -116,16 +116,16 @@
         </v-expansion-panel-title>
         <v-expansion-panel-text>
           <v-text-field
-            v-model="notifiers[index].name"
+            v-model="notifier.name"
             :label="$t('general.name')"
           />
           <v-text-field
-            v-model="notifiers[index].appriseUrl"
+            v-model="notifier.appriseUrl"
             :label="$t('events.apprise-url-skipped-if-blank')"
             :hint="$t('events.apprise-url-is-left-intentionally-blank')"
           />
           <v-checkbox
-            v-model="notifiers[index].enabled"
+            v-model="notifier.enabled"
             :label="$t('events.enable-notifier')"
             density="compact"
           />
@@ -145,7 +145,7 @@
               <v-checkbox
                 v-for="opt in sec.options"
                 :key="opt.key"
-                v-model="notifiers[index].options[opt.key]"
+                v-model="notifier.options[opt.key]"
                 hide-details
                 density="compact"
                 :label="opt.text"
@@ -218,12 +218,12 @@ const state = reactive({
 
 const { data: notifiers } = useAsyncData(useAsyncKey(), async () => {
   const { data } = await api.groupEventNotifier.getAll();
-  return data?.items;
+  return data?.items.map(notifier => ({ ...notifier, appriseUrl: "" }));
 }, { deep: true });
 
 async function refreshNotifiers() {
   const { data } = await api.groupEventNotifier.getAll();
-  notifiers.value = data?.items;
+  notifiers.value = data?.items.map(notifier => ({ ...notifier, appriseUrl: "" }));
 }
 
 const createNotifierData: GroupEventNotifierCreate = reactive({

@@ -92,20 +92,20 @@
         class="print-preview"
         style="overflow-y: auto;"
       >
-        <RecipePrintView :recipe="recipe" />
+        <RecipePrintView v-if="recipe" :recipe="recipeView(recipe)" />
       </v-card>
     </div>
   </BaseDialog>
 </template>
 
 <script setup lang="ts">
+import { recipeView } from "~/lib/recipe/recipe-view";
 import type { Recipe } from "~/lib/api/types/recipe";
 import { ImagePosition, useUserPrintPreferences } from "~/composables/use-users/preferences";
 import RecipePrintView from "~/components/Domain/Recipe/RecipePrintView.vue";
-import type { NoUndefinedField } from "~/lib/api/types/non-generated";
 
 interface Props {
-  recipe?: NoUndefinedField<Recipe>;
+  recipe?: Recipe;
 }
 withDefaults(defineProps<Props>(), {
   recipe: undefined,

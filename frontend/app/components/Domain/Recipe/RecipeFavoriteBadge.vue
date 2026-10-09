@@ -3,6 +3,8 @@
     <template #activator="{ props: tooltipProps }">
       <v-btn
         v-if="isFavorite || showAlways"
+        :aria-label="isFavorite ? $t('recipe.remove-from-favorites') : $t('recipe.add-to-favorites')"
+        :disabled="favoritePending"
         icon
         :variant="buttonStyle ? 'tonal' : undefined"
         :rounded="buttonStyle ? 'circle' : undefined"

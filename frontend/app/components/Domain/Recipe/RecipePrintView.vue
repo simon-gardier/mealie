@@ -154,8 +154,8 @@
                 :key="key"
               >
                 <template v-if="value">
-                  <td>{{ labels[key].label }}</td>
-                  <td>{{ value ? (labels[key].suffix ? `${value} ${labels[key].suffix}` : value) : '-' }}</td>
+                  <td>{{ labels[key]?.label }}</td>
+                  <td>{{ value ? (labels[key]?.suffix ? `${value} ${labels[key]?.suffix}` : value) : '-' }}</td>
                 </template>
               </tr>
             </tbody>
@@ -167,10 +167,10 @@
 </template>
 
 <script setup lang="ts">
+import type { RecipeView } from "~/lib/recipe/recipe-view";
 import DOMPurify from "dompurify";
 import { useStaticRoutes } from "~/composables/api";
-import type { Recipe, RecipeIngredient, RecipeStep } from "~/lib/api/types/recipe";
-import type { NoUndefinedField } from "~/lib/api/types/non-generated";
+import type { RecipeIngredient, RecipeStep } from "~/lib/api/types/recipe";
 import { ImagePosition, useUserPrintPreferences } from "~/composables/use-users/preferences";
 import { ingredientSubstitutionSummary, useFoodPlurality, useIngredientTextParser, useNutritionLabels } from "~/composables/recipes";
 import { usePageState } from "~/composables/recipe-page/shared-state";
@@ -188,7 +188,7 @@ type InstructionSection = {
 };
 
 interface Props {
-  recipe: NoUndefinedField<Recipe>;
+  recipe: RecipeView;
   scale?: number;
   dense?: boolean;
 }
@@ -280,7 +280,7 @@ const ingredientSections = computed<IngredientSection[]>(() => {
             });
           }
           else {
-            sections[sections.length - 1].ingredients.push(ingredient);
+            sections.at(-1)?.ingredients.push(ingredient);
           }
         }
       }
@@ -304,8 +304,8 @@ const instructionSections = computed<InstructionSection[]>(() => {
         return 0;
       }
 
-      const lastOffset = sections[sections.length - 1].stepOffset;
-      const lastNumSteps = sections[sections.length - 1].instructions.length;
+      const lastOffset = sections.at(-1)?.stepOffset ?? 0;
+      const lastNumSteps = sections.at(-1)?.instructions.length ?? 0;
       return lastOffset + lastNumSteps;
     })();
 
@@ -332,7 +332,7 @@ const instructionSections = computed<InstructionSection[]>(() => {
     }
 
     // otherwise add step to last section in the array
-    sections[sections.length - 1].instructions.push(step);
+    sections.at(-1)?.instructions.push(step);
     return sections;
   }, [] as InstructionSection[]);
 });

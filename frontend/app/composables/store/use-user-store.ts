@@ -15,8 +15,8 @@ export function resetUserStore() {
 }
 
 class GroupUserAPIReadOnly extends BaseCRUDAPIReadOnly<UserSummary> {
-  baseRoute = "/api/groups/members";
-  itemRoute = (idOrUsername: string | number) => `/groups/members/${idOrUsername}`;
+  override baseRoute = "/api/groups/members";
+  override itemRoute = (idOrUsername: string | number) => `/groups/members/${idOrUsername}`;
 }
 
 export const useUserStore = function (i18n?: Composer) {

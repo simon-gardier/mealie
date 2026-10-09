@@ -32,7 +32,7 @@ import type { IngredientFood, IngredientUnit } from "~/lib/api/types/recipe";
 import { useSearch } from "~/composables/use-search";
 
 // v-model for the selected item
-const modelValue = defineModel<MultiPurposeLabelSummary | IngredientFood | IngredientUnit | null>({ default: () => null });
+const modelValue = defineModel<MultiPurposeLabelSummary | IngredientFood | IngredientUnit | null>({ default: null });
 
 // support v-model:item-id binding
 const itemId = defineModel<string | null | undefined>("item-id", { default: undefined });
@@ -70,7 +70,7 @@ const autocompleteRef = ref<HTMLInputElement>();
 // Use the search composable
 const { search: searchInput, filtered: filteredItems } = useSearch(computed(() => props.items));
 
-const itemVal = computed({
+const itemVal = computed<MultiPurposeLabelSummary | IngredientFood | IngredientUnit | null>({
   get: () => {
     if (!modelValue.value || Object.keys(modelValue.value).length === 0) {
       return null;

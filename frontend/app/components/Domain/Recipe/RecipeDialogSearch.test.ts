@@ -138,18 +138,18 @@ describe("RecipeDialogSearch", () => {
     keydown("ArrowDown");
     await nextTick();
     expect(wrapper.findAll(".keyboard-selected")).toHaveLength(1);
-    expect(wrapper.findAll(".recipe-card")[0].classes()).toContain("keyboard-selected");
+    expect(wrapper.findAll(".recipe-card")[0]?.classes()).toContain("keyboard-selected");
 
     keydown("ArrowDown");
     await nextTick();
     keydown("ArrowDown");
     await nextTick();
     expect(wrapper.findAll(".keyboard-selected")).toHaveLength(1);
-    expect(wrapper.findAll(".recipe-card")[1].classes()).toContain("keyboard-selected");
+    expect(wrapper.findAll(".recipe-card")[1]?.classes()).toContain("keyboard-selected");
 
     keydown("ArrowUp");
     await nextTick();
-    expect(wrapper.findAll(".recipe-card")[0].classes()).toContain("keyboard-selected");
+    expect(wrapper.findAll(".recipe-card")[0]?.classes()).toContain("keyboard-selected");
 
     keydown("ArrowUp");
     await nextTick();

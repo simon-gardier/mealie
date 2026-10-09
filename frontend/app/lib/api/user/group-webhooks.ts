@@ -10,8 +10,8 @@ const routes = {
 };
 
 export class WebhooksAPI extends BaseCRUDAPI<CreateWebhook, ReadWebhook> {
-  baseRoute = routes.webhooks;
-  itemRoute = routes.webhooksId;
+  override baseRoute = routes.webhooks;
+  override itemRoute = routes.webhooksId;
   itemTestRoute = routes.webhooksIdTest;
 
   async testOne(itemId: string | number) {

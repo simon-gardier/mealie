@@ -10,6 +10,6 @@ const routes = {
 };
 
 export class AdminGroupsApi extends BaseCRUDAPI<GroupBase, GroupInDB, GroupAdminUpdate> {
-  baseRoute: string = routes.adminUsers;
-  itemRoute = routes.adminUsersId;
+  override baseRoute: string = routes.adminUsers;
+  override itemRoute = routes.adminUsersId;
 }

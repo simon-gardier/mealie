@@ -29,5 +29,5 @@ test("keeps a favorite visible when removal fails", async () => {
   await flushPromises();
   api.removeFavorite.mockResolvedValueOnce({ response: { status: 500 } });
   expect(await state.setFavorite("recipe", false)).toBe(false);
-  expect(state.userRatings.value[0].isFavorite).toBe(true);
+  expect(state.userRatings.value[0]?.isFavorite).toBe(true);
 });

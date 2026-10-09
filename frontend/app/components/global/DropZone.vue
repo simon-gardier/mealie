@@ -69,6 +69,7 @@ function fileFromDataUrl(value: string) {
   }
 
   const [, type, base64] = match;
+  if (!type || base64 === undefined) return null;
 
   try {
     const binary = atob(base64);

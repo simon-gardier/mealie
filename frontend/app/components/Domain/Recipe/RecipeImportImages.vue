@@ -65,14 +65,17 @@ const images = defineModel<(Blob | File)[]>({ default: () => [] });
 
 const previewUrls = ref<string[]>([]);
 
-function uploadImages(files: File[]) {
+function uploadImages(payload: unknown) {
+  if (!Array.isArray(payload)) return;
+  const files = payload.filter((file): file is File => file instanceof File);
   images.value = [...images.value, ...files];
   previewUrls.value = [...previewUrls.value, ...files.map(file => URL.createObjectURL(file))];
 }
 
 function clearImage(index: number) {
   // Revoke _before_ splicing
-  URL.revokeObjectURL(previewUrls.value[index]);
+  const previewUrl = previewUrls.value[index];
+  if (previewUrl) URL.revokeObjectURL(previewUrl);
 
   images.value.splice(index, 1);
   previewUrls.value.splice(index, 1);

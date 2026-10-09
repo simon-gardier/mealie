@@ -9,10 +9,10 @@
       </v-card-text>
       <div class="px-4">
         <section class="bulk-import-form">
-          <v-row v-for="(_, idx) in bulkUrls" :key="'bulk-url' + idx" class="bulk-url-row" density="compact">
+          <v-row v-for="(entry, idx) in bulkUrls" :key="'bulk-url' + idx" class="bulk-url-row" density="compact">
             <v-col cols="12" xs="12" sm="12" md="12">
               <v-text-field
-                v-model="bulkUrls[idx].url"
+                v-model="entry.url"
                 class="bulk-url-input"
                 :label="$t('new-recipe.recipe-url')"
                 density="compact"
@@ -42,14 +42,14 @@
             <template v-if="state.showCatTags">
               <v-col cols="12" xs="12" sm="6" class="py-0">
                 <RecipeOrganizerSelector
-                  v-model="bulkUrls[idx].categories"
+                  v-model="entry.categories"
                   selector-type="categories"
                   :input-attrs="{ variant: 'filled', density: 'compact', hideDetails: true, clearable: true }"
                 />
               </v-col>
               <v-col cols="12" xs="12" sm="6" class="pt-0 pb-4">
                 <RecipeOrganizerSelector
-                  v-model="bulkUrls[idx].tags"
+                  v-model="entry.tags"
                   selector-type="tags"
                   :input-attrs="{ variant: 'filled', density: 'compact', hideDetails: true, clearable: true }"
                 />

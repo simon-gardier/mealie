@@ -27,7 +27,7 @@ function createBurst(x: number, y: number): Particle[] {
     const speed = 3 + Math.random() * 6;
 
     return {
-      color: colors[index % colors.length],
+      color: colors[index % colors.length] ?? "transparent",
       life: 1,
       size: 2 + Math.random() * 2.5,
       velocityX: Math.cos(angle) * speed,
@@ -45,8 +45,9 @@ onMounted(() => {
   }
 
   const element = canvas.value;
-  const context = element?.getContext("2d");
-  if (!element || !context) return;
+  const candidate = element?.getContext("2d");
+  if (!element || !candidate) return;
+  const context = candidate;
 
   const pixelRatio = window.devicePixelRatio || 1;
   element.width = window.innerWidth * pixelRatio;

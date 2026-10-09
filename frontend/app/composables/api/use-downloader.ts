@@ -14,12 +14,15 @@ export function useDownloader() {
           return;
         }
 
-        const url = window.URL.createObjectURL(new Blob([response._data]));
+        if (!(response._data instanceof Blob)) return;
+        const url = window.URL.createObjectURL(response._data);
         const link = document.createElement("a");
         link.href = url;
         link.setAttribute("download", filename);
         document.body.appendChild(link);
         link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
       },
     });
   }

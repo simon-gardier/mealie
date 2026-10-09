@@ -48,6 +48,8 @@ export function drawCheeseFrame(
 ) {
   const index = Math.max(0, Math.min(CHEESE.frameCount - 1, Math.floor(frameIndex)));
   const sheetIndex = Math.floor(index / CHEESE.framesPerSheet);
+  const sheet = sheets[sheetIndex];
+  if (!sheet) return;
   const cell = index % CHEESE.framesPerSheet;
   const scale = Math.min(width / CHEESE.width, height / CHEESE.height) * options.scale;
   const frameWidth = CHEESE.width * scale;
@@ -64,7 +66,7 @@ export function drawCheeseFrame(
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
   ctx.drawImage(
-    sheets[sheetIndex],
+    sheet,
     (cell % CHEESE.columns) * CHEESE.width,
     Math.floor(cell / CHEESE.columns) * CHEESE.height,
     CHEESE.width,
@@ -77,7 +79,7 @@ export function drawCheeseFrame(
   if (options.opacityBoost) {
     ctx.globalAlpha = Math.min(1, Math.max(0, options.opacityBoost));
     ctx.drawImage(
-      sheets[sheetIndex],
+      sheet,
       (cell % CHEESE.columns) * CHEESE.width,
       Math.floor(cell / CHEESE.columns) * CHEESE.height,
       CHEESE.width,

@@ -4,14 +4,15 @@
     <v-bottom-sheet
       v-if="bottomSheet && $vuetify.display.xs"
       v-model="dialog"
-      :persistent="persistent"
+      :persistent="false"
+      :scrim="true"
       :content-class="['rounded-t-xl', contentClass]"
       :content-props="{
         style: 'overflow: hidden',
       }"
       :max-width="maxWidth ?? undefined"
       @keydown.enter="submitOnEnter"
-      @click:outside="emit('cancel')"
+      @click:outside="cancelDialog"
       @keydown.esc="emit('cancel')"
     >
       <BaseDialogContent v-bind="bindings">
@@ -38,13 +39,14 @@
     <v-dialog
       v-else
       v-model="dialog"
-      :persistent="persistent"
+      :persistent="false"
+      :scrim="true"
       :width="width"
       :max-width="maxWidth ?? undefined"
       :content-class="[top ? 'top-dialog' : undefined, contentClass]"
       :fullscreen="$vuetify.display.xs"
       @keydown.enter="submitOnEnter"
-      @click:outside="emit('cancel')"
+      @click:outside="cancelDialog"
       @keydown.esc="emit('cancel')"
     >
       <BaseDialogContent v-bind="bindings">
@@ -197,6 +199,11 @@ function deleteEvent() {
 
 function open() {
   dialog.value = true;
+}
+
+function cancelDialog() {
+  dialog.value = false;
+  emit("cancel");
 }
 
 const bindings = computed(() => ({

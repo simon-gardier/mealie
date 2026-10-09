@@ -27,15 +27,14 @@
 </template>
 
 <script setup lang="ts">
+import type { RecipeView } from "~/lib/recipe/recipe-view";
 import { usePageState, usePageUser } from "~/composables/recipe-page/shared-state";
-import type { NoUndefinedField } from "~/lib/api/types/non-generated";
-import type { Recipe } from "~/lib/api/types/recipe";
 import { useUserApi, useStaticRoutes } from "~/composables/api";
 import { alertUnreportedError } from "~/composables/use-toast";
 import RecipeImageUploadBtn from "~/components/Domain/Recipe/RecipeImageUploadBtn.vue";
 import RecipeSettingsMenu from "~/components/Domain/Recipe/RecipeSettingsMenu.vue";
 
-const recipe = defineModel<NoUndefinedField<Recipe>>({ required: true });
+const recipe = defineModel<RecipeView>({ required: true });
 
 const { user } = usePageUser();
 const api = useUserApi();

@@ -119,7 +119,7 @@ const cookbookLinks = computed<SideBarLink[]>(() => {
     if (!cookbooks.length) {
       return;
     }
-    if (cookbooks[0].householdId === currentUserHouseholdId.value) {
+    if (cookbooks[0]?.householdId === currentUserHouseholdId.value) {
       ownLinks.push(...cookbooks.map(cookbookAsLink));
     }
     else {

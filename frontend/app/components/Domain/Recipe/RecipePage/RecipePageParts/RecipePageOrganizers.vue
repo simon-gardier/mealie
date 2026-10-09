@@ -63,15 +63,14 @@
 </template>
 
 <script setup lang="ts">
+import type { RecipeView } from "~/lib/recipe/recipe-view";
 import { usePageState } from "~/composables/recipe-page/shared-state";
-import type { NoUndefinedField } from "~/lib/api/types/non-generated";
-import type { Recipe } from "~/lib/api/types/recipe";
 import RecipeOrganizerSelector from "@/components/Domain/Recipe/RecipeOrganizerSelector.vue";
 import RecipeNutrition from "~/components/Domain/Recipe/RecipeNutrition.vue";
 import RecipeChips from "@/components/Domain/Recipe/RecipeChips.vue";
 import RecipeAssets from "@/components/Domain/Recipe/RecipeAssets.vue";
 
-const recipe = defineModel<NoUndefinedField<Recipe>>({ required: true });
+const recipe = defineModel<RecipeView>({ required: true });
 const { isEditForm } = usePageState(recipe.value.slug);
 </script>
 

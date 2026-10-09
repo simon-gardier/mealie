@@ -125,9 +125,9 @@ describe("DropZone", () => {
 
     const dropped = wrapper.emitted("drop")?.[0]?.[0] as File[];
     expect(dropped).toHaveLength(1);
-    expect(dropped[0].type).toBe("image/gif");
-    expect(dropped[0].name).toBe("image.gif");
-    expect(dropped[0].size).toBeGreaterThan(0);
+    expect(dropped[0]?.type).toBe("image/gif");
+    expect(dropped[0]?.name).toBe("image.gif");
+    expect(dropped[0]?.size).toBeGreaterThan(0);
   });
 
   test("reports a blob: url as unusable rather than doing nothing", async () => {

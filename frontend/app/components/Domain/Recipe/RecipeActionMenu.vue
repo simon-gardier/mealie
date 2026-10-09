@@ -134,7 +134,7 @@
                 icon
                 v-bind="{ ...menuProps, ...tooltipProps }"
               >
-                <UserAvatar :user-id="recipe.userId" :tooltip="false" size="32" />
+                <UserAvatar v-if="recipe.userId" :user-id="recipe.userId" :tooltip="false" size="32" />
               </v-btn>
             </template>
             <span>{{ ownerName || $t("general.owner") }}</span>

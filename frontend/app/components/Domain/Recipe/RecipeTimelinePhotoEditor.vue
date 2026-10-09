@@ -12,7 +12,7 @@
         :text="$t('recipe.upload-image')"
         :text-btn="false"
         :post="false"
-        @uploaded="emit('upload', $event)"
+        @uploaded="uploadFile"
       />
     </div>
     <ImageCropper
@@ -34,6 +34,9 @@
 <script setup lang="ts">
 defineProps<{ preview?: string; submitted?: boolean }>();
 const emit = defineEmits<{ upload: [file: File]; crop: [file: Blob]; remove: [] }>();
+function uploadFile(payload: unknown) {
+  if (payload instanceof File) emit("upload", payload);
+}
 </script>
 
 <style scoped>

@@ -91,7 +91,8 @@ const { data: household } = useAsyncData(`get-household-${householdId.value}`, a
 }, { watch: [householdId] });
 
 async function handleSubmit() {
-  if (!refHouseholdEditForm.value?.validate() || household.value === null) {
+  const validation = await refHouseholdEditForm.value?.validate();
+  if (!validation?.valid || !household.value) {
     return;
   }
 

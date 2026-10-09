@@ -1,7 +1,13 @@
 <template>
   <v-container>
-    <RecipeOrganizerPage v-if="tools" :icon="$globals.icons.potSteam" :items="tools" item-type="tools"
-      @delete="deleteOne" @update="updateOne">
+    <RecipeOrganizerPage
+      v-if="tools"
+      :icon="$globals.icons.potSteam"
+      :items="tools"
+      item-type="tools"
+      @delete="deleteOne"
+      @update="updateOne"
+    >
       <template #title>
         {{ $t("tool.tools") }}
       </template>

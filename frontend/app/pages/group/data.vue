@@ -94,7 +94,7 @@ const buttonText = computed(() => {
     .pop()
     // convert hypenated-values to camelCase
     ?.replace(/-([a-z])/g, function (g) {
-      return g[1].toUpperCase();
+      return g.charAt(1).toUpperCase();
     });
 
   if (last) {

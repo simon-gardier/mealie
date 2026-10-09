@@ -2,12 +2,12 @@
   <div v-if="externalChips && selected?.length" class="d-flex flex-wrap mb-2">
     <v-chip
       v-for="(item, index) in selected"
-      :key="item.id ?? item.name"
+      :key="item.id ?? organizerTitle(item)"
       class="organizer-chip mr-1 mb-1"
       color="primary"
       variant="tonal"
       label
-      :text="item.name"
+      :text="organizerTitle(item)"
     >
       <template #prepend>
         <button
@@ -51,7 +51,7 @@
         color="primary"
         variant="tonal"
         label
-        :text="item.name"
+        :text="item.title"
       >
         <template #prepend>
           <button
@@ -129,6 +129,9 @@ onMounted(() => {
 });
 
 const i18n = useI18n();
+function organizerTitle(item: NonNullable<typeof selected.value>[number]) {
+  return "fullName" in item ? item.fullName : "name" in item ? item.name : "";
+}
 const { $globals } = useNuxtApp();
 
 const label = computed(() => {

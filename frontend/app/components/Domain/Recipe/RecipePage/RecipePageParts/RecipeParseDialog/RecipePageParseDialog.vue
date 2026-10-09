@@ -31,7 +31,7 @@
     </template>
     <div class="analysis-body">
       <div v-if="state.step === ParseStep.LOADING" class="analysis-loading" role="status">
-        <v-progress-circular indeterminate color="primary" size="36" width="3" />
+        <AppLoader tiny :waiting-text="''" :aria-label="$t('general.loading')" />
         <p class="text-body-1 font-weight-medium">
           {{ $t('recipe.parser.parsing-ingredients') }}
         </p>
@@ -77,7 +77,8 @@
             variant="text"
             color="primary"
             :disabled="!canGoToPreviousIngredient || busy"
-            :prepend-icon="$globals.icons.arrowLeftBold"
+            class="navigation-button"
+            :prepend-icon="$globals.icons.back"
             @click="previousIngredient"
           >
             {{ $t('general.previous') }}
@@ -99,10 +100,11 @@
           </v-btn>
           <v-btn
             v-if="state.step === ParseStep.PARSE"
-            variant="flat"
+            variant="tonal"
             color="primary"
             :disabled="busy"
-            :append-icon="$globals.icons.arrowRightBold"
+            class="navigation-button"
+            :append-icon="$globals.icons.forward"
             @click="nextIngredient"
           >
             {{ lastIngredient ? $t('recipe.parser.review-all') : $t('general.next') }}
@@ -133,7 +135,7 @@ import type { Parser } from "~/lib/api/user/recipes/recipe";
 
 const props = defineProps<{
   modelValue: boolean;
-  ingredients: NoUndefinedField<RecipeIngredient[]>;
+  ingredients: RecipeIngredient[];
   initialParser?: Parser | null;
 }>();
 
@@ -146,7 +148,7 @@ const dialogState = useParseIngredientsDialog(props.ingredients, ings => emit("s
 
 const {
   parser,
-  parserPreferences,
+  defaultParser,
   dontShowInfoPage,
   parsedIngs,
   currentIng,
@@ -175,7 +177,7 @@ watch(() => props.modelValue, () => {
     return;
   }
 
-  parser.value = props.initialParser ?? parserPreferences.value.parser;
+  parser.value = props.initialParser ?? defaultParser.value;
   parseIngredients();
 });
 </script>

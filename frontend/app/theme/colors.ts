@@ -35,6 +35,8 @@ export const actionColors = {
 
 export const controlDefaults = {
   VTooltip: { openDelay: 500, closeDelay: 100, openOnFocus: true, openOnClick: false, transition: "fade-transition", maxWidth: 280 },
+  VDialog: { scrim: true, persistent: false },
+  VBottomSheet: { scrim: true, persistent: false },
   VTextField: { variant: "filled", color: "primary" },
   VTextarea: { variant: "filled", color: "primary" },
   VSelect: { variant: "filled", color: "primary" },

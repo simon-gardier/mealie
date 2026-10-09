@@ -1,6 +1,7 @@
 <template>
   <v-navigation-drawer
     id="app-sidebar"
+    ref="sidebarElement"
     v-model="modelValue"
     class="bistro-sidebar d-flex flex-column d-print-none"
     :class="{ 'bistro-sidebar-mobile': display.smAndDown.value }"
@@ -135,7 +136,7 @@
           class="sidebar-user-panel d-flex align-center ga-2 w-100"
         >
           <RouterLink
-            :to="userProfileLink"
+            :to="userProfileLink ?? '/user/profile'"
             class="sidebar-user-avatar-link d-flex align-center ga-2 text-decoration-none"
             :aria-label="$t('profile.user-settings')"
           >
@@ -232,7 +233,7 @@
 </template>
 
 <script setup lang="ts">
-import { useLocalStorage } from "@vueuse/core";
+import { onClickOutside, useLocalStorage } from "@vueuse/core";
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 import type { SidebarLinks } from "~/types/application-types";
 import AnnouncementDialog from "~/components/Domain/Announcement/AnnouncementDialog.vue";
@@ -258,6 +259,12 @@ const props = defineProps({
 });
 
 const modelValue = defineModel<boolean>({ default: false });
+const sidebarElement = ref(null);
+onClickOutside(sidebarElement, () => {
+  modelValue.value = false;
+}, {
+  ignore: ["[aria-controls='app-sidebar']", ".v-overlay__content"],
+});
 const display = useDisplay();
 
 const auth = useMealieAuth();

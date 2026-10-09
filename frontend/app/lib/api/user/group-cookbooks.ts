@@ -9,8 +9,8 @@ const routes = {
 };
 
 export class CookbookAPI extends BaseCRUDAPI<CreateCookBook, ReadCookBook, UpdateCookBook> {
-  baseRoute: string = routes.cookbooks;
-  itemRoute = routes.cookbooksId;
+  override baseRoute: string = routes.cookbooks;
+  override itemRoute = routes.cookbooksId;
 
   async updateAll(payload: UpdateCookBook[]) {
     return await this.requests.put(this.baseRoute, payload);

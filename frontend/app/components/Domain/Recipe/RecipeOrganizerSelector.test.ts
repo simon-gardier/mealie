@@ -31,12 +31,14 @@ describe("organizer chip deletion", () => {
         props: { selectorType, modelValue: items, externalChips: true, showAdd: false },
         global: { mocks: { $globals: { icons: {} } }, stubs: { VChip: Chip, VIcon: true, VAutocomplete: true, BaseButton: true, RecipeOrganizerDialog: true } },
       });
-      await wrapper.findAll("button")[0].trigger("click");
-      const remaining = wrapper.emitted("update:modelValue")![0][0];
+      await wrapper.findAll("button")[0]?.trigger("click");
+      const remaining = items.slice(1);
+      expect(wrapper.emitted("update:modelValue")?.[0]?.[0]).toEqual(remaining);
       await wrapper.setProps({ modelValue: remaining });
       expect(wrapper.findAll(".organizer-chip").map(chip => chip.text())).toEqual(["Two", "Three"]);
-      await wrapper.findAll("button")[0].trigger("click");
-      await wrapper.setProps({ modelValue: wrapper.emitted("update:modelValue")![1][0] });
+      await wrapper.findAll("button")[0]?.trigger("click");
+      expect(wrapper.emitted("update:modelValue")?.[1]?.[0]).toEqual(items.slice(2));
+      await wrapper.setProps({ modelValue: items.slice(2) });
       expect(wrapper.findAll(".organizer-chip").map(chip => chip.text())).toEqual(["Three"]);
     });
   }

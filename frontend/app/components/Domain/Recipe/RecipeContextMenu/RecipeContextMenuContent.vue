@@ -48,13 +48,16 @@
   />
 
   <v-list density="compact">
-    <v-list-item v-for="(item, index) in menuItems" :key="index" @click="contextMenuEventHandler(item.event)">
+    <v-list-item v-for="(item, index) in menuItems" :key="index" :disabled="item.event === 'shoppingList' && !canAddToShoppingList" @click="contextMenuEventHandler(item.event)">
       <template #prepend>
         <v-icon :color="item.color">
           {{ item.icon }}
         </v-icon>
       </template>
       <v-list-item-title>{{ item.title }}</v-list-item-title>
+      <v-list-item-subtitle v-if="item.event === 'shoppingList' && recipeRef?.recipeIngredient && !canAddToShoppingList" class="shopping-analysis-help">
+        {{ $t('shopping-list.analyze-before-adding') }}
+      </v-list-item-subtitle>
     </v-list-item>
     <div v-if="useItems.recipeActions && recipeActions && recipeActions.length">
       <v-divider />
@@ -92,6 +95,7 @@ import { alert } from "~/composables/use-toast";
 import type { GroupRecipeActionOut, HouseholdSummary } from "~/lib/api/types/household";
 import type { Recipe } from "~/lib/api/types/recipe";
 import { isRecipeFullyPublic } from "~/lib/recipe/recipe-visibility";
+import { canScaleShoppingRecipe } from "~/lib/shopping-recipe-portions";
 
 export interface ContextMenuIncludes {
   delete: boolean;
@@ -109,13 +113,13 @@ export interface ContextMenuIncludes {
 export interface ContextMenuItem {
   title: string;
   icon: string;
-  color: string | undefined;
+  color?: string;
   event: string;
   isPublic: boolean;
 }
 
 interface Props {
-  useItems?: ContextMenuIncludes;
+  useItems?: Partial<ContextMenuIncludes>;
   appendItems?: ContextMenuItem[];
   leadingItems?: ContextMenuItem[];
   menuTop?: boolean;
@@ -281,6 +285,11 @@ const defaultItems: { [key: string]: ContextMenuItem } = {
 // Context Menu Event Handler
 
 const recipeRef = ref<Recipe | undefined>(props.recipe);
+const canAddToShoppingList = computed(() => canScaleShoppingRecipe(recipeRef.value?.recipeIngredient));
+watch(() => props.recipe, (recipe) => {
+  recipeRef.value = recipe;
+  if (!recipe?.recipeIngredient && props.useItems.shoppingList) refreshRecipe();
+}, { immediate: true });
 const recipeRefWithScale = computed(() =>
   recipeRef.value ? { scale: props.recipeScale, ...recipeRef.value } : undefined,
 );
@@ -405,6 +414,7 @@ const eventHandlers: { [key: string]: () => void | Promise<any> } = {
     printPreferencesDialog.value = true;
   },
   shoppingList: () => {
+    if (!canAddToShoppingList.value) return;
     const promises: Promise<void>[] = [getShoppingLists()];
     if (!recipeRef.value) {
       promises.push(refreshRecipe());
@@ -449,3 +459,12 @@ function contextMenuEventHandler(eventKey: string) {
 
 const recipeActions = groupRecipeActionsStore.recipeActions;
 </script>
+
+<style scoped>
+.shopping-analysis-help {
+  white-space: normal;
+  -webkit-line-clamp: unset;
+  overflow: visible;
+  line-height: 1.5;
+}
+</style>

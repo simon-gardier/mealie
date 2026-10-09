@@ -11,7 +11,7 @@
 <script setup lang="ts">
 import JsonEditorVue from "json-editor-vue";
 
-const modelValue = defineModel<object>("modelValue", { default: () => ({}) });
+const modelValue = defineModel<string | object | null>("modelValue", { default: () => ({}) });
 defineProps({
   height: {
     type: String,
@@ -19,7 +19,7 @@ defineProps({
   },
 });
 
-function parseEvent(event: any): object {
+function parseEvent(event: any): string | object | null {
   if (!event) {
     return modelValue.value || {};
   }

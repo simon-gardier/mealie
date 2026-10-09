@@ -91,7 +91,7 @@
           @update:model-value="updateLabelOrder"
         >
           <div v-for="(labelSetting, index) in localLabels" :key="labelSetting.id" class="shopping-tag-reorder-row">
-            <MultiPurposeLabelSection v-model="localLabels[index]" use-color />
+            <MultiPurposeLabelSection :model-value="labelSetting" use-color @update:model-value="localLabels[index] = $event" />
           </div>
         </VueDraggable>
       </div>
@@ -174,6 +174,10 @@
       <v-progress-linear
         :model-value="completionPercentage"
         color="primary"
+        bg-color="separator"
+        :bg-opacity="1"
+        buffer-color="separator"
+        :buffer-opacity="1"
         height="4"
         rounded
         :aria-label="$t('shopping-list.items-checked-count', checkedItemCount)"
@@ -226,8 +230,11 @@
               color="surface"
               class="body-1 section-title"
             >
-              <span class="shopping-label-dot" :style="{ backgroundColor: value[0]?.label?.color || getLabelColor(key) || 'rgb(var(--v-theme-separator))' }" aria-hidden="true" /><span>{{ key }}</span>
-              <span class="section-count">{{ value.length }}</span>
+              <span class="shopping-label-dot" :style="{ backgroundColor: value[0]?.label?.color || getLabelColor(key) || 'rgb(var(--v-theme-separator))' }" aria-hidden="true" />
+              <span class="section-heading-content">
+                <span class="section-label">{{ key }}</span>
+                <span class="section-count">{{ $t('shopping-list.products-count', value.length) }}</span>
+              </span>
             </v-expansion-panel-title>
             <v-expansion-panel-text eager>
               <VueDraggable
@@ -250,13 +257,14 @@
                   <ShoppingListItem
                     v-for="(item, index) in value"
                     :key="item.id"
-                    v-model="value[index]"
+                    :model-value="item"
                     class="my-2 w-auto shopping-list-item-row"
                     :edit="editingItem === item.id"
                     :labels="allLabels || []"
                     :units="allUnits || []"
                     :foods="allFoods || []"
                     :recipes="recipeMap"
+                    @update:model-value="value[index] = $event"
                     @checked="(item) => {
                       saveListItem(item);
                       itemCheckedToast(item);
@@ -300,11 +308,12 @@
             <TransitionGroup name="scroll-x-transition">
               <div v-for="(item, idx) in listItems.checked" :key="item.id">
                 <ShoppingListItem
-                  v-model="listItems.checked[idx]"
+                  :model-value="item"
                   class="shopping-list-item-row"
                   :labels="allLabels || []"
                   :units="allUnits || []"
                   :foods="allFoods || []"
+                  @update:model-value="listItems.checked[idx] = $event"
                   @checked="saveListItem"
                   @save="saveListItem"
                   @delete="deleteListItem(item)"
@@ -349,35 +358,15 @@
         </div>
         <v-divider />
         <div class="shopping-list-linked-recipes mt-3">
-          <v-sheet v-for="recipe in recipeList" :key="recipe.id" class="linked-recipe-card">
+          <v-sheet v-for="recipe in recipeList" :key="recipe.id ?? recipe.slug" class="linked-recipe-card">
             <RecipeCardLineItem :recipe="recipe" :disable-link="isOffline" />
             <div class="linked-recipe-controls">
-              <span>{{ $t('recipe.servings') }}</span>
-              <div class="linked-recipe-stepper">
-                <v-btn
-                  icon
-                  variant="text"
-                  color="primary"
-                  :ripple="false"
-                  :disabled="isOffline || linkedPortions(recipe) <= 1"
-                  :aria-label="$t('shopping-list.decrease-recipe-quantity')"
-                  @click.stop.prevent="changeLinkedPortions(recipe, -1)"
-                >
-                  <v-icon>{{ $globals.icons.minus }}</v-icon>
-                </v-btn>
-                <span class="linked-recipe-quantity" aria-live="polite">{{ linkedPortions(recipe) }}</span>
-                <v-btn
-                  icon
-                  variant="text"
-                  color="primary"
-                  :ripple="false"
-                  :disabled="isOffline"
-                  :aria-label="$t('shopping-list.increase-recipe-quantity')"
-                  @click.stop.prevent="changeLinkedPortions(recipe, 1)"
-                >
-                  <v-icon>{{ $globals.icons.createAlt }}</v-icon>
-                </v-btn>
-              </div>
+              <RecipeScaleEditButton
+                :model-value="linkedPortions(recipe) / (recipe.recipeServings || 1)"
+                :recipe-servings="recipe.recipeServings || 1"
+                :edit-scale="!isOffline"
+                @update:model-value="changeLinkedPortions(recipe, $event * (recipe.recipeServings || 1) - linkedPortions(recipe))"
+              />
             </div>
           </v-sheet>
         </div>
@@ -389,6 +378,7 @@
 <script setup lang="ts">
 import { VueDraggable } from "vue-draggable-plus";
 import RecipeCardLineItem from "~/components/Domain/Recipe/RecipeCardLineItem.vue";
+import RecipeScaleEditButton from "~/components/Domain/Recipe/RecipeScaleEditButton.vue";
 import MultiPurposeLabelSection from "~/components/Domain/ShoppingList/MultiPurposeLabelSection.vue";
 import ShoppingListAddItemForm from "~/components/Domain/ShoppingList/ShoppingListAddItemForm.vue";
 import ShoppingListItem from "~/components/Domain/ShoppingList/ShoppingListItem.vue";
@@ -517,11 +507,11 @@ const {
 const portionTargets = reactive<Record<string, number>>({});
 const portionTimers = new Map<string, ReturnType<typeof setTimeout>>();
 let portionsSaving = false;
-function linkedPortions(recipe: { id?: string; recipeServings?: number }) {
+function linkedPortions(recipe: { id?: string | null; recipeServings?: number }) {
   const scale = shoppingList.value?.recipeReferences?.find(ref => ref.recipeId === recipe.id)?.recipeQuantity || 0;
   return portionTargets[recipe.id!] ?? Math.round(scale * (recipe.recipeServings || 1) * 100) / 100;
 }
-function changeLinkedPortions(recipe: { id?: string; recipeServings?: number }, delta: number) {
+function changeLinkedPortions(recipe: { id?: string | null; recipeServings?: number }, delta: number) {
   const id = recipe.id!;
   portionTargets[id] = Math.max(1, linkedPortions(recipe) + delta);
   clearTimeout(portionTimers.get(id));
@@ -533,11 +523,16 @@ async function saveLinkedPortions() {
   try {
     while (Object.keys(portionTargets).length) {
       const id = Object.keys(portionTargets)[0];
+      if (!id) break;
       const recipe = recipeList.value.find(recipe => recipe.id === id);
       if (!recipe) { Reflect.deleteProperty(portionTargets, id); continue; }
       const base = recipe.recipeServings || 1;
       const current = (shoppingList.value?.recipeReferences?.find(ref => ref.recipeId === id)?.recipeQuantity || 0) * base;
       const target = portionTargets[id];
+      if (target == null || !Number.isFinite(target)) {
+        Reflect.deleteProperty(portionTargets, id);
+        continue;
+      }
       const delta = (target - current) / base;
       if (Math.abs(delta) < 0.00001) { Reflect.deleteProperty(portionTargets, id); continue; }
       if (delta > 0) await addRecipeReferenceToList(id, delta);
@@ -622,11 +617,22 @@ useAmbianceMusic(() => Boolean(shoppingList.value), "assets/Souped_Up_-_Michael_
   font-size: 16px;
   font-weight: 600;
 }
+.shopping-list-view .section-heading-content {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  min-width: 0;
+  flex: 1;
+}
+.shopping-list-view .section-label {
+  overflow-wrap: anywhere;
+}
 .shopping-list-view .section-count {
-  margin-left: auto;
-  padding-left: 12px;
+  white-space: nowrap;
   font-size: 13px;
-  opacity: 0.6;
+  font-weight: 400;
+  color: rgb(var(--v-theme-text-secondary));
 }
 .shopping-list-view .v-expansion-panel-text__wrapper {
   padding: 4px 12px 12px;
@@ -673,27 +679,6 @@ useAmbianceMusic(() => Boolean(shoppingList.value), "assets/Souped_Up_-_Michael_
 
 .shopping-list-linked-recipes {
   overflow: visible;
-}
-.linked-recipe-stepper {
-  display: flex;
-  align-items: center;
-  background: rgba(var(--v-theme-fill), 0.65);
-  border: 1px solid rgba(var(--v-theme-separator), 0.5);
-  border-radius: 10px;
-  margin-left: 12px;
-  flex-shrink: 0;
-}
-.linked-recipe-stepper .v-btn {
-  width: 44px;
-  min-width: 44px;
-  height: 44px;
-  border-radius: 10px;
-}
-.linked-recipe-quantity {
-  min-width: 28px;
-  text-align: center;
-  font-size: 15px;
-  font-variant-numeric: tabular-nums;
 }
 .linked-recipes-info {
   border-radius: 10px;

@@ -9,6 +9,6 @@ const routes = {
 };
 
 export class MealPlanRulesApi extends BaseCRUDAPI<PlanRulesCreate, PlanRulesOut> {
-  baseRoute = routes.rule;
-  itemRoute = routes.ruleId;
+  override baseRoute = routes.rule;
+  override itemRoute = routes.ruleId;
 }

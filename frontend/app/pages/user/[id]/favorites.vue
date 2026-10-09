@@ -37,7 +37,7 @@ watch(() => userRatings.value.filter(rating => rating.isFavorite).map(rating => 
   if (auth.user.value?.id !== userId) return;
   const removed = new Set(previous.filter(id => !ids.includes(id)));
   for (const recipe of [...recipes.value]) {
-    if (recipe.id && removed.has(recipe.id)) removeRecipe(recipe.slug);
+    if (recipe.id && recipe.slug && removed.has(recipe.id)) removeRecipe(recipe.slug);
   }
 });
 </script>

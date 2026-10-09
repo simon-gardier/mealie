@@ -50,12 +50,12 @@ describe("isRecipeFullyPublic", () => {
   });
 
   test("rejects when the group is private", () => {
-    const group = fakeGroup({ preferences: { privateGroup: true } });
+    const group = fakeGroup({ preferences: { privateGroup: true, id: "preferences", groupId } });
     expect(isRecipeFullyPublic(fakeRecipe(), group, fakeHousehold())).toBe(false);
   });
 
   test("rejects when the recipe's household is private", () => {
-    const household = fakeHousehold({ preferences: { privateHousehold: true } });
+    const household = fakeHousehold({ preferences: { privateHousehold: true, id: "preferences" } });
     expect(isRecipeFullyPublic(fakeRecipe(), fakeGroup(), household)).toBe(false);
   });
 

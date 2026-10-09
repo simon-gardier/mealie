@@ -50,7 +50,7 @@ describe("current recipe image reframing", () => {
     cropper.vm.$emit("save", new Blob(["cropped"], { type: "image/png" }));
     await flushPromises();
     expect(updateImage).toHaveBeenCalledWith("soup", expect.any(File));
-    expect(updateImage.mock.calls[0][1].name).toBe("reframed-recipe.png");
+    expect(updateImage.mock.calls[0]?.[1]?.name).toBe("reframed-recipe.png");
     expect(wrapper.emitted("refresh")).toEqual([["new-version"]]);
     expect(wrapper.findComponent({ name: "ImageCropper" }).exists()).toBe(false);
   });

@@ -13,10 +13,10 @@ describe("analysis method settings", () => {
     const wrapper = mountSettings();
     const options = wrapper.findAll(".method-option");
     expect(options).toHaveLength(2);
-    expect(options[0].text()).toContain("Standard");
-    expect(options[0].text()).toContain("Matches quantities, units and foods against known items.");
-    expect(options[1].text()).toContain("AI assistant");
-    expect(options[1].text()).toContain("Uses AI to interpret more complex ingredient descriptions.");
+    expect(options[0]?.text()).toContain("Standard");
+    expect(options[0]?.text()).toContain("Matches quantities, units and foods against known items.");
+    expect(options[1]?.text()).toContain("AI assistant");
+    expect(options[1]?.text()).toContain("Uses AI to interpret more complex ingredient descriptions.");
     expect(wrapper.emitted("parse")).toBeUndefined();
   });
   test("stages a selection without replacing corrections until Analyze again is pressed", async () => {

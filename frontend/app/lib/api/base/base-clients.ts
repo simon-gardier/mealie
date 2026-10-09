@@ -25,12 +25,12 @@ export abstract class BaseCRUDAPIReadOnly<ReadType>
   extends BaseAPI
   implements CrudAPIInterface {
   public baseRoute: string;
-  public itemRouteFn: (itemId: string | number) => string;
+  public itemRouteFn?: (itemId: string | number) => string;
 
   constructor(
     requests: ApiRequestInstance,
-    baseRoute: string,
-    itemRoute: (itemId: string | number) => string,
+    baseRoute = "",
+    itemRoute?: (itemId: string | number) => string,
   ) {
     super(requests);
     this.baseRoute = baseRoute;
@@ -42,6 +42,7 @@ export abstract class BaseCRUDAPIReadOnly<ReadType>
   }
 
   itemRoute(itemId: string | number): string {
+    if (!this.itemRouteFn) throw new Error("API client requires an item route");
     return this.itemRouteFn(itemId);
   }
 

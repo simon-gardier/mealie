@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container class="recipe-finder">
     <BasePageTitle divider title-image="/search.png" :title-image-alt="$t('recipe-finder.recipe-finder')">
       <template #title>
         {{ $t('recipe-finder.recipe-finder') }}
@@ -11,43 +11,80 @@
     </BasePageTitle>
     <v-container v-if="state.ready">
       <v-row>
-        <v-col :cols="useMobile ? 12 : 3">
+        <v-col :cols="useMobile ? 12 : 3" class="finder-filters">
           <v-container class="ma-0 pa-0">
             <v-row no-gutters>
               <v-col cols="12" no-gutters :class="attrs.searchFilter.colClass">
-                <SearchFilter v-if="foods" v-model="selectedFoods" :items="foods"
-                  :class="attrs.searchFilter.filterClass">
+                <SearchFilter
+                  v-if="foods"
+                  v-model="selectedFoods"
+                  calm
+                  :items="foods"
+                  :class="attrs.searchFilter.filterClass"
+                >
                   <v-icon start>
                     {{ $globals.icons.foods }}
                   </v-icon>
-                  {{ $t("general.foods") }}
+                  {{ $t("recipe-finder.foods-filter") }}
                 </SearchFilter>
-                <SearchFilter v-if="tools" v-model="selectedTools" :items="tools"
-                  :class="attrs.searchFilter.filterClass">
+                <SearchFilter
+                  v-if="tools"
+                  v-model="selectedTools"
+                  calm
+                  :items="tools"
+                  :class="attrs.searchFilter.filterClass"
+                >
                   <v-icon start>
                     {{ $globals.icons.potSteam }}
                   </v-icon>
                   {{ $t("tool.tools") }}
                 </SearchFilter>
                 <div :class="attrs.searchFilter.filterClass">
-                  <v-badge :model-value="!!state.queryFilterJSON.parts && state.queryFilterJSON.parts.length > 0"
-                    size="small" color="primary" :content="(state.queryFilterJSON.parts || []).length">
-                    <v-btn size="small" color="accent" dark @click="state.queryFilterMenu = !state.queryFilterMenu">
+                  <v-badge
+                    :model-value="!!state.queryFilterJSON.parts && state.queryFilterJSON.parts.length > 0"
+                    size="small"
+                    color="primary"
+                    :content="(state.queryFilterJSON.parts || []).length"
+                  >
+                    <v-btn height="44" variant="tonal" color="primary" @click="state.queryFilterMenu = !state.queryFilterMenu">
                       <v-icon start>
                         {{ $globals.icons.filter }}
                       </v-icon>
                       {{ $t("recipe-finder.other-filters") }}
-                      <BaseDialog v-model="state.queryFilterMenu" :title="$t('recipe-finder.other-filters')"
-                        :icon="$globals.icons.filter" width="100%" max-width="1100px"
-                        :submit-disabled="!state.queryFilterEditorValue" can-confirm @confirm="saveQueryFilter">
+                      <BaseDialog
+                        v-model="state.queryFilterMenu"
+                        :title="$t('recipe-finder.other-filters')"
+                        :icon="$globals.icons.filter"
+                        width="100%"
+                        max-width="1000px"
+                        :submit-disabled="!state.queryFilterEditorValue"
+                        can-confirm
+                        @confirm="saveQueryFilter"
+                      >
                         <v-card-text>
-                          <QueryFilterBuilder :key="state.queryFilterMenuKey"
-                            :initial-query-filter="state.queryFilterJSON" :field-defs="queryFilterBuilderFields"
-                            @input="(value) => state.queryFilterEditorValue = value"
-                            @input-j-s-o-n="(value) => state.queryFilterEditorValueJSON = value" />
+                          <QueryFilterBuilder
+                            :key="state.queryFilterMenuKey"
+                            cookbook-layout
+                            filled-inputs
+                            :initial-query-filter="state.queryFilterJSON"
+                            :field-defs="queryFilterBuilderFields"
+                            @input="(value) => state.queryFilterEditorValue = value || ''"
+                            @input-j-s-o-n="(value) => state.queryFilterEditorValueJSON = value || { parts: [] }"
+                          >
+                            <template #actions="{ addField }">
+                              <BaseButton
+                                create
+                                color="primary"
+                                variant="tonal"
+                                height="44"
+                                :text="$t('cookbook.add-filter')"
+                                @click="addField"
+                              />
+                            </template>
+                          </QueryFilterBuilder>
                         </v-card-text>
                         <template #custom-card-action>
-                          <BaseButton color="error" type="submit" @click="clearQueryFilter">
+                          <BaseButton color="error" variant="text" type="button" @click="clearQueryFilter">
                             <template #icon>
                               {{ $globals.icons.close }}
                             </template>
@@ -62,35 +99,74 @@
             </v-row>
             <!-- Settings Menu -->
             <v-row no-gutters class="mb-2">
-              <v-col cols="12" :class="attrs.settings.colClass">
+              <v-col cols="12" class="ga-2" :class="attrs.settings.colClass">
                 <v-menu v-model="state.settingsMenu" offset-y nudge-bottom="3" :close-on-content-click="false">
                   <template #activator="{ props }">
-                    <v-btn size="small" color="primary" dark v-bind="props">
+                    <v-btn height="44" variant="tonal" color="primary" v-bind="props">
                       <v-icon start>
                         {{ $globals.icons.cog }}
                       </v-icon>
-                      {{ $t("general.settings") }}
+                      {{ $t("recipe-finder.search-settings") }}
                     </v-btn>
                   </template>
                   <v-card>
                     <v-card-text>
                       <div>
-                        <v-number-input v-model="maxMissingFoods" :precision="null" :min="0" inset hide-details
-                          :label="$t('recipe-finder.max-missing-ingredients')" />
-                        <v-number-input v-model="maxMissingTools" :precision="null" :min="0" inset hide-details
-                          :label="$t('recipe-finder.max-missing-tools')" class="mt-4" />
+                        <v-number-input
+                          v-model="maxMissingFoods"
+                          :precision="null"
+                          :min="0"
+                          inset
+                          hide-details
+                          :label="$t('recipe-finder.max-missing-ingredients')"
+                        />
+                        <v-number-input
+                          v-model="maxMissingTools"
+                          :precision="null"
+                          :min="0"
+                          inset
+                          hide-details
+                          :label="$t('recipe-finder.max-missing-tools')"
+                          class="mt-4"
+                        />
                       </div>
                       <div class="mt-1">
-                        <v-checkbox v-if="isOwnGroup" v-model="state.settings.includeFoodsOnHand" density="compact"
-                          hide-details class="my-auto" :label="$t('recipe-finder.include-ingredients-on-hand')" />
-                        <v-checkbox v-if="isOwnGroup" v-model="state.settings.includeToolsOnHand" density="compact"
-                          hide-details class="my-auto" :label="$t('recipe-finder.include-tools-on-hand')" />
-                        <v-checkbox v-model="state.settings.includeSubstitutions" density="compact" hide-details
-                          class="my-auto" :label="$t('recipe-finder.include-substitutions')" />
+                        <v-checkbox
+                          v-if="isOwnGroup"
+                          v-model="state.settings.includeFoodsOnHand"
+                          density="compact"
+                          hide-details
+                          class="my-auto"
+                          :label="$t('recipe-finder.include-ingredients-on-hand')"
+                        />
+                        <v-checkbox
+                          v-if="isOwnGroup"
+                          v-model="state.settings.includeToolsOnHand"
+                          density="compact"
+                          hide-details
+                          class="my-auto"
+                          :label="$t('recipe-finder.include-tools-on-hand')"
+                        />
+                        <v-checkbox
+                          v-model="state.settings.includeSubstitutions"
+                          density="compact"
+                          hide-details
+                          class="my-auto"
+                          :label="$t('recipe-finder.include-substitutions')"
+                        />
                       </div>
                     </v-card-text>
                   </v-card>
                 </v-menu>
+                <v-btn
+                  height="44"
+                  variant="text"
+                  color="primary"
+                  prepend-icon="mdi-filter-remove-outline"
+                  @click="resetSearchFilters"
+                >
+                  {{ $t('recipe-finder.reset-filters') }}
+                </v-btn>
               </v-col>
             </v-row>
             <v-row no-gutters class="my-2">
@@ -109,8 +185,16 @@
                 <div v-if="useMobile">
                   <v-row no-gutters>
                     <v-col cols="12" class="d-flex flex-wrap justify-end">
-                      <v-chip v-for="food in selectedFoods" :key="food.id" label class="ma-1"
-                        color="accent custom-transparent" closable variant="flat" @click:close="removeFood(food)">
+                      <v-chip
+                        v-for="food in selectedFoods"
+                        :key="food.id"
+                        label
+                        class="ma-1"
+                        color="primary"
+                        closable
+                        variant="tonal"
+                        @click:close="removeFood(food)"
+                      >
                         <span class="text-hide-overflow">{{ food.pluralName || food.name }}</span>
                       </v-chip>
                     </v-col>
@@ -119,8 +203,13 @@
                 <div v-else>
                   <v-row v-for="food in selectedFoods" :key="food.id" no-gutters class="mb-1">
                     <v-col cols="12">
-                      <v-chip label color="accent custom-transparent" variant="flat" closable
-                        @click:close="removeFood(food)">
+                      <v-chip
+                        label
+                        color="primary"
+                        variant="tonal"
+                        closable
+                        @click:close="removeFood(food)"
+                      >
                         <span class="text-hide-overflow">{{ food.pluralName || food.name }}</span>
                       </v-chip>
                     </v-col>
@@ -136,8 +225,16 @@
                 <div v-if="useMobile">
                   <v-row no-gutters>
                     <v-col cols="12" class="d-flex flex-wrap justify-end">
-                      <v-chip v-for="tool in selectedTools" :key="tool.id" label class="ma-1"
-                        color="accent custom-transparent" closeable variant="flat" @click:close="removeTool(tool)">
+                      <v-chip
+                        v-for="tool in selectedTools"
+                        :key="tool.id"
+                        label
+                        class="ma-1"
+                        color="primary"
+                        closable
+                        variant="tonal"
+                        @click:close="removeTool(tool)"
+                      >
                         <span class="text-hide-overflow">{{ tool.name }}</span>
                       </v-chip>
                     </v-col>
@@ -146,8 +243,13 @@
                 <div v-else>
                   <v-row v-for="tool in selectedTools" :key="tool.id" no-gutters class="mb-1">
                     <v-col cols="12">
-                      <v-chip label color="accent custom-transparent" closable variant="flat"
-                        @click:close="removeTool(tool)">
+                      <v-chip
+                        label
+                        color="primary"
+                        closable
+                        variant="tonal"
+                        @click:close="removeTool(tool)"
+                      >
                         <span class="text-hide-overflow">{{ tool.name }}</span>
                       </v-chip>
                     </v-col>
@@ -157,9 +259,11 @@
             </v-row>
           </v-container>
         </v-col>
-        <v-col :cols="useMobile ? 12 : 9" :style="useMobile ? '' : 'max-height: 70vh; overflow-y: auto'">
-          <v-container v-if="recipeSuggestions.readyToMake.length || recipeSuggestions.missingItems.length"
-            class="ma-0 pa-0">
+        <v-col :cols="useMobile ? 12 : 9" class="finder-results" :aria-busy="state.loading">
+          <v-container
+            v-if="recipeSuggestions.readyToMake.length || recipeSuggestions.missingItems.length"
+            class="ma-0 pa-0"
+          >
             <v-row v-if="recipeSuggestions.readyToMake.length" density="compact">
               <v-col cols="12">
                 <v-card-title :class="attrs.title.class.readyToMake">
@@ -168,10 +272,17 @@
               </v-col>
               <v-col v-for="(item, idx) in recipeSuggestions.readyToMake" :key="`${idx}-ready`" cols="12">
                 <v-lazy>
-                  <RecipeSuggestion :recipe="item.recipe" :missing-foods="item.missingFoods"
-                    :missing-tools="item.missingTools" :substituted-foods="item.substitutedFoods"
-                    :disable-checkbox="state.loading" @add-food="addFood" @remove-food="removeFood" @add-tool="addTool"
-                    @remove-tool="removeTool" />
+                  <RecipeSuggestion
+                    :recipe="item.recipe"
+                    :missing-foods="item.missingFoods"
+                    :missing-tools="item.missingTools"
+                    :substituted-foods="item.substitutedFoods"
+                    :disable-checkbox="state.loading"
+                    @add-food="addFood"
+                    @remove-food="removeFood"
+                    @add-tool="addTool"
+                    @remove-tool="removeTool"
+                  />
                 </v-lazy>
               </v-col>
             </v-row>
@@ -183,10 +294,17 @@
               </v-col>
               <v-col v-for="(item, idx) in recipeSuggestions.missingItems" :key="`${idx}-missing`" cols="12">
                 <v-lazy>
-                  <RecipeSuggestion :recipe="item.recipe" :missing-foods="item.missingFoods"
-                    :missing-tools="item.missingTools" :substituted-foods="item.substitutedFoods"
-                    :disable-checkbox="state.loading" @add-food="addFood" @remove-food="removeFood" @add-tool="addTool"
-                    @remove-tool="removeTool" />
+                  <RecipeSuggestion
+                    :recipe="item.recipe"
+                    :missing-foods="item.missingFoods"
+                    :missing-tools="item.missingTools"
+                    :substituted-foods="item.substitutedFoods"
+                    :disable-checkbox="state.loading"
+                    @add-food="addFood"
+                    @remove-food="removeFood"
+                    @add-tool="addTool"
+                    @remove-tool="removeTool"
+                  />
                 </v-lazy>
               </v-col>
             </v-row>
@@ -207,6 +325,7 @@
                 <v-card-text class="ma-0 pa-0 text-center">
                   {{ $t("recipe-finder.no-recipes-found-description") }}
                 </v-card-text>
+                <img src="/remy_error.png" alt="" class="finder-empty-image">
               </v-col>
             </v-row>
           </v-container>
@@ -238,6 +357,7 @@ import type { QueryFilterJSON } from "~/lib/api/types/non-generated";
 import type { FieldDefinition } from "~/composables/use-query-filter-builder";
 import { useRecipeFinderPreferences } from "~/composables/use-users/preferences";
 import { normalizeMissingItemLimit } from "~/lib/recipe/recipe-finder";
+import { alert } from "~/composables/use-toast";
 
 interface RecipeSuggestions {
   readyToMake: RecipeSuggestionResponseItem[];
@@ -327,11 +447,11 @@ const attrs = computed(() => {
       },
     },
     searchFilter: {
-      colClass: useMobile.value ? "d-flex flex-wrap justify-end" : "d-flex flex-wrap justify-start",
-      filterClass: useMobile.value ? "ml-4 mb-2" : "mr-4 mb-2",
+      colClass: "d-flex flex-wrap justify-start ga-3",
+      filterClass: "mb-2",
     },
     settings: {
-      colClass: useMobile.value ? "d-flex flex-wrap justify-end" : "d-flex flex-wrap justify-start",
+      colClass: "d-flex flex-wrap justify-start",
     },
   };
 });
@@ -419,6 +539,25 @@ onMounted(async () => {
 });
 
 const recipeResponseItems = ref<RecipeSuggestionResponseItem[]>([]);
+let searchRequestVersion = 0;
+
+function resetSearchFilters() {
+  searchRequestVersion += 1;
+  selectedFoods.value = [];
+  selectedTools.value = [];
+  clearQueryFilter();
+  Object.assign(state.settings, {
+    maxMissingFoods: 20,
+    maxMissingTools: 20,
+    includeFoodsOnHand: isOwnGroup.value,
+    includeToolsOnHand: isOwnGroup.value,
+    includeSubstitutions: true,
+  });
+  state.settingsMenu = false;
+  recipeResponseItems.value = [];
+  state.loading = false;
+  state.recipesReady = true;
+}
 const recipeSuggestions = computed<RecipeSuggestions>(() => {
   const readyToMake: RecipeSuggestionResponseItem[] = [];
   const missingItems: RecipeSuggestionResponseItem[] = [];
@@ -439,6 +578,7 @@ const recipeSuggestions = computed<RecipeSuggestions>(() => {
 
 watchDebounced(
   [selectedFoods, selectedTools, state.settings], async () => {
+    const requestVersion = ++searchRequestVersion;
     // don't search for suggestions if no filter are selected
     if (!selectedFoods.value.length && !selectedTools.value.length && !state.settings.queryFilter) {
       recipeResponseItems.value = [];
@@ -447,25 +587,37 @@ watchDebounced(
     }
 
     state.loading = true;
-    const { data } = await api.recipes.getSuggestions(
-      {
-        limit: state.settings.limit,
-        queryFilter: state.settings.queryFilter,
-        maxMissingFoods: state.settings.maxMissingFoods,
-        maxMissingTools: state.settings.maxMissingTools,
-        includeFoodsOnHand: state.settings.includeFoodsOnHand,
-        includeToolsOnHand: state.settings.includeToolsOnHand,
-        includeSubstitutions: state.settings.includeSubstitutions,
-      } as RecipeSuggestionQuery,
-      selectedFoods.value.map(food => food.id),
-      selectedTools.value.map(tool => tool.id),
-    );
-    state.loading = false;
-    if (!data) {
-      return;
+    try {
+      const { data } = await api.recipes.getSuggestions(
+        {
+          limit: state.settings.limit,
+          queryFilter: state.settings.queryFilter,
+          maxMissingFoods: state.settings.maxMissingFoods,
+          maxMissingTools: state.settings.maxMissingTools,
+          includeFoodsOnHand: state.settings.includeFoodsOnHand,
+          includeToolsOnHand: state.settings.includeToolsOnHand,
+          includeSubstitutions: state.settings.includeSubstitutions,
+        } as RecipeSuggestionQuery,
+        selectedFoods.value.map(food => food.id),
+        selectedTools.value.map(tool => tool.id),
+      );
+      if (requestVersion !== searchRequestVersion) return;
+      state.loading = false;
+      if (!data) {
+        return;
+      }
+      recipeResponseItems.value = data.items;
+      state.recipesReady = true;
     }
-    recipeResponseItems.value = data.items;
-    state.recipesReady = true;
+    catch {
+      if (requestVersion === searchRequestVersion) alert.error(i18n.t("recipe-finder.search-failed"));
+    }
+    finally {
+      if (requestVersion === searchRequestVersion) {
+        state.loading = false;
+        state.recipesReady = true;
+      }
+    }
   },
   {
     debounce: 500,
@@ -530,3 +682,44 @@ function saveQueryFilter() {
   state.queryFilterMenu = false;
 }
 </script>
+
+<style scoped>
+.finder-empty-image {
+  display: block;
+  width: 240px;
+  max-width: 100%;
+  height: auto;
+  margin-top: 24px;
+  object-fit: contain;
+}
+.recipe-finder {
+  max-width: 1280px;
+}
+.finder-filters,
+.finder-results {
+  min-width: 0;
+}
+.finder-filters :deep(.v-btn) {
+  border-radius: 10px;
+  text-transform: none;
+}
+.finder-filters :deep(.v-card-title),
+.finder-results :deep(.v-card-title) {
+  font-family: var(--bistro-body) !important;
+  font-size: 18px;
+  font-weight: 600;
+  white-space: normal;
+}
+.finder-filters :deep(.v-chip) {
+  max-width: 100%;
+  border-radius: 8px;
+}
+.finder-results {
+  padding-inline-start: 24px;
+}
+@media (max-width: 960px) {
+  .finder-results {
+    padding-inline-start: 12px;
+  }
+}
+</style>

@@ -234,7 +234,7 @@ const state = reactive({
     { title: i18n.t("general.name"), value: "name" },
     { title: i18n.t("general.created"), value: "date" },
     { title: i18n.t("export.size"), value: "size" },
-    { title: "", value: "actions", align: "right" },
+    { title: "", value: "actions", align: "end" as const },
   ],
 });
 
