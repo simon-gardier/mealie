@@ -1,37 +1,25 @@
 <template>
   <div>
     <v-container class="flex-column">
-      <BasePageTitle divider title-image="/create_recipe.png" :title-image-alt="$t('recipe.recipe-creation')">
-        <template #title>
-          {{ $t('recipe.recipe-creation') }}
-        </template>
-        <template #content>
-          <div class="flex-1-1 d-flex flex-column justify-center align-center ga-2">
-            <p>{{ $t('recipe.select-one-of-the-various-ways-to-create-a-recipe') }}</p>
-            <div>
-              <BaseOverflowButton v-model="subpage" rounded :items="subpages" />
-            </div>
-          </div>
-        </template>
-      </BasePageTitle>
+      <header class="recipe-create-header">
+        <img src="/create_recipe.png" :alt="$t('recipe.recipe-creation')" class="recipe-create-artwork">
+        <div class="recipe-create-method">
+          <h1>{{ $t('recipe.recipe-creation') }}</h1>
+          <p>{{ $t('recipe.editor.choose-creation-method') }}</p>
+          <BaseOverflowButton v-model="subpage" :items="subpages" />
+        </div>
+      </header>
       <section>
         <NuxtPage />
       </section>
     </v-container>
-
-    <AdvancedOnly>
-      <v-container class="d-flex justify-center align-center my-4">
-        <router-link :to="`/group/migrations`" class="text-primary"> {{ $t('recipe.looking-for-migrations')
-        }}</router-link>
-      </v-container>
-    </AdvancedOnly>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { MenuItem } from "~/components/global/BaseOverflowButton.vue";
-import AdvancedOnly from "~/components/global/AdvancedOnly.vue";
 import { useGroupSelf } from "~/composables/use-groups";
+import { readRecipeImportUrl, recipeImportUrlKey } from "~/composables/use-recipe-import-url";
 
 definePageMeta({
   middleware: ["group-only"],
@@ -86,6 +74,7 @@ const subpages = computed<MenuItem[]>(() => [
 ]);
 
 const route = useRoute();
+provide(recipeImportUrlKey, ref(readRecipeImportUrl(route.query)));
 const router = useRouter();
 const groupSlug = computed(() => route.params.groupSlug || auth.user.value?.groupSlug || "");
 
@@ -98,3 +87,39 @@ const subpage = computed({
   },
 });
 </script>
+
+<style scoped>
+.recipe-create-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  max-width: 720px;
+  margin: 16px auto 24px;
+}
+.recipe-create-artwork {
+  width: min(100%, 360px);
+  height: auto;
+}
+.recipe-create-method {
+  width: 100%;
+}
+.recipe-create-method h1 {
+  font: 600 20px var(--bistro-body);
+  margin-bottom: 8px;
+}
+.recipe-create-method p {
+  font-size: 14px;
+  color: rgba(var(--v-theme-text-secondary), 0.8);
+  margin-bottom: 16px;
+}
+.recipe-create-method :deep(.v-btn) {
+  min-height: 44px;
+  border-radius: 10px;
+  text-transform: none;
+}
+section {
+  max-width: 720px;
+  margin-inline: auto;
+}
+</style>

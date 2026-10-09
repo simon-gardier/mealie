@@ -11,9 +11,9 @@
           :custom-filter="normalizeFilter"
           item-value="id"
           item-title="name"
-          :placeholder="$t('recipe.choose-substitute-food')"
+          :label="$t('recipe.choose-substitute-food')"
           :style="$vuetify.display.mdAndDown ? 'flex: 1 1 100%;' : 'flex: 6 0 50px;'"
-          :menu-props="{ attach: menuAttachTarget, maxHeight: '250px' }"
+          :menu-props="{ attach: menuAttachTarget, maxHeight: '250px', contentClass: 'recipe-editor-overlay' }"
           density="compact"
           :variant="variant"
           clearable
@@ -22,14 +22,22 @@
           @update:model-value="emit('food-changed', i)"
         >
           <template #append-item>
-            <div v-if="canCreateFood(substitution)" class="px-2">
-              <BaseButton block size="small" @click="createAssignFood(substitution, i)" />
+            <div v-if="canCreateFood(substitution)" class="ingredient-create-option">
+              <v-btn
+                variant="tonal"
+                color="primary"
+                class="ingredient-create-button"
+                :prepend-icon="$globals.icons.create"
+                @click="createAssignFood(substitution, i)"
+              >
+                {{ $t('recipe.parser.add-item', { name: foodSearch.get(substitution)?.trim() }) }}
+              </v-btn>
             </div>
           </template>
         </v-autocomplete>
         <v-text-field
           v-model="substitution.note"
-          :placeholder="$t('recipe.note')"
+          :label="$t('recipe.note')"
           :style="$vuetify.display.mdAndDown ? 'flex: 1 1 0;' : 'flex: 4 0 50px;'"
           density="compact"
           :variant="variant"
@@ -40,8 +48,10 @@
         <v-btn
           icon
           variant="plain"
+          color="error"
           class="flex-shrink-0"
           :title="$t('general.delete')"
+          :aria-label="$t('general.delete')"
           @click="emit('delete', i)"
         >
           <v-icon>{{ $globals.icons.delete }}</v-icon>
@@ -50,7 +60,7 @@
       <slot name="after-row" :substitution="substitution" :index="i" />
     </div>
     <v-btn
-      variant="text"
+      variant="tonal"
       color="primary"
       @click="emit('add')"
     >
@@ -63,7 +73,7 @@
 </template>
 
 <script setup lang="ts">
-import { normalizeFilter } from "~/composables/use-utils";
+import { normalize, normalizeFilter } from "~/composables/use-utils";
 import { useFoodData, useFoodStore } from "~/composables/store";
 import type { IngredientFood } from "~/lib/api/types/recipe";
 
@@ -88,7 +98,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   menuAttachTarget: undefined,
-  variant: "outlined",
+  variant: "filled",
 });
 
 const foodSearch = reactive(new WeakMap<EditableSubstitution, string>());
@@ -97,7 +107,7 @@ const foodData = useFoodData();
 
 function canCreateFood(substitution: EditableSubstitution) {
   const name = foodSearch.get(substitution)?.trim();
-  return !!name && !props.foods.some(food => food.name.toLowerCase() === name.toLowerCase());
+  return !!name && !props.foods.some(food => normalize(food.name) === normalize(name));
 }
 
 async function createAssignFood(substitution: EditableSubstitution, index: number) {
@@ -111,7 +121,8 @@ async function createAssignFood(substitution: EditableSubstitution, index: numbe
   foodData.reset();
   if (food) {
     substitution.substituteFoodId = food.id;
-    foodSearch.delete(substitution);
+    // Vuetify does not synchronize the selected title while the input is focused.
+    foodSearch.set(substitution, food.name);
     emit("food-changed", index);
   }
 }
@@ -122,3 +133,23 @@ const emit = defineEmits<{
   "food-changed": [index: number];
 }>();
 </script>
+
+<style scoped>
+.ingredient-create-option {
+  padding: 8px 12px;
+}
+.ingredient-create-button {
+  min-height: 44px;
+  max-width: 100%;
+  height: auto;
+  padding-block: 10px;
+  font-size: 0.875rem;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.ingredient-create-button :deep(.v-btn__content) {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+</style>

@@ -2,15 +2,24 @@
   <div class="d-flex editor-actions">
     <v-tooltip location="bottom">
       <template #activator="{ props: tooltipProps }">
-        <RecipeImageUploadBtn :slug="recipe.slug" v-bind="tooltipProps" @upload="uploadImage" @refresh="refreshImage"
-          @delete="deleteImage" />
+        <RecipeImageUploadBtn
+          :slug="recipe.slug"
+          :current-image-url="currentImageUrl"
+          v-bind="tooltipProps"
+          @refresh="refreshImage"
+          @delete="deleteImage"
+        />
       </template>
       <span>{{ $t("general.image") }}</span>
     </v-tooltip>
     <v-tooltip location="bottom">
       <template #activator="{ props: tooltipProps }">
-        <RecipeSettingsMenu v-model="recipe.settings" :is-owner="recipe.userId == user.id" v-bind="tooltipProps"
-          @upload="uploadImage" />
+        <RecipeSettingsMenu
+          v-model="recipe.settings"
+          :is-owner="recipe.userId == user.id"
+          v-bind="tooltipProps"
+          @upload="uploadImage"
+        />
       </template>
       <span>{{ $t("general.settings") }}</span>
     </v-tooltip>
@@ -21,7 +30,7 @@
 import { usePageState, usePageUser } from "~/composables/recipe-page/shared-state";
 import type { NoUndefinedField } from "~/lib/api/types/non-generated";
 import type { Recipe } from "~/lib/api/types/recipe";
-import { useUserApi } from "~/composables/api";
+import { useUserApi, useStaticRoutes } from "~/composables/api";
 import { alertUnreportedError } from "~/composables/use-toast";
 import RecipeImageUploadBtn from "~/components/Domain/Recipe/RecipeImageUploadBtn.vue";
 import RecipeSettingsMenu from "~/components/Domain/Recipe/RecipeSettingsMenu.vue";
@@ -32,6 +41,10 @@ const { user } = usePageUser();
 const api = useUserApi();
 const i18n = useI18n();
 const { imageKey } = usePageState(recipe.value.slug);
+const { recipeImage } = useStaticRoutes();
+const currentImageUrl = computed(() => recipe.value.image
+  ? recipeImage(recipe.value.id, recipe.value.image, imageKey.value)
+  : undefined);
 
 async function uploadImage(fileObject: File) {
   if (!recipe.value || !recipe.value.slug) {

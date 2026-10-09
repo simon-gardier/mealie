@@ -31,7 +31,9 @@
     <v-card-text>
       <v-text-field
         v-model="recipeName"
-        density="compact"
+        variant="filled"
+        color="primary"
+        density="comfortable"
         :label="$t('recipe.recipe-name')"
         autofocus
       />
@@ -168,7 +170,6 @@ const mealplannerDialog = ref(false);
 const recipeDuplicateDialog = ref(false);
 const recipeName = ref(props.name);
 const loading = ref(false);
-const menuItems = ref<ContextMenuItem[]>([]);
 
 const i18n = useI18n();
 const auth = useMealieAuth();
@@ -219,7 +220,7 @@ const defaultItems: { [key: string]: ContextMenuItem } = {
   delete: {
     title: i18n.t("general.delete"),
     icon: $globals.icons.delete,
-    color: undefined,
+    color: "error",
     event: "delete",
     isPublic: false,
   },
@@ -275,7 +276,6 @@ const defaultItems: { [key: string]: ContextMenuItem } = {
 };
 
 // Add leading and Appending Items
-menuItems.value = [...menuItems.value, ...props.leadingItems, ...props.appendItems];
 
 // ===========================================================================
 // Context Menu Event Handler
@@ -323,18 +323,15 @@ const canDelete = computed(() => {
 });
 
 // Get Default Menu Items Specified in Props
-for (const [key, value] of Object.entries(props.useItems)) {
-  if (!value) continue;
-
-  // Skip delete if not allowed
-  if (key === "delete" && !canDelete.value) continue;
-
-  const item = defaultItems[key];
-  if (item && (item.isPublic || isOwnGroup.value)) {
-    menuItems.value.push(item);
+const menuItems = computed<ContextMenuItem[]>(() => {
+  const items = [...props.leadingItems, ...props.appendItems];
+  for (const [key, value] of Object.entries(props.useItems)) {
+    if (!value || (key === "delete" && !canDelete.value)) continue;
+    const item = defaultItems[key];
+    if (item && (item.isPublic || isOwnGroup.value)) items.push(item);
   }
-}
-
+  return items;
+});
 async function refreshRecipe() {
   const { data } = await api.recipes.getOne(props.slug);
   if (data) {

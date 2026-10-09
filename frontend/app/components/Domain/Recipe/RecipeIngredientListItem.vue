@@ -1,35 +1,38 @@
 <template>
   <div class="text-subtitle-1 dense-markdown ingredient-item">
-    <SafeMarkdown
-      v-if="parsedIng.quantity"
-      class="d-inline"
-      :source="parsedIng.quantity"
-    />
-    <template v-if="parsedIng.unit">
-      {{ parsedIng.unit }}
-    </template>
-    <template v-if="parsedIng.note && !parsedIng.name">
-      <SafeMarkdown class="text-bold d-inline" :source="parsedIng.note" />
-      <RecipeIngredientSubstitutions v-if="showSubstitutions" :ingredient="ingredient" :scale="scale" />
-    </template>
-    <template v-else-if="parsedIng.recipeLink">
-      <SafeMarkdown class="text-bold d-inline" :source="parsedIng.recipeLink" />
-      <RecipeIngredientSubstitutions v-if="showSubstitutions" :ingredient="ingredient" :scale="scale" />
-      <SafeMarkdown v-if="parsedIng.note" class="note" :source="parsedIng.note" />
-    </template>
+    <SafeMarkdown v-if="originalFallback" :source="originalFallback" />
     <template v-else>
       <SafeMarkdown
-        v-if="parsedIng.name"
-        class="text-bold d-inline"
-        :source="parsedIng.name"
+        v-if="parsedIng.quantity"
+        class="d-inline"
+        :source="parsedIng.quantity"
       />
-      <!-- sits before the note, which takes a full flex row of its own -->
-      <RecipeIngredientSubstitutions v-if="showSubstitutions" :ingredient="ingredient" :scale="scale" />
-      <SafeMarkdown
-        v-if="parsedIng.note"
-        class="note"
-        :source="parsedIng.note"
-      />
+      <template v-if="parsedIng.unit">
+        {{ parsedIng.unit }}
+      </template>
+      <template v-if="parsedIng.note && !parsedIng.name">
+        <SafeMarkdown class="text-bold d-inline" :source="parsedIng.note" />
+        <RecipeIngredientSubstitutions v-if="showSubstitutions" :ingredient="ingredient" :scale="scale" />
+      </template>
+      <template v-else-if="parsedIng.recipeLink">
+        <SafeMarkdown class="text-bold d-inline ingredient-recipe-link" :source="parsedIng.recipeLink" />
+        <RecipeIngredientSubstitutions v-if="showSubstitutions" :ingredient="ingredient" :scale="scale" />
+        <SafeMarkdown v-if="parsedIng.note" class="note" :source="parsedIng.note" />
+      </template>
+      <template v-else>
+        <SafeMarkdown
+          v-if="parsedIng.name"
+          class="text-bold d-inline"
+          :source="parsedIng.name"
+        />
+        <!-- sits before the note, which takes a full flex row of its own -->
+        <RecipeIngredientSubstitutions v-if="showSubstitutions" :ingredient="ingredient" :scale="scale" />
+        <SafeMarkdown
+          v-if="parsedIng.note"
+          class="note"
+          :source="parsedIng.note"
+        />
+      </template>
     </template>
   </div>
 </template>
@@ -54,6 +57,8 @@ const route = useRoute();
 const auth = useMealieAuth();
 const groupSlug = computed(() => route.params.groupSlug || auth.user?.value?.groupSlug || "");
 const { useParsedIngredientText } = useIngredientTextParser();
+
+const originalFallback = computed(() => !props.ingredient.food && !props.ingredient.referencedRecipe && props.ingredient.originalText ? props.ingredient.originalText : "");
 
 const parsedIng = computed(() => {
   return useParsedIngredientText(props.ingredient, props.scale, true, groupSlug.value.toString());
@@ -98,6 +103,20 @@ const parsedIng = computed(() => {
     font-weight: bold;
     white-space: normal;
     word-break: break-word;
+  }
+
+  .ingredient-recipe-link a {
+    color: color-mix(in srgb, rgb(var(--v-theme-text-primary)) 70%, rgb(var(--v-theme-primary)));
+    text-decoration: underline;
+    text-decoration-color: rgba(var(--v-theme-primary), 0.35);
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: 1px;
+
+    &:hover,
+    &:focus-visible {
+      color: rgb(var(--v-theme-primary));
+      text-decoration-color: currentColor;
+    }
   }
 
   // vuetify sizes an icon button for a toolbar, far taller than the line of text this one

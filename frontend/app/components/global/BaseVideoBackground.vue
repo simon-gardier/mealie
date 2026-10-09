@@ -93,7 +93,7 @@ onMounted(() => {
   inset: 0;
   z-index: 0;
   overflow: hidden;
-  background-color: #000;
+  background-color: rgb(var(--v-theme-media-scrim));
 }
 
 .video-background__video {
@@ -105,7 +105,7 @@ onMounted(() => {
 .video-background__overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(var(--v-theme-media-scrim), 0.35);
   pointer-events: none;
 }
 
@@ -121,8 +121,8 @@ onMounted(() => {
   background-color: rgba(var(--v-theme-surface), 0.55);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(var(--v-theme-media-foreground), 0.25);
+  box-shadow: 0 4px 16px rgba(var(--v-theme-media-scrim), 0.3);
 }
 
 .video-background__btn {

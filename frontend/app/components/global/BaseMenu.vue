@@ -1,12 +1,25 @@
 <template>
   <!-- the list already scrolls when the overlay is bounded, but nothing bounds it by default,
        so a menu taller than the screen simply runs off the bottom -->
-  <v-menu :key="'menu-' + activator.event" active-class="pa-0" start max-height="80vh"
-    :style="stretch ? 'width: 100%;' : ''">
+  <v-menu
+    :key="'menu-' + activator.event"
+    active-class="pa-0"
+    start
+    max-height="80vh"
+    :style="stretch ? 'width: 100%;' : ''"
+  >
     <template #activator="{ props: hoverProps }">
       <slot name="activator" v-bind="{ props: hoverProps }">
-        <v-btn :tile="!rounded" :large="large" icon :rounded="rounded ? 'circle' : undefined" :color="activator.color"
-          variant="plain" v-bind="hoverProps" :loading="activator.loading || children.some(({ loading }) => loading)">
+        <v-btn
+          :tile="!rounded"
+          :large="large"
+          icon
+          :rounded="rounded ? 'circle' : undefined"
+          :color="getActionColor(activator, $globals.icons.delete)"
+          variant="plain"
+          v-bind="hoverProps"
+          :loading="activator.loading || children.some(({ loading }) => loading)"
+        >
           <v-icon>
             {{ activator.icon }}
           </v-icon>
@@ -15,16 +28,30 @@
     </template>
     <v-list density="compact">
       <template v-for="(child, idx) in children" :key="idx">
-        <BaseMenu v-if="child.children" :activator="child" :children="child.children" open-on-hover open-on-focus
-          open-on-click submenu @menu="(childEvent) => $emit('menu', childEvent)">
+        <BaseMenu
+          v-if="child.children"
+          :activator="child"
+          :children="child.children"
+          open-on-hover
+          open-on-focus
+          open-on-click
+          submenu
+          @menu="(childEvent) => $emit('menu', childEvent)"
+        >
           <template #activator="{ props: hoverProps }">
-            <v-list-item density="compact" :prepend-icon="child.icon" :disabled="child.disabled" v-bind="hoverProps">
+            <v-list-item density="compact" :prepend-icon="child.icon" :base-color="getActionColor(child, $globals.icons.delete)" :disabled="child.disabled" v-bind="hoverProps">
               <v-list-item-title>{{ child.text }}</v-list-item-title>
             </v-list-item>
           </template>
         </BaseMenu>
-        <v-list-item v-else density="compact" :prepend-icon="child.icon" :disabled="child.disabled"
-          @click="$emit('menu', child.event)">
+        <v-list-item
+          v-else
+          density="compact"
+          :prepend-icon="child.icon"
+          :base-color="getActionColor(child, $globals.icons.delete)"
+          :disabled="child.disabled"
+          @click="$emit('menu', child.event)"
+        >
           <v-list-item-title>{{ child.text }}</v-list-item-title>
         </v-list-item>
         <v-divider v-if="child.divider" :key="`divider-${idx}`" class="my-1" />
@@ -34,6 +61,8 @@
 </template>
 
 <script setup lang="ts">
+import { getActionColor } from "~/lib/action-color";
+
 export interface ButtonOption {
   icon?: string;
   color?: string;

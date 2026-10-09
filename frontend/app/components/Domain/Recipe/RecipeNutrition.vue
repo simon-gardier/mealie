@@ -11,17 +11,21 @@
           :key="index"
         >
           <v-number-input
+            :decimal-separator="quantityDecimalSeparator"
             :model-value="parseNutritionValue(modelValue[key])"
             :label="labels[key].label"
             :suffix="labels[key].suffix"
             density="compact"
             hide-details
             autocomplete="off"
-            variant="outlined"
+            variant="filled"
             inset
             :precision="null"
             :min="0"
             @update:model-value="updateValue(key, $event)"
+
+            @beforeinput.capture="onQuantityInput"
+            @paste.capture="onQuantityPaste"
           />
         </div>
       </v-card-text>
@@ -49,9 +53,12 @@
 </template>
 
 <script setup lang="ts">
+import { useQuantityInput } from "~/composables/use-quantity-input";
 import { parseNutritionValue, useNutritionLabels } from "~/composables/recipes";
 import type { Nutrition } from "~/lib/api/types/recipe";
 import type { NutritionLabelType } from "~/composables/recipes/use-recipe-nutrition";
+
+const { quantityDecimalSeparator, onQuantityInput, onQuantityPaste } = useQuantityInput();
 
 interface Props {
   edit?: boolean;

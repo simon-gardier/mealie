@@ -3,20 +3,30 @@
     <template #loader="{ isActive }">
       <v-progress-linear :active="isActive" indeterminate />
     </template>
-    <v-toolbar dark density="comfortable" :color="color" class="px-3 position-relative top-0 left-0 w-100"
-      :class="{ 'dialog-title-centered': centerTitle }">
+    <v-toolbar
+      density="comfortable"
+      color="surface"
+      class="dialog-header px-3 position-relative top-0 left-0 w-100"
+      :class="{ 'dialog-title-centered': centerTitle }"
+    >
       <slot name="header">
         <img v-if="titleImage" :src="titleImage" alt="" aria-hidden="true" class="title-image">
-        <v-icon v-else-if="icon" size="large">
+        <v-icon v-else-if="icon" size="24" color="primary">
           {{ icon }}
         </v-icon>
-        <v-toolbar-title class="headline">
+        <v-toolbar-title class="dialog-title">
           {{ title }}
         </v-toolbar-title>
       </slot>
       <v-spacer v-if="centerTitle" />
-      <v-btn v-if="cancelInToolbar" :aria-label="cancelLabel" :title="cancelLabel" icon variant="text"
-        @click="emit('cancel')">
+      <v-btn
+        v-if="cancelInToolbar"
+        :aria-label="cancelLabel"
+        :title="cancelLabel"
+        icon
+        variant="text"
+        @click="emit('cancel')"
+      >
         <v-icon>{{ $globals.icons.close }}</v-icon>
       </v-btn>
     </v-toolbar>
@@ -29,7 +39,7 @@
     <v-divider />
     <v-card-actions :class="$vuetify.display.xs ? 'pb-4 grid-small' : undefined">
       <slot name="card-actions">
-        <v-btn v-if="!cancelInToolbar" variant="text" color="grey" @click="emit('cancel')">
+        <v-btn v-if="!cancelInToolbar" variant="text" color="secondary" @click="emit('cancel')">
           {{ cancelLabel }}
         </v-btn>
         <slot name="card-actions-left" />
@@ -46,8 +56,13 @@
           </template>
           {{ $t("general.confirm") }}
         </BaseButton>
-        <BaseButton v-if="canSubmit" type="submit" :disabled="submitDisabled || loading" :hide-icon="hideSubmitIcon"
-          @click="emit('submit')">
+        <BaseButton
+          v-if="canSubmit"
+          type="submit"
+          :disabled="submitDisabled || loading"
+          :hide-icon="hideSubmitIcon"
+          @click="emit('submit')"
+        >
           {{ submitLabel }}
           <template v-if="submitIcon" #icon>
             {{ submitIcon }}
@@ -120,6 +135,25 @@ const cancelLabel = computed(() => props.cancelText ?? i18n.t("general.cancel"))
 </script>
 
 <style scoped>
+.base-dialog-card {
+  border-radius: 20px;
+}
+.dialog-header {
+  border-bottom: 1px solid rgb(var(--v-theme-separator));
+  flex-shrink: 0;
+}
+.dialog-title {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: rgb(var(--v-theme-on-surface));
+}
+@media (max-width: 600px) {
+  .base-dialog-card {
+    border-radius: 0;
+  }
+}
+
 /* On extra-small displays the dialog is a bottom sheet or fullscreen, so the
    actions stretch evenly across the full width. Larger displays keep the
    default v-card-actions flex row, where the spacer pushes the actions right. */

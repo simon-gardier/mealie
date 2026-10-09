@@ -12,7 +12,7 @@
         :color="modelValue || 'grey'"
         @click="setRandomHex"
       >
-        <v-icon color="white">
+        <v-icon color="media-foreground">
           {{ $globals.icons.refreshCircle }}
         </v-icon>
       </v-btn>

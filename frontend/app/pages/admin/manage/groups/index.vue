@@ -49,7 +49,7 @@
         :headers="state.headers"
         :items="groups || []"
         item-key="id"
-        class="elevation-0"
+        class="elevation-0 rounded-xl overflow-hidden"
         :items-per-page="-1"
         hide-default-footer
         disable-pagination
@@ -70,10 +70,10 @@
             <template #activator="{ props }">
               <div v-bind="props">
                 <v-btn
+                  color="error"
                   :disabled="item && (item.households!.length > 0 || item.users!.length > 0)"
                   class="mr-1"
                   icon
-                  color="error"
                   variant="text"
                   @click.stop="
                     state.confirmDialog = true;
@@ -90,7 +90,6 @@
           </v-tooltip>
         </template>
       </v-data-table>
-      <v-divider />
     </section>
   </v-container>
 </template>

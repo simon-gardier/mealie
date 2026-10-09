@@ -233,14 +233,14 @@ export function useRecipeFinderPreferences(): Ref<UserRecipeFinderPreferences> {
 
 export function useRecipeCreatePreferences(): Ref<UserRecipeCreatePreferences> {
   const fromStorage = useLocalStorage(
-    "recipe-create-preferences",
+    "petit-chef-recipe-create-preferences",
     {
-      importKeywordsAsTags: false,
-      importCategories: false,
-      stayInEditMode: false,
+      importKeywordsAsTags: true,
+      importCategories: true,
+      stayInEditMode: true,
       parseRecipe: true,
-      translateRecipe: false,
-      createNewOrganizers: false,
+      translateRecipe: true,
+      createNewOrganizers: true,
     },
     { mergeDefaults: true },
   );

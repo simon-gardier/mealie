@@ -9,10 +9,10 @@
         </div>
         <v-autocomplete v-model="fromCategory" return-object :items="categoryStore.store.value"
           :custom-filter="normalizeFilter" item-title="name" :label="$t('data-pages.categories.source-category')"
-          variant="outlined" />
+          variant="filled" />
         <v-autocomplete v-model="toCategory" return-object :items="categoryStore.store.value"
           :custom-filter="normalizeFilter" item-title="name" :label="$t('data-pages.categories.target-category')"
-          variant="outlined" />
+          variant="filled" />
 
         <template v-if="canMerge && fromCategory && toCategory">
           <div class="text-center">

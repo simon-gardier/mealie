@@ -1,28 +1,42 @@
 <template>
   <div>
-    <div v-if="!isCookMode">
-      <h2 class="recipe-section-title mt-1 text-h5 font-weight-medium opacity-80">
-        {{ $t("recipe.ingredients") }}
-      </h2>
-      <RecipePageScale :model-value="scale" :recipe="recipe" @update:model-value="emit('update:scale', $event)" />
-    </div>
-    <RecipeIngredients :value="recipe.recipeIngredient" :scale="scale" :is-cook-mode="isCookMode"
-      :storage-key="ingredientStorageKey" hide-title />
-    <div v-if="!isEditMode && recipe.tools && recipe.tools.length > 0">
-      <h2 class="mt-4 text-h5 font-weight-medium opacity-80">
-        {{ $t('tool.required-tools') }}
-      </h2>
-      <v-list density="compact">
-        <v-list-item v-for="(tool, index) in recipe.tools" :key="index" density="compact" class="px-1">
-          <template #prepend>
-            <v-checkbox v-model="recipeTools[index].onHand" hide-details class="pt-0 py-auto" color="secondary"
-              density="compact" @change="updateTool(index)" />
-          </template>
-          <v-list-item-title>
-            {{ tool.name }}
-          </v-list-item-title>
-        </v-list-item>
-      </v-list>
+    <div class="recipe-view-ingredients">
+      <div v-if="!isCookMode" class="d-flex align-center justify-space-between flex-wrap ga-2 mb-2">
+        <h2 class="recipe-section-title text-h5 font-weight-medium opacity-80">
+          {{ $t("recipe.ingredients") }}
+        </h2>
+        <RecipePageScale compact :model-value="scale" :recipe="recipe" @update:model-value="emit('update:scale', $event)" />
+      </div>
+      <v-divider v-if="!isCookMode" class="mb-4" />
+      <RecipeIngredients
+        :value="recipe.recipeIngredient"
+        :scale="scale"
+        :is-cook-mode="isCookMode"
+        :storage-key="ingredientStorageKey"
+        hide-title
+      />
+      <div v-if="!isEditMode && recipe.tools && recipe.tools.length > 0">
+        <h2 class="mt-4 text-h5 font-weight-medium opacity-80">
+          {{ $t('tool.required-tools') }}
+        </h2>
+        <v-list density="compact">
+          <v-list-item v-for="(tool, index) in recipe.tools" :key="index" density="compact" class="px-1">
+            <template #prepend>
+              <v-checkbox
+                v-model="recipeTools[index].onHand"
+                hide-details
+                class="pt-0 py-auto"
+                color="primary"
+                density="compact"
+                @change="updateTool(index)"
+              />
+            </template>
+            <v-list-item-title>
+              {{ tool.name }}
+            </v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </div>
     </div>
   </div>
 </template>

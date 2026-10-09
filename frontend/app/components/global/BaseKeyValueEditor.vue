@@ -9,7 +9,7 @@
         :model-value="key"
         :label="resolvedKeyLabel"
         density="compact"
-        variant="outlined"
+        variant="filled"
         hide-details
         readonly
         class="me-3 flex-grow-1"
@@ -18,7 +18,7 @@
         :model-value="value"
         :label="resolvedValueLabel"
         density="compact"
-        variant="outlined"
+        variant="filled"
         hide-details
         class="ms-3 flex-grow-1"
         @update:model-value="updateValue(key, $event)"
@@ -39,7 +39,7 @@
         v-model="newKey"
         :label="resolvedKeyLabel"
         density="compact"
-        variant="outlined"
+        variant="filled"
         hide-details
         class="me-3 flex-grow-1"
         @keydown.enter.prevent="addEntry"
@@ -48,7 +48,7 @@
         v-model="newValue"
         :label="resolvedValueLabel"
         density="compact"
-        variant="outlined"
+        variant="filled"
         hide-details
         class="ms-3 flex-grow-1"
         @keydown.enter.prevent="addEntry"

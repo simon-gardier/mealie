@@ -7,12 +7,16 @@
       can-submit
       disable-submit-on-enter
       :submit-text="$t('general.save')"
+      :loading="loading"
+      :submit-disabled="loading"
+      :width="560"
       @submit="submitEdit"
     >
       <v-card-text>
         <v-form ref="domEditEventForm">
           <v-text-field v-model="localEvent.subject" :label="$t('general.subject')" />
           <v-textarea v-model="localEvent.eventMessage" :label="$t('general.message')" rows="4" />
+          <RecipeTimelinePhotoEditor :preview="imagePreview" :submitted="loading" @upload="selectImage" @crop="applyCrop" @remove="removeImage" />
         </v-form>
       </v-card-text>
     </BaseDialog>
@@ -75,8 +79,11 @@
 </template>
 
 <script setup lang="ts">
+import RecipeTimelinePhotoEditor from "./RecipeTimelinePhotoEditor.vue";
 import { useI18n, useNuxtApp } from "#imports";
 import type { RecipeTimelineEventOut } from "~/lib/api/types/recipe";
+import { useUserApi, useStaticRoutes } from "~/composables/api";
+import { alert } from "~/composables/use-toast";
 
 export interface TimelineContextMenuIncludes {
   edit: boolean;
@@ -146,12 +153,46 @@ const menuItems = computed(() => {
 const icon = computed(() => props.menuIcon || $globals.icons.dotsVertical);
 
 const localEvent = ref({ ...props.event });
+const api = useUserApi();
+const { recipeTimelineEventImage } = useStaticRoutes();
+const imagePreview = ref("");
+const pendingImage = ref<Blob | File>();
+const imageName = ref("photo.png");
+let objectUrl = "";
+function releasePreview() {
+  if (objectUrl) URL.revokeObjectURL(objectUrl);
+  objectUrl = "";
+}
+function setImage(file: Blob | File) {
+  releasePreview();
+  pendingImage.value = file;
+  objectUrl = URL.createObjectURL(file);
+  imagePreview.value = objectUrl;
+}
+function selectImage(file: File) {
+  imageName.value = file.name;
+  setImage(file);
+}
+function applyCrop(file: Blob) {
+  imageName.value = "photo.png";
+  setImage(file);
+}
+function removeImage() {
+  releasePreview();
+  pendingImage.value = undefined;
+  imagePreview.value = "";
+  localEvent.value.image = "does not have image";
+}
+onBeforeUnmount(releasePreview);
 watch(() => props.event, (val) => {
   localEvent.value = { ...val };
 });
 
 function openEditDialog() {
+  releasePreview();
+  pendingImage.value = undefined;
   localEvent.value = { ...props.event };
+  imagePreview.value = props.event.image === "has image" ? `${recipeTimelineEventImage(props.event.recipeId, props.event.id)}?v=${Date.now()}` : "";
   recipeEventEditDialog.value = true;
 }
 function openDeleteDialog() {
@@ -171,13 +212,38 @@ function contextMenuEventHandler(eventKey: string) {
   emit(eventKey as "delete" | "update");
   loading.value = false;
 }
-function submitEdit() {
-  emit("update", { ...localEvent.value });
-  recipeEventEditDialog.value = false;
+async function submitEdit() {
+  if (loading.value) return;
+  loading.value = true;
+  try {
+    if (pendingImage.value) {
+      const { response } = await api.recipes.updateTimelineEventImage(props.event.id, pendingImage.value, imageName.value);
+      if (!response || response.status >= 400) {
+        alert.error(i18n.t("events.something-went-wrong"));
+        return;
+      }
+      localEvent.value.image = "has image";
+      pendingImage.value = undefined;
+    }
+    emit("update", { ...localEvent.value });
+    recipeEventEditDialog.value = false;
+  }
+  catch {
+    alert.error(i18n.t("events.something-went-wrong"));
+  }
+  finally {
+    loading.value = false;
+  }
 }
 </script>
 
 <style scoped>
+.photo-heading {
+  font-family: var(--bistro-body);
+  font-size: 15px;
+  text-align: left;
+  margin: 8px 0 12px;
+}
 .recipe-timeline-menu-button {
   width: 40px;
   min-width: 40px;

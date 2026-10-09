@@ -8,9 +8,9 @@
           {{ $t("data-pages.tags.merge-dialog-text") }}
         </div>
         <v-autocomplete v-model="fromTag" return-object :items="tagStore.store.value" :custom-filter="normalizeFilter"
-          item-title="name" :label="$t('data-pages.tags.source-tag')" variant="outlined" />
+          item-title="name" :label="$t('data-pages.tags.source-tag')" variant="filled" />
         <v-autocomplete v-model="toTag" return-object :items="tagStore.store.value" :custom-filter="normalizeFilter"
-          item-title="name" :label="$t('data-pages.tags.target-tag')" variant="outlined" />
+          item-title="name" :label="$t('data-pages.tags.target-tag')" variant="filled" />
 
         <template v-if="canMerge && fromTag && toTag">
           <div class="text-center">

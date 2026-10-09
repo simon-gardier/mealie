@@ -74,6 +74,10 @@ export function useShoppingListPage(listId: string) {
     loadingCounter,
     recipeReferenceLoading,
     refresh,
+    (list) => {
+      shoppingList.value = list;
+      updateListItemOrder();
+    },
   );
 
   // Handle item reordering by label

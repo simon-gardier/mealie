@@ -8,10 +8,11 @@
     can-confirm
     @confirm="addRecipeToPlan"
   >
-    <v-card-text>
-      <MealPlanDatePicker v-model="newMealdate" :entry-type="newMealType" />
+    <v-card-text class="mealplan-controls">
+      <MealPlanDatePicker v-model="newMealdate" class="mealplan-calendar" :entry-type="newMealType" />
       <v-select
         v-model="newMealType"
+        class="mt-4"
         :return-object="false"
         :items="planTypeOptions"
         :label="$t('recipe.entry-type')"
@@ -73,3 +74,15 @@ async function addRecipeToPlan() {
   }
 }
 </script>
+
+<style scoped>
+.mealplan-controls {
+  width: 100%;
+  max-width: 376px;
+  margin-inline: auto;
+}
+
+.mealplan-calendar {
+  width: 100%;
+}
+</style>

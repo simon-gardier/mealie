@@ -1,0 +1,11 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: dev/Dockerfile.petit-chef
+    ports:
+      - "127.0.0.1:9000:9000"
+    volumes:
+      - .:/workspace
+    stdin_open: true
+    tty: true

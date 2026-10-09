@@ -9,12 +9,11 @@
         </p>
       </BaseCardSectionTitle>
 
-      <div class="d-flex align-center justify-center justify-md-start flex-wrap">
+      <div class="parser-controls">
         <v-btn-toggle
           v-model="state.parser"
           density="compact"
           mandatory="force"
-          @change="processIngredient"
         >
           <v-btn value="nlp">
             {{ $t('admin.nlp') }}
@@ -29,13 +28,13 @@
         <v-spacer />
         <v-checkbox
           v-model="showConfidence"
-          class="ml-5"
+          class="parser-confidence-toggle"
           :label="$t('admin.show-individual-confidence')"
           hide-details
         />
       </div>
 
-      <v-card flat>
+      <v-card flat class="parser-input-card">
         <v-card-text>
           <v-text-field
             v-model="state.ingredient"
@@ -45,6 +44,8 @@
         <v-card-actions>
           <BaseButton
             class="ml-auto"
+            :loading="state.loading"
+            :disabled="!state.ingredient.trim()"
             @click="processIngredient"
           >
             <template #icon>
@@ -58,7 +59,7 @@
     <v-container v-if="state.results">
       <div
         v-if="state.parser !== 'brute' && getConfidence('average')"
-        class="d-flex"
+        class="parser-overall-confidence"
       >
         <v-chip
           dark
@@ -69,8 +70,7 @@
         </v-chip>
       </div>
       <div
-        class="d-flex justify-center flex-wrap"
-        style="gap: 1.5rem"
+        class="parser-result-grid"
       >
         <template v-for="(prop, index) in properties">
           <div
@@ -78,20 +78,19 @@
             :key="index"
             class="flex-grow-1"
           >
-            <v-card min-width="200px">
-              <v-card-title> {{ prop.value }} </v-card-title>
+            <v-card class="parser-result-card">
               <v-card-text>
-                {{ prop.subtitle }}
+                <div class="parser-result-header">
+                  <h3>{{ prop.subtitle }}</h3>
+                  <v-chip v-if="prop.confidence && showConfidence" variant="tonal" :color="prop.color!" size="small">
+                    {{ $t('admin.average-confident', [prop.confidence]) }}
+                  </v-chip>
+                </div>
+                <p class="parser-result-value">
+                  {{ prop.value }}
+                </p>
               </v-card-text>
             </v-card>
-            <v-chip
-              v-if="prop.confidence && showConfidence"
-              dark
-              :color="prop.color!"
-              class="mt-2"
-            >
-              {{ $t('admin.average-confident', [prop.confidence]) }}
-            </v-chip>
           </div>
         </template>
       </div>
@@ -112,6 +111,7 @@
 </template>
 
 <script setup lang="ts">
+import { ingredientAnalysisErrorKey } from "~/lib/ingredient-analysis-error";
 import { alert } from "~/composables/use-toast";
 import { useUserApi } from "~/composables/api";
 import type { IngredientConfidence } from "~/lib/api/types/recipe";
@@ -189,69 +189,155 @@ async function processIngredient() {
     return;
   }
 
+  const requestId = ++analysisRequestId;
+  const parser = state.parser;
+  const input = state.ingredient;
+  clearResults();
   state.loading = true;
+  try {
+    const { data, error } = await api.recipes.parseIngredient(parser, input);
+    if (requestId !== analysisRequestId) return;
 
-  const { data } = await api.recipes.parseIngredient(state.parser, state.ingredient);
+    if (data) {
+      state.results = true;
 
-  if (data) {
-    state.results = true;
+      confidence.value = data.confidence || {};
 
-    if (data.confidence) confidence.value = data.confidence;
+      // TODO: Remove ts-ignore
+      // ts-ignore because data will likely change significantly once I figure out how to return results
+      // for the parser. For now we'll leave it like this
+      properties.comment.value = data.ingredient.note || "";
+      properties.quantity.value = data.ingredient.quantity || "";
+      properties.unit.value = data.ingredient?.unit?.name || "";
+      properties.food.value = data.ingredient?.food?.name || "";
 
-    // TODO: Remove ts-ignore
-    // ts-ignore because data will likely change significantly once I figure out how to return results
-    // for the parser. For now we'll leave it like this
-    properties.comment.value = data.ingredient.note || "";
-    properties.quantity.value = data.ingredient.quantity || "";
-    properties.unit.value = data.ingredient?.unit?.name || "";
-    properties.food.value = data.ingredient?.food?.name || "";
-
-    (["comment", "quantity", "unit", "food"] as ConfidenceAttribute[]).forEach((property) => {
-      const color = getColor(property);
-      const confidence = getConfidence(property);
-      if (color) {
-        properties[property].color = color;
-      }
-      if (confidence) {
-        properties[property].confidence = confidence;
-      }
-    });
+      (["comment", "quantity", "unit", "food"] as ConfidenceAttribute[]).forEach((property) => {
+        const color = getColor(property);
+        const confidence = getConfidence(property);
+        if (color) {
+          properties[property].color = color;
+        }
+        if (confidence) {
+          properties[property].confidence = confidence;
+        }
+      });
+    }
+    else {
+      alert.error(i18n.t(ingredientAnalysisErrorKey(parser, error)));
+      state.results = false;
+    }
   }
-  else {
-    alert.error(i18n.t("events.something-went-wrong") as string);
-    state.results = false;
+  catch (error) {
+    if (requestId === analysisRequestId) {
+      clearResults();
+      alert.error(i18n.t(ingredientAnalysisErrorKey(parser, error)));
+    }
   }
-  state.loading = false;
+  finally {
+    if (requestId === analysisRequestId) state.loading = false;
+  }
 }
 
 const properties = reactive({
   quantity: {
     subtitle: i18n.t("recipe.quantity"),
     value: "" as string | number,
-    color: null,
-    confidence: null,
+    color: null as string | null,
+    confidence: null as string | null,
   },
   unit: {
     subtitle: i18n.t("recipe.unit"),
     value: "",
-    color: null,
-    confidence: null,
+    color: null as string | null,
+    confidence: null as string | null,
   },
   food: {
     subtitle: i18n.t("shopping-list.food"),
     value: "",
-    color: null,
-    confidence: null,
+    color: null as string | null,
+    confidence: null as string | null,
   },
   comment: {
     subtitle: i18n.t("recipe.comment"),
     value: "",
-    color: null,
-    confidence: null,
+    color: null as string | null,
+    confidence: null as string | null,
   },
 });
 
+let analysisRequestId = 0;
+function clearResults() {
+  state.results = false;
+  confidence.value = {};
+  Object.values(properties).forEach((property) => {
+    property.color = null;
+    property.confidence = null;
+  });
+}
+watch([() => state.parser, () => state.ingredient], () => {
+  analysisRequestId++;
+  clearResults();
+  state.loading = false;
+}, { flush: "sync" });
 const showConfidence = ref(false);
 </script>
 
 <style scoped></style>
+
+<style scoped>
+.parser-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding-block: 24px 16px;
+}
+.parser-controls :deep(.v-btn-toggle) {
+  gap: 8px;
+  height: auto;
+  padding: 4px;
+  overflow: visible;
+}
+.parser-controls :deep(.v-btn) {
+  min-height: 44px;
+  border-radius: 10px !important;
+}
+.parser-confidence-toggle {
+  margin: 0;
+}
+.parser-input-card,
+.parser-result-card {
+  border-radius: 14px;
+}
+.parser-overall-confidence {
+  display: flex;
+  margin-bottom: 16px;
+}
+.parser-result-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.parser-result-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.parser-result-header h3 {
+  font: 600 14px var(--bistro-body);
+  color: rgba(var(--v-theme-text-secondary), var(--v-secondary-label-opacity));
+}
+.parser-result-value {
+  margin: 0;
+  font: 500 16px/1.5 var(--bistro-body);
+  overflow-wrap: anywhere;
+}
+@media (max-width: 599px) {
+  .parser-result-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+</style>

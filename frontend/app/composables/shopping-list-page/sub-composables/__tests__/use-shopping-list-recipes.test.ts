@@ -39,6 +39,15 @@ describe("use-shopping-list-recipes", () => {
     ["adding recipes", addRecipeReferenceToList, addRecipes] as const,
     ["removing recipes", removeRecipeReferenceToList, removeRecipe] as const,
   ])("%s", async ([_, recipeUpdater, mock]) => {
+    test("releases pending state after a failed request so the next click works", async () => {
+      mock.mockRejectedValueOnce(new Error("Request failed"));
+      await expect(recipeUpdater("recipe_id")).rejects.toThrow("Request failed");
+      expect(loadingCounter.value).toBe(0);
+      expect(recipeReferenceLoading.value).toBe(false);
+      mock.mockClear();
+      await recipeUpdater("recipe_id");
+      expect(mock).toHaveBeenCalledOnce();
+    });
     test("updates tracking values", async () => {
       expect(loadingCounter.value).toBe(0);
       expect(recipeReferenceLoading.value).toBe(false);
@@ -70,5 +79,19 @@ describe("use-shopping-list-recipes", () => {
       await recipeUpdater("recipe_id");
       expect(mock).not.toHaveBeenCalled();
     });
+  });
+  test("adjusts one portion of a four-serving recipe and applies returned list directly", async () => {
+    const applyResponse = vi.fn();
+    const response = { ...list };
+    const actions = useShoppingListRecipes(shoppingList, loadingCounter, recipeReferenceLoading, refresh, applyResponse);
+    refresh.mockClear();
+    addRecipes.mockResolvedValueOnce({ data: response });
+    await actions.addRecipeReferenceToList("recipe_id", 0.25);
+    expect(addRecipes).toHaveBeenLastCalledWith(list.id, [{ recipeId: "recipe_id", recipeIncrementQuantity: 0.25 }]);
+    expect(applyResponse).toHaveBeenLastCalledWith(response);
+    expect(refresh).not.toHaveBeenCalled();
+    removeRecipe.mockResolvedValueOnce({ data: response });
+    await actions.removeRecipeReferenceToList("recipe_id", 0.25);
+    expect(removeRecipe).toHaveBeenLastCalledWith(list.id, "recipe_id", 0.25);
   });
 });

@@ -32,7 +32,7 @@
         </div>
         <v-textarea
           v-model="bugReportText"
-          variant="outlined"
+          variant="filled"
           rows="18"
           readonly
         />
@@ -41,7 +41,7 @@
           style="gap: 5px"
         >
           <BaseButton
-            color="gray"
+            color="text-secondary"
             secondary
             target="_blank"
             href="https://github.com/mealie-recipes/mealie/issues/new/choose"
@@ -110,7 +110,7 @@
       />
       <v-alert
         variant="text"
-        elevation="2"
+        elevation="0"
         class="admin-status-card"
       >
         <template #prepend>
@@ -133,7 +133,7 @@
           />
           <BaseButton
             color="info"
-            variant="elevated"
+            variant="tonal"
             :disabled="!appConfig.emailReady || !validEmail"
             :loading="state.loading"
             class="opacity-100"

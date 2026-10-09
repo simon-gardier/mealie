@@ -1,0 +1,2 @@
+const {chromium}=require('C:/Users/Simon/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+(async()=>{const b=await chromium.connectOverCDP('http://localhost:9223');const p=b.contexts()[0].pages()[0];console.log(p.url());console.log((await p.locator('body').innerText()).slice(0,1700));await p.screenshot({path:'dev/ui-audit/current.png',fullPage:true});await b.close()})();

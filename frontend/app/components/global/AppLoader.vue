@@ -7,12 +7,12 @@
       <v-progress-circular
         :width="size.width"
         :size="size.size"
-        color="primary-lighten-2"
+        color="primary"
         indeterminate
       >
         <v-icon
           :size="size.icon"
-          color="primary-lighten-2"
+          color="primary"
         >
           {{ $globals.icons.primary }}
         </v-icon>

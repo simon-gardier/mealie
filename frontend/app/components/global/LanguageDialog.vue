@@ -15,7 +15,7 @@
         item-value="value"
         class="my-3"
         hide-details
-        variant="outlined"
+        variant="filled"
         @update:model-value="onLocaleSelect"
       >
         <template #item="{ item, props }">

@@ -10,11 +10,10 @@
       v-for="category in items.slice(0, limit)"
       :key="category.name"
       label
-      class="mr-1 mt-1"
-      color="accent"
-      variant="flat"
+      class="recipe-organizer-chip mr-2 mt-2"
+      color="primary"
+      variant="tonal"
       :size="small ? 'small' : 'default'"
-      dark
 
       @click.prevent="() => $emit('item-selected', category, urlPrefix)"
     >
@@ -55,4 +54,15 @@ function truncateText(text: string, length = 20, clamp = "...") {
 }
 </script>
 
-<style></style>
+<style scoped>
+.recipe-organizer-chip {
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: normal;
+  padding-inline: 12px;
+}
+.recipe-organizer-chip:not(.v-chip--size-small) {
+  min-height: 36px;
+}
+</style>

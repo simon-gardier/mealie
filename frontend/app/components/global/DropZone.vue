@@ -149,7 +149,7 @@ const { isOverDropZone } = useDropZone(el, (files, event) => onDrop(files, event
 
 <style lang="css">
 .over {
-  background-color: #f0f0f0;
+  background-color: rgb(var(--v-theme-fill));
 }
 .overlay {
   position: absolute;
@@ -158,7 +158,7 @@ const { isOverDropZone } = useDropZone(el, (files, event) => onDrop(files, event
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.309);
+  background-color: rgba(var(--v-theme-media-scrim), 0.309);
 }
 
 .text-container {
@@ -174,7 +174,7 @@ const { isOverDropZone } = useDropZone(el, (files, event) => onDrop(files, event
 }
 
 .drop-text {
-  color: white;
+  color: rgb(var(--v-theme-media-foreground));
   font-size: 1.5rem;
   font-weight: bold;
 }

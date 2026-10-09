@@ -1,11 +1,17 @@
 <template>
   <div>
-    <v-card-actions class="justify-end mx-n2 px-0">
-      <v-text-field v-if="isEditForm" v-model="recipe.orgURL" class="mt-10 w-100" variant="outlined"
-        :label="$t('recipe.original-url')" :prepend-inner-icon="$globals.icons.link" />
+    <v-card-actions class="justify-end px-0">
+      <v-text-field
+        v-if="isEditForm"
+        v-model="recipe.orgURL"
+        class="mt-6 w-100"
+        variant="filled"
+        :label="$t('recipe.original-url')"
+        :prepend-inner-icon="$globals.icons.link"
+      />
     </v-card-actions>
     <AdvancedOnly>
-      <v-card v-if="isEditForm" class="mb-2 mx-n2 rounded-lg">
+      <v-card v-if="isEditForm" class="mb-2 rounded-lg">
         <v-card-title class="text-h5 font-weight-medium opacity-80">
           {{ $t('recipe.api-extras') }}
         </v-card-title>
@@ -14,9 +20,16 @@
           {{ $t('recipe.api-extras-description') }}
           <v-row v-for="(_, key) in recipe.extras" :key="key" class="mt-1">
             <v-col style="max-width: 400px;">
-              <v-text-field v-model="recipe.extras[key]" density="compact" variant="outlined" :label="key">
+              <v-text-field v-model="recipe.extras[key]" density="compact" variant="filled" :label="key">
                 <template #prepend>
-                  <v-btn color="error" icon class="mt-n4" @click="removeApiExtra(key)">
+                  <v-btn
+                    color="error"
+                    variant="text"
+                    :aria-label="$t('general.delete')"
+                    icon
+                    class="mt-n4"
+                    @click="removeApiExtra(key)"
+                  >
                     <v-icon> {{ $globals.icons.delete }} </v-icon>
                   </v-btn>
                 </template>
@@ -26,9 +39,9 @@
         </v-card-text>
         <v-card-actions class="d-flex flex-column align-center ga-2 py-4 ml-2">
           <div class="w-100">
-            <v-text-field v-model="apiNewKey" class="w-100" :label="$t('recipe.message-key')" variant="outlined" />
+            <v-text-field v-model="apiNewKey" class="w-100" :label="$t('recipe.message-key')" variant="filled" />
           </div>
-          <BaseButton create size="default" @click="createApiExtra" />
+          <BaseButton create variant="tonal" size="default" @click="createApiExtra" />
         </v-card-actions>
       </v-card>
     </AdvancedOnly>

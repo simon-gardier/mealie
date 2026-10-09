@@ -3,7 +3,7 @@
     <TheSnackbar />
 
     <AppHeader :menu="false" />
-    <v-main>
+    <v-main class="app-main">
       <v-scroll-x-transition>
         <div>
           <NuxtPage />

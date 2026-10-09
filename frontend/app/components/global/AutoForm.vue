@@ -82,8 +82,8 @@ const isValid = defineModel("isValid", { type: Boolean, default: false });
 
 const props = defineProps({
   variant: {
-    type: String as PropType<"solo-filled" | "outlined">,
-    default: "solo-filled",
+    type: String as PropType<"filled" | "solo-filled" | "outlined">,
+    default: "filled",
   },
   updateMode: {
     default: false,

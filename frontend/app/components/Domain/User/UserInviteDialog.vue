@@ -55,7 +55,7 @@
           v-model="sendTo"
           :label="$t('user.email')"
           :rules="[validators.email]"
-          variant="outlined"
+          variant="filled"
           @keydown.enter="sendInvite"
         />
       </v-form>

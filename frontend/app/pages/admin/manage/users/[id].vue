@@ -11,33 +11,60 @@
     </BasePageTitle>
     <AppToolbar back />
     <v-form v-if="!userError" ref="refNewUserForm" @submit.prevent="handleSubmit">
-      <v-card variant="outlined" class="admin-content-card" style="border-color: lightgrey;">
-        <v-sheet class="pt-4">
+      <v-card variant="outlined" class="admin-content-card" style="border-color: rgb(var(--v-theme-separator));">
+        <v-sheet color="transparent" class="user-edit-sheet">
           <v-card-text>
-            <div class="d-flex">
+            <div class="user-identifier">
               <p> {{ $t("user.user-id-with-value", { id: user.id }) }}</p>
             </div>
             <!-- This is disabled since we can't properly handle changing the user's group in most scenarios -->
 
             <v-row>
-              <v-col cols="6">
-                <v-select v-if="groups" v-model="user.group" disabled :items="groups" variant="solo-filled" flat
-                  item-title="name" item-value="name" :return-object="false" :label="$t('group.user-group')"
-                  :rules="[validators.required]" />
+              <v-col cols="12" sm="6">
+                <v-select
+                  v-if="groups"
+                  v-model="user.group"
+                  disabled
+                  :items="groups"
+                  variant="filled"
+                  flat
+                  item-title="name"
+                  item-value="name"
+                  :return-object="false"
+                  :label="$t('group.user-group')"
+                  :rules="[validators.required]"
+                />
               </v-col>
-              <v-col cols="6">
-                <v-select v-if="households" v-model="user.household" :items="households" variant="solo-filled" flat
-                  item-title="name" item-value="name" :return-object="false" :label="$t('household.user-household')"
-                  :rules="[validators.required]" />
+              <v-col cols="12" sm="6">
+                <v-select
+                  v-if="households"
+                  v-model="user.household"
+                  :items="households"
+                  variant="filled"
+                  flat
+                  item-title="name"
+                  item-value="name"
+                  :return-object="false"
+                  :label="$t('household.user-household')"
+                  :rules="[validators.required]"
+                />
               </v-col>
             </v-row>
-            <div class="d-flex py-2 pr-2">
-              <BaseButton type="button" :loading="generatingToken" create @click.prevent="handlePasswordReset">
+            <div class="user-reset-action">
+              <BaseButton
+                variant="tonal"
+                color="primary"
+                class="reset-link-button"
+                type="button"
+                :loading="generatingToken"
+                create
+                @click.prevent="handlePasswordReset"
+              >
                 {{ $t("user.generate-password-reset-link") }}
               </BaseButton>
             </div>
 
-            <div v-if="resetUrl" class="mb-2">
+            <div v-if="resetUrl" class="user-reset-result">
               <v-card-text>
                 <p class="text-center pb-0">
                   {{ resetUrl }}
@@ -58,7 +85,14 @@
               </v-card-actions>
             </div>
 
-            <AutoForm v-model="user" :items="userForm" update-mode :disabled-fields="disabledFields" />
+            <AutoForm
+              v-model="user"
+              :items="editFields"
+              variant="filled"
+              class="user-edit-fields"
+              update-mode
+              :disabled-fields="disabledFields"
+            />
           </v-card-text>
         </v-sheet>
       </v-card>
@@ -85,6 +119,7 @@ definePageMeta({
 });
 
 const { userForm } = useUserForm();
+const editFields = userForm.map(field => ({ ...field, cols: 12 }));
 const { groups } = useGroups();
 const { useHouseholdsInGroup } = useAdminHouseholds();
 const i18n = useI18n();
@@ -160,3 +195,70 @@ async function sendResetEmail() {
   }
 }
 </script>
+
+<style scoped>
+.user-identifier {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(var(--v-theme-separator), 0.5);
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(var(--v-theme-text-secondary), var(--v-secondary-label-opacity));
+  overflow-wrap: anywhere;
+}
+.user-reset-action {
+  margin: 12px 0 24px;
+}
+.reset-link-button {
+  max-width: 100%;
+  min-height: 44px;
+  height: auto;
+  padding: 10px 16px;
+  border-radius: 10px;
+  text-transform: none;
+}
+.reset-link-button :deep(.v-btn__content) {
+  white-space: normal;
+}
+.user-reset-result {
+  margin-bottom: 24px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(var(--v-theme-fill), 0.5);
+  overflow-wrap: anywhere;
+}
+.user-reset-result :deep(.v-card-actions) {
+  flex-wrap: wrap;
+}
+.user-edit-fields :deep(.v-card) {
+  border: 0 !important;
+  border-style: none !important;
+  outline: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  padding: 0;
+  box-shadow: none !important;
+}
+.user-edit-fields :deep(.v-col) {
+  padding-inline: 0 !important;
+}
+.user-edit-fields :deep(.v-row > .v-col:first-child > .v-divider) {
+  display: none;
+}
+.user-edit-fields :deep(.v-divider) {
+  display: none;
+}
+.user-edit-fields :deep(.v-checkbox) {
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  background: rgba(var(--v-theme-fill), 0.5);
+  border-radius: 10px;
+}
+.user-edit-fields :deep(.v-checkbox .v-label) {
+  white-space: normal;
+  font-size: 15px;
+  line-height: 1.5;
+  color: rgb(var(--v-theme-on-surface));
+  opacity: 1;
+}
+</style>

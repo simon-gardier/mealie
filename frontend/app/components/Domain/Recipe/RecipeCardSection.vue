@@ -103,7 +103,7 @@
       <v-card v-intersect="infiniteScroll" variant="flat" />
     </div>
     <v-fade-transition>
-      <AppLoader v-if="loading" :loading="loading" :waiting-text="$t('general.loading-recipes')" />
+      <RecipeLoading v-if="loading" />
     </v-fade-transition>
     <AppScrollToTop />
   </div>

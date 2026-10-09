@@ -1,11 +1,19 @@
 <template>
   <div>
     <slot name="activator" v-bind="{ open }" />
-    <v-bottom-sheet v-if="bottomSheet && $vuetify.display.xs" v-model="dialog"
-      :content-class="['rounded-t-xl', contentClass]" :content-props="{
+    <v-bottom-sheet
+      v-if="bottomSheet && $vuetify.display.xs"
+      v-model="dialog"
+      :persistent="persistent"
+      :content-class="['rounded-t-xl', contentClass]"
+      :content-props="{
         style: 'overflow: hidden',
-      }" :max-width="maxWidth ?? undefined" @keydown.enter="submitOnEnter" @click:outside="emit('cancel')"
-      @keydown.esc="emit('cancel')">
+      }"
+      :max-width="maxWidth ?? undefined"
+      @keydown.enter="submitOnEnter"
+      @click:outside="emit('cancel')"
+      @keydown.esc="emit('cancel')"
+    >
       <BaseDialogContent v-bind="bindings">
         <template v-if="$slots.header" #header>
           <slot name="header" />
@@ -27,9 +35,18 @@
         </template>
       </BaseDialogContent>
     </v-bottom-sheet>
-    <v-dialog v-else v-model="dialog" :width="width" :max-width="maxWidth ?? undefined"
-      :content-class="[top ? 'top-dialog' : undefined, contentClass]" :fullscreen="$vuetify.display.xs"
-      @keydown.enter="submitOnEnter" @click:outside="emit('cancel')" @keydown.esc="emit('cancel')">
+    <v-dialog
+      v-else
+      v-model="dialog"
+      :persistent="persistent"
+      :width="width"
+      :max-width="maxWidth ?? undefined"
+      :content-class="[top ? 'top-dialog' : undefined, contentClass]"
+      :fullscreen="$vuetify.display.xs"
+      @keydown.enter="submitOnEnter"
+      @click:outside="emit('cancel')"
+      @keydown.esc="emit('cancel')"
+    >
       <BaseDialogContent v-bind="bindings">
         <template v-if="$slots.header" #header>
           <slot name="header" />
@@ -73,6 +90,7 @@ interface DialogProps {
   loading?: boolean;
   top?: boolean | null;
   keepOpen?: boolean;
+  persistent?: boolean;
   bottomSheet?: boolean;
 
   // submit
@@ -111,6 +129,7 @@ const props = withDefaults(defineProps<DialogProps>(), {
   loading: false,
   top: null,
   keepOpen: false,
+  persistent: false,
   bottomSheet: false,
 
   // submit

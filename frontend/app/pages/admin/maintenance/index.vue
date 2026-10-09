@@ -21,7 +21,7 @@
       </div>
     </BaseDialog>
 
-    <BasePageTitle divider>
+    <BasePageTitle>
       <template #title>
         {{ $t("admin.maintenance.page-title") }}
       </template>
@@ -29,21 +29,21 @@
 
     <section>
       <BaseCardSectionTitle class="pb-0" :icon="$globals.icons.wrench" :title="$t('admin.maintenance.summary-title')" />
-      <div class="mb-6 d-flex" style="gap: 0.3rem">
-        <BaseButton color="info" @click="getSummary">
+      <div class="maintenance-summary-actions">
+        <BaseButton color="primary" variant="tonal" :loading="state.fetchingInfo" @click="getSummary">
           <template #icon>
             {{ $globals.icons.tools }}
           </template>
           {{ $t("admin.maintenance.button-label-get-summary") }}
         </BaseButton>
-        <BaseButton color="info" @click="openDetails">
+        <BaseButton color="primary" variant="text" :loading="state.storageDetailsLoading" @click="openDetails">
           <template #icon>
             {{ $globals.icons.folderOutline }}
           </template>
           {{ $t("admin.maintenance.button-label-open-details") }}
         </BaseButton>
       </div>
-      <v-card class="" :loading="state.fetchingInfo">
+      <v-card class="maintenance-summary" :loading="state.fetchingInfo">
         <template v-for="(value, idx) in info" :key="`item-${idx}`">
           <v-list-item>
             <v-list-item-title class="py-2">
@@ -72,27 +72,15 @@
           </template>
         </i18n-t>
       </BaseCardSectionTitle>
-      <v-card class="ma-0" flat :loading="state.actionLoading">
-        <template v-for="(action, idx) in actions" :key="`item-${idx}`">
-          <v-list-item class="py-2 px-0">
-            <v-list-item-title>
-              <div>{{ action.name }}</div>
-              <v-list-item-subtitle class="wrap-word">
-                {{ action.subtitle }}
-              </v-list-item-subtitle>
-            </v-list-item-title>
-            <template #append>
-              <BaseButton color="info" @click="action.handler">
-                <template #icon>
-                  {{ $globals.icons.robot }}
-                </template>
-                {{ $t("general.run") }}
-              </BaseButton>
-            </template>
-          </v-list-item>
-          <v-divider class="mx-2" />
-        </template>
-      </v-card>
+      <div class="maintenance-action-list">
+        <article v-for="(action, idx) in actions" :key="`item-${idx}`" class="maintenance-action-card">
+          <h3>{{ action.name }}</h3>
+          <p>{{ action.subtitle }}</p>
+          <v-btn variant="tonal" color="error" :prepend-icon="$globals.icons.delete" :disabled="state.actionLoading" @click="action.handler">
+            {{ action.name }}
+          </v-btn>
+        </article>
+      </div>
     </section>
   </v-container>
 </template>
@@ -177,18 +165,19 @@ function storageDetailsText(key: string) {
 const storageDetails = ref<MaintenanceStorageDetails | null>(null);
 
 async function openDetails() {
+  if (state.storageDetailsLoading) return;
   state.storageDetailsLoading = true;
   state.storageDetails = true;
-
-  const { data } = await adminApi.maintenance.getStorageDetails();
-
-  if (data) {
-    storageDetails.value = data;
+  try {
+    const { data } = await adminApi.maintenance.getStorageDetails();
+    if (data) {
+      storageDetails.value = data;
+    }
   }
-
-  state.storageDetailsLoading = true;
+  finally {
+    state.storageDetailsLoading = false;
+  }
 }
-
 // ==========================================================================
 // Actions
 
@@ -233,5 +222,57 @@ const actions = [
 .wrap-word {
   white-space: normal;
   word-wrap: break-word;
+}
+.maintenance-summary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.maintenance-summary {
+  border-radius: 14px;
+}
+.maintenance-summary :deep(.v-list-item-title) {
+  white-space: normal;
+  font-size: 15px;
+  line-height: 1.5;
+}
+.maintenance-action-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+.maintenance-action-card {
+  padding: 16px;
+  background: rgb(var(--v-theme-surface));
+  border: 1px solid rgba(var(--v-theme-separator), 0.5);
+  border-radius: 14px;
+}
+.maintenance-action-card h3 {
+  margin: 0 0 8px;
+  font: 600 16px var(--bistro-body);
+}
+.maintenance-action-card p {
+  margin: 0 0 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(var(--v-theme-text-secondary), var(--v-secondary-label-opacity));
+}
+.maintenance-action-card .v-btn,
+.maintenance-summary-actions :deep(.v-btn) {
+  min-height: 44px;
+  height: auto;
+  padding-block: 10px;
+  border-radius: 10px;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.maintenance-action-card :deep(.v-btn__content) {
+  white-space: normal;
+}
+@media (max-width: 599px) {
+  .maintenance-action-card .v-btn {
+    width: 100%;
+  }
 }
 </style>

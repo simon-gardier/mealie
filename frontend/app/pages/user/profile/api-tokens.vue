@@ -16,13 +16,28 @@
         </v-card-title>
         <v-card-text class="px-0">
           <v-form ref="domNewTokenForm" @submit.prevent>
-            <v-text-field v-model="name" :label="$t('settings.token.token-name')" variant="solo" flat
-              density="comfortable" hide-details class="token-input" />
+            <v-text-field
+              v-model="name"
+              :label="$t('settings.token.token-name')"
+              variant="filled"
+              flat
+              density="comfortable"
+              hide-details
+              class="token-input"
+            />
           </v-form>
 
           <template v-if="createdToken != ''">
-            <v-textarea v-model="createdToken" class="mb-0 pb-0 token-input" :label="$t('settings.token.api-token')"
-              readonly rows="3" variant="solo" flat density="comfortable" />
+            <v-textarea
+              v-model="createdToken"
+              class="mb-0 pb-0 token-input"
+              :label="$t('settings.token.api-token')"
+              readonly
+              rows="3"
+              variant="filled"
+              flat
+              density="comfortable"
+            />
             <p>
               {{
                 $t(
@@ -44,17 +59,21 @@
         </v-card-actions>
       </v-card>
     </section>
-    <BaseDialog v-model="deleteDialog" :title="$t('general.confirm')" :icon="$globals.icons.alertCircle" color="error"
-      can-confirm @confirm="deleteSelectedToken()">
+    <BaseDialog
+      v-model="deleteDialog"
+      :title="$t('general.confirm')"
+      :icon="$globals.icons.alertCircle"
+      color="error"
+      can-confirm
+      @confirm="deleteSelectedToken()"
+    >
       <v-card-text>
         {{ $t('general.confirm-delete-generic') }}
       </v-card-text>
     </BaseDialog>
     <BaseCardSectionTitle class="mt-10" :title="$t('settings.token.active-tokens')" />
     <section class="d-flex flex-column">
-      <v-alert v-if="!tokenList.length" type="info" variant="tonal" class="mt-2">
-        {{ $t('settings.token.you-have-token-count', 0) }}
-      </v-alert>
+      <BaseEmptyState v-if="!tokenList.length" :message="$t('settings.token.you-have-token-count', 0)" :icon="$globals.icons.cog" />
       <v-list v-else>
         <div v-for="(token, index) in tokenList" :key="index">
           <v-list-item>
@@ -65,8 +84,14 @@
               {{ $t('general.created-on-date', [$d(new Date(token.createdAt!))]) }}
             </v-list-item-subtitle>
             <template #append>
-              <v-btn icon variant="text" color="error" size="large" class="token-delete-btn"
-                @click="openDeleteDialog(token.id)">
+              <v-btn
+                icon
+                variant="text"
+                color="error"
+                size="large"
+                class="token-delete-btn"
+                @click="openDeleteDialog(token.id)"
+              >
                 <v-icon>{{ $globals.icons.delete }}</v-icon>
               </v-btn>
             </template>
@@ -156,14 +181,10 @@ async function deleteSelectedToken() {
 
 <style scoped>
 .token-input :deep(.v-field) {
-  background: rgba(var(--v-theme-surface), 0.72) !important;
-  border: 1px solid rgba(var(--v-theme-primary), 0.5);
+  background: rgb(var(--v-theme-fill)) !important;
+  --v-field-border-color: rgb(var(--v-theme-separator));
   border-radius: 10px;
   box-shadow: none !important;
-}
-
-.token-input :deep(.v-field__outline) {
-  display: none;
 }
 
 .token-input :deep(.v-field__input) {
@@ -174,5 +195,13 @@ async function deleteSelectedToken() {
   min-width: 48px;
   width: 48px;
   height: 48px;
+}
+.settings-input :deep(.v-field--focused),
+.token-input :deep(.v-field--focused) {
+  --v-field-border-color: rgb(var(--v-theme-primary));
+}
+.settings-input :deep(.v-field--error),
+.token-input :deep(.v-field--error) {
+  --v-field-border-color: rgb(var(--v-theme-error));
 }
 </style>

@@ -46,8 +46,12 @@
           :disabled="state.loading"
           @update:model-value="handleIsEditJson"
         >
-          <v-tab :value="false">{{ $t('recipe.text-editor') }}</v-tab>
-          <v-tab :value="true">{{ $t('recipe.json-editor') }}</v-tab>
+          <v-tab :value="false">
+            {{ $t('recipe.text-editor') }}
+          </v-tab>
+          <v-tab :value="true">
+            {{ $t('recipe.json-editor') }}
+          </v-tab>
         </v-tabs>
         <RecipeJsonEditor
           v-if="state.isEditJSON"
@@ -148,7 +152,7 @@
           <v-card-title class="ma-0 pa-0">
             <v-icon
               start
-              color="white"
+              color="media-foreground"
               size="x-large"
             >
               {{ $globals.icons.robot }}
@@ -167,6 +171,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRecipeImportUrl } from "~/composables/use-recipe-import-url";
 import { useUserApi } from "~/composables/api";
 import { useGroupSelf } from "~/composables/use-groups";
 import { useTagStore } from "~/composables/store/use-tag-store";
@@ -200,7 +205,7 @@ const imagesEnabled = computed(() => !!group.value?.aiProviderSettings?.imagePro
 const videosEnabled = computed(() => !!group.value?.aiProviderSettings?.audioProviderEnabled);
 
 const domUrlForm = ref<VForm | null>(null);
-const recipeUrl = ref<string | null>(null);
+const recipeUrl = useRecipeImportUrl();
 const newRecipeData = ref<string | object | null>(null);
 const uploadedImages = ref<(Blob | File)[]>([]);
 const createStatus = ref<string | null>(null);
@@ -331,6 +336,6 @@ async function createRecipe() {
 }
 
 .force-url-white a {
-  color: white !important;
+  color: rgb(var(--v-theme-media-foreground)) !important;
 }
 </style>

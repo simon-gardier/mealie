@@ -1,29 +1,60 @@
 <template>
   <div v-if="yieldDisplay" class="w-100">
     <div class="text-center d-flex align-center justify-center">
-      <BaseButtonGroup v-if="canEditScale" class="pr-2" :large="false" rounded :buttons="[{
-        icon: $globals.icons.minus,
-        text: $t('recipe.decrease-scale-label'),
-        event: 'decrement',
-        disabled: disableDecrement,
-      }]" @decrement="recalculateScale(yieldQuantity - 1)" />
-      <v-number-input :model-value="yieldQuantity" :label="$t('recipe.servings')" :min="1" :precision="null"
-        :disabled="!canEditScale" control-variant="hidden" density="compact" hide-details variant="solo"
-        class="portion-input flex-grow-0" style="width: 90px; min-width: 90px; max-width: 90px"
-        @update:model-value="recalculateScale" />
-      <BaseButtonGroup v-if="canEditScale" class="pl-2" :large="false" rounded :buttons="[
-        {
-          icon: $globals.icons.createAlt,
-          text: $t('recipe.increase-scale-label'),
-          event: 'increment',
-        },
-      ]" @increment="recalculateScale(yieldQuantity + 1)" />
+      <BaseButtonGroup
+        v-if="canEditScale"
+        class="pr-2"
+        :large="false"
+        rounded
+        :buttons="[{
+          icon: $globals.icons.minus,
+          text: $t('recipe.decrease-scale-label'),
+          event: 'decrement',
+          disabled: disableDecrement,
+        }]"
+        @decrement="recalculateScale(yieldQuantity - 1)"
+      />
+      <v-number-input
+        :decimal-separator="quantityDecimalSeparator"
+        :model-value="yieldQuantity"
+        :label="$t('recipe.servings')"
+        :min="1"
+        :precision="null"
+        :disabled="!canEditScale"
+        control-variant="hidden"
+        density="compact"
+        hide-details
+        variant="filled"
+        class="portion-input flex-grow-0"
+        style="width: 90px; min-width: 90px; max-width: 90px"
+        @update:model-value="recalculateScale"
+
+        @beforeinput.capture="onQuantityInput"
+        @paste.capture="onQuantityPaste"
+      />
+      <BaseButtonGroup
+        v-if="canEditScale"
+        class="pl-2"
+        :large="false"
+        rounded
+        :buttons="[
+          {
+            icon: $globals.icons.createAlt,
+            text: $t('recipe.increase-scale-label'),
+            event: 'increment',
+          },
+        ]"
+        @increment="recalculateScale(yieldQuantity + 1)"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useQuantityInput } from "~/composables/use-quantity-input";
 import { useScaledAmount } from "~/composables/recipes/use-scaled-amount";
+
+const { quantityDecimalSeparator, onQuantityInput, onQuantityPaste } = useQuantityInput();
 
 interface Props {
   recipeServings?: number;
@@ -78,8 +109,8 @@ const disableDecrement = computed(() => {
 }
 
 .portion-input {
-  border: 1px solid #212121;
-  border-radius: 8px;
+  border: 1px solid rgb(var(--v-theme-separator));
+  border-radius: 10px;
   overflow: hidden;
 }
 

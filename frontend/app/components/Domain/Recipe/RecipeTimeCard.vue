@@ -1,42 +1,19 @@
-<template v-if="_showCards">
-  <div class="text-center">
-    <!-- Total Time -->
-    <div v-if="validateTotalTime" class="time-card-flex mx-auto">
-      <v-row no-gutters class="d-flex flex-no-wrap align-center" :style="fontSize">
-        <v-icon :x-large="!small" start color="primary">
-          {{ $globals.icons.clockOutline }}
+<template>
+  <div v-if="_showCards" class="recipe-time-container">
+    <div class="recipe-times" :style="{ '--time-columns': timeItems.length }">
+      <div v-for="item in timeItems" :key="item.name" class="recipe-time-item">
+        <v-icon :size="small ? 20 : 24" color="primary">
+          {{ item.icon }}
         </v-icon>
-        <p class="my-0">
-          <span class="font-weight-bold opacity-80">{{ validateTotalTime.name }}</span><br><span
-            class="recipe-time-value">{{ validateTotalTime.value }}</span>
-        </p>
-      </v-row>
-    </div>
-    <v-divider v-if="validateTotalTime && (validatePrepTime || validatePerformTime)" class="my-2" />
-    <!-- Prep Time & Perform Time -->
-    <div v-if="validatePrepTime || validatePerformTime" class="time-card-flex mx-auto">
-      <v-row no-gutters class="d-flex justify-center align-center"
-        :class="{ 'flex-column': $vuetify.display.smAndDown }" style="width: 100%;" :style="fontSize">
-        <div v-if="validatePrepTime" class="d-flex flex-no-wrap my-1 align-center">
-          <v-icon :size="small ? 'small' : 'large'" start color="primary">
-            {{ $globals.icons.knife }}
-          </v-icon>
-          <p class="my-0">
-            <span class="font-weight-bold opacity-80">{{ validatePrepTime.name }}</span><br><span
-              class="recipe-time-value">{{ validatePrepTime.value }}</span>
+        <div>
+          <p class="recipe-time-label">
+            {{ item.name }}
+          </p>
+          <p class="recipe-time-value">
+            {{ item.value }}
           </p>
         </div>
-        <v-divider v-if="validatePrepTime && validatePerformTime" vertical class="mx-4" />
-        <div v-if="validatePerformTime" class="d-flex flex-no-wrap my-1 align-center">
-          <v-icon :size="small ? 'small' : 'large'" start color="primary">
-            {{ $globals.icons.potSteam }}
-          </v-icon>
-          <p class="my-0">
-            <span class="font-weight-bold opacity-80">{{ validatePerformTime.name }}</span><br><span
-              class="recipe-time-value">{{ validatePerformTime.value }}</span>
-          </p>
-        </div>
-      </v-row>
+      </div>
     </div>
   </div>
 </template>
@@ -79,21 +56,43 @@ const validatePerformTime = computed(() => {
   return !isEmpty(props.performTime) ? { name: i18n.t("recipe.perform-time"), value: props.performTime } : null;
 });
 
-const fontSize = computed(() => {
-  return props.small ? { fontSize: "smaller" } : { fontSize: "larger" };
-});
+const { $globals } = useNuxtApp();
+const timeItems = computed(() => [
+  { ...validateTotalTime.value, icon: $globals.icons.clockOutline },
+  { ...validatePrepTime.value, icon: $globals.icons.knife },
+  { ...validatePerformTime.value, icon: $globals.icons.potSteam },
+].filter(item => item.name));
 </script>
 
 <style scoped>
-.text-center {
-  font-size: smaller;
+.recipe-time-container {
+  container-type: inline-size;
+  width: 100%;
 }
-
-.time-card-flex {
-  width: fit-content;
+.recipe-times {
+  display: grid;
+  grid-template-columns: repeat(var(--time-columns), minmax(0, 1fr));
+  gap: 16px;
 }
-
-.custom-transparent {
-  opacity: 0.7;
+.recipe-time-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+}
+.recipe-time-label {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.recipe-time-value {
+  font-size: 15px;
+  line-height: 1.5;
+}
+@container (max-width: 600px) {
+  .recipe-times {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

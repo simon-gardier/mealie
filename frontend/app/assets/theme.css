@@ -1,0 +1,329 @@
+/* Headings share Petit Chef's Fraunces identity; controls keep their own sans-serif typography.
+   Include teleported dialogs without applying heading typography to menu/list labels. */
+:is(.v-application, .v-overlay-container) :is(h1, h2, h3, h4, h5, h6,
+  .v-card-title, .v-card-subtitle, .v-toolbar-title, .page-title, .page-subtitle,
+  .dialog-title, .dialog-subtitle, .section-subtitle, .subtitle-1) {
+  font-family: var(--bistro-heading) !important;
+}
+@media print {
+  :is(.v-application, .v-overlay-container) :is(h1, h2, h3, h4, h5, h6,
+    .v-card-title, .v-card-subtitle, .v-toolbar-title, .page-title, .page-subtitle,
+    .dialog-title, .dialog-subtitle, .section-subtitle, .subtitle-1) {
+    font-family: var(--bistro-body) !important;
+  }
+}
+
+/* Preserve Vuetify's measured header offset and leave room above page content. */
+.app-main {
+  padding-top: calc(var(--v-layout-top, 0px) + 16px);
+}
+
+@media print {
+  .app-main {
+    padding-top: 0;
+  }
+}
+/* Semantic UIKit roles; values and opacity settings live in theme/colors.ts. */
+.v-application {
+  /* Keep Vuetify's layout observation independent of changing page content height. */
+  height: 100dvh;
+  color: rgb(var(--v-theme-text-primary));
+  background-color: rgb(var(--v-theme-background)) !important;
+}
+
+.v-field,
+.v-theme--light .v-field,
+.v-theme--dark .v-field,
+.login-background .v-field,
+.register-background .v-field {
+  background-color: rgb(var(--v-theme-fill));
+  color: rgb(var(--v-theme-text-primary));
+}
+
+/* Keep browser autofill inside the field shape without clipping floating labels. */
+.v-field__field {
+  border-radius: inherit;
+}
+
+.v-field input:is(:autofill, :-webkit-autofill) {
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1000px rgb(var(--v-theme-fill));
+  -webkit-text-fill-color: rgb(var(--v-theme-text-primary));
+  caret-color: rgb(var(--v-theme-text-primary));
+}
+.admin-layout .v-field,
+.admin-layout .base-dialog-card,
+.admin-layout .admin-status-card {
+  border-color: rgb(var(--v-theme-separator));
+}
+
+.v-field__outline {
+  color: rgb(var(--v-theme-separator));
+}
+
+.v-field--focused .v-field__outline {
+  color: rgb(var(--v-theme-primary));
+}
+
+.v-field--error .v-field__outline {
+  color: rgb(var(--v-theme-error));
+}
+
+.v-card-subtitle,
+.v-input__details,
+.v-label,
+.text-secondary-label {
+  color: rgba(var(--v-theme-text-secondary), var(--v-secondary-label-opacity));
+  opacity: 1;
+}
+
+.v-divider {
+  border-color: rgb(var(--v-theme-separator));
+  opacity: 1;
+}
+
+.v-menu .v-list,
+.v-dialog .v-card {
+  background-color: rgb(var(--v-theme-surface-elevated));
+  color: rgb(var(--v-theme-text-primary));
+}
+
+a:not(.v-btn):not(.v-list-item):not(.text-media-foreground):not(.bistro-wordmark):not(:where(.ingredient-recipe-link a)) {
+  color: rgb(var(--v-theme-primary));
+}
+
+/* Branding and navigation are neutral, independent of blue action defaults. */
+.bistro-header .bistro-wordmark,
+.bistro-sidebar-header .bistro-wordmark,
+.bistro-navigation-toggle,
+.bistro-navigation-toggle .v-icon {
+  color: rgb(var(--v-theme-text-primary)) !important;
+}
+
+.v-btn--variant-outlined {
+  border-color: rgb(var(--v-theme-separator));
+}
+
+.v-card--variant-outlined {
+  border-color: rgb(var(--v-theme-separator));
+}
+
+/* Print colors and text over photos intentionally do not follow dark mode. */
+@media print {
+  .v-application {
+    height: auto;
+    color: rgb(var(--v-theme-print-foreground));
+    background-color: rgb(var(--v-theme-print-background)) !important;
+  }
+}
+
+/* Shared Petit Chef popup language: matches the approved Add ingredient menu.
+   Target Vuetify's teleported content, including internal select/search menus. */
+.v-menu > .v-overlay__content > .v-list,
+.v-menu > .v-overlay__content > .v-card,
+.v-menu > .v-overlay__content > .recipe-context-menu-body {
+  border-radius: 14px;
+  border: 1px solid rgb(var(--v-theme-separator));
+  background-color: rgb(var(--v-theme-surface-elevated));
+  color: rgb(var(--v-theme-on-surface));
+}
+.v-menu > .v-overlay__content > .v-list,
+.v-menu > .v-overlay__content > .v-card > .v-list,
+.v-menu > .v-overlay__content > .recipe-context-menu-body > .v-list {
+  padding: 4px !important;
+}
+.v-menu > .v-overlay__content > .v-card:has(> .v-list) {
+  padding: 0 !important;
+}
+.v-menu > .v-overlay__content > .v-card > .v-list,
+.v-menu > .v-overlay__content > .recipe-context-menu-body > .v-list {
+  border: 0;
+}
+.v-menu > .v-overlay__content > .recipe-context-menu-body {
+  overflow: hidden;
+}
+.v-menu > .v-overlay__content > .recipe-context-menu-body > .v-list {
+  border-radius: inherit;
+}
+.v-menu .v-list-item {
+  border-radius: 8px;
+  min-height: 44px;
+  padding-inline: 12px;
+  margin-block: 4px;
+}
+.v-menu .v-list-item:first-child {
+  margin-top: 0;
+}
+.v-menu .v-list-item:last-child {
+  margin-bottom: 0;
+}
+/* Virtualized selects measure their wrappers: keep gaps inside that height. */
+.v-menu .v-virtual-scroll__item {
+  padding-bottom: 4px;
+}
+.v-menu .v-virtual-scroll__item:last-child {
+  padding-bottom: 0;
+}
+.v-menu .v-virtual-scroll__item .v-list-item {
+  margin-block: 0;
+}
+.v-menu .v-list-item-title {
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.v-menu .v-list-item-subtitle {
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: normal;
+}
+.v-menu .v-list-item--active {
+  background-color: rgb(var(--v-theme-fill));
+}
+.v-menu .v-list-item--active > .v-list-item__overlay {
+  opacity: 0;
+}
+.v-menu .v-list-item:focus-visible {
+  outline: 2px solid rgb(var(--v-theme-primary));
+  outline-offset: -2px;
+}
+.v-menu .v-field,
+.v-dialog .v-field {
+  border-radius: 10px;
+}
+.v-menu .v-field:not(.v-field--focused):not(.v-field--error),
+.v-dialog .v-field:not(.v-field--focused):not(.v-field--error) {
+  --v-field-border-color: rgb(var(--v-theme-separator));
+}
+.v-menu .v-btn,
+.v-dialog .v-btn {
+  letter-spacing: normal;
+}
+
+.v-menu .v-card-title { font-size: 18px; font-weight: 600; line-height: 1.4; }
+.v-menu .v-card-text { font-size: 14px; line-height: 1.5; }
+.v-menu .v-field input,
+.v-dialog .v-field input,
+.v-dialog .v-field textarea { font-size: 16px; line-height: 1.5; }
+
+.v-dialog > .v-overlay__content > .v-card { border-radius: 20px; }
+@media (max-width: 600px) {
+  .v-dialog--fullscreen > .v-overlay__content > .v-card { border-radius: 0; }
+}
+
+/* Focus/error styling must change the border variable, not just outline text color.
+   Leave floating labels and their measured notch geometry to Vuetify. */
+.v-field:not(.v-field--focused):not(.v-field--error) {
+  --v-field-border-color: rgb(var(--v-theme-separator));
+}
+.v-field.v-field--focused:not(.v-field--error) {
+  --v-field-border-color: rgb(var(--v-theme-primary));
+}
+.v-field.v-field--error {
+  --v-field-border-color: rgb(var(--v-theme-error));
+}
+
+/* Global hover help, including overlays teleported outside page components. */
+.v-tooltip .v-overlay__content {
+  background: rgb(var(--v-theme-surface-elevated)) !important;
+  color: rgb(var(--v-theme-on-surface)) !important;
+  border: 1px solid rgba(var(--v-theme-separator), 0.6);
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(var(--v-theme-shadow), 0.14);
+  padding: 8px 12px;
+  font-family: var(--bistro-body);
+  font-size: 13px !important;
+  font-weight: 400;
+  line-height: 1.45;
+  letter-spacing: normal;
+  max-width: min(280px, calc(100vw - 24px));
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* Visible neutral outlines on elevated dialog and sheet surfaces. */
+:is(.v-dialog, .v-bottom-sheet) .v-field--variant-outlined:not(.v-field--focused):not(.v-field--error):not(.v-field--disabled) {
+  --v-field-border-color: rgb(var(--v-theme-field-border)) !important;
+  --v-field-border-opacity: 1;
+}
+
+/* Select/autocomplete options are renderless virtual rows in Vuetify 4.
+   Keep their gaps inside the measured border box, not in external margins. */
+.v-menu > .v-overlay__content:has(> .v-list--navigable),
+.recipe-editor-overlay:has(> .v-list--navigable) {
+  border-radius: 14px;
+}
+.v-overlay__content > .v-list--navigable {
+  padding: 4px !important;
+  border-radius: 14px;
+  border: 1px solid rgb(var(--v-theme-separator));
+  background-color: rgb(var(--v-theme-surface-elevated));
+}
+.v-overlay__content > .v-list--navigable .v-list-item {
+  margin: 0 !important;
+  border-radius: 8px;
+  border-bottom: 4px solid transparent;
+  background-clip: padding-box;
+  min-height: 48px;
+  padding-inline: 12px;
+}
+.v-overlay__content > .v-list--navigable .v-list-item:last-child {
+  border-bottom-width: 0;
+  min-height: 44px;
+}
+.v-overlay__content > .v-list--navigable .v-list-item > .v-list-item__overlay,
+.v-overlay__content > .v-list--navigable .v-list-item > .v-list-item__underlay {
+  bottom: 4px;
+  border-radius: 8px;
+}
+.v-overlay__content > .v-list--navigable .v-list-item:last-child > .v-list-item__overlay,
+.v-overlay__content > .v-list--navigable .v-list-item:last-child > .v-list-item__underlay {
+  bottom: 0;
+}
+
+/* Filled fields retain Vuetify's native inside-floating label geometry. */
+.v-field--variant-filled {
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1px rgb(var(--v-theme-field-border));
+}
+.v-field--variant-filled .v-field__outline {
+  display: none;
+}
+.v-field--variant-filled.v-field--focused {
+  box-shadow: inset 0 0 0 2px rgb(var(--v-theme-primary));
+}
+.v-field--variant-filled.v-field--error {
+  box-shadow: inset 0 0 0 2px rgb(var(--v-theme-error));
+}
+
+/* Reserve room for both the inside-floating label and readable value. */
+.v-input:is(.v-input--density-compact, .v-input--density-comfortable) .v-field--variant-filled:not(.v-field--no-label):not(.v-field--single-line) {
+  --v-input-control-height: 56px;
+  --v-field-padding-bottom: 8px;
+}
+
+.shopping-tags-reorder-dialog .base-dialog-card > .v-spacer { display: none; }
+.shopping-tags-reorder-body { padding: 16px; }
+.shopping-tags-reorder-list { display: flex; flex-direction: column; gap: 8px; }
+.shopping-tag-reorder-row {
+  padding: 4px 8px;
+  min-height: 52px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  background: rgba(var(--v-theme-fill), 0.5);
+}
+.shopping-tags-reorder-dialog .base-dialog-card > .v-card-actions { padding: 8px 16px; }
+
+/* Recipe names use label colors; blue remains reserved for actions. */
+.bistro-recipe-card .recipe-card-mobile__title,
+.bistro-recipe-card .v-card-title,
+.bistro-recipe-card .v-list-item-title,
+.recipe-card-line-title {
+  color: rgb(var(--v-theme-text-primary)) !important;
+}
+
+.bistro-recipe-card .recipe-card-description {
+  color: rgb(var(--v-theme-text-secondary)) !important;
+  opacity: 1;
+}

@@ -1,26 +1,37 @@
 <template>
-  <v-app dark>
+  <v-app dark :class="{ 'settings-page': isSettingsPage }">
     <TheSnackbar />
 
     <AppHeader>
-      <v-btn icon :aria-label="$t('general.menu')" @click.stop="sidebar = !sidebar">
+      <v-btn
+        icon
+        variant="text"
+        color="text-primary"
+        class="bistro-navigation-toggle"
+        :aria-label="$t('general.menu')"
+        :aria-expanded="sidebar"
+        aria-controls="app-sidebar"
+        @click.stop="sidebar = !sidebar"
+      >
         <v-icon> {{ $globals.icons.menu }}</v-icon>
       </v-btn>
     </AppHeader>
 
-    <div v-if="sidebar" class="sidebar-backdrop" @click="sidebar = false" />
-
     <AppSidebar v-model="sidebar" :top-link="topLinks" :secondary-links="cookbookLinks || []">
-      <v-btn v-if="isOwnGroup" class="sidebar-create-button ml-2 mt-3" :to="`/g/${groupSlug}/r/create/url`"
-        variant="elevated" elevation="2"
-        :color="$vuetify.theme.current.dark ? 'background-lighten-1' : 'background-darken-1'">
+      <v-btn
+        v-if="isOwnGroup"
+        class="sidebar-create-button"
+        :to="`/g/${groupSlug}/r/create/url`"
+        variant="tonal"
+        color="primary"
+      >
         <v-icon start size="20" color="primary">
           {{ $globals.icons.createAlt }}
         </v-icon>
         {{ $t("general.create") }}
       </v-btn>
     </AppSidebar>
-    <v-main class="pt-12">
+    <v-main class="app-main">
       <v-scroll-x-transition>
         <div>
           <NuxtPage />
@@ -33,7 +44,6 @@
 <script setup lang="ts">
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 import type { SideBarLink } from "~/types/application-types";
-import { useGroupSelf } from "~/composables/use-groups";
 import { useCookbookPreferences } from "~/composables/use-users/preferences";
 import { useCookbookStore, usePublicCookbookStore } from "~/composables/store/use-cookbook-store";
 import type { ReadCookBook } from "~/lib/api/types/cookbook";
@@ -43,9 +53,9 @@ const { $globals } = useNuxtApp();
 const display = useDisplay();
 const auth = useMealieAuth();
 const { isOwnGroup } = useLoggedInState();
-const { group } = useGroupSelf();
 
 const route = useRoute();
+const isSettingsPage = computed(() => /^\/(?:user\/profile(?:\/|$)|group(?:\/|$)|household(?:\/?$|\/(?:members|notifiers|webhooks|mealplan\/settings)(?:\/|$)))/.test(route.path));
 const groupSlug = computed(() => route.params.groupSlug as string || auth.user.value?.groupSlug || "");
 
 const cookbookPreferences = useCookbookPreferences();
@@ -73,6 +83,10 @@ const cookbooks = computed(() => {
 const sidebar = ref<boolean>(false);
 onMounted(() => {
   sidebar.value = display.lgAndUp.value;
+});
+watch(display.lgAndUp, (wide) => { sidebar.value = wide; });
+watch(() => route.fullPath, () => {
+  if (!display.lgAndUp.value) sidebar.value = false;
 });
 
 function cookbookAsLink(cookbook: ReadCookBook): SideBarLink {
@@ -200,41 +214,29 @@ const topLinks = computed<SideBarLink[]>(() => [
 </script>
 
 <style scoped>
-.sidebar-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 2008;
-  background: rgba(0, 0, 0, 0.18);
+.app-main {
+  padding-top: 96px;
 }
-</style>
 
-<style scoped>
+@media print {
+  .app-main {
+    padding-top: 0;
+  }
+}
+
 .sidebar-create-button {
-  min-height: 48px !important;
-  height: 48px !important;
-  width: calc(100% - 16px) !important;
-  margin-right: 8px !important;
+  min-height: 44px !important;
+  height: auto !important;
+  width: calc(100% - 24px) !important;
+  margin: 16px 12px 8px !important;
   font-size: 0.875rem !important;
   letter-spacing: normal !important;
   padding-inline: 16px !important;
-  border-radius: 8px !important;
+  border-radius: 10px !important;
+  text-transform: none;
 }
 
 .create-menu-item {
   --v-list-prepend-gap: 12px;
-}
-
-@media (max-width: 600px) {
-  .sidebar-create-button {
-    min-height: 72px !important;
-    height: 72px !important;
-    font-size: 1.3125rem !important;
-  }
-
-  .sidebar-create-button :deep(.v-icon) {
-    width: 30px !important;
-    height: 30px !important;
-    font-size: 30px !important;
-  }
 }
 </style>

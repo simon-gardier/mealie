@@ -194,7 +194,7 @@
           <v-container v-else-if="!state.recipesReady">
             <v-row>
               <v-col cols="12" class="d-flex justify-center">
-                <AppLoader :waiting-text="$t('general.loading-recipes')" />
+                <RecipeLoading />
               </v-col>
             </v-row>
           </v-container>
@@ -216,7 +216,7 @@
     <v-container v-else>
       <v-row>
         <v-col cols="12" class="d-flex justify-center">
-          <AppLoader :waiting-text="$t('general.loading-recipes')" />
+          <RecipeLoading />
         </v-col>
       </v-row>
     </v-container>

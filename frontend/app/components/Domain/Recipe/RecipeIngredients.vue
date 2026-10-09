@@ -2,7 +2,7 @@
   <div v-if="value && value.length > 0">
     <div v-if="!isCookMode && !hideTitle" class="d-flex justify-start">
       <h2 class="recipe-section-title mt-1 text-h5 font-weight-medium opacity-80">
-        <img src="/food-icons/icons8-ingredients-100.png" alt="" aria-hidden="true" class="recipe-section-icon">
+        <img :src="'/food-icons/icons8-ingredients-100.png'" alt="" aria-hidden="true" class="recipe-section-icon">
         {{ $t("recipe.ingredients") }}
       </h2>
     </div>
@@ -14,8 +14,15 @@
         <v-divider v-if="showTitleEditor[index]" class="my-2" />
         <v-list-item density="compact" class="px-0 py-1 ingredient-list-item" @click.stop="toggleChecked(index)">
           <template #prepend>
-            <v-checkbox :model-value="isChecked(index)" hide-details class="pt-0 mt-0" color="secondary"
-              density="comfortable" @click.stop @update:model-value="setChecked(index, !!$event)" />
+            <v-checkbox
+              :model-value="isChecked(index)"
+              hide-details
+              class="pt-0 mt-0"
+              color="primary"
+              density="comfortable"
+              @click.stop
+              @update:model-value="setChecked(index, !!$event)"
+            />
           </template>
           <v-list-item-title>
             <RecipeIngredientListItem :ingredient="ingredient" :scale="scale" show-substitutions />
@@ -99,17 +106,17 @@ function setChecked(index: number, value: boolean) {
 }
 
 .ingredient-list-item {
-  align-items: flex-start;
+  align-items: center;
 }
 
 .ingredient-list-item .v-list-item__prepend,
 .ingredient-list-item .v-list-item__content {
-  align-self: flex-start;
+  align-self: center;
 }
 
 .ingredient-list-item .v-selection-control {
-  align-self: flex-start;
-  margin-top: -9px;
+  align-self: center;
+  margin-top: 0;
 }
 
 .recipe-section-title {

@@ -1,105 +1,221 @@
 <template>
   <div :style="listMode || compact ? undefined : `height: ${height}px;`">
     <v-expand-transition>
-      <v-card class="bistro-recipe-card" :ripple="false" :class="[
-        isFlat ? 'mx-auto flat' : 'mx-auto',
-        { 'disable-highlight': disableHighlight, 'recipe-list-card': listMode, 'recipe-compact-card': compact },
-      ]" :style="{ cursor }" hover :height="listMode || compact ? undefined : '100%'"
-        :to="$attrs.selected ? undefined : recipeRoute" @click="$emit('selected')">
+      <v-card
+        class="bistro-recipe-card"
+        :ripple="false"
+        :class="[
+          isFlat ? 'mx-auto flat' : 'mx-auto',
+          { 'disable-highlight': disableHighlight, 'recipe-list-card': listMode, 'recipe-list-card-expanded': listMode && titleExpanded, 'recipe-compact-card': compact, 'recipe-compact-card-expanded': compact && titleExpanded },
+        ]"
+        :style="{ cursor }"
+        hover
+        :height="listMode || compact ? undefined : '100%'"
+        :to="$attrs.selected ? undefined : recipeRoute"
+        @click="$emit('selected')"
+      >
         <v-img v-if="vertical" class="rounded-sm" cover>
-          <RecipeCardImage tiny :icon-size="100" :slug="slug" :recipe-id="recipeId" :image-version="image"
-            :height="height" />
+          <RecipeCardImage
+            tiny
+            :icon-size="100"
+            :slug="slug"
+            :recipe-id="recipeId"
+            :image-version="image"
+            :height="height"
+          />
         </v-img>
-        <v-list-item :lines="listMode || compact ? undefined : 'two'" class="py-0" :class="[
-          vertical ? 'px-2' : 'px-0',
-          { 'recipe-list-item': listMode, 'recipe-compact-item': compact },
-        ]" item-props :height="listMode || compact ? undefined : '100%'" density="compact">
+        <v-list-item
+          :lines="listMode || compact ? undefined : 'two'"
+          class="py-0"
+          :class="[
+            vertical ? 'px-2' : 'px-0',
+            { 'recipe-list-item': listMode, 'recipe-compact-item': compact },
+          ]"
+          item-props
+          :height="listMode || compact ? undefined : '100%'"
+          density="compact"
+        >
           <template #prepend>
             <slot v-if="!vertical" name="avatar">
-              <div :class="{
-                'recipe-list-image-wrapper': listMode,
-                'recipe-compact-image-wrapper': compact,
-                'recipe-compact-image-wrapper--placeholder': compact && !image,
-              }" @click="openImage">
-                <RecipeCardImage tiny :icon-size="compact ? 32 : 100" :slug="slug" :recipe-id="recipeId"
-                  :image-version="image" class="recipe-list-image"
-                  :width="listMode ? undefined : compact ? '88' : '125'" :height="listMode || compact ? '100%' : height"
-                  :min-height="compact ? 0 : undefined" />
-                <RecipeRating v-if="listMode && showRecipeContent" class="recipe-list-image-rating"
-                  :model-value="rating" :recipe-id="recipeId" :slug="slug" small />
+              <div
+                :class="{
+                  'recipe-list-image-wrapper': listMode,
+                  'recipe-compact-image-wrapper': compact,
+                  'recipe-compact-image-wrapper--placeholder': compact && !image,
+                }"
+                @click="openImage"
+              >
+                <RecipeCardImage
+                  tiny
+                  :icon-size="compact ? 32 : 100"
+                  :slug="slug"
+                  :recipe-id="recipeId"
+                  :image-version="image"
+                  class="recipe-list-image"
+                  :width="listMode ? undefined : compact ? '88' : '125'"
+                  :height="listMode || compact ? '100%' : height"
+                  :min-height="compact ? 0 : undefined"
+                />
+                <RecipeRating
+                  v-if="listMode && showRecipeContent"
+                  class="recipe-list-image-rating"
+                  :model-value="rating"
+                  :recipe-id="recipeId"
+                  :slug="slug"
+                  small
+                />
               </div>
             </slot>
           </template>
-          <div class="recipe-card-mobile__content pl-4 d-flex flex-column ga-2 align-stretch pr-2"
-            :class="{ 'recipe-list-content': listMode }">
+          <div
+            class="recipe-card-mobile__content pl-4 d-flex flex-column ga-2 align-stretch pr-2"
+            :class="{ 'recipe-list-content': listMode }"
+          >
             <div :class="{ 'recipe-list-title-row': listMode }">
-              <v-list-item-title class="recipe-card-mobile__title ma-0 text-top w-100"
-                :class="listMode ? 'recipe-list-title' : compact ? 'recipe-compact-title' : 'text-truncate'">
+              <button
+                v-if="listMode || compact"
+                type="button"
+                class="recipe-card-mobile__title recipe-title-toggle ma-0 text-top"
+                :class="listMode ? 'recipe-list-title' : 'recipe-compact-title'"
+                :aria-expanded="titleExpanded"
+                @click.stop.prevent="titleExpanded = !titleExpanded"
+              >
+                {{ name }}
+              </button>
+              <v-list-item-title
+                v-else
+                class="recipe-card-mobile__title ma-0 text-top w-100"
+                :class="listMode ? 'recipe-list-title' : compact ? 'recipe-compact-title' : 'text-truncate'"
+              >
                 {{ name }}
               </v-list-item-title>
             </div>
-            <v-list-item-subtitle v-if="!compact && showDescription" class="ma-0 text-top"
-              :class="{ 'recipe-list-description': listMode }">
+            <v-list-item-subtitle
+              v-if="!compact && showDescription"
+              class="recipe-card-description ma-0 text-top"
+              :class="{ 'recipe-list-description': listMode }"
+            >
               <SafeMarkdown v-if="description" :source="description" />
-              <p v-else class="recipe-card-empty-message">{{ t("recipe.no-description") }}</p>
+              <p v-else class="recipe-card-empty-message">
+                {{ t("recipe.no-description") }}
+              </p>
             </v-list-item-subtitle>
-            <div v-if="!compact" class="d-flex justify-start ma-0 pa-0"
+            <div
+              v-if="!compact"
+              class="d-flex justify-start ma-0 pa-0"
               :class="listMode ? 'recipe-list-tags flex-nowrap' : 'flex-nowrap'"
-              :style="listMode ? undefined : 'overflow-x: hidden; overflow-y: hidden; white-space: nowrap;'">
-              <RecipeChips v-if="tags.length" :truncate="!listMode" :items="tags" :title="false"
-                :limit="listMode ? undefined : 2" small url-prefix="tags" v-bind="$attrs" />
+              :style="listMode ? undefined : 'overflow-x: hidden; overflow-y: hidden; white-space: nowrap;'"
+            >
+              <RecipeChips
+                v-if="tags.length"
+                :truncate="!listMode"
+                :items="tags"
+                :title="false"
+                :limit="listMode ? undefined : 2"
+                small
+                url-prefix="tags"
+                v-bind="$attrs"
+              />
               <span v-else class="recipe-card-empty-message">{{ t("recipe.no-tags") }}</span>
             </div>
           </div>
           <slot name="actions">
-            <v-card-actions class="recipe-card-actions w-100 my-0 px-1 py-0"
-              :class="{ 'recipe-list-actions': listMode }">
-              <RecipeFavoriteBadge v-if="!compact && !listMode && isOwnGroup && showRecipeContent" :recipe-id="recipeId"
-                show-always class="ma-0 pa-0" />
+            <v-card-actions
+              class="recipe-card-actions w-100 my-0 px-1 py-0"
+              :class="{ 'recipe-list-actions': listMode }"
+            >
+              <RecipeFavoriteBadge
+                v-if="!compact && !listMode && isOwnGroup && showRecipeContent"
+                :recipe-id="recipeId"
+                show-always
+                class="ma-0 pa-0"
+              />
               <div v-else-if="!compact && !listMode" class="my-0 px-1 py-0" />
               <!-- Empty div to keep the layout consistent -->
-              <RecipeCardRating v-if="!compact && !listMode && showRecipeContent"
-                :class="[{ 'pb-2': !isOwnGroup }, 'ml-n2']" :model-value="rating" :recipe-id="recipeId" />
+              <RecipeCardRating
+                v-if="!compact && !listMode && showRecipeContent"
+                :class="[{ 'pb-2': !isOwnGroup }, 'ml-n2']"
+                :model-value="rating"
+                :recipe-id="recipeId"
+              />
 
               <!-- If we're not logged-in, no items display, so we hide this menu -->
               <!-- We also add padding to the v-rating above to compensate -->
               <template v-if="compact">
-                <v-tooltip open-delay="200" transition="slide-y-reverse-transition" density="compact" location="bottom"
-                  content-class="text-caption">
+                <v-tooltip
+                  density="compact"
+                  location="bottom"
+                  content-class="text-caption"
+                >
                   <template #activator="{ props: tooltipProps }">
-                    <v-btn :icon="$globals.icons.calendarRemove" class="recipe-compact-action" variant="text"
-                      size="default" :aria-label="t('meal-plan.remove-from-plan')" v-bind="tooltipProps"
-                      @click.stop.prevent="$emit('mealplanRemove')" />
+                    <v-btn
+                      :icon="$globals.icons.calendarRemove"
+                      class="recipe-compact-action"
+                      variant="text"
+                      size="default"
+                      :aria-label="t('meal-plan.remove-from-plan')"
+                      v-bind="tooltipProps"
+                      @click.stop.prevent="$emit('mealplanRemove')"
+                    />
                   </template>
                   <span>{{ t("meal-plan.remove-from-plan") }}</span>
                 </v-tooltip>
-                <v-tooltip open-delay="200" transition="slide-y-reverse-transition" density="compact" location="bottom"
-                  content-class="text-caption">
+                <v-tooltip
+                  density="compact"
+                  location="bottom"
+                  content-class="text-caption"
+                >
                   <template #activator="{ props: tooltipProps }">
-                    <v-btn :icon="$globals.icons.calendarEdit" class="recipe-compact-action" variant="text"
-                      size="default" :aria-label="t('meal-plan.edit-meal-plan')" v-bind="tooltipProps"
-                      @click.stop.prevent="$emit('mealplanEdit')" />
+                    <v-btn
+                      :icon="$globals.icons.calendarEdit"
+                      class="recipe-compact-action"
+                      variant="text"
+                      size="default"
+                      :aria-label="t('meal-plan.edit-meal-plan')"
+                      v-bind="tooltipProps"
+                      @click.stop.prevent="$emit('mealplanEdit')"
+                    />
                   </template>
                   <span>{{ t("meal-plan.edit-meal-plan") }}</span>
                 </v-tooltip>
-                <v-tooltip v-if="showRecipeContent" open-delay="200" transition="slide-y-reverse-transition"
-                  density="compact" location="bottom" content-class="text-caption">
+                <v-tooltip
+                  v-if="showRecipeContent"
+                  density="compact"
+                  location="bottom"
+                  content-class="text-caption"
+                >
                   <template #activator="{ props: tooltipProps }">
-                    <v-btn :icon="$globals.icons.cartCheck" class="recipe-compact-action" variant="text" size="default"
-                      :aria-label="t('recipe.add-to-list')" v-bind="tooltipProps"
-                      @click.stop.prevent="$emit('addToShoppingList')" />
+                    <v-btn
+                      :icon="$globals.icons.cartCheck"
+                      class="recipe-compact-action"
+                      variant="text"
+                      size="default"
+                      :aria-label="t('recipe.add-to-list')"
+                      v-bind="tooltipProps"
+                      @click.stop.prevent="$emit('addToShoppingList')"
+                    />
                   </template>
                   <span>{{ t("recipe.add-to-list") }}</span>
                 </v-tooltip>
+                <span v-else class="recipe-compact-action-placeholder" aria-hidden="true" />
               </template>
               <slot v-else name="context-menu">
-                <RecipeContextMenu v-if="isOwnGroup && showRecipeContent"
-                  :key="listMode ? `${recipeId}-${isFavorite}` : recipeId" :slug="slug"
-                  :menu-icon="listMode ? $globals.icons.dotsVertical : $globals.icons.dotsHorizontal" :name="name"
-                  :recipe-id="recipeId" :class="listMode ? 'recipe-list-menu' : 'ml-auto'" :use-items="contextMenuItems"
+                <RecipeContextMenu
+                  v-if="isOwnGroup && showRecipeContent"
+                  :key="listMode ? `${recipeId}-${isFavorite}` : recipeId"
+                  :slug="slug"
+                  :menu-icon="listMode ? $globals.icons.dotsVertical : $globals.icons.dotsHorizontal"
+                  :name="name"
+                  :recipe-id="recipeId"
+                  :class="listMode ? 'recipe-list-menu' : 'ml-auto'"
+                  :use-items="contextMenuItems"
                   :leading-items="listMode ? listMenuLeadingItems : contextMenuLeadingItems"
-                  :append-items="contextMenuAppendItems" @favorite="toggleFavorite" @deleted="$emit('delete', slug)"
-                  @mealplan-remove="$emit('mealplanRemove')" @mealplan-edit="$emit('mealplanEdit')" />
+                  :append-items="contextMenuAppendItems"
+                  @favorite="toggleFavorite"
+                  @deleted="$emit('delete', slug)"
+                  @mealplan-remove="$emit('mealplanRemove')"
+                  @mealplan-edit="$emit('mealplanEdit')"
+                />
               </slot>
             </v-card-actions>
           </slot>
@@ -121,7 +237,7 @@ import RecipeChips from "./RecipeChips.vue";
 import RecipeContextMenu from "./RecipeContextMenu/RecipeContextMenu.vue";
 import RecipeFavoriteBadge from "./RecipeFavoriteBadge.vue";
 import type { ContextMenuItem } from "./RecipeContextMenu/RecipeContextMenu.vue";
-import { useStaticRoutes, useUserApi } from "~/composables/api";
+import { useStaticRoutes } from "~/composables/api";
 import { useUserSelfRatings } from "~/composables/use-users";
 import { playRecipeSynesthesia } from "~/plugins/recipe-synesthesia.client";
 
@@ -172,7 +288,7 @@ defineEmits<{
 
 const auth = useMealieAuth();
 const { isOwnGroup } = useLoggedInState();
-const { userRatings, refreshUserRatings } = useUserSelfRatings();
+const { userRatings, setFavorite } = useUserSelfRatings();
 const { $globals } = useNuxtApp();
 const { t } = useI18n();
 const { recipeImage } = useStaticRoutes();
@@ -196,6 +312,7 @@ const recipeRoute = computed<string>(() => {
 });
 const cursor = computed(() => showRecipeContent.value ? "pointer" : "auto");
 const lightboxOpen = ref(false);
+const titleExpanded = ref(false);
 const fullImageUrl = computed(() => props.image ? recipeImage(props.recipeId, props.image) : undefined);
 const isFavorite = computed(() => userRatings.value.find(rating => rating.recipeId === props.recipeId)?.isFavorite || false);
 const listMenuLeadingItems = computed<ContextMenuItem[]>(() => [
@@ -216,18 +333,15 @@ function openImage(event: MouseEvent) {
   lightboxOpen.value = true;
 }
 
+const favoritePending = ref(false);
 async function toggleFavorite() {
-  if (!auth.user.value) return;
-
-  const api = useUserApi();
-  if (isFavorite.value) {
-    await api.users.removeFavorite(auth.user.value.id, props.recipeId);
+  if (favoritePending.value) return;
+  favoritePending.value = true;
+  try {
+    const favorite = !isFavorite.value;
+    if (await setFavorite(props.recipeId, favorite) && favorite) playRecipeSynesthesia();
   }
-  else {
-    await api.users.addFavorite(auth.user.value.id, props.recipeId);
-    playRecipeSynesthesia();
-  }
-  await refreshUserRatings();
+  finally { favoritePending.value = false; }
 }
 </script>
 
@@ -282,11 +396,30 @@ async function toggleFavorite() {
 }
 
 .recipe-compact-card {
-  height: 96px;
-  min-height: 96px;
+  height: 112px;
+  min-height: 112px;
   position: relative;
+  overflow: hidden;
 }
 
+.recipe-compact-card-expanded {
+  height: auto;
+}
+.recipe-compact-card-expanded .recipe-compact-item {
+  min-height: 112px;
+}
+.recipe-compact-card-expanded .recipe-compact-title {
+  display: block;
+  overflow: visible;
+  -webkit-line-clamp: unset;
+}
+.recipe-compact-card-expanded .recipe-card-mobile__content {
+  padding-block: 8px !important;
+}
+.recipe-compact-title.recipe-title-toggle {
+  width: 100%;
+  text-align: start;
+}
 .recipe-compact-item {
   height: 100%;
   padding-inline-end: 0 !important;
@@ -353,20 +486,32 @@ async function toggleFavorite() {
 
 .recipe-compact-card .recipe-card-actions {
   align-items: center;
-  flex: 0 0 32px;
+  display: grid;
+  grid-template-columns: repeat(3, 44px);
+  flex: 0 0 48px;
   gap: 0;
-  height: 32px;
+  height: 48px;
   justify-content: flex-end;
   margin: 0;
   min-height: 0 !important;
-  padding: 0 4px 0 0 !important;
+  padding: 0 4px 4px 0 !important;
   position: static;
   width: 100% !important;
   z-index: 1;
 }
 
 .recipe-compact-card .recipe-card-actions :deep(.recipe-compact-action) {
-  transform: translateY(-4px);
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 10px;
+  transform: none;
+  margin-inline: 0;
+}
+
+.recipe-compact-action-placeholder {
+  width: 44px;
+  height: 44px;
 }
 
 .recipe-compact-card .recipe-card-actions :deep(.v-icon) {
@@ -583,5 +728,26 @@ async function toggleFavorite() {
     right: 0.25rem;
     padding-top: 0 !important;
   }
+}
+.recipe-title-toggle {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font-family: var(--bistro-heading);
+  letter-spacing: -0.025em;
+  cursor: pointer;
+}
+.recipe-title-toggle:focus-visible {
+  outline: 2px solid rgb(var(--v-theme-primary));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.recipe-list-card-expanded .recipe-list-title {
+  max-height: none;
+  overflow: visible;
+}
+.recipe-list-card-expanded {
+  height: auto;
 }
 </style>

@@ -48,7 +48,7 @@
 
         <BaseOverflowButton
           mode="event"
-          variant="elevated"
+          variant="tonal"
           :items="ACTIONS_OPTIONS"
           @unlock-all-users="unlockAllUsers"
         />
@@ -57,7 +57,7 @@
         :headers="headers"
         :items="users || []"
         item-key="id"
-        class="elevation-0"
+        class="elevation-0 rounded-xl overflow-hidden"
         elevation="0"
         :items-per-page="-1"
         hide-default-footer
@@ -93,7 +93,6 @@
           </v-btn>
         </template>
       </v-data-table>
-      <v-divider />
     </section>
   </v-container>
 </template>

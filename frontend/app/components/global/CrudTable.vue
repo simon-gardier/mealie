@@ -1,9 +1,9 @@
 <template>
   <div>
-    <v-card-actions class="flex-wrap">
+    <v-card-actions class="table-primary-actions flex-wrap">
       <v-menu v-if="tableConfig.hideColumns" offset-y bottom nudge-bottom="6" :close-on-content-click="false">
         <template #activator="{ props: activatorProps }">
-          <v-btn color="accent" variant="elevated" v-bind="activatorProps">
+          <v-btn color="primary" variant="tonal" :aria-label="$t('data-pages.visible-columns')" v-bind="activatorProps">
             <v-icon>
               {{ $globals.icons.cog }}
             </v-icon>
@@ -11,38 +11,71 @@
         </template>
         <v-card>
           <v-card-text>
-            <v-checkbox v-for="itemValue in localHeaders" :key="itemValue.text + itemValue.show"
-              v-model="itemValue.show" density="compact" flat inset :label="itemValue.text" hide-details />
+            <v-checkbox
+              v-for="itemValue in localHeaders"
+              :key="itemValue.text + itemValue.show"
+              v-model="itemValue.show"
+              density="compact"
+              flat
+              inset
+              :label="itemValue.text"
+              hide-details
+            />
           </v-card-text>
         </v-card>
       </v-menu>
-      <BaseOverflowButton v-if="bulkActions.length > 0" :disabled="selected.length < 1" mode="event" color="info"
-        variant="elevated" :items="bulkActions" v-on="bulkActionListener" />
       <slot name="button-row" />
     </v-card-actions>
-    <div class="mx-2 mb-3 clip-width">
-      <v-text-field v-model="search" variant="outlined" hide-details :label="$t('search.search')" />
+    <div v-if="bulkActions.length" class="table-selection-actions">
+      <p class="table-selection-help" role="status" aria-live="polite">
+        {{ selected.length ? $t('data-pages.selected-count', { count: selected.length }) : $t('data-pages.select-rows-help') }}
+      </p>
+      <BaseOverflowButton
+        :disabled="!selected.length"
+        :btn-text="$t('data-pages.selection-actions')"
+        mode="event"
+        color="primary"
+        variant="tonal"
+        :items="bulkActions"
+        v-on="bulkActionListener"
+      />
     </div>
-    <v-data-table v-model="selected" return-object :headers="activeHeaders" :show-select="bulkActions.length > 0"
-      :sort-by="sortBy" :items="data || []" :items-per-page="15" :search="search" class="elevation-2 rounded-lg">
+    <div class="mx-2 mb-3 clip-width">
+      <v-text-field v-model="search" variant="filled" hide-details :label="$t('search.search')" />
+    </div>
+    <v-data-table
+      v-model="selected"
+      return-object
+      :headers="activeHeaders"
+      :show-select="bulkActions.length > 0"
+      :sort-by="sortBy"
+      :items="data || []"
+      :items-per-page="15"
+      :search="search"
+      class="elevation-2 rounded-lg"
+    >
       <template v-for="header in headersWithoutActions" #[`item.${header.value}`]="{ item }">
         <slot :name="'item.' + header.value" v-bind="{ item }">
           {{ item[header.value] }}
         </slot>
       </template>
       <template #[`item.actions`]="{ item }">
-        <BaseButtonGroup :buttons="[
-          {
-            icon: $globals.icons.edit,
-            text: $t('general.edit'),
-            event: 'edit',
-          },
-          {
-            icon: $globals.icons.delete,
-            text: $t('general.delete'),
-            event: 'delete',
-          },
-        ]" @delete="$emit('delete-one', item)" @edit="$emit('edit-one', item)" />
+        <BaseButtonGroup
+          :buttons="[
+            {
+              icon: $globals.icons.edit,
+              text: $t('general.edit'),
+              event: 'edit',
+            },
+            {
+              icon: $globals.icons.delete,
+              text: $t('general.delete'),
+              event: 'delete',
+            },
+          ]"
+          @delete="$emit('delete-one', item)"
+          @edit="$emit('edit-one', item)"
+        />
       </template>
     </v-data-table>
     <v-card-actions class="justify-end">
@@ -178,5 +211,42 @@ const search = ref("");
 
 .v-btn--disabled {
   opacity: 0.5 !important;
+}
+</style>
+
+<style scoped>
+.table-primary-actions {
+  gap: 8px;
+}
+.table-selection-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 8px 8px 16px;
+  padding: 12px;
+  border: 1px solid rgba(var(--v-theme-separator), 0.5);
+  border-radius: 12px;
+  background: rgb(var(--v-theme-surface));
+}
+.table-selection-help {
+  flex: 1 1 200px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(var(--v-theme-text-secondary), var(--v-secondary-label-opacity));
+}
+.table-selection-actions :deep(.v-btn),
+.table-primary-actions :deep(.v-btn) {
+  min-height: 44px;
+  height: auto;
+  padding-block: 8px;
+  border-radius: 10px;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.table-selection-actions :deep(.v-btn__content) {
+  white-space: normal;
 }
 </style>

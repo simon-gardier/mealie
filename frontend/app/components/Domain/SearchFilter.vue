@@ -1,24 +1,45 @@
 <template>
   <div>
-    <v-menu v-model="state.menu" offset-y bottom nudge-bottom="3" :close-on-content-click="false"
-      content-class="search-filter-menu">
+    <v-menu
+      v-model="state.menu"
+      offset-y
+      bottom
+      nudge-bottom="3"
+      :close-on-content-click="false"
+      content-class="search-filter-menu"
+    >
       <template #activator="{ props: menuProps }">
         <v-badge :model-value="selectedCount > 0" size="small" color="primary" :content="selectedCount">
-          <v-btn size="small" color="accent" dark v-bind="menuProps">
+          <v-btn :size="calm ? 'default' : 'small'" :height="calm ? 44 : undefined" :variant="calm ? 'tonal' : 'elevated'" :color="calm ? 'primary' : 'accent'" v-bind="menuProps">
             <slot />
           </v-btn>
         </v-badge>
       </template>
       <v-card class="search-filter-card" width="400">
         <v-card-text>
-          <v-text-field v-model="searchInput" v-memo="[searchInput]" class="mb-2" hide-details density="comfortable"
-            variant="outlined" :label="`${$t('search.search')}...`" :prepend-inner-icon="$globals.icons.search"
-            clearable />
+          <v-text-field
+            v-model="searchInput"
+            v-memo="[searchInput]"
+            class="mb-2"
+            hide-details
+            density="comfortable"
+            :variant="calm ? 'outlined' : 'filled'"
+            :label="`${$t('search.search')}...`"
+            :prepend-inner-icon="$globals.icons.search"
+            clearable
+          />
           <div />
           <div class="d-flex flex-column align-center py-4 px-1">
-            <v-btn-toggle v-if="requireAll != undefined" v-model="combinator" mandatory density="compact"
-              color="primary" class="filter-combinator" :class="{ 'filter-combinator--any': combinator === 'hasAny' }"
-              rounded="lg">
+            <v-btn-toggle
+              v-if="requireAll != undefined"
+              v-model="combinator"
+              mandatory
+              density="compact"
+              color="primary"
+              class="filter-combinator"
+              :class="{ 'filter-combinator--any': combinator === 'hasAny' }"
+              rounded="lg"
+            >
               <v-btn value="hasAll">
                 {{ $t('search.has-all') }}
               </v-btn>
@@ -32,8 +53,12 @@
             <v-radio-group v-if="radio" v-model="selectedRadio" class="ma-0 pa-0">
               <v-virtual-scroll :items="filtered" height="300">
                 <template #default="{ item }">
-                  <v-list-item :key="`radio-${item.id}`" v-memo="[item.id, item.name, selectedRadio?.id]" :value="item"
-                    :title="item.name">
+                  <v-list-item
+                    :key="`radio-${item.id}`"
+                    v-memo="[item.id, item.name, selectedRadio?.id]"
+                    :value="item"
+                    :title="item.name"
+                  >
                     <template #prepend>
                       <v-list-item-action start>
                         <v-radio v-if="radio" :value="item" color="primary" @click="handleRadioClick(item)" />
@@ -48,8 +73,12 @@
             <v-row v-else class="mt-1">
               <v-virtual-scroll :items="filtered" height="300">
                 <template #default="{ item }">
-                  <v-list-item :key="`checkbox-${item.id}`" v-memo="[item.id, item.name, selectedIds.has(item.id)]"
-                    :value="item" :title="item.name">
+                  <v-list-item
+                    :key="`checkbox-${item.id}`"
+                    v-memo="[item.id, item.name, selectedIds.has(item.id)]"
+                    :value="item"
+                    :title="item.name"
+                  >
                     <template #prepend>
                       <v-list-item-action start>
                         <v-checkbox-btn v-model="selected" :value="item" color="primary" />
@@ -75,6 +104,7 @@ import type { ISearchableItem } from "~/composables/use-search";
 import { useSearch } from "~/composables/use-search";
 
 const props = defineProps({
+  calm: { type: Boolean, default: false },
   items: {
     type: Array as () => ISearchableItem[],
     required: true,
@@ -187,7 +217,6 @@ const handleRadioClick = (item: ISearchableItem) => {
 }
 
 @media (prefers-reduced-motion: reduce) {
-
   .filter-combinator::before,
   .filter-combinator :deep(.v-btn) {
     transition: none;

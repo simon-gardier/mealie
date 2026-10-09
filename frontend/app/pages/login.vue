@@ -29,11 +29,11 @@
         <v-card-text class="w-100">
           <v-form @submit.prevent="authenticate">
             <v-text-field v-if="$appInfo.allowPasswordLogin" id="username" v-model="form.email"
-              :prepend-inner-icon="$globals.icons.email" variant="outlined" color="primary" density="comfortable"
+              :prepend-inner-icon="$globals.icons.email" variant="filled" color="primary" density="comfortable"
               width="100%" autofocus autocomplete="username" name="username" :label="$t('user.email-or-username')"
               type="text" />
             <v-text-field v-if="$appInfo.allowPasswordLogin" id="password" v-model="form.password"
-              :prepend-inner-icon="$globals.icons.lock" :append-inner-icon="passwordIcon" variant="outlined"
+              :prepend-inner-icon="$globals.icons.lock" :append-inner-icon="passwordIcon" variant="filled"
               color="primary" density="comfortable" autocomplete="current-password" name="password"
               :label="$t('user.password')" :type="inputType" @click:append-inner="togglePasswordShow" />
             <div v-if="$appInfo.allowPasswordLogin" class="d-flex justify-center mt-n2">
@@ -312,13 +312,19 @@ function alertOnError(error: any) {
 .login-divider-text,
 .login-card :deep(.v-selection-control .v-label),
 .login-card :deep(.v-btn--variant-text) {
-  color: #fff;
+  color: rgb(var(--v-theme-media-foreground));
   opacity: 1;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  text-shadow: 0 2px 6px rgba(var(--v-theme-media-scrim), 0.6);
 }
 
 .login-card :deep(.v-divider) {
-  border-color: rgba(255, 255, 255, 0.6);
+  border-color: rgba(var(--v-theme-media-foreground), 0.6);
+  opacity: 1;
+}
+
+/* Floating labels sit above the filled inputs, directly over the video. */
+.login-card :deep(.v-field-label--floating) {
+  color: rgb(var(--v-theme-media-foreground));
   opacity: 1;
 }
 
@@ -348,7 +354,7 @@ function alertOnError(error: any) {
 .login-footer {
   position: relative;
   z-index: 1;
-  background-color: #212121;
+  background-color: rgb(var(--v-theme-surface-elevated));
 }
 
 .login-title {
@@ -360,9 +366,9 @@ function alertOnError(error: any) {
   background-color: rgba(var(--v-theme-surface), 0.65) !important;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(var(--v-theme-media-foreground), 0.25);
   border-radius: 24px !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+  box-shadow: 0 8px 32px rgba(var(--v-theme-media-scrim), 0.3) !important;
 }
 
 .login-card {
@@ -386,6 +392,6 @@ function alertOnError(error: any) {
 }
 
 .bg-white {
-  background-color: #fff;
+  background-color: rgb(var(--v-theme-media-foreground));
 }
 </style>

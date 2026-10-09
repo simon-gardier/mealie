@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex justify-space-between align-center pt-2 pb-3">
+  <div class="d-flex justify-space-between align-center" :class="compact ? 'pa-0' : 'pt-2 pb-3'">
     <RecipeScaleEditButton
       v-if="!isEditMode"
       v-model.number="scale"
@@ -15,7 +15,9 @@ import type { NoUndefinedField } from "~/lib/api/types/non-generated";
 import type { Recipe } from "~/lib/api/types/recipe";
 import { usePageState } from "~/composables/recipe-page/shared-state";
 
-const props = defineProps<{ recipe: NoUndefinedField<Recipe> }>();
+const props = withDefaults(defineProps<{ recipe: NoUndefinedField<Recipe>; compact?: boolean }>(), {
+  compact: false,
+});
 
 const scale = defineModel<number>({ default: 1 });
 

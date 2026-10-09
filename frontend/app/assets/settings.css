@@ -1,0 +1,41 @@
+/* Scoped to administration and settings; recipe artwork and editor shells stay independent. */
+.settings-page .app-main { padding-top: 96px; }
+.settings-page .app-main > div > .v-container,
+.settings-page .app-main .narrow-container { padding: 24px; }
+.settings-page .app-main .v-card:not(.v-card--variant-text):not(.bg-transparent),
+.settings-page .app-main .v-expansion-panel {
+  background-color: rgb(var(--v-theme-surface)) !important;
+  border: 1px solid rgba(var(--v-theme-separator), 0.6);
+  border-radius: 14px;
+  box-shadow: none;
+}
+.settings-page .app-main .v-card-title,
+.settings-page .app-main h2,
+.settings-page .app-main h3 {
+  font-family: var(--bistro-heading);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: normal;
+  color: rgb(var(--v-theme-on-surface));
+}
+.settings-page .app-main .v-card-title { white-space: normal; overflow-wrap: anywhere; }
+.settings-page .app-main .v-card-text { font-size: 15px; line-height: 1.6; }
+.settings-page .app-main .v-btn { border-radius: 10px; letter-spacing: normal; }
+.settings-page .app-main .v-list-item { --v-list-prepend-gap: 12px; }
+.settings-page .app-main .v-field--variant-outlined { --v-field-border-color: rgb(var(--v-theme-separator)); }
+.settings-page .app-main .v-field--focused { --v-field-border-color: rgb(var(--v-theme-primary)); }
+.settings-page .app-main .v-field--error { --v-field-border-color: rgb(var(--v-theme-error)); }
+.settings-page .app-main .v-table { border-radius: 12px; }
+.settings-page .app-main .v-table th { font-size: 13px; font-weight: 600; white-space: nowrap; }
+.settings-page .app-main .v-table td { font-size: 14px; }
+@media (max-width: 600px) {
+  .settings-page .app-main > div > .v-container,
+  .settings-page .app-main .narrow-container { padding: 16px; }
+}
+@media print { .settings-page .app-main { padding-top: 0; } }
+
+/* Status panels share the settings card corner shape. */
+.admin-layout .admin-status-card {
+  border-radius: 14px;
+}

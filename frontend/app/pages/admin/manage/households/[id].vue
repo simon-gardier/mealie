@@ -11,15 +11,34 @@
     <AppToolbar back />
     <v-card-text> {{ $t('household.household-id-value', [household.id]) }} </v-card-text>
     <v-form v-if="!userError" ref="refHouseholdEditForm" @submit.prevent="handleSubmit">
-      <v-card variant="outlined" class="admin-content-card" style="border-color: lightgrey;">
+      <v-card variant="outlined" class="admin-content-card" style="border-color: rgb(var(--v-theme-separator));">
         <v-card-text>
-          <v-select v-if="groups" v-model="household.groupId" disabled :items="groups" variant="solo-filled" flat
-            item-title="name" item-value="id" :return-object="false" :label="$t('group.user-group')"
-            :rules="[validators.required]" />
-          <v-text-field v-model="household.name" variant="solo-filled" flat :label="$t('household.household-name')"
-            :rules="[validators.required]" />
-          <HouseholdPreferencesEditor v-if="household.preferences" v-model="household.preferences" variant="solo-filled"
-            flat />
+          <v-select
+            v-if="groups"
+            v-model="household.groupId"
+            disabled
+            :items="groups"
+            variant="filled"
+            flat
+            item-title="name"
+            item-value="id"
+            :return-object="false"
+            :label="$t('group.user-group')"
+            :rules="[validators.required]"
+          />
+          <v-text-field
+            v-model="household.name"
+            variant="filled"
+            flat
+            :label="$t('household.household-name')"
+            :rules="[validators.required]"
+          />
+          <HouseholdPreferencesEditor
+            v-if="household.preferences"
+            v-model="household.preferences"
+            variant="outlined"
+            flat
+          />
         </v-card-text>
       </v-card>
       <div class="d-flex pa-2">

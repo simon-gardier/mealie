@@ -1,6 +1,6 @@
 <template>
   <div class="text-center">
-    <BaseButton @click="dialog = true">
+    <BaseButton class="bulk-add-trigger" color="primary" variant="tonal" @click="dialog = true">
       {{ $t("new-recipe.bulk-add") }}
     </BaseButton>
     <BaseDialog
@@ -17,7 +17,7 @@
       <v-card-text>
         <v-textarea
           v-model="inputText"
-          variant="outlined"
+          variant="filled"
           rows="12"
           hide-details
           autofocus
@@ -25,7 +25,7 @@
         />
 
         <v-divider />
-        <v-list lines="two">
+        <v-list lines="two" class="bulk-cleanup-actions">
           <template
             v-for="(util) in utilities"
             :key="util.id"
@@ -38,7 +38,7 @@
                   <v-btn
                     icon
                     variant="tonal"
-                    base-color="info"
+                    color="primary"
                     :title="$t('general.run')"
                     @click="util.action"
                   >
@@ -150,3 +150,9 @@ defineExpose({
   close,
 });
 </script>
+
+<style scoped>
+.bulk-cleanup-actions {
+  background: transparent;
+}
+</style>

@@ -3,10 +3,23 @@
     <slot v-bind="{ open, close }" />
     <v-dialog v-model="dialog" max-width="988px" content-class="top-dialog" :scrollable="false">
       <v-card class="search-dialog-card" :rounded="!$vuetify.display.xs" :loading="loading">
-        <v-toolbar dark color="primary-lighten-1">
-          <v-text-field id="arrow-search" v-model="search.query.value" autofocus variant="solo" flat autocomplete="off"
-            bg-color="primary-lighten-1" color="white" density="compact" class="mx-2 arrow-search" hide-details
-            single-line :placeholder="$t('search.search')" :prepend-inner-icon="$globals.icons.search" />
+        <v-toolbar color="surface" class="search-dialog-header">
+          <v-text-field
+            id="arrow-search"
+            v-model="search.query.value"
+            autofocus
+            variant="filled"
+            flat
+            autocomplete="off"
+            bg-color="fill"
+            color="primary"
+            density="compact"
+            class="mx-2 arrow-search"
+            hide-details
+
+            :label="$t('search.search')"
+            :prepend-inner-icon="$globals.icons.search"
+          />
 
           <v-btn v-if="$vuetify.display.xs" icon size="x-small" @click="dialog = false">
             <v-icon>
@@ -22,11 +35,19 @@
         </v-card-actions>
 
         <div class="scroll pa-1" style="max-height: 700px;">
-          <RecipeCardMobile v-for="(recipe, index) in search.data.value" :key="index" class="ma-1 arrow-nav"
-            :class="{ 'keyboard-selected': index === selectedIndex }" :name="recipe.name ?? ''"
-            :description="recipe.description ?? ''" :slug="recipe.slug ?? ''" :rating="recipe.rating ?? 0"
-            :image="recipe.image" :recipe-id="recipe.id ?? ''"
-            v-bind="$attrs.selected ? { selected: () => handleSelect(recipe) } : {}" />
+          <RecipeCardMobile
+            v-for="(recipe, index) in search.data.value"
+            :key="index"
+            class="ma-1 arrow-nav"
+            :class="{ 'keyboard-selected': index === selectedIndex }"
+            :name="recipe.name ?? ''"
+            :description="recipe.description ?? ''"
+            :slug="recipe.slug ?? ''"
+            :rating="recipe.rating ?? 0"
+            :image="recipe.image"
+            :recipe-id="recipe.id ?? ''"
+            v-bind="$attrs.selected ? { selected: () => handleSelect(recipe) } : {}"
+          />
         </div>
       </v-card>
     </v-dialog>
@@ -177,6 +198,10 @@ defineExpose({
 </script>
 
 <style scoped>
+.search-dialog-header {
+  border-bottom: 1px solid rgb(var(--v-theme-separator));
+}
+
 .search-dialog-card {
   background-image: none;
 }

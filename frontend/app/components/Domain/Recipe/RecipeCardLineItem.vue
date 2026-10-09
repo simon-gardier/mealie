@@ -23,7 +23,7 @@
       </v-avatar>
     </template>
 
-    <v-list-item-title class="text-truncate">
+    <v-list-item-title class="text-truncate recipe-card-line-title">
       {{ recipe.name }}
     </v-list-item-title>
     <v-list-item-subtitle v-if="$slots.subtitle">

@@ -56,13 +56,13 @@ defineExpose({ play });
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(0, 0, 0, 0);
+  background-color: rgba(var(--v-theme-media-scrim), 0);
   transition: background-color 700ms ease;
   pointer-events: none;
 }
 
 .cinematic-overlay--black {
-  background-color: #000;
+  background-color: rgb(var(--v-theme-media-scrim));
 }
 
 .cinematic-title {

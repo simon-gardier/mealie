@@ -3,6 +3,8 @@
 </template>
 
 <script setup lang="ts">
+import { celebrationColors } from "~/theme/colors";
+
 interface Particle {
   color: string;
   life: number;
@@ -17,7 +19,7 @@ const emit = defineEmits<{ complete: [] }>();
 const canvas = ref<HTMLCanvasElement | null>(null);
 let animationFrame: number | undefined;
 
-const colors = ["#e94f37", "#f7c948", "#59c3c3", "#f6f7eb", "#d26cd5"];
+const colors = celebrationColors;
 
 function createBurst(x: number, y: number): Particle[] {
   return Array.from({ length: 54 }, (_, index) => {

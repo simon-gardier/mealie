@@ -7,10 +7,21 @@
         </v-card-title>
         <v-card-text>
           {{ $t('recipe.recipe-debugger-description') }}
-          <v-text-field v-model="recipeUrl" class="my-3" :label="$t('new-recipe.recipe-url')" validate-on="blur"
-            :prepend-inner-icon="$globals.icons.link" density="compact" autofocus variant="outlined" clearable
-            style="--v-input-control-height: 60px" :rules="[validators.url]" :hint="$t('new-recipe.url-form-hint')"
-            persistent-hint />
+          <v-text-field
+            v-model="recipeUrl"
+            class="my-3"
+            :label="$t('new-recipe.recipe-url')"
+            validate-on="blur"
+            :prepend-inner-icon="$globals.icons.link"
+            density="compact"
+            autofocus
+            variant="filled"
+            clearable
+            style="--v-input-control-height: 60px"
+            :rules="[validators.url]"
+            :hint="$t('new-recipe.url-form-hint')"
+            persistent-hint
+          />
         </v-card-text>
         <v-card-text v-if="group?.aiProviderSettings?.aiEnabled">
           {{ $t('recipe.recipe-debugger-use-openai-description') }}
@@ -18,8 +29,14 @@
         </v-card-text>
         <v-card-actions class="justify-center">
           <div style="width: 250px">
-            <BaseButton :disabled="recipeUrl === null" rounded block type="submit" color="info"
-              :loading="state.loading">
+            <BaseButton
+              :disabled="recipeUrl === null"
+              rounded
+              block
+              type="submit"
+              color="info"
+              :loading="state.loading"
+            >
               <template #icon>
                 {{ $globals.icons.robot }}
               </template>
@@ -31,13 +48,19 @@
     </v-form>
     <section v-if="debugData">
       <v-checkbox v-model="debugTreeView" :label="$t('recipe.tree-view')" />
-      <RecipeJsonEditor v-model="debugData" height="700px" :mode="debugTreeView ? 'tree' : 'text'"
-        :main-menu-bar="false" :read-only="true" />
+      <RecipeJsonEditor
+        v-model="debugData"
+        height="700px"
+        :mode="debugTreeView ? 'tree' : 'text'"
+        :main-menu-bar="false"
+        :read-only="true"
+      />
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useRecipeImportUrl } from "~/composables/use-recipe-import-url";
 import { useUserApi } from "~/composables/api";
 import { useGroupSelf } from "~/composables/use-groups";
 import { validators } from "~/composables/use-validators";
@@ -49,21 +72,10 @@ const state = reactive({
 });
 
 const api = useUserApi();
-const route = useRoute();
-const router = useRouter();
+
 const { group } = useGroupSelf();
 
-const recipeUrl = computed({
-  set(recipe_import_url: string | null) {
-    if (recipe_import_url !== null) {
-      recipe_import_url = recipe_import_url.trim();
-      router.replace({ query: { ...route.query, recipe_import_url } });
-    }
-  },
-  get() {
-    return route.query.recipe_import_url as string | null;
-  },
-});
+const recipeUrl = useRecipeImportUrl();
 
 const debugTreeView = ref(false);
 

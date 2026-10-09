@@ -2,7 +2,7 @@
   <div v-if="providerSettings">
     <BaseCardSectionTitle v-if="!hideHeader" :title="$t('group.ai-provider-settings.ai-provider-settings')">
       <template v-if="noDefaultProviderWarning" #append-title>
-        <v-tooltip location="bottom" color="warning">
+        <v-tooltip location="bottom">
           <template #activator="{ props: tooltipProps }">
             <v-icon v-bind="tooltipProps" size="small" color="warning" class="ms-2">
               {{ $globals.icons.alert }}
@@ -27,7 +27,7 @@
           clearable
           hide-details
           density="compact"
-          variant="outlined"
+          variant="filled"
         />
         <v-card-subtitle class="mt-1">
           {{ $t("group.ai-provider-settings.default-provider-description") }}
@@ -43,7 +43,7 @@
           clearable
           hide-details
           density="compact"
-          variant="outlined"
+          variant="filled"
         />
         <v-card-subtitle class="mt-1">
           {{ $t("group.ai-provider-settings.audio-provider-description") }}
@@ -59,7 +59,7 @@
           clearable
           hide-details
           density="compact"
-          variant="outlined"
+          variant="filled"
         />
         <v-card-subtitle class="mt-1">
           {{ $t("group.ai-provider-settings.image-provider-description") }}
@@ -93,7 +93,7 @@
     <v-card
       v-for="provider in local.providers"
       :key="provider.id"
-      variant="tonal"
+      variant="outlined"
       class="pa-0 mb-4"
     >
       <v-row no-gutters>

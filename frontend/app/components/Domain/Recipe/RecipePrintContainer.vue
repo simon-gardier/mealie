@@ -3,7 +3,7 @@
     <RecipePrintView
       :recipe="recipe"
       :scale="scale"
-      :density="'compact'"
+      dense
     />
   </div>
 </template>
@@ -24,6 +24,15 @@ withDefaults(defineProps<Props>(), {
 
 <style>
 @media print {
+  @page {
+    margin: 14mm;
+  }
+  .v-application,
+  .v-application__wrap {
+    height: auto !important;
+    min-height: 0 !important;
+    background: rgb(var(--v-theme-print-background)) !important;
+  }
   body,
   html {
     margin-top: 0 !important;

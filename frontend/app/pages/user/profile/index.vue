@@ -11,9 +11,15 @@
       </p>
       <v-card flat color="transparent" width="100%" max-width="600px">
         <v-card-actions class="d-flex justify-center my-4">
-          <v-btn v-if="user.canInvite" color="primary" variant="flat" rounded class="px-4"
-            :prepend-icon="$globals.icons.createAlt" :text="$t('profile.get-invite-link')"
-            @click="inviteDialog = true" />
+          <v-btn
+            v-if="user.canInvite"
+            color="primary"
+            variant="tonal"
+            class="px-4"
+            :prepend-icon="$globals.icons.createAlt"
+            :text="$t('profile.get-invite-link')"
+            @click="inviteDialog = true"
+          />
         </v-card-actions>
         <UserInviteDialog v-model="inviteDialog" />
       </v-card>
@@ -27,8 +33,12 @@
       </div>
       <v-row tag="section">
         <v-col cols="12" sm="12" md="12">
-          <v-card color="surface-variant" variant="flat" class="mt-4 pa-2 rounded-lg"
-            style="border: 1px solid rgb(var(--v-theme-primary));">
+          <v-card
+            color="surface"
+            variant="flat"
+            class="mt-4 pa-2 rounded-lg"
+            style="border: 1px solid rgb(var(--v-theme-separator));"
+          >
             <v-card-title class="text-h6 pb-0">
               {{ $t('profile.household-statistics') }}
             </v-card-title>
@@ -36,8 +46,13 @@
               {{ $t('profile.household-statistics-description') }}
             </v-card-text>
             <v-card-text class="d-flex flex-wrap justify-center align-center" style="gap: 0.8rem">
-              <StatsCards v-for="(value, key) in filteredStats" :key="`${key}-${value}`"
-                :min-width="$vuetify.display.xs ? '100%' : '158'" :icon="getStatsIcon(key)" :to="getStatsTo(key)">
+              <StatsCards
+                v-for="(value, key) in filteredStats"
+                :key="`${key}-${value}`"
+                :min-width="$vuetify.display.xs ? '100%' : '158'"
+                :icon="getStatsIcon(key)"
+                :to="getStatsTo(key)"
+              >
                 <template #title>
                   {{ getStatsTitle(key) }}
                 </template>
@@ -60,8 +75,10 @@
       </div>
       <v-row tag="section">
         <v-col cols="12" sm="12" md="6">
-          <UserProfileLinkCard :link="{ text: $t('profile.manage-user-profile'), to: `/user/profile/edit` }"
-            image="/svgs/manage-profile.svg">
+          <UserProfileLinkCard
+            :link="{ text: $t('profile.manage-user-profile'), to: `/user/profile/edit` }"
+            image="/svgs/manage-profile.svg"
+          >
             <template #title>
               {{ $t('profile.user-settings') }}
             </template>
@@ -70,8 +87,10 @@
         </v-col>
         <AdvancedOnly>
           <v-col cols="12" sm="12" md="6">
-            <UserProfileLinkCard :link="{ text: $t('profile.manage-your-api-tokens'), to: `/user/profile/api-tokens` }"
-              image="/svgs/manage-api-tokens.svg">
+            <UserProfileLinkCard
+              :link="{ text: $t('profile.manage-your-api-tokens'), to: `/user/profile/api-tokens` }"
+              image="/svgs/manage-api-tokens.svg"
+            >
               <template #title>
                 {{ $t('settings.token.api-tokens') }}
               </template>
@@ -91,8 +110,10 @@
       </div>
       <v-row tag="section">
         <v-col v-if="user.canManageHousehold" cols="12" sm="12" md="6">
-          <UserProfileLinkCard :link="{ text: $t('profile.household-settings'), to: `/household` }"
-            image="/svgs/manage-group-settings.svg">
+          <UserProfileLinkCard
+            :link="{ text: $t('profile.household-settings'), to: `/household` }"
+            image="/svgs/manage-group-settings.svg"
+          >
             <template #title>
               {{ $t('profile.household-settings') }}
             </template>
@@ -100,8 +121,10 @@
           </UserProfileLinkCard>
         </v-col>
         <v-col cols="12" sm="12" md="6">
-          <UserProfileLinkCard :link="{ text: $t('profile.manage-cookbooks'), to: `/g/${groupSlug}/cookbooks` }"
-            image="/svgs/manage-cookbooks.svg">
+          <UserProfileLinkCard
+            :link="{ text: $t('profile.manage-cookbooks'), to: `/g/${groupSlug}/cookbooks` }"
+            image="/svgs/manage-cookbooks.svg"
+          >
             <template #title>
               {{ $t('sidebar.cookbooks') }}
             </template>
@@ -109,8 +132,10 @@
           </UserProfileLinkCard>
         </v-col>
         <v-col v-if="user.canManage" cols="12" sm="12" md="6">
-          <UserProfileLinkCard :link="{ text: $t('profile.manage-members'), to: `/household/members` }"
-            image="/svgs/manage-members.svg">
+          <UserProfileLinkCard
+            :link="{ text: $t('profile.manage-members'), to: `/household/members` }"
+            image="/svgs/manage-members.svg"
+          >
             <template #title>
               {{ $t('profile.members') }}
             </template>
@@ -119,8 +144,10 @@
         </v-col>
         <AdvancedOnly>
           <v-col v-if="user.advanced" cols="12" sm="12" md="6">
-            <UserProfileLinkCard :link="{ text: $t('profile.manage-webhooks'), to: `/household/webhooks` }"
-              image="/svgs/manage-webhooks.svg">
+            <UserProfileLinkCard
+              :link="{ text: $t('profile.manage-webhooks'), to: `/household/webhooks` }"
+              image="/svgs/manage-webhooks.svg"
+            >
               <template #title>
                 {{ $t('settings.webhooks.webhooks') }}
               </template>
@@ -130,8 +157,10 @@
         </AdvancedOnly>
         <AdvancedOnly>
           <v-col cols="12" sm="12" md="6">
-            <UserProfileLinkCard :link="{ text: $t('profile.manage-notifiers'), to: `/household/notifiers` }"
-              image="/svgs/manage-notifiers.svg">
+            <UserProfileLinkCard
+              :link="{ text: $t('profile.manage-notifiers'), to: `/household/notifiers` }"
+              image="/svgs/manage-notifiers.svg"
+            >
               <template #title>
                 {{ $t('profile.notifiers') }}
               </template>
@@ -151,8 +180,10 @@
       </div>
       <v-row tag="section">
         <v-col v-if="user.canManage" cols="12" sm="12" md="6">
-          <UserProfileLinkCard :link="{ text: $t('profile.group-settings'), to: `/group` }"
-            image="/svgs/manage-group-settings.svg">
+          <UserProfileLinkCard
+            :link="{ text: $t('profile.group-settings'), to: `/group` }"
+            image="/svgs/manage-group-settings.svg"
+          >
             <template #title>
               {{ $t('profile.group-settings') }}
             </template>
@@ -160,8 +191,10 @@
           </UserProfileLinkCard>
         </v-col>
         <v-col v-if="user.canOrganize" cols="12" sm="12" md="6">
-          <UserProfileLinkCard :link="{ text: $t('profile.manage-data'), to: `/group/data/foods` }"
-            image="/svgs/manage-recipes.svg">
+          <UserProfileLinkCard
+            :link="{ text: $t('profile.manage-data'), to: `/group/data/foods` }"
+            image="/svgs/manage-recipes.svg"
+          >
             <template #title>
               {{ $t('profile.manage-data') }}
             </template>
@@ -170,8 +203,10 @@
         </v-col>
         <AdvancedOnly>
           <v-col cols="12" sm="12" md="6">
-            <UserProfileLinkCard :link="{ text: $t('profile.manage-data-migrations'), to: `/group/migrations` }"
-              image="/svgs/manage-data-migrations.svg">
+            <UserProfileLinkCard
+              :link="{ text: $t('profile.manage-data-migrations'), to: `/group/migrations` }"
+              image="/svgs/manage-data-migrations.svg"
+            >
               <template #title>
                 {{ $t('profile.data-migrations') }}
               </template>

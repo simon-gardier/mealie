@@ -38,12 +38,33 @@
                 </v-card-title>
                 <v-card-text class="pb-0">
                   <v-form ref="userUpdate">
-                    <v-text-field v-model="userCopy.username" :label="$t('user.username')" required validate-on="blur"
-                      density="comfortable" variant="solo" class="settings-input" />
-                    <v-text-field v-model="userCopy.fullName" :label="$t('user.full-name')" required validate-on="blur"
-                      density="comfortable" variant="solo" class="settings-input" />
-                    <v-text-field v-model="userCopy.email" :label="$t('user.email')" validate-on="blur" required
-                      density="comfortable" variant="solo" class="settings-input" />
+                    <v-text-field
+                      v-model="userCopy.username"
+                      :label="$t('user.username')"
+                      required
+                      validate-on="blur"
+                      density="comfortable"
+                      variant="filled"
+                      class="settings-input"
+                    />
+                    <v-text-field
+                      v-model="userCopy.fullName"
+                      :label="$t('user.full-name')"
+                      required
+                      validate-on="blur"
+                      density="comfortable"
+                      variant="filled"
+                      class="settings-input"
+                    />
+                    <v-text-field
+                      v-model="userCopy.email"
+                      :label="$t('user.email')"
+                      validate-on="blur"
+                      required
+                      density="comfortable"
+                      variant="filled"
+                      class="settings-input"
+                    />
                   </v-form>
                 </v-card-text>
                 <v-card-actions class="justify-center">
@@ -58,28 +79,53 @@
                 </v-card-title>
                 <v-card-text class="pb-0">
                   <v-form ref="passChange">
-                    <v-text-field v-model="password.current" :prepend-icon="$globals.icons.lock"
-                      :label="$t('user.current-password')" validate-on="blur" :type="showPassword ? 'text' : 'password'"
+                    <v-text-field
+                      v-model="password.current"
+                      :prepend-icon="$globals.icons.lock"
+                      :label="$t('user.current-password')"
+                      validate-on="blur"
+                      :type="showPassword ? 'text' : 'password'"
                       :append-icon="showPassword ? $globals.icons.eye : $globals.icons.eyeOff"
-                      :rules="[validators.minLength(1)]" density="comfortable" variant="solo" class="settings-input"
-                      @click:append="showPassword = !showPassword" />
-                    <v-text-field v-model="password.newOne" :prepend-icon="$globals.icons.lock"
-                      :label="$t('user.new-password')" :type="showPassword ? 'text' : 'password'"
+                      :rules="[validators.minLength(1)]"
+                      density="comfortable"
+                      variant="filled"
+                      class="settings-input"
+                      @click:append="showPassword = !showPassword"
+                    />
+                    <v-text-field
+                      v-model="password.newOne"
+                      :prepend-icon="$globals.icons.lock"
+                      :label="$t('user.new-password')"
+                      :type="showPassword ? 'text' : 'password'"
                       :append-icon="showPassword ? $globals.icons.eye : $globals.icons.eyeOff"
-                      :rules="[validators.minLength(8)]" density="comfortable" variant="solo" class="settings-input"
-                      @click:append="showPassword = !showPassword" />
-                    <v-text-field v-model="password.newTwo" :prepend-icon="$globals.icons.lock"
+                      :rules="[validators.minLength(8)]"
+                      density="comfortable"
+                      variant="filled"
+                      class="settings-input"
+                      @click:append="showPassword = !showPassword"
+                    />
+                    <v-text-field
+                      v-model="password.newTwo"
+                      :prepend-icon="$globals.icons.lock"
                       :label="$t('user.confirm-password')"
                       :rules="[password.newOne === password.newTwo || $t('user.password-must-match')]"
-                      validate-on="blur" :type="showPassword ? 'text' : 'password'"
-                      :append-icon="showPassword ? $globals.icons.eye : $globals.icons.eyeOff" density="comfortable"
-                      variant="solo" class="settings-input" @click:append="showPassword = !showPassword" />
+                      validate-on="blur"
+                      :type="showPassword ? 'text' : 'password'"
+                      :append-icon="showPassword ? $globals.icons.eye : $globals.icons.eyeOff"
+                      density="comfortable"
+                      variant="filled"
+                      class="settings-input"
+                      @click:append="showPassword = !showPassword"
+                    />
                     <UserPasswordStrength v-model="password.newOne" />
                   </v-form>
                 </v-card-text>
                 <v-card-actions class="justify-center">
-                  <BaseButton update :disabled="!passwordsMatch || password.current.length < 0"
-                    @click="updatePassword" />
+                  <BaseButton
+                    update
+                    :disabled="!passwordsMatch || password.current.length < 0"
+                    @click="updatePassword"
+                  />
                 </v-card-actions>
               </v-card>
             </div>
@@ -93,19 +139,37 @@
           {{ $t('profile.preferences') }}
         </v-card-title>
         <v-card-text>
-          <v-combobox v-model="selectedDefaultActivity" :label="$t('user.default-activity')" :items="activityOptions"
-            :hint="$t('user.default-activity-hint')" density="comfortable" variant="solo" class="settings-input"
-            validate-on="blur" persistent-hint />
-          <v-checkbox v-model="userCopy.showAnnouncements" hide-details
-            :label="$t('announcements.show-announcements-from-mealie')" color="primary" @change="updateUser" />
-          <v-checkbox v-model="userCopy.advanced" hide-details :label="$t('profile.show-advanced-description')"
-            color="primary" @change="updateUser" />
+          <v-combobox
+            v-model="selectedDefaultActivity"
+            :label="$t('user.default-activity')"
+            :items="activityOptions"
+            :hint="$t('user.default-activity-hint')"
+            density="comfortable"
+            variant="filled"
+            class="settings-input"
+            validate-on="blur"
+            persistent-hint
+          />
+          <v-checkbox
+            v-model="userCopy.showAnnouncements"
+            hide-details
+            :label="$t('announcements.show-announcements-from-mealie')"
+            color="primary"
+            @change="updateUser"
+          />
+          <v-checkbox
+            v-model="userCopy.advanced"
+            hide-details
+            :label="$t('profile.show-advanced-description')"
+            color="primary"
+            @change="updateUser"
+          />
         </v-card-text>
       </v-card>
       <nuxt-link class="mt-5 d-flex flex-column justify-center text-center text-primary" :to="`/group`"> {{
         $t('profile.looking-for-privacy-settings') }} </nuxt-link>
       <div class="d-flex flex-wrap justify-center mt-5">
-        <v-btn variant="outlined" class="rounded-xl my-1 mx-1" :to="`/user/profile`" nuxt exact>
+        <v-btn variant="tonal" class="my-1 mx-1" :to="`/user/profile`" nuxt exact>
           <v-icon start>
             {{ $globals.icons.backArrow }}
           </v-icon>
@@ -203,15 +267,15 @@ async function updatePassword() {
 
 <style scoped>
 .settings-card {
-  border: 1px solid rgb(var(--v-theme-primary));
-  border-radius: 12px;
-  background: rgb(var(--v-theme-surface-variant));
+  border: 1px solid rgb(var(--v-theme-separator));
+  border-radius: 14px;
+  background: rgb(var(--v-theme-surface));
   overflow: hidden;
 }
 
 .settings-card-title {
-  border-bottom: 1px solid rgba(var(--v-theme-primary), 0.35);
-  background: rgba(var(--v-theme-primary), 0.08);
+  border-bottom: 1px solid rgba(var(--v-theme-separator), 0.6);
+  background: rgb(var(--v-theme-surface));
   padding: 0.9rem 1rem 0.8rem;
   font-size: 1.1rem;
   font-weight: 600;
@@ -227,21 +291,22 @@ async function updatePassword() {
 }
 
 .settings-input :deep(.v-field) {
-  background: rgba(var(--v-theme-surface), 0.72) !important;
-  border: 1px solid rgba(var(--v-theme-primary), 0.5);
+  background: rgb(var(--v-theme-fill)) !important;
+  --v-field-border-color: rgb(var(--v-theme-separator));
   border-radius: 10px;
   box-shadow: none !important;
-}
-
-.settings-input :deep(.v-field__outline) {
-  display: none;
 }
 
 .settings-input :deep(.v-field__input) {
   color: rgb(var(--v-theme-on-surface));
 }
 
-.settings-input :deep(.v-field--focused .v-field__outline) {
-  display: none;
+.settings-input :deep(.v-field--focused),
+.token-input :deep(.v-field--focused) {
+  --v-field-border-color: rgb(var(--v-theme-primary));
+}
+.settings-input :deep(.v-field--error),
+.token-input :deep(.v-field--error) {
+  --v-field-border-color: rgb(var(--v-theme-error));
 }
 </style>

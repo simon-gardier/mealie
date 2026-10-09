@@ -1,0 +1,2 @@
+const {chromium}=require('C:/Users/Simon/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+(async()=>{const b=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});const p=await b.newPage();await p.goto('file:///C:/Users/Simon/Downloads/mealie/dev/ui-audit/print/verified.html');await p.emulateMedia({media:'print'});await p.pdf({path:'dev/ui-audit/print/check.pdf',preferCSSPageSize:true,printBackground:true,displayHeaderFooter:false});await b.close();})();

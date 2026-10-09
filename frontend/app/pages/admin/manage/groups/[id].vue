@@ -11,7 +11,7 @@
     <AppToolbar back />
     <v-card-text> {{ $t('group.group-id-value', [group.id]) }} </v-card-text>
     <v-form v-if="!userError" ref="refGroupEditForm" @submit.prevent="handleSubmit">
-      <v-card variant="outlined" class="admin-content-card" style="border-color: lightgrey;">
+      <v-card variant="outlined" class="admin-content-card" style="border-color: rgb(var(--v-theme-separator));">
         <v-card-text>
           <v-text-field v-model="group.name" :label="$t('group.group-name')" />
           <GroupPreferencesEditor v-if="group.preferences" v-model="group.preferences" />

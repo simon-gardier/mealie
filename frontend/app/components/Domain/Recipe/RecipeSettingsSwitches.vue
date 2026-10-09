@@ -5,10 +5,9 @@
       :key="key"
       v-model="model[key]"
       color="primary"
-      xs
       density="compact"
       :disabled="key == 'locked' && !isOwner"
-      class="my-1"
+      class="my-2"
       :label="labels[key]"
       hide-details
     />

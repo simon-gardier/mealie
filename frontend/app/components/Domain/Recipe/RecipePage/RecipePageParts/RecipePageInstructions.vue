@@ -1,104 +1,100 @@
 <template>
   <section @keyup.ctrl.z="undoMerge">
-    <!-- Ingredient Link Editor -->
-    <BaseDialog v-model="dialog" :title="$t('recipe.link-references')" :icon="$globals.icons.link" width="100%"
-      max-width="600px" max-height="60%">
-      <div class="grid">
-        <div class="sticky">
-          <v-card flat style="max-height: 40dvh; overflow-y: auto;">
-            <v-card-text class="pt-4">
-              <p>
-                {{ activeDialogStepText }}
-              </p>
-              <v-divider class="my-4" />
-
-              <h4 class="ml-1">
-                {{ $t("recipe.ingredients") }}
-              </h4>
-            </v-card-text>
-          </v-card>
-          <v-divider />
+    <BaseDialog
+      v-model="dialog"
+      :title="$t('recipe.link-references')"
+      width="760"
+      max-width="760"
+      color="surface"
+      cancel-in-toolbar
+      disable-submit-on-enter
+    >
+      <div class="reference-body">
+        <div class="reference-step">
+          <span class="reference-eyebrow">{{ $t('recipe.reference-linker.step', { current: activeLinkerIndex + 1, total: instructionList.length }) }}</span>
+          <p class="reference-step-text">
+            {{ activeDialogStepText }}
+          </p>
         </div>
-        <v-card flat>
-          <v-card-text>
-            <template v-if="Object.keys(groupedUnusedIngredients).length > 0">
-              <h4 class="ml-1">
-                {{ $t("recipe.unlinked") }}
-              </h4>
-              <template v-for="(ingredients, title) in groupedUnusedIngredients" :key="title">
-                <h4 v-if="title" class="py-3 ml-1 pl-4">
+        <p class="reference-help">
+          {{ $t('recipe.reference-linker.description') }}
+        </p>
+
+        <section class="reference-section">
+          <div class="reference-section-heading">
+            <h3>{{ $t('recipe.ingredients') }}</h3>
+            <span class="reference-count">{{ $t('recipe.reference-linker.selected', { count: activeRefs.length }) }}</span>
+          </div>
+          <v-btn variant="tonal" color="primary" class="reference-detect" @click="autoSetReferences">
+            {{ $t('recipe.reference-linker.detect') }}
+          </v-btn>
+          <p v-if="!Object.keys(groupedUnusedIngredients).length && !Object.keys(groupedUsedIngredients).length" class="reference-help">
+            {{ $t('recipe.reference-linker.no-ingredients') }}
+          </p>
+          <template v-for="(groups, groupIndex) in [groupedUnusedIngredients, groupedUsedIngredients]" :key="groupIndex">
+            <div v-if="Object.keys(groups).length" class="reference-group">
+              <p v-if="groupIndex === 1" class="reference-help reference-reused">
+                {{ $t('recipe.reference-linker.reused') }}
+              </p>
+              <template v-for="(ingredients, title) in groups" :key="title">
+                <h4 v-if="title" class="reference-group-title">
                   {{ title }}
                 </h4>
-                <v-checkbox-btn v-for="ing in ingredients" :key="ing.referenceId" v-model="activeRefs"
-                  :value="ing.referenceId" class="ml-4">
+                <v-checkbox-btn
+                  v-for="ing in ingredients"
+                  :key="ing.referenceId"
+                  v-model="activeRefs"
+                  :value="ing.referenceId"
+                  color="primary"
+                  :class="['reference-option', { 'reference-option-selected': activeRefs.includes(ing.referenceId || '') }]"
+                >
                   <template #label>
                     <RecipeIngredientHtml :ingredient="ing" :scale="scale" />
                   </template>
                 </v-checkbox-btn>
               </template>
+            </div>
+          </template>
+        </section>
+
+        <section class="reference-section">
+          <div class="reference-section-heading">
+            <h3>{{ $t('recipe.notes') }}</h3>
+            <span v-if="linkableNotes.length" class="reference-count">{{ $t('recipe.reference-linker.selected', { count: activeNoteReferenceIds.length }) }}</span>
+          </div>
+          <p class="reference-help">
+            {{ $t(linkableNotes.length ? 'recipe.reference-linker.notes-description' : 'recipe.reference-linker.no-notes') }}
+          </p>
+          <v-checkbox-btn
+            v-for="note in linkableNotes"
+            :key="note.referenceId"
+            v-model="activeNoteReferenceIds"
+            :value="note.referenceId"
+            color="primary"
+            :class="['reference-option', { 'reference-option-selected': activeNoteReferenceIds.includes(note.referenceId) }]"
+          >
+            <template #label>
+              {{ note.title || $t('recipe.note') }}
             </template>
-
-            <template v-if="Object.keys(groupedUsedIngredients).length > 0">
-              <h4 class="py-3 ml-1">
-                {{ $t("recipe.linked-to-other-step") }}
-              </h4>
-              <template v-for="(ingredients, title) in groupedUsedIngredients" :key="title">
-                <h4 v-if="title" class="py-3 ml-1 pl-4">
-                  {{ title }}
-                </h4>
-                <v-checkbox-btn v-for="ing in ingredients" :key="ing.referenceId" v-model="activeRefs"
-                  :value="ing.referenceId" class="ml-4">
-                  <template #label>
-                    <RecipeIngredientHtml :ingredient="ing" :scale="scale" />
-                  </template>
-                </v-checkbox-btn>
-              </template>
-            </template>
-
-            <v-divider class="my-4" />
-
-            <h4 class="ml-1 mb-2">
-              {{ $t("recipe.notes") }}
-            </h4>
-            <p v-if="linkableNotes.length === 0" class="text-body-2 text-medium-emphasis">
-              {{ $t('recipe.no-notes-to-link') }}
-            </p>
-            <v-checkbox-btn v-for="note in linkableNotes" :key="note.referenceId" v-model="activeNoteReferenceIds"
-              :value="note.referenceId" class="ml-4">
-              <template #label>
-                {{ note.title || $t('recipe.note') }}
-              </template>
-            </v-checkbox-btn>
-          </v-card-text>
-        </v-card>
+          </v-checkbox-btn>
+        </section>
       </div>
-
-      <v-divider />
-
       <template #card-actions>
-        <div class="d-flex flex-grow-1">
+        <div class="reference-footer">
           <BaseButton cancel @click="closeDialog" />
-          <v-spacer />
-          <div class="d-flex flex-wrap justify-end ga-2">
-            <BaseButton color="info" @click="autoSetReferences">
-              <template #icon>
-                {{ $globals.icons.robot }}
-              </template>
-              {{ $t("recipe.auto") }}
-            </BaseButton>
-            <BaseButton save @click="saveDialogLinks" />
-            <BaseButton v-if="availableDialogNextStep" class="ml-2 my-1" @click="saveAndOpenNextDialogLinks">
-              <template #icon>
-                {{ $globals.icons.forward }}
-              </template>
-              {{ $t("recipe.nextStep") }}
-            </BaseButton>
+          <div class="reference-footer-actions">
+            <v-btn v-if="availableDialogNextStep" variant="tonal" color="primary" @click="saveAndOpenNextDialogLinks">
+              {{ $t('recipe.reference-linker.apply-next') }}
+            </v-btn>
+            <v-btn variant="flat" color="primary" @click="saveDialogLinks">
+              {{ $t('recipe.reference-linker.apply') }}
+            </v-btn>
           </div>
         </div>
       </template>
     </BaseDialog>
 
-    <div class="d-flex justify-space-between justify-start">
+    <div class="d-flex justify-space-between justify-start" :class="{ 'mb-6': !isCookMode }">
       <h2 v-if="!isCookMode" class="recipe-section-title mt-1 text-h5 font-weight-medium opacity-80">
         {{ $t("recipe.instructions") }}
       </h2>
@@ -111,15 +107,20 @@
           </v-icon>
           {{ $t('recipe.linked-notes-with-count', { count: activeStepLinkedNotes.length }) }}
           <v-spacer />
-          <v-btn icon variant="text" density="comfortable" :aria-label="$t('general.close')"
-            @click="linkedNotesSheetOpen = false">
+          <v-btn
+            icon
+            variant="text"
+            density="comfortable"
+            :aria-label="$t('general.close')"
+            @click="linkedNotesSheetOpen = false"
+          >
             <v-icon>{{ $globals.icons.close }}</v-icon>
           </v-btn>
         </v-card-title>
         <v-divider />
         <v-card-text class="pt-4">
           <template v-for="(note, noteIndex) in activeStepLinkedNotes" :key="note.referenceId ?? note.title">
-            <v-divider v-if="noteIndex > 0" class="my-3" />
+            <v-divider v-if="noteIndex > 0" class="recipe-instruction-card my-3" />
             <div class="text-title-large mb-1">
               {{ note.title || $t('recipe.note') }}
             </div>
@@ -128,21 +129,57 @@
         </v-card-text>
       </v-card>
     </v-bottom-sheet>
-    <VueDraggable v-model="instructionList" :disabled="!isEditForm" handle=".handle" :delay="250"
-      :delay-on-touch-only="true" v-bind="{
-        animation: 200,
+    <VueDraggable
+      v-model="instructionList"
+      class="recipe-instructions-list"
+      :disabled="!isEditForm"
+      handle=".handle"
+      :delay="250"
+      :delay-on-touch-only="true"
+      v-bind="{
+        animation: $vuetify.display.mobile ? 0 : 200,
         group: 'recipe-instructions',
-        ghostClass: 'ghost',
-      }" @start="drag = true" @end="onDragEnd">
+        ghostClass: 'recipe-drop-target',
+        chosenClass: 'recipe-drag-chosen',
+        dragClass: 'recipe-drag-active',
+      }"
+      @start="drag = true"
+      @end="onDragEnd"
+    >
       <TransitionGroup type="transition">
-        <div v-for="(step, index) in instructionList" :key="step.id!" class="list-group-item">
-          <v-sheet v-if="step.id && showTitleEditor[step.id]" :color="isEditForm ? 'transparent' : 'primary'"
+        <div v-for="(step, index) in instructionList" :key="step.id!" :data-step-id="step.id" class="list-group-item">
+          <v-sheet
+            v-if="step.id && showTitleEditor[step.id]"
+            color="transparent"
             class="mt-6 mb-2 d-flex align-center"
-            :class="isEditForm ? 'pa-2' : 'pa-3'" style="border-radius: 6px; cursor: pointer; width: 100%;"
-            @click="toggleCollapseSection(index)">
+            :class="isEditForm ? 'pa-2' : 'pa-3'"
+            style="border-radius: 6px; cursor: pointer; width: 100%;"
+            @click="toggleCollapseSection(index)"
+          >
             <template v-if="isEditForm">
-              <v-text-field v-model="step.title" class="recipe-section-title-input" density="compact" variant="plain" flat
-                :placeholder="$t('recipe.section-title')" hide-details />
+              <v-text-field
+                v-model="step.title"
+                class="recipe-section-title-input"
+                density="comfortable"
+                variant="filled"
+                :label="$t('recipe.section-title')"
+                hide-details
+                @click.stop
+              >
+                <template #append-inner>
+                  <v-btn
+                    icon
+                    variant="text"
+                    color="error"
+                    size="small"
+                    :aria-label="$t('recipe.clear-section')"
+                    :title="$t('recipe.clear-section')"
+                    @click.stop="toggleShowTitle(step.id)"
+                  >
+                    <v-icon :icon="$globals.icons.delete" size="20" />
+                  </v-btn>
+                </template>
+              </v-text-field>
             </template>
             <template v-else>
               <v-toolbar-title class="section-title-text">
@@ -151,13 +188,28 @@
             </template>
           </v-sheet>
           <v-hover v-slot="{ isHovering }">
-            <v-card class="my-3"
-              :class="[{ 'on-hover': isHovering }, { 'cursor-default': isEditForm }, { 'recipe-step-complete': isChecked(index) }]"
-              :elevation="isHovering ? 12 : 2" :ripple="false" @click="toggleDisabled(index)">
+            <v-card
+              class="recipe-instruction-card my-3"
+              :class="[{ 'on-hover': isHovering }, { 'cursor-default': isEditForm }, { 'recipe-step-editor-card': isEditForm }, { 'recipe-step-complete': isChecked(index) }]"
+              :elevation="isEditForm ? 0 : (isHovering ? 12 : 2)"
+              :ripple="false"
+              @click="toggleDisabled(index)"
+            >
               <v-card-title class="recipe-step-title pt-3 pb-0">
-                <div class="d-flex align-center w-100">
-                  <v-text-field v-if="isEditForm" v-model="step.summary" class="recipe-step-title-input headline" hide-details density="compact"
-                    variant="solo" flat :placeholder="$t('recipe.step-index', { step: index + 1 })">
+                <div v-if="isEditForm" class="step-editor-heading">
+                  {{ $t('recipe.step-index', { step: index + 1 }) }}
+                </div>
+                <div class="d-flex align-center w-100" :class="{ 'recipe-step-editor-toolbar': isEditForm }">
+                  <v-text-field
+                    v-if="isEditForm"
+                    v-model="step.summary"
+                    class="recipe-step-title-input"
+                    hide-details
+                    density="compact"
+                    variant="filled"
+                    :label="$t('recipe.editor.step-title')"
+                    :placeholder="$t('recipe.step-index', { step: index + 1 })"
+                  >
                     <template #prepend>
                       <v-icon size="26" class="handle">
                         {{ $globals.icons.arrowUpDown }}
@@ -174,76 +226,106 @@
                       </span>
                     </template>
                   </div>
+                  <v-btn
+                    v-if="isCookMode"
+                    class="ml-auto"
+                    variant="tonal"
+                    height="44"
+                    :color="isChecked(index) ? 'success' : 'primary'"
+                    :aria-pressed="isChecked(index)"
+                    @click.stop="toggleDisabled(index)"
+                  >
+                    <v-icon start>
+                      {{ $globals.icons.check }}
+                    </v-icon>
+                    {{ $t(isChecked(index) ? 'recipe.step-completed' : 'recipe.complete-step') }}
+                  </v-btn>
                   <template v-if="isEditForm">
-                    <div class="ml-auto">
-                      <BaseButtonGroup :large="false" rounded :buttons="[
-                        {
-                          icon: previewStates[index] ? $globals.icons.edit : $globals.icons.eye,
-                          text: previewStates[index] ? $t('recipe.edit-markdown') : $t('markdown-editor.preview-markdown-button-label'),
-                          event: 'preview-step',
-                        },
-                        {
-                          icon: $globals.icons.upload,
-                          text: $t('recipe.upload-image'),
-                          event: 'upload-image',
-                        },
-                        {
-                          icon: $globals.icons.delete,
-                          text: $t('general.delete'),
-                          event: 'delete',
-                        },
-                        {
-                          icon: $globals.icons.dotsVertical,
-                          text: '',
-                          event: 'open',
-                          children: [
-                            {
-                              icon: $globals.icons.textBox,
-                              text: sectionTitleLabel(step.id),
-                              event: 'toggle-section',
-                            },
-                            {
-                              icon: $globals.icons.link,
-                              text: $t('recipe.link-references'),
-                              event: 'link-references',
-                            },
-                            {
-                              icon: $globals.icons.swapHorizontal,
-                              text: $t('recipe.merge-above'),
-                              event: 'merge-above',
-                            },
-                            {
-                              icon: $globals.icons.sortAscending,
-                              text: $t('recipe.move-to-top'),
-                              event: 'move-to-top',
-                            },
-                            {
-                              icon: $globals.icons.sortDescending,
-                              text: $t('recipe.move-to-bottom'),
-                              event: 'move-to-bottom',
-                            },
-                            {
-                              icon: $globals.icons.create,
-                              text: $t('recipe.insert-above'),
-                              event: 'insert-above',
-                            },
-                            {
-                              icon: $globals.icons.create,
-                              text: $t('recipe.insert-below'),
-                              event: 'insert-below',
-                            },
-                          ],
-                        },
-                      ]" @merge-above="mergeAbove(index - 1, index)" @move-to-top="moveTo('top', index)"
-                        @move-to-bottom="moveTo('bottom', index)" @insert-above="insert(index)"
-                        @insert-below="insert(index + 1)" @toggle-section="toggleShowTitle(step.id!)"
-                        @link-references="openReferenceDialog(index)" @preview-step="togglePreviewState(index)"
-                        @upload-image="openImageUpload(index)" @delete="instructionList.splice(index, 1)" />
+                    <div class="recipe-step-editor-actions ml-auto">
+                      <BaseButtonGroup
+                        :large="false"
+                        rounded
+                        :buttons="[
+                          {
+                            icon: previewStates[step.id!] ? $globals.icons.edit : $globals.icons.eye,
+                            text: previewStates[step.id!] ? $t('recipe.edit-markdown') : $t('markdown-editor.preview-markdown-button-label'),
+                            event: 'preview-step',
+                          },
+                          {
+                            icon: $globals.icons.upload,
+                            text: $t('recipe.upload-image'),
+                            event: 'upload-image',
+                          },
+                          {
+                            icon: $globals.icons.delete,
+                            text: $t('general.delete'),
+                            event: 'delete',
+                          },
+                          {
+                            icon: $globals.icons.dotsVertical,
+                            text: '',
+                            event: 'open',
+                            children: [
+                              ...(!showTitleEditor[step.id!] ? [{
+                                icon: $globals.icons.textBox,
+                                text: $t('recipe.editor.add-section-before'),
+                                event: 'toggle-section',
+                              }] : []),
+                              {
+                                icon: $globals.icons.link,
+                                text: $t('recipe.link-references'),
+                                event: 'link-references',
+                              },
+                              {
+                                icon: $globals.icons.swapHorizontal,
+                                text: $t('recipe.merge-above'),
+                                event: 'merge-above',
+                              },
+                              {
+                                icon: $globals.icons.arrowUp,
+                                text: $t('recipe.move-to-top'),
+                                event: 'move-to-top',
+                              },
+                              {
+                                icon: $globals.icons.arrowDown,
+                                text: $t('recipe.move-to-bottom'),
+                                event: 'move-to-bottom',
+                              },
+                              {
+                                icon: $globals.icons.arrowUp,
+                                text: $t('recipe.editor.insert-step-before'),
+                                event: 'insert-above',
+                              },
+                              {
+                                icon: $globals.icons.arrowDown,
+                                text: $t('recipe.editor.insert-step-after'),
+                                event: 'insert-below',
+                              },
+                            ],
+                          },
+                        ]"
+                        @merge-above="mergeAbove(index - 1, index)"
+                        @move-to-top="moveTo('top', index)"
+                        @move-to-bottom="moveTo('bottom', index)"
+                        @insert-above="insert(index)"
+                        @insert-below="insert(index + 1)"
+                        @toggle-section="toggleShowTitle(step.id!)"
+                        @link-references="openReferenceDialog(index)"
+                        @preview-step="togglePreviewState(step.id!)"
+                        @upload-image="openImageUpload(index)"
+                        @delete="removeStep(step)"
+                      />
                     </div>
                   </template>
                   <div v-if="!isEditForm" class="ml-auto d-flex align-center gap-1">
-                    <v-btn v-if="hasLinkedNotes(step) && !isCookMode" variant="text" icon density="comfortable"
-                      size="small" @click.stop="openLinkedNotesSheet(step)">
+                    <v-btn
+                      v-if="hasLinkedNotes(step) && !isCookMode"
+                      variant="text"
+                      icon
+                      density="comfortable"
+                      size="small"
+                      @click.stop="openLinkedNotesSheet(step)"
+                    >
                       <v-icon size="18">
                         {{ $globals.icons.noteTextOutline }}
                       </v-icon>
@@ -258,24 +340,49 @@
               <v-progress-linear v-if="isEditForm && loadingStates[index]" :active="true" :indeterminate="true" />
 
               <!-- Content -->
-              <DropZone @drop="(f) => handleImageDrop(index, f)" @drop-url="(u) => handleImageUrlDrop(index, u)"
-                @drop-unsupported="notifyUnsupportedDrop">
+              <DropZone
+                @drop="(f) => handleImageDrop(index, f)"
+                @drop-url="(u) => handleImageUrlDrop(index, u)"
+                @drop-unsupported="notifyUnsupportedDrop"
+              >
                 <v-card-text v-if="isEditForm" @click="$emit('click-instruction-field', `${index}.text`)">
-                  <MarkdownEditor v-model="instructionList[index]['text']" v-model:preview="previewStates[index]"
-                    class="mb-2" :display-preview="false" :textarea="{
+                  <h3 class="step-editor-content-heading">
+                    {{ $t('recipe.editor.instruction-text') }}
+                  </h3>
+                  <MarkdownEditor
+                    v-model="step.text"
+                    v-model:preview="previewStates[step.id!]"
+                    class="mb-2"
+                    :display-preview="false"
+                    :textarea="{
                       hint: $t('recipe.attach-images-hint'),
                       persistentHint: true,
-                    }" />
-                  <div v-if="step.ingredientReferences && step.ingredientReferences.length"
-                    class="linked-ingredients-editor">
+                    }"
+                  />
+                  <div
+                    v-if="step.ingredientReferences && step.ingredientReferences.length"
+                    class="linked-ingredients-editor"
+                  >
+                    <h3 class="step-editor-content-heading">
+                      {{ $t('recipe.editor.linked-ingredients') }}
+                    </h3>
                     <div v-for="(linkRef, i) in step.ingredientReferences" :key="linkRef.referenceId ?? i" class="mb-1">
-                      <RecipeIngredientHtml v-if="linkRef.referenceId && ingredientLookup[linkRef.referenceId]"
-                        :ingredient="ingredientLookup[linkRef.referenceId]" :scale="scale" />
+                      <RecipeIngredientHtml
+                        v-if="linkRef.referenceId && ingredientLookup[linkRef.referenceId]"
+                        :ingredient="ingredientLookup[linkRef.referenceId]"
+                        :scale="scale"
+                      />
                     </div>
                   </div>
-                  <div v-if="step.noteReferences && step.noteReferences.length" class="linked-ingredients-editor mt-1">
-                    <div v-for="(noteRef, i) in step.noteReferences" :key="noteRef.referenceId ?? i"
-                      class="mb-1 d-flex align-center text-body-2">
+                  <div v-if="step.noteReferences && step.noteReferences.length" class="linked-ingredients-editor">
+                    <h3 class="step-editor-content-heading">
+                      {{ $t('recipe.editor.linked-notes') }}
+                    </h3>
+                    <div
+                      v-for="(noteRef, i) in step.noteReferences"
+                      :key="noteRef.referenceId ?? i"
+                      class="mb-1 d-flex align-center text-body-2"
+                    >
                       <v-icon size="14" class="mr-1" style="cursor: default;">
                         {{ $globals.icons.noteTextOutline }}
                       </v-icon>
@@ -289,16 +396,23 @@
                   <v-row>
                     <v-col v-if="isCookMode && hasCookModeLinkedContent(step)" cols="12" sm="5">
                       <div v-if="hasLinkedIngredients(step)" class="ml-n4">
-                        <RecipeIngredients :value="recipe.recipeIngredient.filter((ing) => {
-                          if (!step.ingredientReferences) return false
-                          return step.ingredientReferences.map((ref) => ref.referenceId).includes(ing.referenceId || '')
-                        })" :scale="scale" :is-cook-mode="isCookMode" :storage-key="ingredientStorageKey" />
+                        <RecipeIngredients
+                          :value="recipe.recipeIngredient.filter((ing) => {
+                            if (!step.ingredientReferences) return false
+                            return step.ingredientReferences.map((ref) => ref.referenceId).includes(ing.referenceId || '')
+                          })"
+                          :scale="scale"
+                          :is-cook-mode="isCookMode"
+                          :storage-key="ingredientStorageKey"
+                        />
                       </div>
-                      <v-divider v-if="hasLinkedIngredients(step) && hasLinkedNotes(step)" class="my-3" />
+                      <v-divider v-if="hasLinkedIngredients(step) && hasLinkedNotes(step)" class="recipe-instruction-card my-3" />
                       <div v-if="hasLinkedNotes(step)">
-                        <template v-for="(note, noteIndex) in linkedNotesForStep(step)"
-                          :key="note.referenceId ?? note.title">
-                          <v-divider v-if="noteIndex > 0" class="my-3" />
+                        <template
+                          v-for="(note, noteIndex) in linkedNotesForStep(step)"
+                          :key="note.referenceId ?? note.title"
+                        >
+                          <v-divider v-if="noteIndex > 0" class="recipe-instruction-card my-3" />
                           <div class="text-title-large mb-1">
                             {{ note.title || $t('recipe.note') }}
                           </div>
@@ -306,8 +420,10 @@
                         </template>
                       </div>
                     </v-col>
-                    <v-divider v-if="isCookMode && hasCookModeLinkedContent(step) && $vuetify.display.smAndUp"
-                      vertical />
+                    <v-divider
+                      v-if="isCookMode && hasCookModeLinkedContent(step) && $vuetify.display.smAndUp"
+                      vertical
+                    />
                     <v-col>
                       <SafeMarkdown class="recipe-step-instructions markdown" :source="step.text" />
                     </v-col>
@@ -325,6 +441,7 @@
 </template>
 
 <script setup lang="ts">
+import { usePencilScratch } from "~/composables/use-pencil-scratch";
 import { VueDraggable } from "vue-draggable-plus";
 import { computed, nextTick, onMounted, ref, watch } from "vue";
 import type { RecipeStep, RecipeNote, RecipeIngredient, RecipeAsset, Recipe } from "~/lib/api/types/recipe";
@@ -413,6 +530,8 @@ onMounted(() => {
   }
 });
 
+const playPencilScratch = usePencilScratch();
+
 function toggleDisabled(stepIndex: number) {
   if (isEditForm.value) {
     return;
@@ -426,18 +545,13 @@ function toggleDisabled(stepIndex: number) {
   else {
     disabledSteps.value.push(stepIndex);
   }
+  playPencilScratch();
 }
 
 function isChecked(stepIndex: number) {
   if (disabledSteps.value.includes(stepIndex) && !isEditForm.value) {
     return "disabled-card";
   }
-}
-
-function sectionTitleLabel(id?: string) {
-  return id && showTitleEditor.value[id]
-    ? i18n.t("recipe.clear-section")
-    : i18n.t("recipe.add-section");
 }
 
 function toggleShowTitle(id?: string) {
@@ -732,12 +846,24 @@ function insert(dest: number) {
   instructionList.value.splice(dest, 0, { id: uuid4(), text: "", title: "", ingredientReferences: [], noteReferences: [] });
 }
 
-const previewStates = ref<boolean[]>([]);
+const previewStates = ref<Record<string, boolean>>({});
 
-function togglePreviewState(index: number) {
-  const temp = [...previewStates.value];
-  temp[index] = !temp[index];
-  previewStates.value = temp;
+function togglePreviewState(id: string) {
+  previewStates.value[id] = !previewStates.value[id];
+}
+
+async function removeStep(step: RecipeStep) {
+  // Let a focused mobile textarea finish its blur before its row is unmounted.
+  const focused = document.activeElement;
+  if (focused instanceof HTMLElement && focused.closest("[data-step-id]")?.getAttribute("data-step-id") === step.id) {
+    focused.blur();
+  }
+  await nextTick();
+  instructionList.value = instructionList.value.filter(item => item !== step);
+  if (step.id) {
+    previewStates.value = Object.fromEntries(Object.entries(previewStates.value).filter(([id]) => id !== step.id));
+    showTitleEditor.value = Object.fromEntries(Object.entries(showTitleEditor.value).filter(([id]) => id !== step.id));
+  }
 }
 
 function toggleCollapseSection(index: number) {
@@ -849,34 +975,164 @@ function openImageUpload(index: number) {
 </script>
 
 <style lang="css" scoped>
-.grid {
-  display: grid;
-  gap: 0.5rem;
-  height: 100%;
-  box-sizing: border-box;
-
-  >* {
-    overflow-y: auto;
-  }
+.reference-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
-
-.sticky {
-  position: sticky;
-  top: 0;
-  z-index: 2;
+.reference-step {
+  padding: 16px;
+  border-radius: 12px;
+  background: rgb(var(--v-theme-background));
+}
+.reference-eyebrow,
+.reference-help,
+.reference-count {
+  color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
+  font-size: 13px;
+  line-height: 1.5;
+}
+.reference-eyebrow {
+  font-weight: 600;
+}
+.reference-step-text {
+  margin-top: 8px;
+  font-size: 16px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+.reference-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.reference-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.reference-section-heading h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+.reference-detect {
+  max-width: 100%;
+  min-height: 44px;
+  height: auto;
+  padding-block: 10px;
+  align-self: flex-start;
+  text-transform: none;
+  letter-spacing: normal;
+  margin: 4px 0 8px;
+}
+.reference-detect :deep(.v-btn__content) {
+  white-space: normal;
+}
+.reference-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.reference-group-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 8px 12px 4px;
+}
+.reference-reused {
+  margin: 12px 0 4px;
+}
+.reference-option {
+  padding: 4px 8px;
+  min-height: 48px;
+  border-radius: 10px;
+  background: rgb(var(--v-theme-background));
+}
+.reference-option-selected {
+  background: rgba(var(--v-theme-primary), 0.08);
+}
+.reference-option :deep(.v-label) {
+  opacity: 1;
+  font-size: 15px;
+  line-height: 1.5;
+  flex: 1;
+  padding: 8px 0;
+}
+.reference-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+.reference-footer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.reference-footer-actions .v-btn {
+  text-transform: none;
+  letter-spacing: normal;
+}
+@media (max-width: 600px) {
+  .reference-body {
+    padding: 16px;
+    gap: 20px;
+  }
+  .reference-footer {
+    align-items: flex-start;
+  }
 }
 
 .v-card--link:before {
   background: none;
 }
 
-.recipe-section-title-input :deep(.v-field),
+.recipe-section-title-input :deep(.v-field) {
+  border-radius: 10px;
+  background: rgb(var(--v-theme-fill));
+}
+.recipe-section-title-input.v-text-field :deep(input),
+.recipe-step-title-input.v-text-field :deep(input) {
+  font-size: 16px;
+  font-weight: 500;
+}
 .recipe-step-title-input :deep(.v-field) {
-  border: 1px solid rgb(var(--v-theme-primary));
+  border-radius: 10px;
 }
 
-.recipe-section-title-input :deep(.v-field__input) {
-  padding-left: 8px;
+.recipe-step-editor-card {
+  container-type: inline-size;
+}
+
+.recipe-step-editor-toolbar {
+  gap: 8px;
+}
+
+.recipe-step-editor-actions {
+  flex-shrink: 0;
+}
+
+@container (max-width: 480px) {
+  .recipe-step-editor-toolbar {
+    flex-wrap: wrap;
+  }
+
+  .recipe-step-title-input {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+}
+.recipe-section-title-input :deep(.v-field),
+.recipe-step-title-input :deep(.v-field) {
+  --v-field-border-color: rgb(var(--v-theme-separator));
+  --v-field-border-opacity: 1;
+}
+.recipe-section-title-input :deep(.v-field--focused),
+.recipe-step-title-input :deep(.v-field--focused) {
+  --v-field-border-color: rgb(var(--v-theme-primary));
 }
 
 /** Select all li under .markdown class */
@@ -923,7 +1179,7 @@ function openImageUpload(index: number) {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(var(--v-theme-media-scrim), 0.5);
   z-index: 1;
 }
 
@@ -949,5 +1205,41 @@ function openImageUpload(index: number) {
   white-space: normal;
   overflow-wrap: anywhere;
   cursor: pointer;
+}
+.step-editor-heading {
+  margin-bottom: 16px;
+  font: 600 18px var(--bistro-body);
+  color: rgb(var(--v-theme-on-surface));
+}
+.recipe-step-editor-toolbar {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.recipe-step-editor-toolbar .recipe-step-title-input {
+  flex: 1 1 100%;
+  min-width: 0;
+  font-family: var(--bistro-body);
+}
+.recipe-step-title-input :deep(.v-label) {
+  font-family: var(--bistro-body);
+}
+.recipe-step-editor-toolbar .recipe-step-editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(var(--v-theme-separator), 0.5);
+}
+.step-editor-content-heading {
+  margin: 0 0 12px;
+  font: 600 14px var(--bistro-body);
+  color: rgb(var(--v-theme-on-surface));
+}
+.recipe-step-editor-card .linked-ingredients-editor {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(var(--v-theme-fill), 0.5);
+  font: 400 15px/1.5 var(--bistro-body);
 }
 </style>

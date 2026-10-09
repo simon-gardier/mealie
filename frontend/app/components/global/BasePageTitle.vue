@@ -3,13 +3,13 @@
     <section class="d-flex flex-column align-center">
       <slot name="header" />
       <v-img v-if="titleImage" :src="titleImage" :alt="titleImageAlt" class="title-image" max-width="360" />
-      <h2 :class="['text-h5', { 'sr-only': titleImage }]">
+      <h2 :class="['page-title text-h5', { 'sr-only': titleImage }]">
         <slot name="title">
           👋 Here's a Title
         </slot>
       </h2>
 
-      <h3 class="subtitle-1">
+      <h3 class="page-subtitle subtitle-1">
         <slot />
       </h3>
     </section>

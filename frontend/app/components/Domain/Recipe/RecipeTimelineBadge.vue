@@ -7,7 +7,7 @@
     <template #activator="{ props: activatorProps }">
       <v-btn
         icon
-        :variant="buttonStyle ? 'flat' : undefined"
+        :variant="buttonStyle ? 'tonal' : undefined"
         :rounded="buttonStyle ? 'circle' : undefined"
         size="small"
         :color="buttonStyle ? 'info' : 'secondary'"
@@ -17,7 +17,7 @@
       >
         <v-icon
           :size="!buttonStyle ? undefined : 'x-large'"
-          :color="buttonStyle ? 'white' : 'secondary'"
+          :color="buttonStyle ? 'primary' : 'secondary'"
         >
           {{ $globals.icons.timelineText }}
         </v-icon>
@@ -26,7 +26,8 @@
         v-model="showTimeline"
         :title="$t('recipe.timeline')"
         :icon="$globals.icons.timelineText"
-        width="70%"
+        :width="760"
+        :cancel-text="$t('general.close')"
       >
         <RecipeTimeline
           v-model="showTimeline"

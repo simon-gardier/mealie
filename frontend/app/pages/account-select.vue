@@ -36,7 +36,7 @@
             v-if="account.id !== currentUserId"
             variant="text"
             size="x-small"
-            color="white"
+            color="media-foreground"
             :disabled="busy"
             @click="forget(account.id)"
           >
@@ -47,7 +47,7 @@
 
       <v-btn
         variant="outlined"
-        color="white"
+        color="media-foreground"
         rounded
         class="rounded-xl mt-10"
         :disabled="busy"
@@ -166,7 +166,7 @@ onMounted(() => {
 .account-select-scrim {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(var(--v-theme-media-scrim), 0.55);
 }
 
 .account-select-content {
@@ -179,9 +179,9 @@ onMounted(() => {
   font-family: "Fraunces", Georgia, serif;
   font-size: 2.25rem;
   font-weight: 500;
-  color: #fff;
+  color: rgb(var(--v-theme-media-foreground));
   text-align: center;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+  text-shadow: 0 2px 12px rgba(var(--v-theme-media-scrim), 0.6);
 }
 
 .account-select-list {
@@ -206,26 +206,26 @@ onMounted(() => {
 }
 
 .account-select-avatar {
-  border: 3px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  border: 3px solid rgba(var(--v-theme-media-foreground), 0.6);
+  box-shadow: 0 8px 24px rgba(var(--v-theme-media-scrim), 0.45);
   transition: transform 200ms ease, border-color 200ms ease;
 }
 
 .account-select-button:hover .account-select-avatar,
 .account-select-button:focus-visible .account-select-avatar {
   transform: scale(1.06);
-  border-color: #fff;
+  border-color: rgb(var(--v-theme-media-foreground));
 }
 
 .account-select-name {
-  color: #fff;
+  color: rgb(var(--v-theme-media-foreground));
   font-size: 1.15rem;
   font-weight: 500;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+  text-shadow: 0 2px 8px rgba(var(--v-theme-media-scrim), 0.6);
 }
 
 .account-select-subtitle {
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(var(--v-theme-media-foreground), 0.75);
   font-size: 0.85rem;
 }
 </style>

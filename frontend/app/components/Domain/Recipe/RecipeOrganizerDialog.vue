@@ -5,7 +5,7 @@
       <v-form>
         <v-card-text>
           <v-text-field v-model="name" :label="properties.label" :rules="[rules.required]" density="default"
-            variant="outlined" autofocus />
+            variant="filled" autofocus />
           <v-checkbox v-if="itemType === Organizer.Tool" v-model="onHand" :label="$t('tool.on-hand')" />
         </v-card-text>
       </v-form>

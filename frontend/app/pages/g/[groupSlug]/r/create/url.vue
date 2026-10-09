@@ -1,51 +1,115 @@
 <template>
   <div>
     <v-form ref="domUrlForm" @submit.prevent="createByUrl(recipeUrl, importKeywordsAsTags, importCategories)">
-      <div>
-        <v-card-title class="headline">
-          {{ $t('recipe.scrape-recipe') }}
+      <div class="recipe-url-form">
+        <v-card-title class="recipe-import-heading d-flex align-center ga-2">
+          {{ $t('recipe.editor.import-url-title') }}
+          <v-menu location="bottom end" :close-on-content-click="false" max-width="480">
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon
+                variant="text"
+                size="small"
+                type="button"
+                :aria-label="$t('recipe.scrape-recipe-description')"
+              >
+                <v-icon :icon="$globals.icons.informationOutline" />
+              </v-btn>
+            </template>
+            <v-card>
+              <v-card-text class="recipe-import-help">
+                <p>{{ $t('recipe.scrape-recipe-description') }}</p>
+                <p v-if="group?.aiProviderSettings?.audioProviderEnabled">
+                  {{ $t('recipe.scrape-recipe-description-transcription') }}
+                </p>
+                <p>
+                  {{ $t('recipe.scrape-recipe-have-a-lot-of-recipes') }}
+                  <router-link :to="bulkImporterTarget" class="text-primary">{{
+                    $t('recipe.scrape-recipe-suggest-bulk-importer') }}</router-link>.
+                </p>
+                <p>
+                  {{ $t('recipe.scrape-recipe-have-raw-html-or-json-data') }}
+                  <router-link :to="htmlOrJsonImporterTarget" class="text-primary">{{
+                    $t('recipe.scrape-recipe-you-can-import-from-raw-data-directly') }}</router-link>.
+                </p>
+                <p v-if="aiEnabled">
+                  {{ $t('recipe.scrape-recipe-have-ai-read-the-page') }}
+                  <router-link :to="aiImporterTarget" class="text-primary">{{ $t('recipe.import-with-ai') }}</router-link>.
+                </p>
+                <AdvancedOnly>
+                  <p class="mt-3">
+                    <router-link to="/group/migrations" class="text-primary">
+                      {{ $t('recipe.looking-for-migrations') }}
+                    </router-link>
+                  </p>
+                </AdvancedOnly>
+              </v-card-text>
+            </v-card>
+          </v-menu>
         </v-card-title>
         <v-card-text>
-          <v-card-text class="pa-0">
-            <p>{{ $t('recipe.scrape-recipe-description') }}</p>
-            <p v-if="group?.aiProviderSettings?.audioProviderEnabled">
-              {{ $t('recipe.scrape-recipe-description-transcription') }}
-            </p>
-          </v-card-text>
-          <v-card-text class="px-0">
-            <p>
-              {{ $t('recipe.scrape-recipe-have-a-lot-of-recipes') }}
-              <router-link :to="bulkImporterTarget" class="text-primary">{{
-                $t('recipe.scrape-recipe-suggest-bulk-importer') }}</router-link>.
-            </p>
-            <p>
-              {{ $t('recipe.scrape-recipe-have-raw-html-or-json-data') }}
-              <router-link :to="htmlOrJsonImporterTarget" class="text-primary">{{
-                $t('recipe.scrape-recipe-you-can-import-from-raw-data-directly') }}</router-link>.
-            </p>
-            <p v-if="aiEnabled">
-              {{ $t('recipe.scrape-recipe-have-ai-read-the-page') }}
-              <router-link :to="aiImporterTarget" class="text-primary">{{ $t('recipe.import-with-ai') }}</router-link>.
-            </p>
-          </v-card-text>
-          <v-text-field v-model="recipeUrl" class="my-3" :label="$t('new-recipe.recipe-url')"
-            :prepend-inner-icon="$globals.icons.link" validate-on="blur" density="compact" autofocus variant="outlined"
-            clearable :rules="[validators.url]" :hint="$t('new-recipe.url-form-hint')" persistent-hint
-            style="--v-input-control-height: 60px" />
+          <v-text-field
+            v-model="recipeUrl"
+            class="mt-4 mb-2"
+            :label="$t('new-recipe.recipe-url')"
+            :prepend-inner-icon="$globals.icons.link"
+            validate-on="blur lazy"
+            density="compact"
+            variant="filled"
+            clearable
+            :rules="[validators.url]"
+            :hint="$t('new-recipe.url-form-hint')"
+            persistent-hint
+            style="--v-input-control-height: 60px"
+          />
         </v-card-text>
-        <v-checkbox v-model="importKeywordsAsTags" color="primary" hide-details
-          :label="$t('recipe.import-original-keywords-as-tags')" />
-        <v-checkbox v-model="importCategories" color="primary" hide-details
-          :label="$t('recipe.import-original-categories')" />
-        <v-checkbox v-model="stayInEditMode" color="primary" hide-details :label="$t('recipe.stay-in-edit-mode')" />
-        <v-checkbox v-model="parseRecipe" color="primary" hide-details
-          :label="$t('recipe.parse-recipe-ingredients-after-import')" />
+        <div class="px-4 pb-2">
+          <v-menu location="bottom start" :close-on-content-click="false" max-width="480">
+            <template #activator="{ props }">
+              <v-btn v-bind="props" variant="text" type="button" :append-icon="$globals.icons.chevronDown">
+                {{ $t('recipe.editor.import-options') }}
+              </v-btn>
+            </template>
+            <v-card>
+              <v-card-text>
+                <v-checkbox
+                  v-model="importKeywordsAsTags"
+                  color="primary"
+                  hide-details
+                  :label="$t('recipe.import-original-keywords-as-tags')"
+                />
+                <v-checkbox
+                  v-model="importCategories"
+                  color="primary"
+                  hide-details
+                  :label="$t('recipe.import-original-categories')"
+                />
+                <v-checkbox v-model="stayInEditMode" color="primary" hide-details :label="$t('recipe.stay-in-edit-mode')" />
+                <v-checkbox
+                  v-model="parseRecipe"
+                  color="primary"
+                  hide-details
+                  :label="$t('recipe.parse-recipe-ingredients-after-import')"
+                />
+              </v-card-text>
+            </v-card>
+          </v-menu>
+        </div>
         <v-card-actions class="justify-center">
           <div style="width: 100%" class="text-center">
             <div style="width: 250px; margin: 0 auto">
-              <BaseButton :disabled="recipeUrl === null" rounded block type="submit" :loading="state.loading" />
+              <BaseButton
+                :disabled="!recipeUrl?.trim() || state.loading"
+                :text="$t('recipe.editor.import-recipe')"
+                :icon="$globals.icons.link"
+                variant="tonal"
+                block
+                type="submit"
+                :loading="state.loading"
+              />
             </div>
-            <v-card-text class="py-2">
+            <v-card-text v-if="createStatus" class="py-2" role="status" aria-live="polite">
               <!-- render &nbsp; to maintain layout -->
               {{ createStatus }}&nbsp;
             </v-card-text>
@@ -56,7 +120,7 @@
     <v-expand-transition>
       <v-alert v-if="state.error" color="error" class="mt-6 white--text">
         <v-card-title class="ma-0 pa-0">
-          <v-icon start color="white" size="x-large">
+          <v-icon start color="media-foreground" size="x-large">
             {{ $globals.icons.robot }}
           </v-icon>
           {{ $t("new-recipe.error-title") }}
@@ -67,7 +131,7 @@
           <p>
             {{ $t("recipe.scrape-recipe-website-being-blocked") }}
             <router-link :to="htmlOrJsonImporterTarget">{{ $t("recipe.scrape-recipe-try-importing-raw-html-instead")
-              }}</router-link>
+            }}</router-link>
           </p>
           <p v-if="aiEnabled">
             {{ $t("recipe.scrape-recipe-have-ai-read-the-page") }}
@@ -79,12 +143,20 @@
           </p>
         </div>
         <div class="d-flex row justify-space-around my-3 force-url-white">
-          <a class="dark text-primary" href="https://developers.google.com/search/docs/data-types/recipe"
-            target="_blank" rel="noreferrer nofollow">
+          <a
+            class="dark text-primary"
+            href="https://developers.google.com/search/docs/data-types/recipe"
+            target="_blank"
+            rel="noreferrer nofollow"
+          >
             {{ $t("new-recipe.google-ld-json-info") }}
           </a>
-          <a class="text-primary" href="https://github.com/mealie-recipes/mealie/issues" target="_blank"
-            rel="noreferrer nofollow">
+          <a
+            class="text-primary"
+            href="https://github.com/mealie-recipes/mealie/issues"
+            target="_blank"
+            rel="noreferrer nofollow"
+          >
             {{ $t("new-recipe.github-issues") }}
           </a>
           <a class="text-primary" href="https://schema.org/Recipe" target="_blank" rel="noreferrer nofollow">
@@ -97,6 +169,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRecipeImportUrl } from "~/composables/use-recipe-import-url";
 import type { AxiosResponse } from "axios";
 import { useUserApi } from "~/composables/api";
 import { useGroupSelf } from "~/composables/use-groups";
@@ -119,7 +192,6 @@ const route = useRoute();
 const groupSlug = computed(() => route.params.groupSlug as string || auth.user.value?.groupSlug || "");
 const { group } = useGroupSelf();
 
-const router = useRouter();
 const tags = useTagStore();
 
 const {
@@ -148,35 +220,7 @@ function handleResponse(response: AxiosResponse<string> | null, refreshTags = fa
   navigateToRecipe(response.data, groupSlug.value, `/g/${groupSlug.value}/r/create/url`);
 }
 
-const recipeUrl = computed({
-  set(recipe_import_url: string | null) {
-    if (recipe_import_url !== null) {
-      recipe_import_url = recipe_import_url.trim();
-      router.replace({ query: { ...route.query, recipe_import_url } });
-    }
-  },
-  get() {
-    // Prefer the 'url' share field (recipe_import_url, populated by Chrome when
-    // sharing a page URL). Fall back to the 'text' share field (recipe_import_text)
-    // for apps that share URLs as plain text, but only when the text value is
-    // actually a valid http/https URL — shared text can be arbitrary.
-    const urlFromField = route.query.recipe_import_url as string | null;
-    if (urlFromField) {
-      return urlFromField;
-    }
-    const textFromField = route.query.recipe_import_text as string | null;
-    if (textFromField) {
-      try {
-        const parsed = new URL(textFromField);
-        if (parsed.protocol === "http:" || parsed.protocol === "https:") {
-          return textFromField;
-        }
-      }
-      catch { /* not a URL, ignore */ }
-    }
-    return null;
-  },
-});
+const recipeUrl = useRecipeImportUrl();
 
 onMounted(() => {
   if (recipeUrl.value) {
@@ -206,23 +250,14 @@ onMounted(() => {
 
 const domUrlForm = ref<VForm | null>(null);
 
-// Remove import URL from query params when leaving the page
-const isLeaving = ref(false);
-onBeforeRouteLeave((to) => {
-  if (isLeaving.value) {
-    return;
-  }
-  isLeaving.value = true;
-  router.replace({ query: undefined }).then(() => router.push(to));
-});
-
 const createStatus = ref<string | null>(null);
 async function createByUrl(url: string | null, importKeywordsAsTags: boolean, importCategories: boolean) {
   if (url === null) {
     return;
   }
 
-  if (!domUrlForm.value?.validate() || url === "") {
+  const validation = await domUrlForm.value?.validate();
+  if (!validation?.valid || !url.trim() || state.loading) {
     console.log("Invalid URL", url);
     return;
   }
@@ -239,7 +274,38 @@ async function createByUrl(url: string | null, importKeywordsAsTags: boolean, im
 </script>
 
 <style scoped>
+.recipe-import-help p + p {
+  margin-top: 12px;
+}
+
 .force-url-white a {
-  color: white !important;
+  color: rgb(var(--v-theme-media-foreground)) !important;
+}
+.recipe-url-form {
+  padding: 20px;
+  border: 1px solid rgba(var(--v-theme-separator), 0.5);
+  border-radius: 14px;
+  background: rgb(var(--v-theme-surface));
+}
+.recipe-import-heading {
+  padding: 0;
+  font: 600 18px var(--bistro-body);
+  white-space: normal;
+}
+.recipe-url-form > .v-card-text {
+  padding: 0;
+}
+.recipe-url-form > .v-card-actions {
+  padding: 16px 0 0;
+}
+.recipe-url-form :deep(.v-btn) {
+  min-height: 44px;
+  border-radius: 10px;
+  text-transform: none;
+}
+@media (max-width: 599px) {
+  .recipe-url-form {
+    padding: 16px;
+  }
 }
 </style>

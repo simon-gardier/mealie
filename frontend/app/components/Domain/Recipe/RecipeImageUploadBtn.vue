@@ -1,57 +1,153 @@
 <template>
   <div class="text-center">
-    <BaseDialog v-model="dialogDeleteImage" bottom-sheet :title="$t('recipe.delete-image')"
-      :icon="$globals.icons.alertCircle" color="error" can-delete @delete="deleteImage">
+    <BaseDialog
+      v-model="dialogDeleteImage"
+      bottom-sheet
+      :title="$t('recipe.delete-image')"
+      :icon="$globals.icons.alertCircle"
+      color="error"
+      can-delete
+      @delete="deleteImage"
+    >
       <v-card-text>
         {{ $t("recipe.delete-image-confirmation") }}
       </v-card-text>
     </BaseDialog>
-    <v-menu v-model="menu" offset-y top nudge-top="6" :close-on-content-click="false">
+    <BaseDialog
+      v-model="dialogReframeImage"
+      :title="$t('recipe.edit-image')"
+      width="800"
+      :loading="loading"
+      :keep-open="loading"
+    >
+      <ImageCropper
+        v-if="dialogReframeImage && editorImageUrl"
+        ref="reframeCropper"
+        :img="editorImageUrl"
+        cropper-width="100%"
+        :submitted="loading"
+        hide-delete
+        hide-actions
+        @save="saveReframedImage"
+        @error="alert.error(i18n.t('recipe.image-preview-failed'))"
+        @cancel="dialogReframeImage = false"
+      />
+      <template #card-actions>
+        <v-btn variant="text" color="secondary" :disabled="loading" @click="dialogReframeImage = false">
+          {{ $t("general.cancel") }}
+        </v-btn>
+        <v-spacer />
+        <v-btn
+          color="primary"
+          variant="tonal"
+          :prepend-icon="$globals.icons.save"
+          :disabled="loading || !reframeCropper?.ready || (!stagedImageUrl && !reframeCropper?.canSave)"
+          :loading="loading"
+          @click="reframeCropper?.save()"
+        >
+          {{ $t("general.save") }}
+        </v-btn>
+      </template>
+    </BaseDialog>
+    <v-menu v-model="menu" content-class="recipe-editor-overlay" location="bottom end" :close-on-content-click="false">
       <template #activator="{ props: activatorProps }">
-        <v-btn color="accent" dark class="editor-action rounded-circle" size="small" variant="elevated" icon
-          v-bind="activatorProps">
+        <v-btn
+          color="primary"
+          class="editor-action rounded-circle"
+          size="small"
+          variant="tonal"
+          icon
+          v-bind="activatorProps"
+          :aria-label="$t('recipe.recipe-image')"
+        >
           <v-icon>{{ $globals.icons.fileImage }}</v-icon>
         </v-btn>
       </template>
-      <v-card width="400">
-        <v-card-title class="headline flex-wrap mb-0">
-          <div>
-            {{ $t("recipe.recipe-image") }}
-          </div>
-          <div class="d-flex gap-2">
-            <AppButtonUpload url="none" file-name="image" :text-btn="false" :post="false" @uploaded="uploadImage" />
-            <BaseButton class="ml-2" delete @click="dialogDeleteImage = true" />
-          </div>
+      <v-card class="recipe-image-menu rounded-xl" width="380">
+        <v-card-title class="px-5 pt-5">
+          {{ $t("recipe.recipe-image") }}
         </v-card-title>
-        <v-card-text class="mt-n5">
-          <div>
-            <v-text-field v-model="url" :label="$t('general.url')" class="pt-5" clearable :messages="messages">
-              <template #append>
-                <v-btn class="ml-2" color="primary" :loading="loading" :disabled="!slug" @click="getImageFromURL">
-                  {{ $t("general.get") }}
-                </v-btn>
-              </template>
-            </v-text-field>
-          </div>
+        <v-card-text class="px-5 pb-4">
+          <p class="text-body-2 mb-4">
+            {{ $t("recipe.image-preview-before-save") }}
+          </p>
+          <input ref="fileInput" type="file" accept="image/*" class="d-none" @change="selectImage">
+          <v-btn
+            block
+            color="primary"
+            variant="tonal"
+            :prepend-icon="$globals.icons.upload"
+            :disabled="!slug || loading"
+            @click="fileInput?.click()"
+          >
+            {{ $t("recipe.import-image") }}
+          </v-btn>
+          <v-btn
+            block
+            class="mt-3"
+            color="primary"
+            variant="outlined"
+            :prepend-icon="$globals.icons.edit"
+            :disabled="!slug || !currentImageUrl || loading"
+            @click="openReframeImage"
+          >
+            {{ $t("recipe.reframe-image") }}
+          </v-btn>
+          <v-divider class="my-4" />
+          <v-text-field
+            v-model="url"
+            :label="$t('recipe.image-url')"
+            type="url"
+            variant="filled"
+            density="compact"
+            hide-details
+            :disabled="loading || !slug"
+            @keydown.enter.prevent="getImageFromURL"
+          />
+          <v-btn
+            block
+            class="mt-2"
+            color="primary"
+            variant="tonal"
+            :loading="loading"
+            :disabled="!slug || !validImageUrl || loading"
+            @click="getImageFromURL"
+          >
+            {{ $t("recipe.preview-image") }}
+          </v-btn>
+          <p v-if="!slug" class="text-body-2 mt-3">
+            {{ $t("recipe.save-recipe-before-use") }}
+          </p>
         </v-card-text>
+        <v-divider />
+        <v-card-actions class="px-4 py-2">
+          <v-btn
+            color="error"
+            variant="text"
+            :prepend-icon="$globals.icons.delete"
+            :disabled="!slug || !currentImageUrl || loading"
+            @click="openDeleteImage"
+          >
+            {{ $t("recipe.delete-image") }}
+          </v-btn>
+        </v-card-actions>
       </v-card>
     </v-menu>
   </div>
 </template>
 
 <script setup lang="ts">
-import { alertUnreportedError } from "~/composables/use-toast";
+import { alertUnreportedError, alert } from "~/composables/use-toast";
 import { useUserApi } from "~/composables/api";
 
-const UPLOAD_EVENT = "upload";
 const DELETE_EVENT = "delete";
 const REFRESH_EVENT = "refresh";
 
-const props = defineProps<{ slug: string }>();
+const props = defineProps<{ slug: string; currentImageUrl?: string }>();
 
 const emit = defineEmits<{
   refresh: [image: string];
-  upload: [fileObject: File];
+
   delete: [];
 }>();
 
@@ -62,10 +158,74 @@ const url = ref("");
 const loading = ref(false);
 const menu = ref(false);
 const dialogDeleteImage = ref(false);
+const dialogReframeImage = ref(false);
+const reframeCropper = ref<{ save: () => void; canSave: boolean; ready: boolean } | null>(null);
 
-function uploadImage(fileObject: File) {
-  emit(UPLOAD_EVENT, fileObject);
+const fileInput = ref<HTMLInputElement | null>(null);
+const stagedImageUrl = ref("");
+const editorImageUrl = computed(() => stagedImageUrl.value || props.currentImageUrl);
+const validImageUrl = computed(() => {
+  try {
+    return ["http:", "https:"].includes(new URL(url.value.trim()).protocol);
+  }
+  catch {
+    return false;
+  }
+});
+function clearStagedImage() {
+  if (stagedImageUrl.value) URL.revokeObjectURL(stagedImageUrl.value);
+  stagedImageUrl.value = "";
+}
+watch(dialogReframeImage, (open) => {
+  if (!open) clearStagedImage();
+});
+onBeforeUnmount(clearStagedImage);
+function previewImage(blob: Blob) {
+  clearStagedImage();
+  stagedImageUrl.value = URL.createObjectURL(blob);
   menu.value = false;
+  dialogReframeImage.value = true;
+}
+function selectImage(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  input.value = "";
+  if (!file || loading.value || !props.slug) return;
+  if (file.type && !file.type.startsWith("image/")) {
+    alert.error(i18n.t("recipe.image-preview-failed"));
+    return;
+  }
+  previewImage(file);
+}
+function openDeleteImage() {
+  menu.value = false;
+  dialogDeleteImage.value = true;
+}
+function openReframeImage() {
+  clearStagedImage();
+  menu.value = false;
+  dialogReframeImage.value = true;
+}
+
+async function saveReframedImage(blob: Blob) {
+  if (loading.value || !props.slug) return;
+  loading.value = true;
+  try {
+    const image = new File([blob], "reframed-recipe.png", { type: blob.type || "image/png" });
+    const { data, error } = await api.recipes.updateImage(props.slug, image);
+    if (error || !data?.image) {
+      alertUnreportedError(error, i18n.t("events.something-went-wrong"));
+      return;
+    }
+    emit(REFRESH_EVENT, data.image);
+    dialogReframeImage.value = false;
+  }
+  catch {
+    alertUnreportedError(null, i18n.t("events.something-went-wrong"));
+  }
+  finally {
+    loading.value = false;
+  }
 }
 
 async function deleteImage() {
@@ -83,24 +243,26 @@ async function deleteImage() {
 }
 
 async function getImageFromURL() {
+  if (loading.value || !props.slug || !validImageUrl.value) return;
   loading.value = true;
-  const { data, error } = await api.recipes.updateImagebyURL(props.slug, url.value);
-  loading.value = false;
-
-  if (error) {
-    alertUnreportedError(error, i18n.t("events.something-went-wrong"));
-    return;
+  try {
+    const response = await fetch(url.value.trim(), { credentials: "omit" });
+    if (!response.ok) throw new Error("Image download failed");
+    const blob = await response.blob();
+    if (!blob.type.startsWith("image/")) throw new Error("URL did not return an image");
+    previewImage(blob);
   }
-
-  if (data?.image) {
-    emit(REFRESH_EVENT, data.image);
+  catch {
+    alert.error(i18n.t("recipe.image-preview-failed"));
   }
-  menu.value = false;
+  finally {
+    loading.value = false;
+  }
 }
-
-const messages = computed(() =>
-  props.slug ? [""] : [i18n.t("recipe.save-recipe-before-use")],
-);
 </script>
 
-<style lang="scss" scoped></style>
+<style scoped>
+.recipe-image-menu {
+  max-width: calc(100vw - 24px);
+}
+</style>

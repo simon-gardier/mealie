@@ -1,84 +1,39 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
   <div :class="dense ? 'wrapper' : 'wrapper pa-3'">
-    <section>
-      <v-container class="ma-0 pa-0">
-        <v-row>
-          <v-col
-            v-if="recipe.image && preferences.imagePosition && preferences.imagePosition != ImagePosition.hidden"
-            :order="preferences.imagePosition == ImagePosition.left ? -1 : 1"
-            cols="4"
-            align-self="center"
-          >
-            <img
-              :key="imageKey"
-              :src="recipeImageUrl"
-              style="min-height: 50; max-width: 100%;"
-            >
-          </v-col>
-          <v-col order="0">
-            <v-card-title class="headline pl-0">
-              <v-icon
-                start
-                color="primary"
-              >
-                {{ $globals.icons.primary }}
-              </v-icon>
-              {{ recipe.name }}
-            </v-card-title>
-            <div
-              v-if="recipeYield"
-              class="d-flex justify-space-between align-center pb-6"
-            >
-              <div>
-                <v-icon start>
-                  {{ $globals.icons.potSteam }}
-                </v-icon>
-                <!-- eslint-disable-next-line vue/no-v-html -->
-                <span v-html="recipeYield" />
-              </div>
-            </div>
-            <v-row class="d-flex justify-start">
-              <RecipeTimeCard
-                :prep-time="recipe.prepTime"
-                :total-time="recipe.totalTime"
-                :perform-time="recipe.performTime"
-                small
-                color="white"
-                class="ml-4"
-              />
-            </v-row>
-
-            <v-card-text
-              v-if="preferences.showDescription"
-              class="px-0"
-            >
-              <SafeMarkdown :source="recipe.description" />
-            </v-card-text>
-          </v-col>
-        </v-row>
-      </v-container>
-    </section>
+    <header class="print-header" :class="{ 'print-header-with-image': showImage, 'print-image-right': preferences.imagePosition === ImagePosition.right }">
+      <img v-if="showImage" :key="imageKey" :src="recipeImageUrl" :alt="recipe.name" class="print-image">
+      <div class="print-overview">
+        <h1>{{ recipe.name }}</h1>
+        <p v-if="recipeYield" class="print-yield" v-html="recipeYield" />
+        <dl v-if="printTimes.length" class="print-times">
+          <div v-for="time in printTimes" :key="time.label">
+            <dt>{{ time.label }}</dt>
+            <dd>{{ time.value }}</dd>
+          </div>
+        </dl>
+        <SafeMarkdown v-if="preferences.showDescription && recipe.description" :source="recipe.description" class="print-description" />
+      </div>
+    </header>
 
     <!-- Ingredients -->
     <section>
-      <v-card-title class="headline pl-0">
-        {{ $t("recipe.ingredients") }}
-      </v-card-title>
+      <h2>
+        {{ i18n.t("recipe.ingredients") }}
+      </h2>
       <div
         v-for="(ingredientSection, sectionIndex) in ingredientSections"
         :key="`ingredient-section-${sectionIndex}`"
         class="print-section"
       >
         <h4
-          v-if="ingredientSection.ingredients[0].title"
+          v-if="ingredientSection.sectionName"
           class="ingredient-title mt-2"
         >
-          {{ ingredientSection.ingredients[0].title }}
+          {{ ingredientSection.sectionName }}
         </h4>
         <div
           class="ingredient-grid"
-          :style="{ gridTemplateRows: `repeat(${Math.ceil(ingredientSection.ingredients.length / 2)}, min-content)` }"
         >
           <div
             v-for="(ingredient, ingredientIndex) in ingredientSection.ingredients"
@@ -94,7 +49,7 @@
             <SafeMarkdown
               v-if="preferences.showSubstitutions && substitutionSummary(ingredient)"
               class="substitution-body"
-              :source="$t('recipe.substitutions-with-value', { substitutions: substitutionSummary(ingredient) })"
+              :source="i18n.t('recipe.substitutions-with-value', { substitutions: substitutionSummary(ingredient) })"
             />
           </div>
         </div>
@@ -106,14 +61,11 @@
       <div
         v-for="(instructionSection, sectionIndex) in instructionSections"
         :key="`instruction-section-${sectionIndex}`"
-        :class="{ 'print-section': instructionSection.sectionName }"
+        class="instruction-section"
       >
-        <v-card-title
-          v-if="!sectionIndex"
-          class="headline pl-0"
-        >
-          {{ $t("recipe.instructions") }}
-        </v-card-title>
+        <h2 v-if="!sectionIndex">
+          {{ i18n.t("recipe.instructions") }}
+        </h2>
         <div
           v-for="(step, stepIndex) in instructionSection.instructions"
           :key="`instruction-${stepIndex}`"
@@ -127,7 +79,7 @@
               {{ step.title }}
             </h4>
             <h5>
-              {{ step.summary ? step.summary : $t("recipe.step-index", {
+              {{ step.summary ? step.summary : i18n.t("recipe.step-index", {
                 step: stepIndex
                   + instructionSection.stepOffset
                   + 1,
@@ -145,11 +97,10 @@
               <h6
                 class="ingredient-title mt-2 mb-0"
               >
-                {{ $t("recipe.ingredients") }}
+                {{ i18n.t("recipe.ingredients") }}
               </h6>
               <div
                 class="step-ingredient-grid"
-                :style="{ gridTemplateRows: `repeat(${Math.ceil(step.ingredientReferences.length / 2)}, min-content)` }"
               >
                 <template
                   v-for="(ingredient, ingredientIndex) in stepLinkedIngredients.get(`${sectionIndex}-${stepIndex}`) ?? []"
@@ -169,11 +120,8 @@
     </section>
 
     <!-- Notes -->
-    <div v-if="preferences.showNotes">
-      <v-divider
-        v-if="hasNotes"
-        class="grey my-4"
-      />
+    <div v-if="preferences.showNotes && hasNotes">
+      <h2>{{ i18n.t("recipe.notes") }}</h2>
 
       <section>
         <div
@@ -192,17 +140,17 @@
     </div>
 
     <!-- Nutrition -->
-    <div v-if="preferences.showNutrition">
-      <v-card-title class="headline pl-0">
-        {{ $t("recipe.nutrition") }}
-      </v-card-title>
+    <div v-if="preferences.showNutrition && hasNutrition">
+      <h2>
+        {{ i18n.t("recipe.nutrition") }}
+      </h2>
 
       <section>
         <div class="print-section">
           <table class="nutrition-table">
             <tbody>
               <tr
-                v-for="(value, key) in recipe.nutrition"
+                v-for="(value, key) in populatedNutrition"
                 :key="key"
               >
                 <template v-if="value">
@@ -220,7 +168,6 @@
 
 <script setup lang="ts">
 import DOMPurify from "dompurify";
-import RecipeTimeCard from "~/components/Domain/Recipe/RecipeTimeCard.vue";
 import { useStaticRoutes } from "~/composables/api";
 import type { Recipe, RecipeIngredient, RecipeStep } from "~/lib/api/types/recipe";
 import type { NoUndefinedField } from "~/lib/api/types/non-generated";
@@ -323,7 +270,6 @@ const ingredientSections = computed<IngredientSection[]>(() => {
             sec = { sectionName, ingredients: [] };
             sections.push(sec);
           }
-          ingredient.title = sectionName;
           sec.ingredients.push(ingredient);
         }
         else {
@@ -391,6 +337,15 @@ const instructionSections = computed<InstructionSection[]>(() => {
   }, [] as InstructionSection[]);
 });
 
+const showImage = computed(() => !!props.recipe.image && !!preferences.value.imagePosition && preferences.value.imagePosition !== ImagePosition.hidden);
+const printTimes = computed(() => [
+  { label: i18n.t("recipe.total-time"), value: props.recipe.totalTime },
+  { label: i18n.t("recipe.prep-time"), value: props.recipe.prepTime },
+  { label: i18n.t("recipe.perform-time"), value: props.recipe.performTime },
+].filter(time => time.value));
+const populatedNutrition = computed(() => Object.fromEntries(Object.entries(props.recipe.nutrition || {}).filter(([, value]) => !!value)) as Partial<typeof props.recipe.nutrition>);
+const hasNutrition = computed(() => Object.keys(populatedNutrition.value).length > 0);
+
 const hasNotes = computed(() => {
   return props.recipe.notes && props.recipe.notes.length > 0;
 });
@@ -419,6 +374,9 @@ const stepLinkedIngredients = computed(() => {
 const { parseIngredientText } = useIngredientTextParser();
 
 function parseText(ingredient: RecipeIngredient) {
+  if (!ingredient.food && !ingredient.referencedRecipe && (ingredient.originalText || ingredient.note)) {
+    return DOMPurify.sanitize(ingredient.originalText || ingredient.note || "");
+  }
   return parseIngredientText(ingredient, props.scale);
 }
 
@@ -431,113 +389,162 @@ function substitutionSummary(ingredient: RecipeIngredient) {
 </script>
 
 <style scoped>
-/* Makes all text solid black */
 .wrapper {
-  background-color: white;
+  background: rgb(var(--v-theme-print-background));
+  color: rgb(var(--v-theme-print-foreground));
+  font-family: "Inter", Arial, sans-serif;
+  font-size: 10.5pt;
+  line-height: 1.45;
+  padding: 0;
 }
-
-.wrapper,
 .wrapper :deep(*) {
-  opacity: 1 !important;
-  color: black !important;
+  color: inherit;
+  opacity: 1;
 }
-
-/* Prevents sections from being broken up between pages */
-.print-section {
-  page-break-inside: avoid;
-}
-
-p {
-  padding-bottom: 0 !important;
-  margin-bottom: 0 !important;
-}
-
-.v-card__text {
-  padding-bottom: 0;
-  margin-bottom: 0;
-}
-
-.ingredient-grid {
+.print-header {
   display: grid;
-  grid-auto-flow: column;
-  grid-template-columns: 1fr 1fr;
-  grid-gap: 0.5rem;
+  gap: 6mm;
+  margin-bottom: 4mm;
 }
-
+.print-header-with-image {
+  grid-template-columns: 42mm minmax(0, 1fr);
+}
+.print-image {
+  width: 42mm;
+  height: 42mm;
+  object-fit: cover;
+  border-radius: 3mm;
+}
+.print-image-right {
+  grid-template-columns: minmax(0, 1fr) 42mm;
+}
+.print-image-right .print-image {
+  order: 1;
+}
+.print-overview {
+  min-width: 0;
+}
+h1 {
+  font-size: 18pt;
+  font-weight: 600;
+  line-height: 1.2;
+  margin: 0 0 3mm;
+  overflow-wrap: anywhere;
+}
+h2 {
+  font-size: 13pt;
+  font-weight: 600;
+  margin: 4mm 0 2mm;
+  break-after: avoid;
+}
+h4 {
+  font-size: 11pt;
+  font-weight: 600;
+  margin: 3mm 0 2mm;
+  break-after: avoid;
+}
+h5 {
+  font-size: 11pt;
+  font-weight: 600;
+  margin: 0 0 2mm;
+  break-after: avoid;
+}
+h6 {
+  font-size: 10pt;
+  font-weight: 600;
+  margin: 2mm 0 1mm;
+  break-after: avoid;
+}
+.print-yield {
+  margin: 0 0 3mm;
+}
+.print-times {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 3mm;
+  margin: 0 0 3mm;
+  font-size: 9pt;
+}
+.print-times dt {
+  font-weight: 600;
+}
+.print-times dd {
+  margin: 0;
+}
+.print-description {
+  font-size: 10pt;
+}
+.print-section {
+  break-inside: avoid;
+  margin-bottom: 2mm;
+}
+.ingredient-grid,
 .step-ingredient-grid {
   display: grid;
-  grid-auto-flow: column;
-  grid-template-columns: 1fr 1fr;
-  grid-gap: 0.2rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2mm 6mm;
 }
-
-.ingredient-title,
-.instruction-title {
-  grid-column: 1 / span 2;
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
-
-.ingredient-body,
-.recipe-step-body,
-.note-body {
-  font-size: 14px;
-}
-
 .ingredient-cell {
   break-inside: avoid;
 }
-
-.substitution-body {
-  font-size: 12px;
-  line-height: 1.3;
-  opacity: 0.7;
-}
-
-.substitution-body :deep(p) {
+.ingredient-body {
   margin: 0;
+  font-size: 10pt;
+  overflow-wrap: anywhere;
 }
-
-ul {
-  padding-left: 1rem;
+.recipe-step-body,
+.note-body {
+  font-size: 10.5pt;
 }
-
-li {
-  list-style-type: none;
-  margin-bottom: 0.25rem;
+.wrapper :deep(p) {
+  margin: 0 0 2mm;
 }
-
+.wrapper :deep(p:last-child) {
+  margin-bottom: 0;
+}
+.wrapper :deep(ul),
+.wrapper :deep(ol) {
+  padding-left: 5mm;
+  margin: 2mm 0;
+}
+.wrapper :deep(li) {
+  margin-bottom: 1mm;
+}
+.wrapper :deep(img) {
+  max-width: 100%;
+}
+.substitution-body {
+  font-size: 9pt;
+  line-height: 1.4;
+  margin-top: 1mm;
+}
 .nutrition-table {
-  max-width: 80%;
+  width: 100%;
   border-collapse: collapse;
+  font-size: 10pt;
 }
-
-.nutrition-table th,
+.nutrition-table tr {
+  break-inside: avoid;
+}
 .nutrition-table td {
-  padding: 6px 10px;
-  text-align: left;
-  vertical-align: top;
-  font-size: 14px;
+  padding: 1mm 0;
+  border-bottom: 1px solid rgb(var(--v-theme-separator));
 }
-
-.nutrition-table th {
-  font-weight: bold;
-  padding-bottom: 10px;
-}
-
 .nutrition-table td:first-child {
-  width: 70%;
-  font-weight: bold;
+  font-weight: 500;
 }
-
 .nutrition-table td:last-child {
-  width: 30%;
   text-align: right;
 }
-
-.nutrition-table td {
-  padding: 2px;
-  text-align: left;
-  font-size: 14px;
+@media print {
+  .wrapper {
+    padding: 0 !important;
+  }
+  .print-header {
+    break-inside: avoid;
+  }
+  .wrapper :deep(*) {
+    font-family: "Inter", Arial, sans-serif !important;
+  }
 }
 </style>

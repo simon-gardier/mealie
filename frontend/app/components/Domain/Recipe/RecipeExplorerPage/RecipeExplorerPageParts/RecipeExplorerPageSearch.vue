@@ -2,7 +2,7 @@
   <div class="search-container">
     <form class="search-box bistro-discovery-panel pa-2" @submit.prevent="search">
       <div class="d-flex justify-center align-center ga-2 mb-2">
-        <v-text-field ref="input" v-model="state.search" variant="outlined" hide-details clearable color="primary"
+        <v-text-field ref="input" v-model="state.search" variant="filled" hide-details clearable color="primary"
           class="flex-grow-1" :placeholder="$t('search.search-placeholder')" :prepend-inner-icon="$globals.icons.search"
           @click:clear="refreshResults" @keyup.enter="hideKeyboard" />
         <!-- <v-switch v-model="state.auto" :label="$t('search.auto-search')" inset color="primary" hide-details
@@ -14,9 +14,9 @@
           <!-- Sort Options -->
           <v-menu offset-y nudge-bottom="3">
             <template #activator="{ props }">
-              <v-btn size="small" color="accent" v-bind="props">
+              <v-btn size="small" color="accent" v-bind="props" :aria-label="sortText">
                 <v-icon :start="!$vuetify.display.xs">
-                  {{ state.orderDirection === "asc" ? $globals.icons.sortDescending : $globals.icons.sortAscending }}
+                  {{ state.orderDirection === "asc" ? $globals.icons.sortAscending : $globals.icons.sortDescending }}
                 </v-icon>
                 {{ $vuetify.display.xs ? null : sortText }}
               </v-btn>
@@ -109,11 +109,8 @@ onUnmounted(() => {
   clearRecipeExplorerSearchState(groupSlug.value);
 });
 
-const sortText = computed(() => {
-  const sort = sortable.value.find(s => s.value === state.value.orderBy);
-  if (!sort) return "";
-  return `${sort.name}`;
-});
+const selectedSort = computed(() => sortable.value.find(s => s.value === state.value.orderBy));
+const sortText = computed(() => selectedSort.value?.name || "");
 
 const sortable = computed(() => [
   {
@@ -193,10 +190,13 @@ async function setRandomOrderByWrapper() {
 .search-container {
   display: flex;
   justify-content: center;
+  padding-inline: 16px;
 }
 
 .search-box {
-  width: 950px;
+  width: 100%;
+  max-width: 950px;
+  min-width: 0;
 }
 
 .search-button-container {

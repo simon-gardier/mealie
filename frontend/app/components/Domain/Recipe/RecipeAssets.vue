@@ -47,7 +47,7 @@
             {{ item.name }}
           </v-list-item-title>
           <template #append>
-            <v-menu v-if="edit" location="bottom end">
+            <v-menu v-if="edit" content-class="recipe-editor-overlay" location="bottom end">
               <template #activator="{ props: menuProps }">
                 <v-btn
                   v-bind="menuProps"
@@ -80,6 +80,7 @@
                 />
                 <v-list-item
                   v-if="edit"
+                  base-color="error"
                   :prepend-icon="$globals.icons.delete"
                   :title="$t('general.delete')"
                   @click="model.splice(i, 1)"
@@ -119,10 +120,14 @@
           <v-text-field
             v-model="state.newAsset.name"
             :label="$t('general.name')"
+            variant="filled"
+            density="comfortable"
           />
           <div class="d-flex justify-space-between">
             <v-select
               v-model="state.newAsset.icon"
+              variant="filled"
+              :menu-props="{ contentClass: 'recipe-editor-overlay' }"
               density="compact"
               :prepend-icon="getIconDefinition(state.newAsset.icon).icon"
               :items="iconOptions"

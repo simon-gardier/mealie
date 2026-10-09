@@ -7,11 +7,10 @@
     }"
   >
     <!-- Header Toolbar -->
-    <v-card class="elevation-4" width="1200" :class="{ 'my-10': $vuetify.display.mdAndUp }">
+    <v-card class="setup-card" width="1200" :class="{ 'my-10': $vuetify.display.mdAndUp }">
       <v-toolbar
-        color="primary"
-        class="d-flex justify-center"
-        dark
+        color="surface"
+        class="d-flex justify-center border-b"
       >
         <v-toolbar-title class="headline text-h4 text-center mx-0">
           Petit Chef
@@ -88,7 +87,7 @@
                 {{ $t('admin.setup.previous-mealie-instance') }}
               </p>
               <v-btn
-                to="backups"
+                to="/admin/backups"
                 rounded
                 variant="outlined"
                 color="primary"
@@ -101,7 +100,7 @@
                 :to="groupSlug ? `/g/${groupSlug}` : '/login'"
                 rounded
                 variant="outlined"
-                color="grey-lighten-1"
+                color="secondary"
                 class="text-subtitle-2 d-flex mx-auto"
                 style="width: fit-content;"
               >
@@ -130,8 +129,8 @@
             >
               <template #next>
                 <v-btn
-                  variant="flat"
-                  color="success"
+                  variant="tonal"
+                  color="primary"
                   :disabled="isSubmitting"
                   :loading="isSubmitting"
                   :text="$t('general.next')"
@@ -154,8 +153,8 @@
             >
               <template #next>
                 <v-btn
-                  variant="flat"
-                  color="success"
+                  variant="tonal"
+                  color="primary"
                   :disabled="isSubmitting"
                   :loading="isSubmitting"
                   :text="$t('general.next')"
@@ -183,8 +182,8 @@
             >
               <template #next>
                 <v-btn
-                  variant="flat"
-                  color="success"
+                  variant="tonal"
+                  color="primary"
                   :disabled="isSubmitting"
                   :loading="isSubmitting"
                   :text="$t('general.next')"
@@ -220,8 +219,8 @@
             >
               <template #next>
                 <v-btn
-                  variant="flat"
-                  color="success"
+                  variant="tonal"
+                  color="primary"
                   :disabled="isSubmitting"
                   :loading="isSubmitting"
                   :text="$t('general.next')"
@@ -664,12 +663,12 @@ async function onFinish() {
 }
 
 .icon-avatar {
-  border-color: rgba(0, 0, 0, 0.12);
+  border-color: rgba(var(--v-theme-media-scrim), 0.12);
   border: 2px;
 }
 
 .bg-off-white {
-  background: #f5f8fa;
+  background: rgb(var(--v-theme-background));
 }
 
 .v-stepper-item__avatar.v-avatar.v-stepper-item__avatar.v-avatar {
@@ -684,5 +683,10 @@ async function onFinish() {
 
 .v-stepper--alt-labels .v-stepper-header .v-divider {
   margin: 48px -42px 0 !important;
+}
+.setup-card {
+  border: 1px solid rgb(var(--v-theme-separator));
+  border-radius: 20px;
+  box-shadow: none;
 }
 </style>

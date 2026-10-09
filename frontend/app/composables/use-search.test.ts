@@ -18,6 +18,18 @@ function searchFor(items: ISearchableItem[], query: string) {
 }
 
 describe("useSearch ranking tiers", () => {
+  test.each(["a", "â", "à", "á", "A", "Â"])("treats %s as the same letter", (query) => {
+    expect(searchFor([item("Â"), item("À"), item("Á")], query)).toHaveLength(3);
+  });
+
+  test("fuzzy matching ignores case, accents, and ligatures while preserving results", () => {
+    const items = [item("Crème"), item("Œufs", { aliases: [{ name: "Éggs" }] })];
+    expect(searchFor(items, "CRENE")).toContain("Crème");
+    expect(searchFor(items, "OEUFS")).toContain("Œufs");
+    expect(searchFor(items, "EGGZ")).toContain("Œufs");
+    expect(items[0]!.name).toBe("Crème");
+  });
+
   test("exact match outranks prefix, word-prefix, and substring", () => {
     const names = searchFor([
       item("flatbread"),

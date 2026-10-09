@@ -40,6 +40,20 @@ export const useUserSelfRatings = function () {
     await refreshUserRatings();
   }
 
+  async function setFavorite(recipeId: string, favorite: boolean) {
+    if (!auth.user.value) return false;
+    const api = useUserApi();
+    const { response } = favorite
+      ? await api.users.addFavorite(auth.user.value.id, recipeId)
+      : await api.users.removeFavorite(auth.user.value.id, recipeId);
+    if (!response || response.status < 200 || response.status >= 300) return false;
+    const existing = userRatings.value.find(rating => rating.recipeId === recipeId);
+    userRatings.value = [
+      ...userRatings.value.filter(rating => rating.recipeId !== recipeId),
+      { ...existing, recipeId, isFavorite: favorite },
+    ];
+    return true;
+  }
   if (!ready.value) {
     refreshUserRatings();
   }
@@ -48,6 +62,7 @@ export const useUserSelfRatings = function () {
     userRatings,
     refreshUserRatings,
     setRating,
+    setFavorite,
     ready,
   };
 };

@@ -9,6 +9,7 @@
       >
         <v-icon
           v-if="activeObj.icon"
+          :color="getActionColor(activeObj, $globals.icons.delete)"
           start
         >
           {{ activeObj.icon }}
@@ -30,12 +31,14 @@
           v-if="!item.hide"
           :key="index"
         >
-          <v-list-item @click="setValue(item)">
+          <v-list-item :base-color="getActionColor(item, $globals.icons.delete)" @click="setValue(item)">
             <template
               v-if="item.icon"
               #prepend
             >
-              <v-icon>{{ item.icon }}</v-icon>
+              <v-icon :color="getActionColor(item, $globals.icons.delete)">
+                {{ item.icon }}
+              </v-icon>
             </template>
             <v-list-item-title>{{ item.text }}</v-list-item-title>
           </v-list-item>
@@ -58,12 +61,14 @@
           v-if="!item.hide"
           :key="index"
         >
-          <v-list-item :to="item.to">
+          <v-list-item :base-color="getActionColor(item, $globals.icons.delete)" :to="item.to">
             <template
               v-if="item.icon"
               #prepend
             >
-              <v-icon>{{ item.icon }}</v-icon>
+              <v-icon :color="getActionColor(item, $globals.icons.delete)">
+                {{ item.icon }}
+              </v-icon>
             </template>
             <v-list-item-title>{{ item.text }}</v-list-item-title>
           </v-list-item>
@@ -85,12 +90,14 @@
           v-if="!item.hide"
           :key="index"
         >
-          <v-list-item @click="$emit(item.event)">
+          <v-list-item :base-color="getActionColor(item, $globals.icons.delete)" @click="$emit(item.event)">
             <template
               v-if="item.icon"
               #prepend
             >
-              <v-icon>{{ item.icon }}</v-icon>
+              <v-icon :color="getActionColor(item, $globals.icons.delete)">
+                {{ item.icon }}
+              </v-icon>
             </template>
             <v-list-item-title>{{ item.text }}</v-list-item-title>
           </v-list-item>
@@ -106,6 +113,8 @@
 </template>
 
 <script setup lang="ts">
+import { getActionColor } from "~/lib/action-color";
+
 const MODES = {
   model: "model",
   link: "link",

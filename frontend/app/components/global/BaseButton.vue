@@ -1,6 +1,6 @@
 <template>
   <v-btn
-    :color="color || btnAttrs.color"
+    :color="getActionColor({ icon: icon || btnAttrs.icon, color: color || btnAttrs.color }, $globals.icons.delete)"
     :size="small ? 'small' : 'default'"
     :x-small="xSmall"
     :loading="loading"
@@ -28,7 +28,9 @@
 </template>
 
 <script setup lang="ts">
+import { getActionColor } from "~/lib/action-color";
 import { useUserApi } from "~/composables/api";
+import { actionColors } from "~/theme/colors";
 
 const props = defineProps({
   cancel: {
@@ -124,37 +126,37 @@ const buttonOptions = {
   create: {
     text: i18n.t("general.create"),
     icon: $globals.icons.createAlt,
-    color: "success",
+    color: actionColors.create,
   },
   update: {
     text: i18n.t("general.update"),
     icon: $globals.icons.edit,
-    color: "success",
+    color: actionColors.update,
   },
   save: {
     text: i18n.t("general.save"),
     icon: $globals.icons.save,
-    color: "success",
+    color: actionColors.save,
   },
   edit: {
     text: i18n.t("general.edit"),
     icon: $globals.icons.edit,
-    color: "info",
+    color: actionColors.edit,
   },
   delete: {
     text: i18n.t("general.delete"),
     icon: $globals.icons.delete,
-    color: "error",
+    color: actionColors.delete,
   },
   cancel: {
     text: i18n.t("general.cancel"),
     icon: $globals.icons.close,
-    color: "grey",
+    color: actionColors.cancel,
   },
   download: {
     text: i18n.t("general.download"),
     icon: $globals.icons.download,
-    color: "info",
+    color: actionColors.download,
   },
 };
 

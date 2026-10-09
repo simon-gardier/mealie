@@ -1,47 +1,20 @@
 <template>
   <v-card class="ma-0 pt-2" :elevation="4">
     <v-card-text>
-      <!-- Controls Row (Menu) -->
-      <v-row class="mb-2 mx-1">
+      <div class="d-flex justify-center flex-wrap ga-2 mb-4">
         <v-btn
-          color="error"
-          :icon="$globals.icons.delete"
+          v-for="control in controls.flat()"
+          :key="control.icon"
+          :icon="control.icon"
+          :color="control.color"
+          :title="$t(control.label)"
+          :aria-label="$t(control.label)"
           :disabled="submitted"
-          @click="$emit('delete')"
+          variant="tonal"
+          @click="control.callback()"
         />
-        <v-spacer />
-        <v-btn
-          v-if="changed"
-          class="mr-2"
-          color="success"
-          :icon="$globals.icons.save"
-          :disabled="submitted"
-          @click="save"
-        />
-        <v-menu offset-y :close-on-content-click="false" location="bottom center">
-          <template #activator="{ props: slotProps }">
-            <v-btn color="info" v-bind="slotProps" :icon="$globals.icons.edit" :disabled="submitted" />
-          </template>
-          <v-list class="mt-1">
-            <template v-for="(row, keyRow) in controls" :key="keyRow">
-              <v-list-item-group>
-                <v-list-item
-                  v-for="(control, keyControl) in row"
-                  :key="keyControl"
-                  :disabled="submitted"
-                  @click="control.callback()"
-                >
-                  <v-list-item-icon>
-                    <v-icon :color="control.color" :icon="control.icon" />
-                  </v-list-item-icon>
-                </v-list-item>
-              </v-list-item-group>
-            </template>
-          </v-list>
-        </v-menu>
-      </v-row>
+      </div>
 
-      <!-- Image Row -->
       <Cropper
         ref="cropper"
         class="cropper"
@@ -50,8 +23,39 @@
         :style="`width: ${cropperWidth}; aspect-ratio: ${aspectRatio};`"
         @change="changed = changed + 1"
         @ready="onReady"
+        @error="onImageError"
       />
     </v-card-text>
+    <v-card-actions v-if="!hideActions" class="px-4 pb-4">
+      <v-btn variant="text" color="secondary" :disabled="submitted" @click="cancel">
+        {{ cancelText || $t("general.cancel") }}
+      </v-btn>
+      <v-btn
+        v-if="!hideDelete"
+        color="error"
+        variant="text"
+        :icon="deleteText ? undefined : $globals.icons.delete"
+        :title="$t('general.delete')"
+        :aria-label="$t('general.delete')"
+        :disabled="submitted"
+        @click="$emit('delete')"
+      >
+        <template v-if="deleteText">
+          {{ deleteText }}
+        </template>
+      </v-btn>
+      <v-spacer />
+      <v-btn
+        color="primary"
+        :variant="saveVariant"
+        :prepend-icon="$globals.icons.save"
+        :disabled="submitted || !changed"
+        :loading="submitted"
+        @click="save"
+      >
+        {{ saveText || $t("general.save") }}
+      </v-btn>
+    </v-card-actions>
   </v-card>
 </template>
 
@@ -60,6 +64,10 @@ import { Cropper } from "vue-advanced-cropper";
 import "vue-advanced-cropper/dist/style.css";
 
 defineProps({
+  saveText: { type: String, default: "" },
+  cancelText: { type: String, default: "" },
+  deleteText: { type: String, default: "" },
+  saveVariant: { type: String as () => "tonal" | "elevated", default: "elevated" },
   img: {
     type: String,
     required: true,
@@ -67,6 +75,14 @@ defineProps({
   cropperWidth: {
     type: String,
     default: undefined,
+  },
+  hideActions: {
+    type: Boolean,
+    default: false,
+  },
+  hideDelete: {
+    type: Boolean,
+    default: false,
   },
   submitted: {
     type: Boolean,
@@ -76,16 +92,23 @@ defineProps({
 
 const emit = defineEmits<{
   (e: "save", item: Blob): void;
-  (e: "delete"): void;
+  (e: "delete" | "cancel" | "error"): void;
 }>();
 
 const cropper = ref<any>(null);
 const changed = ref(0);
+const ready = ref(false);
 // Left to the cropper's own sizing until the image is rotated; see rotate().
 const aspectRatio = ref<string | number>("auto");
 const { $globals } = useNuxtApp();
 
+function onImageError() {
+  ready.value = false;
+  emit("error");
+}
+
 function onReady() {
+  ready.value = true;
   aspectRatio.value = "auto";
   changed.value = -1;
 }
@@ -93,6 +116,7 @@ function onReady() {
 type Control = {
   color: string;
   icon: string;
+  label: string;
   callback: CallableFunction;
 };
 
@@ -124,11 +148,13 @@ const controls = ref<Control[][]>([
     {
       color: "info",
       icon: $globals.icons.flipHorizontal,
+      label: "recipe.image-flipHorizontal",
       callback: () => flip(true, false),
     },
     {
       color: "info",
       icon: $globals.icons.flipVertical,
+      label: "recipe.image-flipVertical",
       callback: () => flip(false, true),
     },
   ],
@@ -136,15 +162,24 @@ const controls = ref<Control[][]>([
     {
       color: "info",
       icon: $globals.icons.rotateLeft,
+      label: "recipe.image-rotateLeft",
       callback: () => rotate(-90),
     },
     {
       color: "info",
       icon: $globals.icons.rotateRight,
+      label: "recipe.image-rotateRight",
       callback: () => rotate(90),
     },
   ],
 ]);
+
+function cancel() {
+  cropper.value?.reset();
+  aspectRatio.value = "auto";
+  changed.value = 0;
+  emit("cancel");
+}
 
 function save() {
   if (!cropper.value) return;
@@ -156,6 +191,8 @@ function save() {
     }
   });
 }
+
+defineExpose({ save, ready, canSave: computed(() => !!changed.value) });
 
 function defaultSize({ imageSize, visibleArea }: any) {
   return {

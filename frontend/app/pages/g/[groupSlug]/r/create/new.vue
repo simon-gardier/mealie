@@ -7,7 +7,7 @@
       {{ $t('recipe.create-a-recipe-by-providing-the-name-all-recipes-must-have-unique-names') }}
       <v-form ref="domCreateByName" @submit.prevent>
         <v-text-field v-model="newRecipeName" class="my-3" :label="$t('recipe.recipe-name')"
-          :prepend-inner-icon="$globals.icons.primary" validate-on="blur" density="compact" autofocus variant="outlined"
+          :prepend-inner-icon="$globals.icons.primary" validate-on="blur" density="compact" autofocus variant="filled"
           clearable :rules="[validators.required]" :hint="$t('recipe.new-recipe-names-must-be-unique')" persistent-hint
           style="--v-input-control-height: 60px" @keyup.enter="createByName(newRecipeName)" />
       </v-form>

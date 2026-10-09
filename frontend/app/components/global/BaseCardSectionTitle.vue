@@ -1,7 +1,10 @@
 <template>
-  <v-card color="background" flat class="pb-2" :class="{
-    'mt-8': section,
-  }">
+  <div
+    class="pb-2"
+    :class="{
+      'mt-8': section,
+    }"
+  >
     <v-card-title :class="`text-title-${size} pl-0 py-0 d-flex align-center`" style="font-weight: normal;">
       <slot name="prepend-title" />
       <img v-if="titleImage" :src="titleImage" alt="" aria-hidden="true" class="title-image">
@@ -12,12 +15,12 @@
       <slot name="append-title" />
     </v-card-title>
     <v-card-text v-if="$slots.default" class="pt-2 pl-0">
-      <p class="pb-0 mb-0">
+      <p class="section-subtitle pb-0 mb-0">
         <slot />
       </p>
     </v-card-text>
     <v-divider class="mt-1 mb-3" />
-  </v-card>
+  </div>
 </template>
 
 <script setup lang="ts">

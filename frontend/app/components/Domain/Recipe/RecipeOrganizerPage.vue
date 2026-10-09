@@ -23,7 +23,7 @@
 
     <v-row density="comfortable">
       <v-col>
-        <v-text-field v-model="searchString" variant="outlined" autofocus color="primary accent-3"
+        <v-text-field v-model="searchString" variant="filled" autofocus color="primary accent-3"
           :placeholder="$t('search.search-placeholder')" :prepend-inner-icon="$globals.icons.search" clearable />
       </v-col>
     </v-row>

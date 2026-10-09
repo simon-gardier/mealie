@@ -6,13 +6,6 @@
   text-transform: none !important;
 }
 
-.v-field.v-field--variant-filled .v-field__outline::before,
-.v-field.v-field--variant-filled .v-field__outline::after,
-.v-field.v-field--variant-underlined .v-field__outline::before,
-.v-field.v-field--variant-underlined .v-field__outline::after {
-  display: none !important;
-}
-
 // The outline is drawn as three separate boxes (start / notch / end). At 0.38 alpha,
 // Chromium antialiases the notch's 1px borders away on fractional device-pixel rows,
 // leaving a gap under the floating label. Full opacity keeps the line visible.

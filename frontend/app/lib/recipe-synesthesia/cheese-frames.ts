@@ -3,6 +3,7 @@ import sheet0 from "~/assets/ratatouille/cheese-0.png?url";
 import sheet1 from "~/assets/ratatouille/cheese-1.png?url";
 import sheet2 from "~/assets/ratatouille/cheese-2.png?url";
 import sheet3 from "~/assets/ratatouille/cheese-3.png?url";
+import { fixedColors } from "~/theme/colors";
 
 export const CHEESE = {
   width: 400,
@@ -57,7 +58,7 @@ export function drawCheeseFrame(
 
   ctx.clearRect(0, 0, width, height);
   if (options.backdrop) {
-    ctx.fillStyle = "#000";
+    ctx.fillStyle = fixedColors.black;
     ctx.fillRect(0, 0, width, height);
   }
   ctx.imageSmoothingEnabled = true;
@@ -95,9 +96,9 @@ export function drawReducedMotion(ctx: CanvasRenderingContext2D, width: number, 
   ctx.clearRect(0, 0, width, height);
   const radius = Math.max(34, Math.min(width, height) * 0.12);
   const gradient = ctx.createRadialGradient(origin.x, origin.y, 0, origin.x, origin.y, radius);
-  gradient.addColorStop(0, "#e8c77800");
-  gradient.addColorStop(0.45, "#e8c77845");
-  gradient.addColorStop(1, "#e8c77800");
+  gradient.addColorStop(0, `${fixedColors.cheeseGlow}00`);
+  gradient.addColorStop(0.45, `${fixedColors.cheeseGlow}45`);
+  gradient.addColorStop(1, `${fixedColors.cheeseGlow}00`);
   ctx.globalAlpha = Math.sin(Math.PI * Math.min(1, Math.max(0, progress)));
   ctx.fillStyle = gradient;
   ctx.fillRect(origin.x - radius, origin.y - radius, radius * 2, radius * 2);

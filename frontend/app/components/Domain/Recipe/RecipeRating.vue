@@ -1,12 +1,21 @@
 <template>
   <div class="gustau-rating" @click.prevent>
-    <v-rating class="gustau-stars" :model-value="displayRating"
-      :active-color="showGroupAverage ? 'grey-darken-1' : '#ffc24a'" color="#a84b18" length="5"
-      :half-increments="showGroupAverage" :density="small ? 'compact' : 'default'" :size="small ? 'x-small' : undefined"
-      :readonly="isReadonly" :hover="!isReadonly && canHover" :clearable="!!displayRating"
-      @update:model-value="updateRating(+$event)">
+    <v-rating
+      class="gustau-stars"
+      :model-value="displayRating"
+      :active-color="showGroupAverage ? 'secondary' : 'rating'"
+      color="secondary"
+      length="5"
+      :half-increments="showGroupAverage"
+      :density="small ? 'compact' : 'default'"
+      :size="small ? 'x-small' : undefined"
+      :readonly="isReadonly"
+      :hover="!isReadonly && canHover"
+      :clearable="!!displayRating"
+      @update:model-value="updateRating(+$event)"
+    >
       <template #item="{ isFilled, isHovered, props: itemProps }">
-        <v-btn v-bind="itemProps" class="gustau-star" :class="{ 'gustau-star--active': isFilled || isHovered }" />
+        <v-btn v-bind="itemProps" class="gustau-star" :class="{ 'gustau-star--active': !showGroupAverage && (isFilled || isHovered) }" />
       </template>
     </v-rating>
   </div>
@@ -116,14 +125,20 @@ async function updateRating(val?: number) {
   }
 
   :deep(.gustau-star) {
-    filter: drop-shadow(0 0 1px rgb(126 53 12 / 65%));
-    text-shadow: 0 0 2px #7e350c;
-    transition: filter 180ms ease, transform 180ms ease, color 180ms ease, text-shadow 180ms ease;
+    filter: none;
+    text-shadow: none;
+    transition:
+      filter 180ms ease,
+      transform 180ms ease,
+      color 180ms ease,
+      text-shadow 180ms ease;
   }
 
   :deep(.gustau-star--active) {
-    filter: drop-shadow(0 0 2px #ffe6a0) drop-shadow(0 0 4px #f69a2c);
-    text-shadow: 0 0 3px #ffe6a0, 0 0 5px #f69a2c;
+    filter: drop-shadow(0 0 2px rgba(var(--v-theme-rating), 65%)) drop-shadow(0 0 4px rgba(var(--v-theme-warning), 45%));
+    text-shadow:
+      0 0 3px rgba(var(--v-theme-rating), 65%),
+      0 0 5px rgba(var(--v-theme-warning), 45%);
     transform: translateY(-1px);
   }
 }

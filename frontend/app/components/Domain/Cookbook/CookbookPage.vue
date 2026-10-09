@@ -20,7 +20,7 @@
             {{ book.name }}
           </v-toolbar-title>
         </div>
-        <div v-if="book.description" class="subtitle-1 text-grey-lighten-1 mb-2">
+        <div v-if="book.description" class="subtitle-1 text-secondary-label mb-2">
           {{ book.description }}
         </div>
       </v-sheet>

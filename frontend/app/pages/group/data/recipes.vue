@@ -57,7 +57,7 @@
       </v-card-text>
       <v-card-text v-else-if="dialog.mode == MODES.changeOwner">
         <v-select v-model="selectedOwner" :items="allUsers" item-title="fullName" item-value="id"
-          :label="$t('general.owner')" variant="outlined" hide-details>
+          :label="$t('general.owner')" variant="filled" hide-details>
           <template #prepend>
             <UserAvatar :user-id="selectedOwner" :tooltip="false" />
           </template>
@@ -105,7 +105,7 @@
         </p>
       </v-card-actions>
       <div class="mx-2 mb-3 clip-width">
-        <v-text-field v-model="search" variant="outlined" hide-details :label="$t('search.search')" />
+        <v-text-field v-model="search" variant="filled" hide-details :label="$t('search.search')" />
       </div>
       <v-card rounded="lg">
         <RecipeDataTable v-model="selected" :loading="loading" :recipes="allRecipes" :show-headers="headers"

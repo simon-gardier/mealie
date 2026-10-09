@@ -27,7 +27,7 @@
                   item-value="id"
                   :label="$t('group.group')"
                   density="compact"
-                  variant="outlined"
+                  variant="filled"
                   clearable
                   hide-details
                 />
@@ -40,7 +40,7 @@
                   item-value="id"
                   :label="$t('group.ai-provider-settings.ai-provider')"
                   density="compact"
-                  variant="outlined"
+                  variant="filled"
                   clearable
                   hide-details
                   :disabled="!selectedGroupId"

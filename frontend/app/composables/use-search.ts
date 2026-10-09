@@ -121,7 +121,12 @@ export function useSearch<T extends ISearchableItem>(
     return itemsArray.map((item) => {
       return {
         ...item,
-        aliasesText: item.aliases ? item.aliases.map(a => a.name).join(" ") : "",
+        name: normalize(item.name),
+        pluralName: normalize(item.pluralName || ""),
+        abbreviation: normalize(item.abbreviation || ""),
+        pluralAbbreviation: normalize(item.pluralAbbreviation || ""),
+        aliases: item.aliases?.map(alias => ({ ...alias, name: normalize(alias.name) })),
+        aliasesText: item.aliases ? item.aliases.map(a => normalize(a.name)).join(" ") : "",
       } as ISearchItemInternal;
     });
   });
@@ -204,9 +209,8 @@ export function useSearch<T extends ISearchableItem>(
 
     if (fuzzyPool.length > 0) {
       const rankedIds = new Set(ranked.map(r => r.item.id));
-      // Fuse indexes the raw item fields, so a normalized query would be scored against
-      // un-normalized text, and every stripped accent would count against the threshold.
-      const fuzzyHits = fuse.value.search(searchTerm);
+      // Normalize both sides so accents and case never count as fuzzy mismatches.
+      const fuzzyHits = fuse.value.search(normalizedQuery);
       const byId = new Map(itemsArray.map(it => [it.id, it]));
       for (const hit of fuzzyHits) {
         if (rankedIds.has(hit.item.id)) continue;

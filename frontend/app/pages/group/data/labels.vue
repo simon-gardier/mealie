@@ -43,6 +43,7 @@ import { fieldTypes } from "~/composables/forms";
 import type { MultiPurposeLabelSummary } from "~/lib/api/types/labels";
 import type { AutoFormItems } from "~/types/auto-forms";
 import { useLabelStore } from "~/composables/store";
+import { iosColors } from "~/theme/colors";
 import type { TableHeaders, TableConfig } from "~/components/global/CrudTable.vue";
 
 const i18n = useI18n();
@@ -95,7 +96,7 @@ const createForm = reactive({
 
 async function handleCreate(createFormData: MultiPurposeLabelSummary) {
   await labelStore.actions.createOne(createFormData);
-  createForm.data = { name: "", color: "#7417BE" } as MultiPurposeLabelSummary;
+  createForm.data = { name: "", color: iosColors.light.purple } as MultiPurposeLabelSummary;
 }
 
 // ============================================================

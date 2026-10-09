@@ -8,7 +8,7 @@
     >
       <template #activator />
       <v-card-text>
-        <v-form ref="refNewHouseholdForm" @keydown.enter.prevent="handleCreateSubmit">
+        <v-form ref="refNewHouseholdForm" class="household-create-form" @keydown.enter.prevent="handleCreateSubmit">
           <v-select
             v-if="groups"
             v-model="createHouseholdForm.data.groupId"
@@ -21,6 +21,7 @@
           />
           <AutoForm
             v-model="createHouseholdForm.data"
+            variant="filled"
             :update-mode="updateMode"
             :items="createHouseholdForm.items"
           />
@@ -68,7 +69,7 @@
         :headers="headers"
         :items="households"
         item-key="id"
-        class="elevation-0"
+        class="elevation-0 rounded-xl overflow-hidden"
         :items-per-page="-1"
         hide-default-footer
         disable-pagination
@@ -92,10 +93,10 @@
             <template #activator="{ props }">
               <div v-bind="props">
                 <v-btn
+                  color="error"
                   :disabled="item && item.users!.length > 0"
                   class="mr-1"
                   icon
-                  color="error"
                   variant="text"
                   @click.stop="confirmDialog = true; deleteTarget = item.id"
                 >
@@ -109,7 +110,6 @@
           </v-tooltip>
         </template>
       </v-data-table>
-      <v-divider />
     </section>
   </v-container>
 </template>
@@ -192,3 +192,14 @@ async function handleCreateSubmit() {
   await createHousehold(createHouseholdForm.data);
 }
 </script>
+
+<style scoped>
+.household-create-form :deep(.v-col) {
+  padding-inline: 0 !important;
+}
+.household-create-form :deep(.v-card) {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+</style>

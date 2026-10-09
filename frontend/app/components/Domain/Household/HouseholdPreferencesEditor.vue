@@ -6,8 +6,14 @@
       </v-card-title>
       <v-card-text class="settings-card-body">
         <div class="mb-6">
-          <v-checkbox v-model="local.privateHousehold" hide-details density="compact"
-            :label="$t('household.private-household')" color="primary" class="settings-option" />
+          <v-checkbox
+            v-model="local.privateHousehold"
+            hide-details
+            density="compact"
+            :label="$t('household.private-household')"
+            color="primary"
+            class="settings-option"
+          />
           <div class="ml-8">
             <p class="text-subtitle-2 my-0 py-0">
               {{ $t("household.private-household-description") }}
@@ -16,8 +22,14 @@
           </div>
         </div>
         <div class="mb-6">
-          <v-checkbox v-model="local.lockRecipeEditsFromOtherHouseholds" hide-details density="compact"
-            :label="$t('household.lock-recipe-edits-from-other-households')" color="primary" class="settings-option" />
+          <v-checkbox
+            v-model="local.lockRecipeEditsFromOtherHouseholds"
+            hide-details
+            density="compact"
+            :label="$t('household.lock-recipe-edits-from-other-households')"
+            color="primary"
+            class="settings-option"
+          />
           <div class="ml-8">
             <p class="text-subtitle-2 my-0 py-0">
               {{ $t("household.lock-recipe-edits-from-other-households-description") }}
@@ -25,17 +37,32 @@
           </div>
         </div>
         <div class="mb-6">
-          <v-checkbox v-model="local.showAnnouncements" hide-details density="compact" color="primary"
-            class="settings-option" :label="$t('announcements.show-announcements-from-mealie')" />
+          <v-checkbox
+            v-model="local.showAnnouncements"
+            hide-details
+            density="compact"
+            color="primary"
+            class="settings-option"
+            :label="$t('announcements.show-announcements-from-mealie')"
+          />
           <div class="ml-8">
             <p class="text-subtitle-2 my-0 py-0">
               {{ $t("announcements.show-announcements-setting-description") }}
             </p>
           </div>
         </div>
-        <v-select v-model="local.firstDayOfWeek" :prepend-icon="$globals.icons.calendarWeekBegin" :items="allDays"
-          item-title="name" item-value="value" :label="$t('settings.first-day-of-week')" variant="solo" flat
-          density="comfortable" class="settings-input" />
+        <v-select
+          v-model="local.firstDayOfWeek"
+          :prepend-icon="$globals.icons.calendarWeekBegin"
+          :items="allDays"
+          item-title="name"
+          item-value="value"
+          :label="$t('settings.first-day-of-week')"
+          variant="filled"
+          flat
+          density="comfortable"
+          class="settings-input"
+        />
       </v-card-text>
     </v-card>
 
@@ -49,8 +76,14 @@
         </p>
         <div class="preference-container">
           <div v-for="p in recipePreferences" :key="p.key">
-            <v-checkbox v-model="local[p.key]" hide-details density="compact" :label="p.label" color="primary"
-              class="settings-option" />
+            <v-checkbox
+              v-model="local[p.key]"
+              hide-details
+              density="compact"
+              :label="p.label"
+              color="primary"
+              class="settings-option"
+            />
             <p class="ml-8 text-subtitle-2 my-0 py-0">
               {{ p.description }}
             </p>
@@ -137,17 +170,17 @@ const allDays = [
 ];
 </script>
 
-<style lang="css">
+<style scoped lang="css">
 .settings-card {
-  border: 1px solid rgb(var(--v-theme-primary));
-  border-radius: 12px;
-  background: rgb(var(--v-theme-surface-variant));
+  border: 1px solid rgb(var(--v-theme-separator));
+  border-radius: 14px;
+  background: rgb(var(--v-theme-surface));
   overflow: hidden;
 }
 
 .settings-card-title {
-  border-bottom: 1px solid rgba(var(--v-theme-primary), 0.35);
-  background: rgba(var(--v-theme-primary), 0.08);
+  border-bottom: 1px solid rgba(var(--v-theme-separator), 0.6);
+  background: rgb(var(--v-theme-surface));
   padding: 0.9rem 1rem 0.8rem;
   font-size: 1.1rem;
   font-weight: 600;
@@ -166,14 +199,10 @@ const allDays = [
 }
 
 .settings-input :deep(.v-field) {
-  background: rgba(var(--v-theme-surface), 0.72) !important;
-  border: 1px solid rgba(var(--v-theme-primary), 0.5);
+  background: rgb(var(--v-theme-fill)) !important;
+  --v-field-border-color: rgb(var(--v-theme-separator));
   border-radius: 10px;
   box-shadow: none !important;
-}
-
-.settings-input :deep(.v-field__outline) {
-  display: none;
 }
 
 .preference-container {
@@ -181,5 +210,13 @@ const allDays = [
   flex-direction: column;
   gap: 0.5rem;
   max-width: 600px;
+}
+.settings-input :deep(.v-field--focused),
+.token-input :deep(.v-field--focused) {
+  --v-field-border-color: rgb(var(--v-theme-primary));
+}
+.settings-input :deep(.v-field--error),
+.token-input :deep(.v-field--error) {
+  --v-field-border-color: rgb(var(--v-theme-error));
 }
 </style>

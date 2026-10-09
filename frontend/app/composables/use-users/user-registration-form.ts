@@ -9,7 +9,7 @@ const fullName = ref("");
 const email = ref("");
 const password1 = ref("");
 const password2 = ref("");
-const advancedOptions = ref(false);
+const advancedOptions = ref(true);
 const profileAvatar = ref<string | null>(DEFAULT_AVATAR);
 const profileFile = ref<File | null>(null);
 
@@ -20,7 +20,7 @@ export function resetUserRegistrationForm() {
   email.value = "";
   password1.value = "";
   password2.value = "";
-  advancedOptions.value = false;
+  advancedOptions.value = true;
   profileAvatar.value = DEFAULT_AVATAR;
   profileFile.value = null;
 }
@@ -78,7 +78,7 @@ export const useUserRegistrationForm = () => {
       accountDetails.username.value = "";
       accountDetails.fullName.value = "";
       accountDetails.email.value = "";
-      accountDetails.advancedOptions.value = false;
+      accountDetails.advancedOptions.value = true;
       accountDetails.profileAvatar.value = DEFAULT_AVATAR;
       accountDetails.profileFile.value = null;
     },

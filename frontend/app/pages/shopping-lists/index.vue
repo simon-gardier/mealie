@@ -1,20 +1,42 @@
 <template>
   <v-container v-if="shoppingListChoices && ready" class="narrow-container">
-    <BaseDialog v-model="state.createDialog" bottom-sheet :title="$t('shopping-list.create-shopping-list')"
-      :icon="$globals.icons.formatListCheck" can-submit :submit-disabled="!isCreateNameValid" @submit="createOne">
+    <BaseDialog
+      v-model="state.createDialog"
+      bottom-sheet
+      :title="$t('shopping-list.create-shopping-list')"
+      :icon="$globals.icons.formatListCheck"
+      can-submit
+      :submit-disabled="!isCreateNameValid"
+      @submit="createOne"
+    >
       <v-card-text>
-        <v-text-field v-model.trim="state.createName" autofocus variant="outlined"
-          :label="$t('shopping-list.new-list')" />
+        <v-text-field
+          v-model.trim="state.createName"
+          autofocus
+          variant="filled"
+          :label="$t('shopping-list.new-list')"
+        />
       </v-card-text>
     </BaseDialog>
 
     <!-- Settings -->
-    <BaseDialog v-model="state.ownerDialog" bottom-sheet :icon="$globals.icons.admin" :title="$t('user.edit-user')"
-      can-confirm @confirm="updateOwner">
+    <BaseDialog
+      v-model="state.ownerDialog"
+      bottom-sheet
+      :icon="$globals.icons.admin"
+      :title="$t('user.edit-user')"
+      can-confirm
+      @confirm="updateOwner"
+    >
       <v-container>
         <v-form>
-          <v-select v-model="updateUserId" :items="allUsers" item-title="fullName" item-value="id"
-            :label="$t('general.owner')">
+          <v-select
+            v-model="updateUserId"
+            :items="allUsers"
+            item-title="fullName"
+            item-value="id"
+            :label="$t('general.owner')"
+          >
             <template #prepend>
               <UserAvatar v-if="updateUserId" :user-id="updateUserId" :tooltip="false" />
             </template>
@@ -23,8 +45,15 @@
       </v-container>
     </BaseDialog>
 
-    <BaseDialog v-model="state.deleteDialog" bottom-sheet :title="$t('general.confirm')"
-      :icon="$globals.icons.alertCircle" color="error" can-confirm @confirm="deleteOne">
+    <BaseDialog
+      v-model="state.deleteDialog"
+      bottom-sheet
+      :title="$t('general.confirm')"
+      :icon="$globals.icons.alertCircle"
+      color="error"
+      can-confirm
+      @confirm="deleteOne"
+    >
       <v-card-text>{{ $t('shopping-list.are-you-sure-you-want-to-delete-this-item') }}</v-card-text>
     </BaseDialog>
     <BasePageTitle divider title-image="/groceries.png" :title-image-alt="$t('shopping-list.shopping-lists')">
@@ -45,18 +74,32 @@
     <div v-if="deletingListId" class="bistro-delete-backdrop" aria-hidden="true" @click="skipDeleteAnimation" />
 
     <section class="bistro-scratch-note-grid">
-      <v-card v-for="list in shoppingListChoices" :key="list.id" class="bistro-scratch-note"
-        :class="{ 'bistro-scratch-note--crumpling': deletingListId === list.id }" :to="`/shopping-lists/${list.id}`">
+      <v-card
+        v-for="list in shoppingListChoices"
+        :key="list.id"
+        class="bistro-scratch-note"
+        :class="{ 'bistro-scratch-note--crumpling': deletingListId === list.id }"
+        :to="`/shopping-lists/${list.id}`"
+      >
         <v-card-title class="d-flex align-center">
-          <v-btn icon variant="plain" class="bistro-note-action bistro-note-action-owner"
-            @click.prevent="toggleOwnerDialog(list)">
+          <v-btn
+            icon
+            variant="plain"
+            class="bistro-note-action bistro-note-action-owner"
+            @click.prevent="toggleOwnerDialog(list)"
+          >
             <UserAvatar :user-id="list.userId" :tooltip="false" size="32" />
           </v-btn>
           <span class="flex-grow-1">
             {{ list.name }}
           </span>
-          <v-btn icon variant="plain" class="bistro-note-action bistro-note-action-delete"
-            @click.prevent="openDelete(list.id)">
+          <v-btn
+            color="error"
+            icon
+            variant="plain"
+            class="bistro-note-action bistro-note-action-delete"
+            @click.prevent="openDelete(list.id)"
+          >
             <v-icon>
               {{ $globals.icons.delete }}
             </v-icon>

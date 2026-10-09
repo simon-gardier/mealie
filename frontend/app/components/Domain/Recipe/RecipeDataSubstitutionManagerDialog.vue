@@ -17,7 +17,7 @@
         <RecipeIngredientSubstitutionEditor
           :substitutions="substitutions"
           :foods="foodOptions"
-          variant="outlined"
+          variant="filled"
           @add="createSubstitution"
           @delete="deleteSubstitution"
           @food-changed="resetReverse"

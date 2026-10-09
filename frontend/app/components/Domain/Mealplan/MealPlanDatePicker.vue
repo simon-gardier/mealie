@@ -1,11 +1,28 @@
 <template>
-  <v-date-picker v-model="selectedDate" class="mx-auto" hide-header show-adjacent-months color="primary"
-    :first-day-of-week="firstDayOfWeek" :local="$i18n.locale" :events="hasMealPlanned" @update:month="updateMonth"
-    @update:year="updateYear">
+  <v-date-picker
+    v-model="selectedDate"
+    class="mx-auto"
+    :class="{ 'meal-calendar--calm': calm }"
+    hide-header
+    show-adjacent-months
+    color="primary"
+    :first-day-of-week="firstDayOfWeek"
+    :local="$i18n.locale"
+    :events="hasMealPlanned"
+    @update:month="updateMonth"
+    @update:year="updateYear"
+  >
     <template #controls="{ yearText, monthYearText, prevMonth, nextMonth, disabled }">
       <div class="d-flex justify-space-between w-100">
-        <v-btn :disabled="disabled.includes('prev-month')" :icon="$globals.icons.chevronLeft" flat density="comfortable"
-          @click="prevMonth" />
+        <v-btn
+          :disabled="disabled.includes('prev-month')"
+          :icon="$globals.icons.chevronLeft"
+          :aria-label="$t('meal-plan.previous-month')"
+          color="on-surface"
+          variant="text"
+          density="comfortable"
+          @click="prevMonth"
+        />
         <div class="text-center">
           <div class="text-body-large">
             {{ monthYearText.split(' ')[0] }}
@@ -14,8 +31,15 @@
             {{ yearText }}
           </div>
         </div>
-        <v-btn :disabled="disabled.includes('next-month')" :icon="$globals.icons.chevronRight" flat
-          density="comfortable" @click="nextMonth" />
+        <v-btn
+          :disabled="disabled.includes('next-month')"
+          :icon="$globals.icons.chevronRight"
+          :aria-label="$t('meal-plan.next-month')"
+          color="on-surface"
+          variant="text"
+          density="comfortable"
+          @click="nextMonth"
+        />
       </div>
     </template>
   </v-date-picker>
@@ -29,6 +53,7 @@ import type { PlanEntryType } from "~/lib/api/types/meal-plan";
 const selectedDate = defineModel<Date | [Date, Date]>();
 const props = defineProps<{
   entryType?: PlanEntryType;
+  calm?: boolean;
 }>();
 
 const { household } = useHouseholdSelf();
@@ -65,6 +90,21 @@ function hasMealPlanned(date: string): DatePickerEventColorValue {
   const isSelected = (earlierDate && date === format(earlierDate, "yyyy-MM-dd")) || (laterDate && date === format(laterDate, "yyyy-MM-dd"));
   if (!dateMatched.length) return false;
   if (typeMatched.length) return isSelected ? "primary-lighten-3" : "primary";
-  return isSelected ? "grey-lighten-3" : "grey";
+  return isSelected ? "primary" : "secondary";
 }
 </script>
+
+<style scoped>
+.meal-calendar--calm {
+  border: 1px solid rgb(var(--v-theme-separator));
+  border-radius: 14px;
+  background: rgb(var(--v-theme-surface));
+  width: 100%;
+}
+.meal-calendar--calm
+  :deep(
+    .v-date-picker-month__day:not(.v-date-picker-month__day--selected):not(.v-date-picker-month__day--today) .v-btn
+  ) {
+  color: rgb(var(--v-theme-on-surface));
+}
+</style>

@@ -129,6 +129,135 @@ describe("useParseIngredientsDialog", () => {
     vi.clearAllMocks();
   });
 
+  describe("additional ingredients from the same source", () => {
+    test("keeps added ingredients inline, retains edits when navigating, and saves them in order", () => {
+      const { vm } = wrapper();
+      vm.setParsedIngs([
+        { input: "salt and pepper", ingredient: {}, confidence: {} },
+        { input: "milk", ingredient: {}, confidence: {} },
+      ]);
+      vm.nextIngredient();
+      vm.addAdditionalIngredient();
+      expect(vm.currentAdditionalIngredients).toHaveLength(1);
+      vm.currentAdditionalIngredients[0]!.ingredient.note = "pepper";
+      vm.nextIngredient();
+      expect(vm.currentIng!.input).toBe("milk");
+      expect(vm.state.reviewedCount).toBe(1);
+      expect(vm.state.reviewTotal).toBe(2);
+      vm.previousIngredient();
+      expect(vm.currentAdditionalIngredients[0]!.ingredient.note).toBe("pepper");
+      vm.nextIngredient();
+      vm.nextIngredient();
+      vm.saveIngs();
+      expect(onSave.mock.calls[0]![0]).toHaveLength(3);
+      expect(onSave.mock.calls[0]![0][1].note).toBe("pepper");
+    });
+    test("deletes only the chosen additional ingredient without changing analysis progress", () => {
+      const { vm } = wrapper();
+      vm.setParsedIngs([{ input: "salt and pepper", ingredient: {}, confidence: {} }]);
+      vm.nextIngredient();
+      vm.addAdditionalIngredient();
+      vm.addAdditionalIngredient();
+      vm.removeAdditionalIngredient(vm.currentAdditionalIngredients[0]!);
+      expect(vm.currentAdditionalIngredients).toHaveLength(1);
+      expect(vm.parsedIngs).toHaveLength(2);
+      expect(vm.state.reviewTotal).toBe(1);
+      expect(vm.state.reviewedCount).toBe(0);
+    });
+  });
+
+  describe("ingredient removal", () => {
+    test("undo restores the ingredient, missing prompts and review position", () => {
+      const { vm } = wrapper();
+      vm.setParsedIngs([
+        { input: "milk", ingredient: { food: { name: "milk", id: "" } }, confidence: {} },
+        { input: "salt", ingredient: {}, confidence: {} },
+      ]);
+      vm.nextIngredient();
+      vm.currentIng!.ingredient.quantity = 25;
+      vm.removeCurrentIngredient();
+      expect(vm.parsedIngs).toHaveLength(1);
+      expect(vm.canUndoRemoveIngredient).toBe(true);
+      vm.undoRemoveIngredient();
+      expect(vm.parsedIngs).toHaveLength(2);
+      expect(vm.currentIng!.ingredient.quantity).toBe(25);
+      expect(vm.currentMissingFood).toBe("milk");
+      expect(vm.state.reviewTotal).toBe(2);
+      expect(vm.state.reviewedCount).toBe(0);
+      expect(vm.state.step).toBe(ParseStep.PARSE);
+      expect(vm.canUndoRemoveIngredient).toBe(false);
+      vm.nextIngredient();
+      expect(vm.currentIng!.input).toBe("salt");
+    });
+    test("undoing the last removal does not retain the automatic empty row", async () => {
+      const { vm } = wrapper();
+      vm.setParsedIngs([{ input: "salt", ingredient: {}, confidence: {} }]);
+      vm.nextIngredient();
+      vm.removeCurrentIngredient();
+      await vm.$nextTick();
+      vm.undoRemoveIngredient();
+      expect(vm.parsedIngs).toHaveLength(1);
+      expect(vm.currentIng!.input).toBe("salt");
+      expect(vm.state.reviewTotal).toBe(1);
+    });
+    test("going back from the final review skips rows removed there", () => {
+      const { vm } = wrapper();
+      vm.setParsedIngs([0, 1].map(quantity => ({ ingredient: { quantity }, confidence: {} })));
+      vm.nextIngredient();
+      vm.nextIngredient();
+      vm.nextIngredient();
+      vm.parsedIngs.splice(1, 1);
+      vm.previousIngredient();
+      expect(vm.currentIng!.ingredient.quantity).toBe(0);
+      expect(vm.state.currentParsedIndex).toBe(0);
+    });
+  });
+
+  describe("previousIngredient", () => {
+    test("preserves edits and missing details across backward and forward navigation", () => {
+      const { vm } = wrapper();
+      vm.setParsedIngs([
+        { ingredient: { food: { name: "salt", id: "" } }, confidence: { average: 0.99 } },
+        { ingredient: {}, confidence: { average: 0.99 } },
+        { ingredient: { unit: { name: "spoon", id: "" } }, confidence: {} },
+      ]);
+      expect(vm.canGoToPreviousIngredient).toBe(false);
+      vm.nextIngredient();
+      vm.currentIng!.ingredient.quantity = 3;
+      vm.currentIng!.ingredient.food = { id: "salt-id", name: "salt" };
+      vm.nextIngredient();
+      expect(vm.state.currentParsedIndex).toBe(2);
+      vm.previousIngredient();
+      expect(vm.state.currentParsedIndex).toBe(0);
+      expect(vm.currentIng!.ingredient.quantity).toBe(3);
+      expect(vm.currentMissingFood).toBe("salt");
+      expect(vm.state.reviewedCount).toBe(0);
+      vm.nextIngredient();
+      expect(vm.currentMissingUnit).toBe("spoon");
+      vm.previousIngredient();
+      vm.nextIngredient();
+      expect(vm.state.reviewedCount).toBe(1);
+      vm.nextIngredient();
+      vm.previousIngredient();
+      expect(vm.state.step).toBe(ParseStep.PARSE);
+      expect(vm.state.currentParsedIndex).toBe(2);
+      expect(vm.state.reviewedCount).toBe(1);
+    });
+    test("skips deleted ingredients when navigating back", () => {
+      const { vm } = wrapper();
+      vm.setParsedIngs([0, 1, 2].map(quantity => ({ ingredient: { quantity }, confidence: {} })));
+      vm.nextIngredient();
+      vm.nextIngredient();
+      vm.setShouldDelete(true);
+      vm.nextIngredient();
+      vm.previousIngredient();
+      expect(vm.currentIng!.ingredient.quantity).toBe(0);
+      vm.nextIngredient();
+      expect(vm.currentIng!.ingredient.quantity).toBe(2);
+      expect(vm.state.reviewTotal).toBe(2);
+      expect(vm.state.reviewedCount).toBe(1);
+    });
+  });
   describe("nextIngredient", () => {
     test("steps through the ingredients", () => {
       const wrapped = wrapper();

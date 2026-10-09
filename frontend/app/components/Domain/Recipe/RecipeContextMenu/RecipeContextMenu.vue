@@ -10,13 +10,13 @@
       :nudge-top="menuTop ? '5' : '0'"
       allow-overflow
       close-delay="125"
-      content-class="d-print-none"
+      content-class="d-print-none recipe-editor-overlay recipe-context-overlay"
       @update:model-value="onMenuToggle"
     >
       <template #activator="{ props: activatorProps }">
         <v-btn
           icon
-          :variant="fab ? 'flat' : undefined"
+          :variant="fab ? 'tonal' : undefined"
           :rounded="fab ? 'circle' : undefined"
           :size="fab ? 'small' : undefined"
           :color="fab ? 'info' : 'secondary'"
@@ -26,22 +26,24 @@
         >
           <v-icon
             :size="!fab ? undefined : 'x-large'"
-            :color="fab ? 'white' : 'secondary'"
+            :color="fab ? 'primary' : 'secondary'"
           >
             {{ icon }}
           </v-icon>
         </v-btn>
       </template>
 
-      <RecipeContextMenuContent
-        v-if="isMenuContentLoaded"
-        v-bind="contentProps"
-        @print="$emit('print')"
-        @favorite="$emit('favorite')"
-        @deleted="$emit('deleted', $event)"
-        @mealplan-edit="$emit('mealplanEdit')"
-        @mealplan-remove="$emit('mealplanRemove')"
-      />
+      <div class="recipe-context-menu-body elevation-8">
+        <RecipeContextMenuContent
+          v-if="isMenuContentLoaded"
+          v-bind="contentProps"
+          @print="$emit('print')"
+          @favorite="$emit('favorite')"
+          @deleted="$emit('deleted', $event)"
+          @mealplan-edit="$emit('mealplanEdit')"
+          @mealplan-remove="$emit('mealplanRemove')"
+        />
+      </div>
     </v-menu>
   </div>
 </template>
@@ -129,3 +131,14 @@ const RecipeContextMenuContent = defineAsyncComponent(
   () => import("./RecipeContextMenuContent.vue"),
 );
 </script>
+
+<style>
+.recipe-context-overlay {
+  width: min(280px, calc(100vw - 32px)) !important;
+  min-width: 0 !important;
+}
+.recipe-context-menu-body {
+  width: 100%;
+  min-height: 44px;
+}
+</style>

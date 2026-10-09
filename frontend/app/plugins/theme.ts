@@ -1,7 +1,8 @@
-import { bistroThemes } from "~/assets/ratatouille/palette";
+import { appThemes, controlDefaults } from "~/theme/colors";
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.hook("vuetify:before-create", ({ vuetifyOptions }) => {
+    vuetifyOptions.defaults = { ...vuetifyOptions.defaults, ...controlDefaults };
     // This fork owns the palette, including teleported menus and dialogs.
     // Backend theme defaults must not overwrite the custom UI colors.
     vuetifyOptions.theme = {
@@ -11,7 +12,7 @@ export default defineNuxtPlugin((nuxtApp) => {
         lighten: 3,
         darken: 3,
       },
-      themes: bistroThemes,
+      themes: appThemes,
     };
   });
 });

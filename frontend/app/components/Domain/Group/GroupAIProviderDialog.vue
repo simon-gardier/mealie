@@ -1,6 +1,7 @@
 <template>
   <BaseDialog
     v-model="dialog"
+    content-class="ai-provider-dialog"
     :title="isEdit ? $t('group.ai-provider-settings.edit-provider') : $t('group.ai-provider-settings.create-provider')"
     :icon="$globals.icons.robot"
     :loading="loading"
@@ -11,14 +12,14 @@
     @submit="handleSubmit"
     @close="resetForm"
   >
-    <v-card-text v-if="init" style="max-height: 70vh; overflow-y: auto;">
+    <v-card-text v-if="init">
       <v-form ref="form" v-no-autofill>
         <v-text-field
           v-model="formData.name"
           :label="$t('group.ai-provider-settings.provider-name')"
           :rules="[validators.required]"
           density="compact"
-          variant="outlined"
+          variant="filled"
           class="mb-4"
         />
         <v-text-field
@@ -27,7 +28,7 @@
           :hint="$t('group.ai-provider-settings.model-description')"
           :rules="[validators.required]"
           density="compact"
-          variant="outlined"
+          variant="filled"
           class="mb-4"
         />
         <v-text-field
@@ -41,7 +42,7 @@
           :persistent-hint="isEdit"
           :rules="isEdit ? [] : [validators.required]"
           density="compact"
-          variant="outlined"
+          variant="filled"
           type="password"
           class="mb-4"
         />
@@ -50,7 +51,7 @@
           :label="$t('group.ai-provider-settings.base-url')"
           :hint="$t('group.ai-provider-settings.base-url-description')"
           density="compact"
-          variant="outlined"
+          variant="filled"
           class="mb-4"
         />
         <v-number-input
@@ -60,11 +61,11 @@
           :min="0"
           hide-details
           density="compact"
-          variant="outlined"
+          variant="filled"
           class="mb-4"
         />
-        <v-expansion-panels v-model="advancedPanel" variant="accordion">
-          <v-expansion-panel>
+        <v-expansion-panels v-model="advancedPanel" class="ai-provider-advanced" variant="accordion">
+          <v-expansion-panel :elevation="0">
             <v-expansion-panel-title class="text-subtitle-2" expand-icon="$expand" collapse-icon="$expand">
               {{ $t('search.advanced') }}
             </v-expansion-panel-title>
@@ -286,3 +287,42 @@ async function handleTest() {
   }
 }
 </script>
+
+<style scoped>
+.ai-provider-advanced :deep(.v-expansion-panel) {
+  border: 1px solid rgba(var(--v-theme-separator), 0.6);
+  border-radius: 14px !important;
+  background: rgb(var(--v-theme-surface-elevated));
+  color: rgb(var(--v-theme-on-surface));
+  overflow: hidden;
+  box-shadow: none;
+}
+.ai-provider-advanced :deep(.v-expansion-panel-title) {
+  min-height: 52px;
+  padding: 12px 16px;
+  font: 600 15px var(--bistro-body);
+}
+.ai-provider-advanced :deep(.v-expansion-panel-text__wrapper) {
+  padding: 16px;
+  border-top: 1px solid rgba(var(--v-theme-separator), 0.5);
+  background: transparent;
+}
+.ai-provider-advanced :deep(.v-expansion-panel__shadow) {
+  display: none;
+}
+.ai-provider-advanced :deep(.v-btn) {
+  border-radius: 10px;
+}
+:global(.ai-provider-dialog .base-dialog-card > .v-spacer) {
+  display: none;
+}
+:global(.ai-provider-dialog .base-dialog-card > .v-card-actions) {
+  flex: 0 0 auto;
+  min-height: 60px;
+  padding: 8px 12px max(8px, env(safe-area-inset-bottom)) !important;
+  gap: 8px;
+}
+:global(.ai-provider-dialog .dialog-footer-center:empty) {
+  display: none;
+}
+</style>

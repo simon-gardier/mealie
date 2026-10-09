@@ -30,10 +30,13 @@
             />
             <div
               class="ml-2 text-truncate shopping-list-item__text"
-              :class="listItem.checked ? 'strike-through' : ''"
+              :class="{ 'shopping-item-completed': listItem.checked }"
               style="min-width: 0;"
             >
               <RecipeIngredientListItem :ingredient="listItem" />
+              <p v-if="listItem.checked && listItem.updatedAt" class="shopping-item-completed-date">
+                {{ $t('shopping-list.completed-on', { date: $d(new Date(listItem.updatedAt)) }) }}
+              </p>
             </div>
           </div>
         </v-col>
@@ -53,7 +56,6 @@
               <template #activator="{ props: hoverProps }">
                 <v-tooltip
                   v-if="recipeList && recipeList.length"
-                  open-delay="200"
                   transition="slide-x-reverse-transition"
                   density="compact"
                   location="end"
@@ -66,6 +68,8 @@
                       class="ml-2"
                       icon
                       v-bind="tooltipProps"
+                      :aria-label="$t('shopping-list.linked-recipes-count', recipeList.length)"
+                      :aria-expanded="displayRecipeRefs"
                       @click="displayRecipeRefs = !displayRecipeRefs"
                     >
                       <v-icon>
@@ -73,23 +77,14 @@
                       </v-icon>
                     </v-btn>
                   </template>
-                  <span>Toggle Recipes</span>
+                  <span>{{ $t('shopping-list.linked-recipes-count', recipeList.length) }}</span>
                 </v-tooltip>
-                <v-btn
-                  size="small"
-                  variant="text"
-                  class="ml-2"
-                  icon
-                  @click="$emit('edit')"
-                >
-                  <v-icon>
-                    {{ $globals.icons.edit }}
-                  </v-icon>
-                </v-btn>
+
                 <v-btn
                   size="small"
                   variant="text"
                   class="handle"
+                  :aria-label="$t('general.actions')"
                   icon
                   v-bind="hoverProps"
                 >
@@ -103,6 +98,8 @@
                   v-for="action in contextMenu"
                   :key="action.event"
                   density="compact"
+                  :base-color="action.event === 'delete' ? 'error' : undefined"
+                  :prepend-icon="action.event === 'delete' ? $globals.icons.delete : $globals.icons.edit"
                   @click="$emit(action.event as any)"
                 >
                   <v-list-item-title>
@@ -122,22 +119,9 @@
           :recipes="recipeList"
           :list-item="listItem"
           :disabled="isOffline"
-          :tile="true"
+          class="shopping-item-recipes"
         />
       </v-container>
-      <v-row
-        v-if="listItem.checked"
-        no-gutters
-        class="mb-2"
-      >
-        <v-col cols="auto">
-          <div class="text-caption font-weight-light font-italic">
-            {{ $t("shopping-list.completed-on", {
-              date: listItem.updatedAt ? $d(new Date(listItem.updatedAt)) : '',
-            }) }}
-          </div>
-        </v-col>
-      </v-row>
     </v-container>
     <div
       v-if="edit"
@@ -344,5 +328,57 @@ const recipeList = computed<RecipeSummary[]>(() => {
    half-way down the block */
 .shopping-list-item__text .ingredient-item {
   align-items: baseline;
+}
+</style>
+
+<style scoped>
+.shopping-item-completed :deep(.ingredient-item),
+.shopping-item-completed :deep(.text-bold),
+.shopping-item-completed :deep(strong) {
+  color: rgba(var(--v-theme-text-secondary), var(--v-secondary-label-opacity));
+  font-weight: 400;
+  text-decoration: line-through;
+  text-decoration-color: rgba(var(--v-theme-text-secondary), 0.4);
+}
+.shopping-item-completed-date {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: rgba(var(--v-theme-text-secondary), var(--v-secondary-label-opacity));
+}
+.shopping-item-recipes {
+  padding: 8px 0 0;
+  background: transparent;
+}
+.shopping-item-recipes :deep(.v-sheet) {
+  margin: 0 0 8px;
+  border-radius: 14px;
+  border: 1px solid rgba(var(--v-theme-separator), 0.5);
+  background: rgb(var(--v-theme-surface));
+  box-shadow: none !important;
+  overflow: hidden;
+}
+.shopping-item-recipes :deep(.v-list-item) {
+  min-height: 64px;
+  padding: 12px !important;
+}
+.shopping-item-recipes :deep(.v-list-item-title) {
+  white-space: normal !important;
+  overflow-wrap: anywhere;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+.shopping-item-recipes :deep(.v-list-item-subtitle) {
+  white-space: normal;
+  margin-top: 4px;
+  font-size: 13px;
+}
+.shopping-item-completed :deep(.ingredient-item) {
+  font-size: 15px !important;
+  line-height: 1.5;
+}
+.shopping-item-completed {
+  white-space: normal;
 }
 </style>

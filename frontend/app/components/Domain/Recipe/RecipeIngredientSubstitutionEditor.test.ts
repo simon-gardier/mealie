@@ -1,4 +1,4 @@
-import { mount } from "@vue/test-utils";
+import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, test, vi } from "vitest";
 import { nextTick } from "vue";
 import RecipeIngredientSubstitutionEditor from "./RecipeIngredientSubstitutionEditor.vue";
@@ -31,22 +31,25 @@ describe("RecipeIngredientSubstitutionEditor", () => {
           VTextField: { template: "<input>" },
           VBtn: { template: "<button><slot /></button>" },
           VIcon: { template: "<span><slot /></span>" },
-          BaseButton: { template: "<button class='create-food' @click='$emit(`click`)'>Create</button>" },
         },
       },
     });
 
     await wrapper.findAll("input")[0]!.setValue("Butter");
-    expect(wrapper.findAll(".create-food")).toHaveLength(0);
+    expect(wrapper.findAll(".ingredient-create-button")).toHaveLength(0);
 
     await wrapper.findAll("input")[2]!.setValue("Margarine");
-    expect(wrapper.findAll(".create-food")).toHaveLength(1);
-    await wrapper.find(".create-food").trigger("click");
+    await wrapper.findAll("input")[2]!.trigger("focus");
+    expect(wrapper.findAll(".ingredient-create-button")).toHaveLength(1);
+    await wrapper.find(".ingredient-create-button").trigger("click");
+    await flushPromises();
     await nextTick();
 
     expect(mocks.createOne).toHaveBeenCalledWith(expect.objectContaining({ name: "Margarine" }));
     expect(substitutions.map(substitution => substitution.substituteFoodId)).toEqual([null, "created"]);
     expect(wrapper.emitted("food-changed")).toEqual([[1]]);
+    expect((wrapper.findAll("input")[2]!.element as HTMLInputElement).value).toBe("Margarine");
+    expect((wrapper.findAll("input")[0]!.element as HTMLInputElement).value).toBe("Butter");
     wrapper.unmount();
   });
 });

@@ -11,34 +11,33 @@
       @cancel="$emit('cancel')"
     >
       <v-card-text>
-        <v-container>
-          <v-row v-for="alias, i in aliases" :key="i">
-            <v-col cols="10">
-              <v-text-field v-model="alias.name" :label="$t('general.name')" :rules="[validators.required]" variant="outlined" />
-            </v-col>
-            <v-col cols="2">
-              <BaseButtonGroup
-                :buttons="[
-                  {
-                    icon: $globals.icons.delete,
-                    text: $t('general.delete'),
-                    event: 'delete',
-                  },
-                ]"
-                @delete="deleteAlias(i)"
-              />
-            </v-col>
-          </v-row>
-        </v-container>
+        <div class="alias-content">
+          <div v-for="alias, i in aliases" :key="i" class="alias-row">
+            <div class="alias-field">
+              <v-text-field v-model="alias.name" :label="$t('general.name')" :rules="[validators.required]" variant="filled" />
+            </div>
+            <div class="alias-delete-container">
+              <v-btn
+                class="alias-delete"
+                :ripple="false"
+                icon
+                variant="text"
+                color="error"
+                :aria-label="$t('general.delete')"
+                @click="deleteAlias(i)"
+              >
+                <v-icon>{{ $globals.icons.delete }}</v-icon>
+                <v-tooltip activator="parent" location="bottom">
+                  {{ $t('general.delete') }}
+                </v-tooltip>
+              </v-btn>
+            </div>
+          </div>
+          <v-btn class="alias-create mt-2" variant="tonal" color="primary" :prepend-icon="$globals.icons.create" @click="createAlias">
+            {{ $t('data-pages.create-alias') }}
+          </v-btn>
+        </div>
       </v-card-text>
-      <template #custom-card-action>
-        <BaseButton edit @click="createAlias">
-          {{ $t('data-pages.create-alias') }}
-          <template #icon>
-            {{ $globals.icons.create }}
-          </template>
-        </BaseButton>
-      </template>
     </BaseDialog>
   </div>
 </template>
@@ -117,3 +116,33 @@ function saveAliases() {
   emit("submit", keepAliases);
 }
 </script>
+
+<style scoped>
+.alias-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.alias-field {
+  flex: 1;
+  min-width: 0;
+}
+.alias-delete-container {
+  padding-top: 6px;
+}
+.alias-delete {
+  flex: 0 0 44px;
+  min-width: 44px;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px !important;
+}
+.alias-delete :deep(.v-btn__overlay),
+.alias-delete :deep(.v-btn__underlay) {
+  border-radius: inherit;
+}
+.alias-create {
+  min-height: 44px;
+  border-radius: 10px;
+}
+</style>

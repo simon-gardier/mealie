@@ -177,13 +177,21 @@
         </template>
       </div>
 
-      <v-card-actions class="justify-center flex-wrap py-8" style="gap: 0.5rem;">
-        <BaseButton size="large" color="grey-darken-2" :icon="$globals.icons.lock" to="/login">
+      <v-card-actions class="registration-footer-actions">
+        <BaseButton variant="tonal" color="primary" height="44" :icon="$globals.icons.lock" to="/login">
           {{ $t("user.login") }}
         </BaseButton>
-        <BaseButton size="large" color="grey-darken-2" :icon="$globals.icons.translate" @click="langDialog = true">
-          {{ $t("language-dialog.choose-language") }}
-        </BaseButton>
+        <BaseButton
+          icon-only
+          class="registration-language-button"
+          variant="tonal"
+          color="on-surface"
+          height="44"
+          width="44"
+          :icon="$globals.icons.translate"
+          :aria-label="$t('language-dialog.choose-language')"
+          @click="langDialog = true"
+        />
       </v-card-actions>
     </v-card>
     <LanguageDialog v-model="langDialog" />
@@ -209,7 +217,7 @@ definePageMeta({
 });
 
 const inputAttrs = {
-  variant: "outlined" as const,
+  variant: "filled" as const,
   color: "primary",
   density: "comfortable" as const,
   validateOnBlur: true,
@@ -418,6 +426,37 @@ async function submitRegistration() {
 </script>
 
 <style lang="css" scoped>
+.registration-footer-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 24px 16px;
+}
+.registration-footer-actions :deep(.v-btn) {
+  margin: 0;
+  padding-inline: 16px;
+  border-radius: 10px;
+  box-shadow: none;
+  font-family: var(--bistro-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: normal;
+}
+.registration-footer-actions :deep(.v-icon) {
+  font-size: 20px;
+}
+.registration-footer-actions :deep(.registration-language-button) {
+  min-width: 44px;
+  padding: 0;
+}
+.registration-footer-actions :deep(.v-btn:focus-visible) {
+  outline: 2px solid rgb(var(--v-theme-primary));
+  outline-offset: 3px;
+}
+
 .register-background {
   position: relative;
   z-index: 1;
@@ -428,9 +467,9 @@ async function submitRegistration() {
   background-color: rgba(var(--v-theme-surface), 0.65) !important;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(var(--v-theme-media-foreground), 0.25);
   border-radius: 24px !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+  box-shadow: 0 8px 32px rgba(var(--v-theme-media-scrim), 0.3) !important;
 }
 
 .registration-choice {

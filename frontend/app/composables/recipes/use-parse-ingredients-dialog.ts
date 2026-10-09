@@ -1,3 +1,4 @@
+import { ingredientAnalysisErrorKey } from "~/lib/ingredient-analysis-error";
 import { alert } from "~/composables/use-toast";
 import type { NoUndefinedField } from "~/lib/api/types/non-generated";
 import type { IngredientFood, IngredientUnit, ParsedIngredient, RecipeIngredient } from "~/lib/api/types/recipe";
@@ -107,6 +108,7 @@ export function useParseIngredientsDialog(
   }
 
   function shouldReview(ing: ParsedIngredient): boolean {
+    if ([...additionalIngredients.values()].some(ingredients => ingredients.includes(ing))) return false;
     console.debug(`Checking if ingredient needs review (input="${ing.input})":`, ing);
 
     if (ing.ingredient.referencedRecipe) {
@@ -176,9 +178,137 @@ export function useParseIngredientsDialog(
 
   const ingredientsToReview = computed(() => parsedIngs.value.filter(shouldReview));
 
+  // Additional ingredients share a source line but are edited inline rather than counted as
+  // another automatic analysis to review.
+  const additionalIngredients = reactive(new Map<ParsedIngredient, ParsedIngredient[]>());
+  const currentAdditionalIngredients = computed(() => currentIng.value
+    ? (additionalIngredients.get(currentIng.value) || []).filter(ing => parsedIngs.value.includes(ing))
+    : []);
+
+  function addAdditionalIngredient() {
+    if (!currentIng.value || state.loading.unit || state.loading.food) return;
+    const extra: ParsedIngredient = {
+      input: currentIng.value.input,
+      confidence: { average: 1 },
+      ingredient: { quantity: 0, referenceId: uuid4(), substitutions: [] },
+    };
+    const siblings = currentAdditionalIngredients.value;
+    const last = siblings.at(-1) || currentIng.value;
+    const index = parsedIngs.value.indexOf(last);
+    parsedIngs.value.splice(index + 1, 0, extra);
+    additionalIngredients.set(currentIng.value, [...siblings, parsedIngs.value[index + 1]!]);
+  }
+
+  function removeAdditionalIngredient(ingredient: ParsedIngredient) {
+    if (state.loading.unit || state.loading.food) return;
+    const index = parsedIngs.value.indexOf(ingredient);
+    if (index >= 0 && currentAdditionalIngredients.value.includes(ingredient)) parsedIngs.value.splice(index, 1);
+  }
+
+  const reviewHistory = ref<ParsedIngredient[]>([]);
+  const missingDetails = new Map<ParsedIngredient, { unit: string; food: string }>();
+  const availableReviewHistory = computed(() => reviewHistory.value.filter(ing => parsedIngs.value.includes(ing)));
+  const canGoToPreviousIngredient = computed(() => state.allReviewed
+    ? availableReviewHistory.value.length > 0
+    : availableReviewHistory.value.indexOf(currentIng.value!) > 0);
+  const emptyReviewPlaceholder = ref<ParsedIngredient | null>(null);
+  const removedIngredient = ref<{
+    ingredient: ParsedIngredient;
+    index: number;
+    historyIndex: number;
+    reviewedCount: number;
+    reviewTotal: number;
+    unit: string;
+    food: string;
+  } | null>(null);
+  const canUndoRemoveIngredient = computed(() => !!removedIngredient.value);
+
+  function removeCurrentIngredient() {
+    if (!currentIng.value || state.loading.unit || state.loading.food) return;
+    removedIngredient.value = {
+      ingredient: currentIng.value,
+      index: state.currentParsedIndex,
+      historyIndex: reviewHistory.value.indexOf(currentIng.value),
+      reviewedCount: state.reviewedCount,
+      reviewTotal: state.reviewTotal,
+      unit: currentMissingUnit.value,
+      food: currentMissingFood.value,
+    };
+    currentIngShouldDelete.value = true;
+    nextIngredient();
+  }
+
+  function undoRemoveIngredient() {
+    const removed = removedIngredient.value;
+    if (!removed || state.loading.unit || state.loading.food || state.saveLoading) return;
+    rememberMissingDetails();
+    if (emptyReviewPlaceholder.value) {
+      const placeholder = emptyReviewPlaceholder.value;
+      // Keep a placeholder if it has since become an ingredient the user authored.
+      if (!placeholder.ingredient.quantity && !placeholder.ingredient.food && !placeholder.ingredient.unit
+        && !placeholder.ingredient.note && !placeholder.ingredient.title && !placeholder.ingredient.referencedRecipe) {
+        parsedIngs.value = parsedIngs.value.filter(ing => ing !== placeholder);
+      }
+      emptyReviewPlaceholder.value = null;
+    }
+    parsedIngs.value.splice(removed.index, 0, removed.ingredient);
+    reviewHistory.value.splice(removed.historyIndex, 0, removed.ingredient);
+    missingDetails.set(removed.ingredient, { unit: removed.unit, food: removed.food });
+    selectIngredient(removed.ingredient);
+    state.reviewedCount = removed.reviewedCount;
+    state.reviewTotal = removed.reviewTotal;
+    state.allReviewed = false;
+    state.step = ParseStep.PARSE;
+    removedIngredient.value = null;
+  }
+
+  function rememberMissingDetails() {
+    if (currentIng.value) {
+      missingDetails.set(currentIng.value, { unit: currentMissingUnit.value, food: currentMissingFood.value });
+    }
+  }
+
+  function selectIngredient(ing: ParsedIngredient) {
+    state.currentParsedIndex = parsedIngs.value.indexOf(ing);
+    currentIng.value = ing;
+    currentIngShouldDelete.value = false;
+    const details = missingDetails.get(ing);
+    if (details) {
+      currentMissingUnit.value = details.unit;
+      currentMissingFood.value = details.food;
+    }
+    else {
+      reviewHistory.value.push(ing);
+      checkUnit(ing);
+      checkFood(ing);
+    }
+  }
+
+  function previousIngredient() {
+    if (!canGoToPreviousIngredient.value || state.loading.unit || state.loading.food) {
+      return;
+    }
+    rememberMissingDetails();
+    const previousIndex = state.allReviewed
+      ? availableReviewHistory.value.length - 1
+      : availableReviewHistory.value.indexOf(currentIng.value!) - 1;
+    selectIngredient(availableReviewHistory.value[previousIndex]!);
+    state.reviewedCount = previousIndex;
+    state.allReviewed = false;
+    state.step = ParseStep.PARSE;
+  }
+
   function nextIngredient() {
+    if (state.loading.unit || state.loading.food) {
+      return;
+    }
+    rememberMissingDetails();
     let nextIndex = state.currentParsedIndex;
     if (currentIngShouldDelete.value) {
+      if (currentIng.value) {
+        reviewHistory.value = reviewHistory.value.filter(ing => ing !== currentIng.value);
+        missingDetails.delete(currentIng.value);
+      }
       parsedIngs.value.splice(state.currentParsedIndex, 1);
       state.reviewTotal = Math.max(0, state.reviewTotal - 1);
       currentIngShouldDelete.value = false;
@@ -192,12 +322,8 @@ export function useParseIngredientsDialog(
 
     while (nextIndex < parsedIngs.value.length) {
       const current = parsedIngs.value[nextIndex]!;
-      if (shouldReview(current)) {
-        state.currentParsedIndex = nextIndex;
-        currentIng.value = current;
-        currentIngShouldDelete.value = false;
-        checkUnit(current);
-        checkFood(current);
+      if (reviewHistory.value.includes(current) || shouldReview(current)) {
+        selectIngredient(current);
         return;
       }
 
@@ -212,6 +338,11 @@ export function useParseIngredientsDialog(
   /** Clear everything left over from a previous run, so re-opening the dialog starts clean */
   function resetParserState() {
     parsedIngs.value = [];
+    additionalIngredients.clear();
+    reviewHistory.value = [];
+    removedIngredient.value = null;
+    emptyReviewPlaceholder.value = null;
+    missingDetails.clear();
     currentIng.value = null;
     currentMissingUnit.value = "";
     currentMissingFood.value = "";
@@ -269,8 +400,7 @@ export function useParseIngredientsDialog(
     }
     catch (error) {
       console.error("Error parsing ingredients:", error);
-      const responseData = (error as { response?: { data?: { reason?: string; detail?: { reason?: string; message?: string } } } })?.response?.data;
-      alert.error(responseData?.reason || responseData?.detail?.reason || responseData?.detail?.message || i18n.t("events.something-went-wrong"));
+      alert.error(i18n.t(ingredientAnalysisErrorKey(parser.value, error)));
     }
     finally {
       state.loadingCount -= 1;
@@ -420,6 +550,7 @@ export function useParseIngredientsDialog(
 
     if (!parsedIngs.value.length) {
       insertNewIngredient(0);
+      emptyReviewPlaceholder.value = parsedIngs.value[0]!;
     }
   }, { immediate: true, deep: true });
 
@@ -463,8 +594,16 @@ export function useParseIngredientsDialog(
     nextStep,
     saveIngs,
     nextIngredient,
+    previousIngredient,
+    canGoToPreviousIngredient,
+    removeCurrentIngredient,
+    undoRemoveIngredient,
+    canUndoRemoveIngredient,
     parseIngredients,
     insertNewIngredient,
+    currentAdditionalIngredients,
+    addAdditionalIngredient,
+    removeAdditionalIngredient,
     addMissingFoodAsAlias,
     addMissingUnitAsAlias,
     createMissingFood,

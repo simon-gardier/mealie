@@ -63,12 +63,20 @@
     </v-icon>
     {{ $t("household.households") }}
   </SearchFilter>
+  <SearchFilter v-if="isOwnGroup" v-model="selectedAuthors" :items="authors" radio>
+    <v-icon start>
+      {{ $globals.icons.user }}
+    </v-icon>
+    {{ $t('recipe.author') }}
+  </SearchFilter>
 </template>
 
 <script setup lang="ts">
+import type { ISearchableItem } from "~/composables/use-search";
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 import { useRecipeExplorerSearch } from "~/composables/use-recipe-explorer-search";
 import {
+  useUserStore,
   useCategoryStore,
   usePublicCategoryStore,
   useFoodStore,
@@ -91,11 +99,18 @@ const {
   state,
   selectedCategories,
   selectedFoods,
+  selectedAuthor,
   selectedHouseholds,
   selectedTags,
   selectedTools,
 } = useRecipeExplorerSearch(groupSlug);
 
+const userStore = isOwnGroup.value ? useUserStore() : null;
+const authors = computed(() => (userStore?.store.value || []).map(user => ({ id: user.id, name: user.fullName || user.username })).sort((a, b) => a.name.localeCompare(b.name)));
+const selectedAuthors = computed<ISearchableItem[]>({
+  get: () => authors.value.filter(author => author.id === selectedAuthor.value),
+  set: (authors) => { selectedAuthor.value = authors[0]?.id || null; },
+});
 const { store: categories } = isOwnGroup.value ? useCategoryStore() : usePublicCategoryStore(groupSlug.value);
 const { store: tags } = isOwnGroup.value ? useTagStore() : usePublicTagStore(groupSlug.value);
 const { store: tools } = isOwnGroup.value ? useToolStore() : usePublicToolStore(groupSlug.value);

@@ -1,52 +1,83 @@
 <template>
   <div>
     <div>
-      <BaseDialog v-model="madeThisDialog" bottom-sheet center-title content-class="cooked-dialog"
-        :loading="madeThisFormLoading" :title="$t('recipe.made-this')" :submit-text="$t('recipe.add-to-timeline')"
-        can-submit disable-submit-on-enter @submit="createTimelineEvent">
-        <v-card-text>
+      <BaseDialog
+        v-model="madeThisDialog"
+        bottom-sheet
+        :width="560"
+        content-class="cooked-dialog"
+        :loading="madeThisFormLoading"
+        :title="$t('recipe.made-this')"
+        :submit-text="$t('recipe.add-to-timeline')"
+        can-submit
+        disable-submit-on-enter
+        @submit="createTimelineEvent"
+      >
+        <v-card-text class="cooked-form-content">
+          <p class="cooked-form-description">
+            {{ $t('recipe.cooked-form-description') }}
+          </p>
           <v-form ref="domMadeThisForm">
             <div class="cooked-date-menu">
               <v-menu v-model="datePickerMenu" :close-on-content-click="false" transition="scale-transition" offset-y>
                 <template #activator="{ props: activatorProps }">
-                  <v-text-field :model-value="$d(newTimelineEventTimestamp)" :prepend-icon="$globals.icons.calendar"
-                    v-bind="activatorProps" readonly class="cooked-date-input" color="primary" variant="outlined"
-                    density="comfortable" width="190" />
+                  <v-text-field
+                    :model-value="$d(newTimelineEventTimestamp)"
+                    :prepend-inner-icon="$globals.icons.calendar"
+                    :label="$t('recipe.cooked-date')"
+                    v-bind="activatorProps"
+                    readonly
+                    class="cooked-date-input"
+                    color="primary"
+                    variant="filled"
+                    density="comfortable"
+                    hide-details
+                  />
                 </template>
-                <v-date-picker v-model="newTimelineEventTimestamp" hide-header :first-day-of-week="firstDayOfWeek"
-                  :local="$i18n.locale" @update:model-value="datePickerMenu = false" />
+                <v-date-picker
+                  v-model="newTimelineEventTimestamp"
+                  hide-header
+                  :first-day-of-week="firstDayOfWeek"
+                  :locale="$i18n.locale"
+                  @update:model-value="datePickerMenu = false"
+                />
               </v-menu>
             </div>
-            <v-textarea v-model="newTimelineEvent.eventMessage" class="made-this-comment-input" autofocus
-              :label="$t('recipe.comment')" :hint="$t('recipe.how-did-it-turn-out')" persistent-hint rows="4"
-              variant="outlined" />
+            <v-textarea
+              v-model="newTimelineEvent.eventMessage"
+              class="made-this-comment-input"
+              :label="$t('recipe.optional-comment')"
+              :hint="$t('recipe.how-did-it-turn-out')"
+              persistent-hint
+              rows="3"
+              auto-grow
+              variant="filled"
+            />
             <div v-if="childRecipes?.length">
               <v-card-text class="pt-6 pb-0 text-title-medium">
                 {{ $t('recipe.include-linked-recipes') }}
               </v-card-text>
               <v-list>
-                <v-list-item v-for="(childRecipe, i) in childRecipes" :key="childRecipe.recipeId + i" density="compact"
-                  class="my-0 py-0" @click="childRecipe.checked = !childRecipe.checked">
-                  <v-checkbox hide-details density="compact" :input-value="childRecipe.checked"
-                    :label="childRecipe.name" class="my-0 py-0" color="secondary" />
+                <v-list-item
+                  v-for="(childRecipe, i) in childRecipes"
+                  :key="childRecipe.recipeId + i"
+                  density="compact"
+                  class="my-0 py-0"
+                  @click="childRecipe.checked = !childRecipe.checked"
+                >
+                  <v-checkbox
+                    v-model="childRecipe.checked"
+                    hide-details
+                    density="compact"
+                    :label="childRecipe.name"
+                    class="my-0 py-0"
+                    color="primary"
+                    @click.stop
+                  />
                 </v-list-item>
               </v-list>
             </div>
-            <v-container>
-              <v-row class="mt-4">
-                <v-col cols="12" class="d-flex flex-column align-center ga-3">
-                  <AppButtonUpload v-if="!newTimelineEventImage" url="none" file-name="image" accept="image/*"
-                    :text="$t('recipe.upload-image')" :text-btn="false" :post="false" class="send-image-button"
-                    @uploaded="uploadImage" />
-                </v-col>
-              </v-row>
-              <v-row v-if="newTimelineEventImage && newTimelineEventImagePreviewUrl">
-                <v-col cols="12">
-                  <ImageCropper :img="newTimelineEventImagePreviewUrl" cropper-width="100%" @save="updateUploadedImage"
-                    @delete="clearImage" />
-                </v-col>
-              </v-row>
-            </v-container>
+            <RecipeTimelinePhotoEditor :preview="newTimelineEventImagePreviewUrl" :submitted="madeThisFormLoading" @upload="uploadImage" @crop="updateUploadedImage" @remove="clearImage" />
           </v-form>
         </v-card-text>
       </BaseDialog>
@@ -56,10 +87,15 @@
         <v-row no-gutters class="d-flex flex-wrap align-center" style="font-size: larger">
           <v-tooltip location="bottom">
             <template #activator="{ props: tooltipProps }">
-              <v-btn rounded variant="outlined" size="large" v-bind="tooltipProps"
+              <v-btn
+                rounded
+                variant="outlined"
+                size="large"
+                v-bind="tooltipProps"
                 class="font-weight-400 py-0 cooked-on-button"
                 style="border-color: rgb(var(--v-theme-primary)); min-height: 45px; height: 45px;"
-                @click="madeThisDialog = true">
+                @click="madeThisDialog = true"
+              >
                 <v-icon start size="large" color="primary">
                   {{ $globals.icons.calendar }}
                 </v-icon>
@@ -78,6 +114,7 @@
 </template>
 
 <script setup lang="ts">
+import RecipeTimelinePhotoEditor from "./RecipeTimelinePhotoEditor.vue";
 import { whenever } from "@vueuse/core";
 import { formatISO } from "date-fns";
 import { useUserApi } from "~/composables/api";
@@ -287,32 +324,55 @@ async function createTimelineEvent() {
 </script>
 
 <style scoped>
-.made-this-comment-input {
-  --v-field-border-opacity: 1;
+.cooked-form-content {
+  padding: 24px;
 }
-
-.cooked-date-input {
-  --v-field-border-color: rgb(var(--v-theme-primary));
-  --v-field-border-opacity: 1;
+.cooked-form-description {
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
+  margin-bottom: 24px;
 }
-
 .cooked-date-menu {
-  display: flex;
-  justify-content: center;
+  margin-bottom: 24px;
 }
-
-.send-image-button :deep(.v-btn) {
-  color: #fff;
+.cooked-photo-title {
+  font-family: var(--bistro-body);
+  font-size: 15px;
+  font-weight: 600;
+  margin-top: 24px;
+  margin-bottom: 12px;
 }
-
-:global(.cooked-dialog .v-toolbar-title),
-:global(.cooked-dialog .v-card-actions > .v-btn:last-child) {
-  color: #fff;
+.cooked-photo-editor {
+  box-shadow: none !important;
+  border: 1px solid rgb(var(--v-theme-separator));
+  border-radius: 14px;
+}
+.cooked-photo-editor :deep(.v-card-text) {
+  padding: 12px;
+}
+.cooked-photo-editor :deep(.v-card-actions .v-btn) {
+  min-height: 44px;
+  border-radius: 10px;
+}
+:global(.cooked-dialog .dialog-title) {
+  color: rgb(var(--v-theme-on-surface));
+}
+@media (max-width: 600px) {
+  .cooked-form-content {
+    padding: 16px;
+  }
 }
 
 .cooked-on-button {
-  background-color: rgb(var(--v-theme-paper));
+  background-color: rgb(var(--v-theme-surface));
   background-image: none;
+}
+.cooked-photo-hint {
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+  color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
 }
 
 .cooked-on-label {

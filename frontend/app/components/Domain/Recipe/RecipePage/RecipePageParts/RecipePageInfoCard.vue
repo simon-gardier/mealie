@@ -2,13 +2,18 @@
   <div>
     <div class="d-flex justify-end flex-wrap align-stretch">
       <RecipePageInfoCardImage v-if="landscape && recipe.image" :recipe="recipe" class="mt-4" />
-      <v-card :width="landscape || !recipe.image ? '100%' : '50%'" flat color="transparent"
-        class="d-flex flex-column justify-center align-center">
+      <v-card
+        :width="landscape || !recipe.image ? '100%' : '50%'"
+        flat
+        color="transparent"
+        class="recipe-info-summary d-flex flex-column justify-center align-center"
+      >
         <v-card-text>
           <div class="d-flex flex-column align-center">
             <div class="recipe-title-background d-flex align-center justify-center">
-              <v-card-title class="recipe-page-title text-h5 font-weight-regular pa-0 text-wrap text-center opacity-80"
-                :style="{ color: isDark ? undefined : '#fff' }">
+              <v-card-title
+                class="recipe-page-title text-h5 font-weight-regular pa-0 text-wrap text-center"
+              >
                 {{ recipe.name }}
               </v-card-title>
             </div>
@@ -20,10 +25,17 @@
           <v-container class="d-flex flex-row flex-wrap justify-center">
             <div class="mx-6">
               <v-row no-gutters>
-                <v-col v-if="recipe.recipeYieldQuantity || recipe.recipeYield" cols="12"
-                  class="d-flex flex-wrap justify-center">
-                  <RecipeYield :yield-quantity="recipe.recipeYieldQuantity" :yield-text="recipe.recipeYield"
-                    :scale="recipeScale" class="mb-4" />
+                <v-col
+                  v-if="recipe.recipeYieldQuantity || recipe.recipeYield"
+                  cols="12"
+                  class="d-flex flex-wrap justify-center"
+                >
+                  <RecipeYield
+                    :yield-quantity="recipe.recipeYieldQuantity"
+                    :yield-text="recipe.recipeYield"
+                    :scale="recipeScale"
+                    class="mb-4"
+                  />
                 </v-col>
               </v-row>
               <v-row no-gutters>
@@ -32,9 +44,13 @@
                 </v-col>
               </v-row>
             </div>
-            <div v-if="recipe.prepTime || recipe.totalTime || recipe.performTime" class="mx-6">
-              <RecipeTimeCard container-class="d-flex flex-wrap justify-center" :prep-time="recipe.prepTime"
-                :total-time="recipe.totalTime" :perform-time="recipe.performTime" class="mb-4" />
+            <div v-if="recipe.prepTime || recipe.totalTime || recipe.performTime" class="w-100 mt-2">
+              <RecipeTimeCard
+                :prep-time="recipe.prepTime"
+                :total-time="recipe.totalTime"
+                :perform-time="recipe.performTime"
+                class="mb-4"
+              />
             </div>
           </v-container>
         </v-card-text>
@@ -60,13 +76,11 @@ interface Props {
   landscape: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   recipeScale: 1,
 });
 
 const { isOwnGroup } = useLoggedInState();
-const theme = useTheme();
-const isDark = computed(() => theme.global.current.value.dark);
 </script>
 
 <style scoped>
@@ -77,6 +91,7 @@ const isDark = computed(() => theme.global.current.value.dark);
 }
 
 .recipe-page-title {
+  color: rgb(var(--v-theme-media-foreground));
   font-family: "Fraunces", Georgia, serif;
   line-height: 1.2;
   max-width: 70%;

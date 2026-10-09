@@ -1,9 +1,15 @@
 <template>
-  <v-card class="stats-card rounded-lg" color="primary" variant="flat" :min-width="minWidth" :to="to"
-    :hover="to ? true : false">
+  <v-card
+    class="stats-card rounded-lg"
+    color="surface"
+    variant="flat"
+    :min-width="minWidth"
+    :to="to"
+    :hover="to ? true : false"
+  >
     <div class="d-flex flex-no-wrap">
       <v-avatar class="ml-3 mr-0 mt-3" color="primary" size="36">
-        <v-icon color="white" class="pa-1" size="x-large">
+        <v-icon color="media-foreground" class="pa-1" size="x-large">
           {{ activeIcon }}
         </v-icon>
       </v-avatar>
@@ -44,17 +50,14 @@ const activeIcon = computed(() => {
 
 <style scoped>
 .stats-card {
-  background-color: rgb(var(--v-theme-primary));
-  color: rgb(var(--v-theme-on-primary));
+  background-color: rgb(var(--v-theme-surface));
+  color: rgb(var(--v-theme-on-surface));
 }
-
-.stats-card :deep(.v-card-title),
-.stats-card :deep(.v-card-subtitle),
-.stats-card :deep(.v-icon) {
-  color: rgb(var(--v-theme-on-primary)) !important;
+.stats-card :deep(.v-card-title) {
+  color: rgb(var(--v-theme-on-surface)) !important;
+  white-space: normal;
 }
-
-.stats-card:hover {
-  filter: brightness(1.04);
+.stats-card :deep(.v-card-subtitle) {
+  color: rgb(var(--v-theme-text-secondary)) !important;
 }
 </style>

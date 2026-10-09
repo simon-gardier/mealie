@@ -1,21 +1,23 @@
 <template>
-  <div style="height: 100%;">
-    <v-row class="mb-0 mt-3 mx-7">
+  <div class="recipe-history">
+    <v-row class="ma-0 mb-4">
       <v-spacer />
       <v-col class="text-right">
-        <div class="d-flex justify-end align-center">
+        <div class="d-flex justify-end align-center flex-wrap ga-2">
           <v-btn
-            variant="text"
-            :icon="preferences.orderDirection === 'asc' ? $globals.icons.sortCalendarDescending : $globals.icons.sortCalendarAscending"
+            variant="tonal"
+            :prepend-icon="preferences.orderDirection === 'asc' ? $globals.icons.sortCalendarDescending : $globals.icons.sortCalendarAscending"
             :title="preferences.orderDirection === 'asc' ? $t('general.sort-descending') : $t('general.sort-ascending')"
+            height="44"
             @click="reverseSort"
-          />
+          >
+            {{ $t(preferences.orderDirection === 'asc' ? 'recipe.history-oldest-first' : 'recipe.history-newest-first') }}
+          </v-btn>
           <!-- Filters -->
           <v-menu
-            offset-y
-            bottom
-            start
-            nudge-bottom="3"
+            location="bottom end"
+            content-class="recipe-editor-overlay"
+            max-width="320"
             :close-on-content-click="false"
           >
             <template #activator="{ props: activatorProps }">
@@ -25,10 +27,12 @@
                 bordered
               >
                 <v-btn
-                  variant="text"
+                  variant="tonal"
                   v-bind="activatorProps"
-                  :icon="$globals.icons.filter"
+                  :prepend-icon="$globals.icons.filter"
+                  height="44"
                 >
+                  {{ $t('general.filter') }}
                 </v-btn>
               </v-badge>
             </template>
@@ -73,8 +77,10 @@
       :style="maxHeight ? `max-height: ${maxHeight}; overflow-y: auto;` : ''"
     >
       <v-timeline
-        :density="$vuetify.display.smAndDown ? ($vuetify.display.xs ? 'compact' : 'comfortable') : undefined"
-        justify="center"
+        density="compact"
+        side="end"
+        align="start"
+        truncate-line="both"
         class="timeline"
       >
         <RecipeTimelineItem
@@ -89,23 +95,8 @@
         />
       </v-timeline>
     </div>
-    <v-card
-      v-else-if="!loading"
-      class="mt-2"
-    >
-      <v-card-title class="justify-center pa-9">
-        {{ $t("recipe.timeline-no-events-found-try-adjusting-filters") }}
-      </v-card-title>
-    </v-card>
-    <div
-      v-if="loading"
-      class="mb-3 text-center"
-    >
-      <AppLoader
-        :loading="loading"
-        :waiting-text="$t('general.loading-events')"
-      />
-    </div>
+    <BaseEmptyState v-else-if="!loading" :message="$t('recipe.timeline-no-events-found-try-adjusting-filters')" :icon="$globals.icons.timelineText" />
+    <RecipeLoading v-if="loading" :label="$t('general.loading-events')" />
   </div>
 </template>
 
@@ -144,7 +135,7 @@ const hasMore = ref(true);
 
 const timelineEvents = ref([] as RecipeTimelineEventOut[]);
 const recipes = new Map<string, Recipe>();
-const filterBadgeCount = computed(() => eventTypeOptions.value.length - preferences.value.types.length);
+const filterBadgeCount = computed(() => eventTypeOptions.value.filter(option => preferences.value.types.includes(option.value)).length);
 const eventTypeFilterState = computed(() => {
   return eventTypeOptions.value.map((option) => {
     return {
@@ -324,3 +315,22 @@ onMounted(
   },
 );
 </script>
+
+<style scoped>
+.recipe-history {
+  padding: 24px;
+}
+.recipe-history :deep(.v-timeline-item__body) {
+  width: 100%;
+  min-width: 0;
+  padding-block: 0 16px;
+}
+.recipe-history :deep(.v-timeline-divider__dot) {
+  box-shadow: none;
+}
+@media (max-width: 600px) {
+  .recipe-history {
+    padding: 16px;
+  }
+}
+</style>

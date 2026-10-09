@@ -11,9 +11,9 @@
         </i18n-t>
 
         <v-autocomplete v-model="fromUnit" return-object :items="unitStore" :custom-filter="normalizeFilter"
-          item-title="name" :label="$t('data-pages.units.source-unit')" variant="outlined" class="mt-2" />
+          item-title="name" :label="$t('data-pages.units.source-unit')" variant="filled" class="mt-2" />
         <v-autocomplete v-model="toUnit" return-object :items="unitStore" :custom-filter="normalizeFilter"
-          item-title="name" :label="$t('data-pages.units.target-unit')" variant="outlined" />
+          item-title="name" :label="$t('data-pages.units.target-unit')" variant="filled" />
 
         <template v-if="canMerge && fromUnit && toUnit">
           <div class="text-center">
@@ -35,7 +35,7 @@
           {{ $t("data-pages.units.seed-dialog-text") }}
         </div>
         <v-autocomplete v-model="locale" :items="locales" item-title="name" :label="$t('data-pages.select-language')"
-          class="my-3" hide-details variant="outlined" offset>
+          class="my-3" hide-details variant="filled" offset>
           <template #item="{ item, props }">
             <v-list-item v-bind="props">
               <v-list-item-subtitle>

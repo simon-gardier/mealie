@@ -1,13 +1,38 @@
 <template>
-  <v-navigation-drawer v-model="modelValue" class="bistro-sidebar d-flex flex-column d-print-none position-fixed"
-    temporary floating touchless :scrim="false" :close-on-content-click="true">
+  <v-navigation-drawer
+    id="app-sidebar"
+    v-model="modelValue"
+    class="bistro-sidebar d-flex flex-column d-print-none"
+    :class="{ 'bistro-sidebar-mobile': display.smAndDown.value }"
+    color="surface"
+    temporary
+    floating
+    :order="-1"
+    :width="display.smAndDown.value ? '100%' : 280"
+    :scrim="true"
+    :aria-label="$t('general.menu')"
+  >
     <div class="bistro-sidebar-header d-flex align-center ga-2 px-3 py-2">
-      <v-btn icon variant="text" @click.stop="modelValue = false">
+      <v-btn
+        icon
+        variant="text"
+        color="text-primary"
+        class="bistro-navigation-toggle"
+        :aria-label="$t('general.close')"
+        @click.stop="modelValue = false"
+      >
         <v-icon>{{ $globals.icons.menu }}</v-icon>
       </v-btn>
       <RouterLink to="/" class="bistro-wordmark d-flex align-center ga-2">
         <span>Petit Chef</span>
-        <img src="/remy_logo.png" width="63" height="63" alt="" aria-hidden="true" class="remy-logo">
+        <img
+          src="/remy_logo.png"
+          width="63"
+          height="63"
+          alt=""
+          aria-hidden="true"
+          class="remy-logo"
+        >
       </RouterLink>
     </div>
 
@@ -21,20 +46,39 @@
         <template v-for="nav in topLink">
           <div v-if="!nav.restricted || isOwnGroup" :key="nav.key || nav.title">
             <!-- Multi Items -->
-            <v-list-group v-if="nav.children" :key="(nav.key || nav.title) + 'multi-item'"
-              v-model="state.dropDowns[nav.title]" color="primary" :prepend-icon="nav.icon" :fluid="true">
+            <v-list-group
+              v-if="nav.children"
+              :key="(nav.key || nav.title) + 'multi-item'"
+              v-model="state.dropDowns[nav.title]"
+              color="primary"
+              :prepend-icon="nav.icon"
+              :fluid="true"
+            >
               <template #activator="{ props: hoverProps }">
                 <v-list-item v-bind="hoverProps" :prepend-icon="nav.icon" :title="nav.title" />
               </template>
 
-              <v-list-item v-for="child in nav.children" :key="child.key || child.title" exact :to="child.to"
-                :prepend-icon="child.icon" :title="child.title" class="ml-4" />
+              <v-list-item
+                v-for="child in nav.children"
+                :key="child.key || child.title"
+                exact
+                :to="child.to"
+                :prepend-icon="child.icon"
+                :title="child.title"
+                class="ml-4"
+              />
             </v-list-group>
 
             <!-- Single Item -->
             <template v-else>
-              <v-list-item :key="(nav.key || nav.title) + 'single-item'" exact link :to="nav.to"
-                :prepend-icon="nav.icon" :title="nav.title" />
+              <v-list-item
+                :key="(nav.key || nav.title) + 'single-item'"
+                exact
+                link
+                :to="nav.to"
+                :prepend-icon="nav.icon"
+                :title="nav.title"
+              />
             </template>
           </div>
         </template>
@@ -48,14 +92,27 @@
         <template v-for="nav in secondaryLinks">
           <div v-if="!nav.restricted || isOwnGroup" :key="nav.key || nav.title">
             <!-- Multi Items -->
-            <v-list-group v-if="nav.children" :key="(nav.key || nav.title) + 'multi-item'"
-              v-model="state.dropDowns[nav.title]" color="primary" :prepend-icon="nav.icon" fluid>
+            <v-list-group
+              v-if="nav.children"
+              :key="(nav.key || nav.title) + 'multi-item'"
+              v-model="state.dropDowns[nav.title]"
+              color="primary"
+              :prepend-icon="nav.icon"
+              fluid
+            >
               <template #activator="{ props: hoverProps }">
                 <v-list-item v-bind="hoverProps" :prepend-icon="nav.icon" :title="nav.title" />
               </template>
 
-              <v-list-item v-for="child in nav.children" :key="child.key || child.title" exact :to="child.to"
-                class="ml-2" :prepend-icon="child.icon" :title="child.title" />
+              <v-list-item
+                v-for="child in nav.children"
+                :key="child.key || child.title"
+                exact
+                :to="child.to"
+                class="ml-2"
+                :prepend-icon="child.icon"
+                :title="child.title"
+              />
             </v-list-group>
 
             <!-- Single Item -->
@@ -72,69 +129,103 @@
 
     <!-- Bottom Navigation Links -->
     <template #append>
-      <v-list v-model:selected="state.bottomSelected" nav density="comfortable">
-        <v-sheet v-if="loggedIn && sessionUser"
-          class="sidebar-user-panel d-flex align-center justify-space-between ga-2 w-100" elevation="2"
-          :color="$vuetify.theme.current.dark ? 'background-lighten-1' : 'background-darken-1'">
-          <RouterLink :to="userProfileLink"
-            class="sidebar-user-avatar-link d-flex align-center ga-2 text-decoration-none">
+      <v-list v-model:selected="state.bottomSelected" class="sidebar-account-footer" nav density="comfortable">
+        <div
+          v-if="loggedIn && sessionUser"
+          class="sidebar-user-panel d-flex align-center ga-2 w-100"
+        >
+          <RouterLink
+            :to="userProfileLink"
+            class="sidebar-user-avatar-link d-flex align-center ga-2 text-decoration-none"
+            :aria-label="$t('profile.user-settings')"
+          >
             <UserAvatar list :user-id="sessionUser.id" :tooltip="false" />
+            <span class="sidebar-user-name">{{ sessionUser.fullName || sessionUser.username }}</span>
           </RouterLink>
-          <div class="d-flex align-center ga-1">
-            <v-badge v-if="loggedIn && announcementsEnabled" :model-value="Boolean(newAnnouncements.length)"
-              color="accent" :content="newAnnouncements.length" floating :offset-x="8" :offset-y="8">
-              <v-btn variant="flat" rounded="circle" size="small" color="info" class="sidebar-icon-button"
-                :aria-label="$t('announcements.announcements')"
-                @click.stop="() => showAnnouncementsDialog = !showAnnouncementsDialog">
-                <v-icon :icon="$globals.icons.bullhornVariant" color="white" />
-              </v-btn>
-            </v-badge>
-            <v-menu location="end bottom" :offset="15" :z-index="3000" content-class="sidebar-settings-menu">
+          <div class="sidebar-user-actions d-flex align-center">
+            <v-menu
+              location="top start"
+              :offset="8"
+              :max-width="380"
+              :max-height="600"
+              :close-on-content-click="false"
+              content-class="sidebar-settings-menu"
+            >
               <template #activator="{ props: hoverProps }">
-                <v-btn v-bind="hoverProps" variant="flat" rounded="circle" size="small" color="info"
-                  class="sidebar-icon-button" :aria-label="$t('general.settings')">
-                  <v-icon color="white">
+                <v-btn
+                  v-bind="hoverProps"
+                  variant="text"
+                  color="text-primary"
+                  class="sidebar-icon-button"
+                  :aria-label="$t('general.settings')"
+                >
+                  <v-icon>
                     {{ $globals.icons.cog }}
                   </v-icon>
                 </v-btn>
               </template>
               <v-list density="comfortable" color="primary">
-                <v-list-item :prepend-icon="$globals.icons.translate" :title="$t('sidebar.language')"
-                  @click="state.languageDialog = true" />
+                <v-list-item
+                  v-if="announcementsEnabled"
+                  :prepend-icon="$globals.icons.bullhornVariant"
+                  :title="$t('announcements.announcements')"
+                  @click="showAnnouncementsDialog = true"
+                >
+                  <template v-if="newAnnouncements.length" #append>
+                    <v-badge inline color="primary" :content="newAnnouncements.length" />
+                  </template>
+                </v-list-item>
+                <v-list-item
+                  :prepend-icon="$globals.icons.translate"
+                  :title="$t('sidebar.language')"
+                  @click="state.languageDialog = true"
+                />
                 <v-list-item
                   :prepend-icon="$vuetify.theme.current.dark ? $globals.icons.weatherSunny : $globals.icons.weatherNight"
                   :title="$vuetify.theme.current.dark ? $t('settings.theme.light-mode') : $t('settings.theme.dark-mode')"
-                  @click="toggleDark" />
+                  @click="toggleDark"
+                />
                 <v-divider class="my-2" />
                 <WakelockSwitch />
-                <v-list-item :prepend-icon="$globals.icons.volumeHigh" :title="$t('settings.ambiance-music')"
-                  @click.stop>
+                <v-list-item
+                  :prepend-icon="$globals.icons.volumeHigh"
+                  :title="$t('settings.ambiance-music')"
+                  @click.stop
+                >
                   <template #append>
-                    <v-switch v-model="ambianceMusicEnabled" color="primary" hide-details />
+                    <v-switch v-model="ambianceMusicEnabled" :aria-label="$t('settings.ambiance-music')" color="primary" hide-details />
                   </template>
                 </v-list-item>
                 <v-list-item :prepend-icon="$globals.icons.bread" :title="$t('settings.enable-cheese-drop')">
                   <template #append>
-                    <v-switch v-model="cheeseDropEnabled" color="primary" hide-details />
+                    <v-switch v-model="cheeseDropEnabled" :aria-label="$t('settings.enable-cheese-drop')" color="primary" hide-details />
                   </template>
                 </v-list-item>
                 <v-divider v-if="loggedIn" class="my-2" />
-                <v-list-item v-if="loggedIn" :prepend-icon="$globals.icons.cog" :title="$t('profile.user-settings')"
-                  to="/user/profile" />
-                <v-list-item v-if="isAdmin" :prepend-icon="$globals.icons.wrench" :title="$t('settings.admin-settings')"
-                  to="/admin/site-settings" />
-                <v-list-item v-if="canManage" :prepend-icon="$globals.icons.manageData"
-                  :title="$t('data-pages.data-management')" to="/group/data" />
+                <v-list-item
+                  v-if="loggedIn"
+                  :prepend-icon="$globals.icons.cog"
+                  :title="$t('profile.user-settings')"
+                  to="/user/profile"
+                />
+                <v-list-item
+                  v-if="isAdmin"
+                  :prepend-icon="$globals.icons.wrench"
+                  :title="$t('settings.admin-settings')"
+                  to="/admin/site-settings"
+                />
+                <v-list-item
+                  v-if="canManage"
+                  :prepend-icon="$globals.icons.manageData"
+                  :title="$t('data-pages.data-management')"
+                  to="/group/data"
+                />
+                <v-divider class="my-2" />
+                <v-list-item :prepend-icon="$globals.icons.logout" :title="$t('user.logout')" @click="logout()" />
               </v-list>
             </v-menu>
-            <v-btn v-if="loggedIn" variant="flat" rounded="circle" size="small" color="info" class="disconnect-button"
-              :aria-label="$t('user.logout')" @click.stop="logout()">
-              <v-icon color="white">
-                {{ $globals.icons.logout }}
-              </v-icon>
-            </v-btn>
           </div>
-        </v-sheet>
+        </div>
       </v-list>
     </template>
   </v-navigation-drawer>
@@ -167,6 +258,7 @@ const props = defineProps({
 });
 
 const modelValue = defineModel<boolean>({ default: false });
+const display = useDisplay();
 
 const auth = useMealieAuth();
 const sessionUser = computed(() => auth.user.value);
@@ -221,142 +313,130 @@ watch(
 </script>
 
 <style scoped>
+:global(.bistro-sidebar + .v-navigation-drawer__scrim) {
+  background: transparent !important;
+}
+
+:global(.sidebar-settings-menu .v-list-item) {
+  --v-list-prepend-gap: 12px;
+}
+
 .remy-logo {
+  width: 44px;
+  height: 44px;
   object-fit: contain;
 }
-
 .bistro-sidebar {
-  z-index: 2021 !important;
-  width: 280px !important;
-  top: 0 !important;
-  height: 100vh !important;
-  max-height: 100vh !important;
-  overflow-y: auto;
+  background: rgb(var(--v-theme-surface));
+  border-inline-end: 1px solid rgba(var(--v-theme-separator), 0.6);
+  box-shadow: 8px 0 24px rgba(var(--v-theme-shadow), 0.12);
 }
-
+.bistro-sidebar-header {
+  min-height: 64px;
+  border-bottom: 1px solid rgba(var(--v-theme-separator), 0.6);
+}
+.bistro-sidebar-header .bistro-wordmark {
+  font-size: 22px;
+  padding: 0;
+  gap: 4px;
+}
 .bistro-sidebar :deep(.v-navigation-drawer__content) {
   padding-top: 0;
 }
-
-@media print {
-  .no-print {
-    display: none;
-  }
+.bistro-sidebar :deep(.v-list) {
+  padding: 8px 12px;
 }
-
-.favorites-link {
+.bistro-sidebar :deep(.v-list-item) {
+  min-height: 44px;
+  border-radius: 10px;
+  margin-bottom: 4px;
+  --v-list-prepend-gap: 12px;
+}
+.bistro-sidebar :deep(.v-list-item-title) {
+  font-family: var(--bistro-body);
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: normal;
+  white-space: normal;
+}
+.bistro-sidebar :deep(.v-list-item--active) {
+  background: rgba(var(--v-theme-primary), 0.1);
+}
+.bistro-sidebar :deep(.v-list-item--active .v-list-item-title) {
   text-decoration: none;
+  font-weight: 600;
 }
-
-.favorites-link:hover {
-  text-decoration: underline;
+.bistro-sidebar :deep(.v-list-item__prepend > .v-icon) {
+  font-size: 22px;
 }
-
-.disconnect-button,
-.sidebar-icon-button {
-  min-width: 32px !important;
-  width: 32px !important;
-  height: 32px !important;
-  padding: 0 !important;
-  border-radius: 50% !important;
-}
-
-.disconnect-button {
-  min-width: 32px !important;
-  padding-inline: 0 !important;
-}
-
-.sidebar-user-avatar-link {
-  display: inline-flex;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgb(var(--v-theme-info));
-  padding: 4px;
-  box-sizing: border-box;
-  align-items: center;
-  justify-content: center;
-}
-
-.sidebar-user-avatar-link :deep(.user-avatar),
-.sidebar-user-avatar-link :deep(img),
-.sidebar-user-avatar-link :deep(.v-avatar) {
-  width: 100% !important;
-  height: 100% !important;
-  border-radius: 50% !important;
-}
-
 .sidebar-user-panel {
-  padding: 8px;
-  border-radius: 8px;
+  border-top: 1px solid rgba(var(--v-theme-separator), 0.6);
+  padding: 12px 0 0;
 }
-
-:deep(.sidebar-settings-menu) {
-  z-index: 3000 !important;
+.sidebar-account-footer {
+  background: transparent;
+  padding-bottom: max(12px, env(safe-area-inset-bottom)) !important;
 }
-
-@media (max-width: 600px) {
-  .bistro-sidebar {
-    width: 100vw !important;
-    max-width: 100vw !important;
-  }
-
-  .bistro-sidebar :deep(.v-list-item) {
-    min-height: 56px;
-  }
-
-  .bistro-sidebar :deep(.v-list-item-title) {
-    font-size: 1rem;
-  }
-
-  .bistro-sidebar :deep(.v-list-item__prepend > .v-icon) {
-    font-size: 24px;
-  }
-
-  .sidebar-user-panel {
-    min-height: 68px;
-    padding: 12px;
-  }
-
-  .disconnect-button,
-  .sidebar-icon-button {
-    min-width: 48px !important;
-    width: 48px !important;
-    height: 48px !important;
-    align-self: center;
-  }
-
-  .sidebar-user-avatar-link {
-    width: 48px;
-    height: 48px;
-  }
+.sidebar-user-avatar-link {
+  color: rgb(var(--v-theme-text-primary)) !important;
+  padding: 4px;
+  border-radius: 10px;
+  flex: 1;
+  min-width: 0;
 }
-
-@media (min-width: 601px) {
-  .bistro-sidebar :deep(.v-list-item__prepend > .v-icon) {
-    width: 24px;
-    height: 24px;
-    font-size: 24px;
-  }
-
-  .disconnect-button,
-  .sidebar-icon-button {
-    min-width: 36px !important;
-    width: 36px !important;
-    height: 36px !important;
-    align-self: center;
-  }
-
-  .disconnect-button :deep(.v-icon),
-  .sidebar-icon-button :deep(.v-icon) {
-    width: 18px;
-    height: 18px;
-    font-size: 18px;
-  }
-
-  .sidebar-user-avatar-link {
-    width: 48px;
-    height: 48px;
-  }
+.sidebar-user-name {
+  font: 500 14px var(--bistro-body);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sidebar-user-avatar-link :deep(.v-avatar) {
+  flex-shrink: 0;
+}
+.sidebar-user-actions {
+  flex-shrink: 0;
+}
+.disconnect-button,
+.sidebar-icon-button,
+.bistro-navigation-toggle {
+  min-width: 44px !important;
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 10px !important;
+  padding: 0 !important;
+}
+.bistro-sidebar-mobile :deep(.v-list-item) {
+  min-height: 56px;
+  --v-list-prepend-gap: 16px;
+}
+.bistro-sidebar-mobile :deep(.v-list-item-title) {
+  font-size: 16px;
+}
+.bistro-sidebar-mobile :deep(.v-list-item__prepend > .v-icon),
+.bistro-sidebar-mobile :deep(.v-list-item__append > .v-icon) {
+  font-size: 26px;
+}
+.bistro-sidebar-mobile :deep(.sidebar-create-button) {
+  min-height: 52px !important;
+  font-size: 16px !important;
+}
+.bistro-sidebar-mobile :deep(.sidebar-create-button .v-icon) {
+  font-size: 24px !important;
+}
+.bistro-sidebar-mobile .sidebar-user-name {
+  font-size: 16px;
+}
+.bistro-sidebar-mobile .sidebar-user-avatar-link {
+  min-height: 52px;
+}
+.bistro-sidebar-mobile .sidebar-icon-button,
+.bistro-sidebar-mobile .bistro-navigation-toggle {
+  min-width: 48px !important;
+  width: 48px !important;
+  height: 48px !important;
+}
+.bistro-sidebar-mobile .sidebar-icon-button :deep(.v-icon),
+.bistro-sidebar-mobile .bistro-navigation-toggle :deep(.v-icon) {
+  font-size: 26px;
 }
 </style>

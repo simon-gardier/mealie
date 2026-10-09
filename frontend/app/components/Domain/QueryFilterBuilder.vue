@@ -1,150 +1,359 @@
 <template>
-  <v-card class="ma-0" flat fluid>
-    <v-card-text class="ma-0 pa-0">
-      <VueDraggable v-model="fields" handle=".handle" :delay="250" :delay-on-touch-only="true" v-bind="{
-        animation: 200,
-        group: 'recipe-instructions',
-        ghostClass: 'ghost',
-      }" @start="drag = true" @end="onDragEnd">
-        <v-row v-for="(field, index) in fields" :key="field.id" class="d-flex flex-row flex-wrap mx-auto pb-2"
-          :class="$vuetify.display.xs ? (Math.floor(index / 1) % 2 === 0 ? 'bg-dark' : 'bg-light') : ''"
-          style="max-width: 100%;">
-          <!-- drag handle -->
-          <v-col :cols="config.items.icon.cols(index)" :sm="config.items.icon.sm(index)"
-            :class="$vuetify.display.smAndDown ? 'd-flex pa-0' : 'd-flex justify-end pr-6'">
-            <v-icon class="handle my-auto" :size="28" style="cursor: move;">
-              {{ $globals.icons.arrowUpDown }}
-            </v-icon>
-          </v-col>
+  <v-defaults-provider :defaults="cookbookLayout ? { VSelect: { hideDetails: 'auto', density: 'comfortable' }, VTextField: { hideDetails: 'auto', density: 'comfortable' }, VAutocomplete: { hideDetails: 'auto', density: 'comfortable' }, VNumberInput: { hideDetails: 'auto', density: 'comfortable' } } : {}">
+    <v-card class="ma-0" :class="{ 'cookbook-filters': cookbookLayout }" flat>
+      <v-card-text class="ma-0 pa-0">
+        <VueDraggable
+          v-model="fields"
+          handle=".handle"
+          :delay="250"
+          :delay-on-touch-only="true"
+          v-bind="{
+            animation: 200,
+            group: cookbookLayout ? 'cookbook-filters' : 'recipe-instructions',
+            ghostClass: cookbookLayout ? 'recipe-drop-target' : 'ghost',
+          }"
+          @start="drag = true"
+          @end="onDragEnd"
+        >
+          <v-row
+            v-for="(field, index) in fields"
+            :key="field.id"
+            class="filter-row d-flex flex-row flex-wrap mx-auto pb-2"
+            :class="[!cookbookLayout && $vuetify.display.xs ? (Math.floor(index / 1) % 2 === 0 ? 'bg-dark' : 'bg-light') : '', { 'filter-row--advanced': cookbookLayout && showAdvanced }]"
+            style="max-width: 100%;"
+          >
+            <!-- drag handle -->
+            <v-col
+              class="filter-drag"
+              :cols="config.items.icon.cols(index)"
+              :sm="config.items.icon.sm(index)"
+              :class="$vuetify.display.smAndDown ? 'd-flex pa-0' : 'd-flex justify-end pr-6'"
+            >
+              <v-btn
+                v-if="cookbookLayout"
+                class="handle"
+                icon
+                variant="text"
+                color="on-surface"
+                :aria-label="$t('cookbook.reorder-filter')"
+                :title="$t('cookbook.reorder-filter')"
+                @keydown.up.prevent="moveField(index, -1)"
+                @keydown.down.prevent="moveField(index, 1)"
+              >
+                <v-icon :icon="$globals.icons.arrowUpDown" size="20" />
+              </v-btn>
+              <v-icon v-else class="handle my-auto" :size="28" style="cursor: move;">
+                {{ $globals.icons.arrowUpDown }}
+              </v-icon>
+            </v-col>
 
-          <!-- and / or  -->
-          <v-col v-if="index != 0 || $vuetify.display.smAndUp" :cols="config.items.logicalOperator.cols(index)"
-            :sm="config.items.logicalOperator.sm(index)" :class="config.col.class">
-            <v-select v-if="index" :model-value="field.logicalOperator?.value" :items="[logOps.AND, logOps.OR]"
-              item-title="label" item-value="value" variant="underlined" class="text-center"
-              @update:model-value="setLogicalOperatorValue(field, index, $event as unknown as LogicalOperator)" />
-          </v-col>
+            <!-- and / or  -->
+            <v-col
+              v-if="index != 0 || (!cookbookLayout && $vuetify.display.smAndUp)"
+              class="filter-join"
+              :cols="config.items.logicalOperator.cols(index)"
+              :sm="config.items.logicalOperator.sm(index)"
+              :class="config.col.class"
+            >
+              <v-select
+                v-if="index"
+                :label="cookbookLayout ? $t('cookbook.filter-join') : undefined"
+                :model-value="field.logicalOperator?.value"
+                :items="[logOps.AND, logOps.OR]"
+                item-title="label"
+                item-value="value"
+                :variant="cookbookLayout ? 'outlined' : 'filled'"
+                :menu-props="cookbookLayout ? { contentClass: 'recipe-editor-overlay' } : undefined"
+                class="text-center"
+                @update:model-value="setLogicalOperatorValue(field, index, $event as unknown as LogicalOperator)"
+              />
+            </v-col>
 
-          <!-- left parenthesis -->
-          <v-col v-if="showAdvanced" :cols="config.items.leftParens.cols(index)" :sm="config.items.leftParens.sm(index)"
-            :class="config.col.class">
-            <v-select :model-value="field.leftParenthesis" :items="['', '(', '((', '(((']" variant="underlined"
-              class="text-center" @update:model-value="setLeftParenthesisValue(field, index, $event)" />
-          </v-col>
+            <!-- left parenthesis -->
+            <v-col
+              v-if="showAdvanced"
+              class="filter-left"
+              :cols="config.items.leftParens.cols(index)"
+              :sm="config.items.leftParens.sm(index)"
+              :class="config.col.class"
+            >
+              <v-select
+                :label="cookbookLayout ? $t('cookbook.open-group') : undefined"
+                :model-value="field.leftParenthesis"
+                :items="['', '(', '((', '(((']"
+                :variant="cookbookLayout ? 'outlined' : 'filled'"
+                :menu-props="cookbookLayout ? { contentClass: 'recipe-editor-overlay' } : undefined"
+                class="text-center"
+                @update:model-value="setLeftParenthesisValue(field, index, $event)"
+              />
+            </v-col>
 
-          <!-- field name -->
-          <v-col :cols="config.items.fieldName.cols(index)" :sm="config.items.fieldName.sm(index)"
-            :class="config.col.class">
-            <v-select :model-value="field.label" :items="fieldDefs" variant="underlined" item-title="label"
-              item-value="label" class="text-center" @update:model-value="setField(index, $event)" />
-          </v-col>
+            <!-- field name -->
+            <v-col
+              class="filter-name"
+              :cols="config.items.fieldName.cols(index)"
+              :sm="config.items.fieldName.sm(index)"
+              :class="config.col.class"
+            >
+              <v-select
+                :label="cookbookLayout ? $t('cookbook.filter-field') : undefined"
+                :model-value="field.label"
+                :items="fieldDefs"
+                :variant="cookbookLayout ? 'outlined' : 'filled'"
+                :menu-props="cookbookLayout ? { contentClass: 'recipe-editor-overlay' } : undefined"
+                item-title="label"
+                item-value="label"
+                class="text-center"
+                @update:model-value="setField(index, $event)"
+              />
+            </v-col>
 
-          <!-- relational operator -->
-          <v-col :cols="config.items.relationalOperator.cols(index)" :sm="config.items.relationalOperator.sm(index)"
-            :class="config.col.class">
-            <v-select v-if="field.type !== 'boolean'" :model-value="field.relationalOperatorValue?.value"
-              :items="field.relationalOperatorChoices" item-title="label" item-value="value" variant="underlined"
-              class="text-center"
-              @update:model-value="setRelationalOperatorValue(field, index, $event as unknown as RelationalKeyword | RelationalOperator)" />
-          </v-col>
+            <!-- relational operator -->
+            <v-col
+              class="filter-condition"
+              :cols="config.items.relationalOperator.cols(index)"
+              :sm="config.items.relationalOperator.sm(index)"
+              :class="config.col.class"
+            >
+              <v-select
+                v-if="field.type !== 'boolean'"
+                :label="cookbookLayout ? $t('cookbook.filter-condition') : undefined"
+                :model-value="field.relationalOperatorValue?.value"
+                :items="field.relationalOperatorChoices"
+                item-title="label"
+                item-value="value"
+                :variant="cookbookLayout ? 'outlined' : 'filled'"
+                :menu-props="cookbookLayout ? { contentClass: 'recipe-editor-overlay' } : undefined"
+                class="text-center"
+                @update:model-value="setRelationalOperatorValue(field, index, $event as unknown as RelationalKeyword | RelationalOperator)"
+              />
+            </v-col>
 
-          <!-- field value -->
-          <v-col :cols="config.items.fieldValue.cols(index)" :sm="config.items.fieldValue.sm(index)"
-            :class="config.col.class">
-            <v-select v-if="field.fieldChoices" :model-value="field.values" :items="field.fieldChoices"
-              item-title="label" item-value="value" multiple variant="underlined"
-              @update:model-value="setFieldValues(field, index, $event)" />
-            <v-text-field v-else-if="field.type === 'string'" :model-value="field.value" variant="underlined"
-              @update:model-value="setFieldValue(field, index, $event)" />
-            <v-number-input v-else-if="field.type === 'number'" :model-value="field.value as number || 0"
-              variant="underlined" inset :min="0" :max="5" :precision="null"
-              @update:model-value="setFieldValue(field, index, $event)" />
-            <v-checkbox v-else-if="field.type === 'boolean'" :model-value="field.value"
-              @update:model-value="setFieldValue(field, index, $event!)" />
-            <v-menu v-else-if="field.type === 'date'" v-model="datePickers[index]" :close-on-content-click="false"
-              transition="scale-transition" offset-y max-width="290px" min-width="auto">
-              <template #activator="{ props: activatorProps }">
-                <v-text-field :model-value="$d(safeNewDate(field.value + 'T00:00:00'))" variant="underlined"
-                  color="primary" class="date-input" v-bind="activatorProps" readonly />
-              </template>
-              <v-date-picker :model-value="safeNewDate(field.value + 'T00:00:00')" hide-header
-                :first-day-of-week="firstDayOfWeek" :local="$i18n.locale"
-                @update:model-value="val => setFieldValue(field, index, val ? val.toISOString().slice(0, 10) : '')" />
-            </v-menu>
-            <!--
+            <!-- field value -->
+            <v-col
+              class="filter-value"
+              :cols="config.items.fieldValue.cols(index)"
+              :sm="config.items.fieldValue.sm(index)"
+              :class="config.col.class"
+            >
+              <v-select
+                v-if="field.fieldChoices"
+                :label="cookbookLayout ? $t('general.value') : undefined"
+                :model-value="field.values"
+                :items="field.fieldChoices"
+                item-title="label"
+                item-value="value"
+                multiple
+                :variant="cookbookLayout ? 'outlined' : 'filled'"
+                :menu-props="cookbookLayout ? { contentClass: 'recipe-editor-overlay' } : undefined"
+                @update:model-value="setFieldValues(field, index, $event)"
+              />
+              <v-text-field
+                v-else-if="field.type === 'string'"
+                :label="cookbookLayout ? $t('general.value') : undefined"
+                :model-value="field.value"
+                :variant="cookbookLayout ? 'outlined' : 'filled'"
+                @update:model-value="setFieldValue(field, index, $event)"
+              />
+              <v-number-input
+                v-else-if="field.type === 'number'"
+                :label="cookbookLayout ? $t('general.value') : undefined"
+                :model-value="field.value as number || 0"
+                :variant="cookbookLayout ? 'outlined' : 'filled'"
+                inset
+                :min="0"
+                :max="5"
+                :precision="null"
+                @update:model-value="setFieldValue(field, index, $event)"
+              />
+              <v-checkbox
+                v-else-if="field.type === 'boolean'"
+                :model-value="field.value"
+                @update:model-value="setFieldValue(field, index, $event!)"
+              />
+              <v-menu
+                v-else-if="field.type === 'date'"
+                v-model="datePickers[index]"
+                :close-on-content-click="false"
+                transition="scale-transition"
+                offset-y
+                max-width="290px"
+                min-width="auto"
+              >
+                <template #activator="{ props: activatorProps }">
+                  <v-text-field
+                    :label="cookbookLayout ? $t('general.value') : undefined"
+                    :model-value="$d(safeNewDate(field.value + 'T00:00:00'))"
+                    :variant="cookbookLayout ? 'outlined' : 'filled'"
+                    color="primary"
+                    class="date-input"
+                    v-bind="activatorProps"
+                    readonly
+                  />
+                </template>
+                <v-date-picker
+                  :model-value="safeNewDate(field.value + 'T00:00:00')"
+                  hide-header
+                  :first-day-of-week="firstDayOfWeek"
+                  :local="$i18n.locale"
+                  @update:model-value="val => setFieldValue(field, index, val ? val.toISOString().slice(0, 10) : '')"
+                />
+              </v-menu>
+              <!--
               Relative dates are assumed to be negative intervals with a unit of days.
               The input is a *positive*, interpreted internally as a *negative* offset.
             -->
-            <v-number-input v-else-if="field.type === 'relativeDate'"
-              :model-value="parseRelativeDateOffset(field.value)"
-              :suffix="$t('query-filter.dates.days-ago', parseRelativeDateOffset(field.value))" variant="underlined"
-              density="compact" inset :min="0" :precision="0" class="date-input"
-              @update:model-value="setFieldValue(field, index, $event)" />
-            <RecipeOrganizerSelector v-else-if="field.type === Organizer.Category" v-model="field.organizers"
-              :selector-type="Organizer.Category" :show-add="false" :show-label="false" :show-icon="false"
-              variant="underlined"
-              @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])" />
-            <RecipeOrganizerSelector v-else-if="field.type === Organizer.Tag" v-model="field.organizers"
-              :selector-type="Organizer.Tag" :show-add="false" :show-label="false" :show-icon="false"
-              variant="underlined"
-              @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])" />
-            <RecipeOrganizerSelector v-else-if="field.type === Organizer.Tool" v-model="field.organizers"
-              :selector-type="Organizer.Tool" :show-add="false" :show-label="false" :show-icon="false"
-              variant="underlined"
-              @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])" />
-            <RecipeOrganizerSelector v-else-if="field.type === Organizer.Food" v-model="field.organizers"
-              :selector-type="Organizer.Food" :show-add="false" :show-label="false" :show-icon="false"
-              variant="underlined"
-              @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])" />
-            <RecipeOrganizerSelector v-else-if="field.type === Organizer.Household" v-model="field.organizers"
-              :selector-type="Organizer.Household" :show-add="false" :show-label="false" :show-icon="false"
-              variant="underlined"
-              @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])" />
-            <RecipeOrganizerSelector v-else-if="field.type === Organizer.User" v-model="field.organizers"
-              :selector-type="Organizer.User" :show-add="false" :show-label="false" :show-icon="false"
-              variant="underlined"
-              @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])" />
-            <RecipeOrganizerSelector v-else-if="field.type === Organizer.Label" v-model="field.organizers"
-              :selector-type="Organizer.Label" :show-add="false" :show-label="false" :show-icon="false"
-              variant="underlined"
-              @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])" />
-          </v-col>
+              <v-number-input
+                v-else-if="field.type === 'relativeDate'"
+                :label="cookbookLayout ? $t('general.value') : undefined"
+                :model-value="parseRelativeDateOffset(field.value)"
+                :suffix="$t('query-filter.dates.days-ago', parseRelativeDateOffset(field.value))"
+                :variant="cookbookLayout ? 'outlined' : 'filled'"
+                density="compact"
+                inset
+                :min="0"
+                :precision="0"
+                class="date-input"
+                @update:model-value="setFieldValue(field, index, $event)"
+              />
+              <RecipeOrganizerSelector
+                v-else-if="field.type === Organizer.Category"
+                v-model="field.organizers"
+                :selector-type="Organizer.Category"
+                :show-add="false"
+                :show-label="cookbookLayout"
+                :show-icon="false"
+                :variant="cookbookLayout ? 'outlined' : 'filled'"
+                @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])"
+              />
+              <RecipeOrganizerSelector
+                v-else-if="field.type === Organizer.Tag"
+                v-model="field.organizers"
+                :selector-type="Organizer.Tag"
+                :show-add="false"
+                :show-label="cookbookLayout"
+                :show-icon="false"
+                :variant="cookbookLayout ? 'outlined' : 'filled'"
+                @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])"
+              />
+              <RecipeOrganizerSelector
+                v-else-if="field.type === Organizer.Tool"
+                v-model="field.organizers"
+                :selector-type="Organizer.Tool"
+                :show-add="false"
+                :show-label="cookbookLayout"
+                :show-icon="false"
+                :variant="cookbookLayout ? 'outlined' : 'filled'"
+                @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])"
+              />
+              <RecipeOrganizerSelector
+                v-else-if="field.type === Organizer.Food"
+                v-model="field.organizers"
+                :selector-type="Organizer.Food"
+                :show-add="false"
+                :show-label="cookbookLayout"
+                :show-icon="false"
+                :variant="cookbookLayout ? 'outlined' : 'filled'"
+                @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])"
+              />
+              <RecipeOrganizerSelector
+                v-else-if="field.type === Organizer.Household"
+                v-model="field.organizers"
+                :selector-type="Organizer.Household"
+                :show-add="false"
+                :show-label="cookbookLayout"
+                :show-icon="false"
+                :variant="cookbookLayout ? 'outlined' : 'filled'"
+                @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])"
+              />
+              <RecipeOrganizerSelector
+                v-else-if="field.type === Organizer.User"
+                v-model="field.organizers"
+                :selector-type="Organizer.User"
+                :show-add="false"
+                :show-label="cookbookLayout"
+                :show-icon="false"
+                :variant="cookbookLayout ? 'outlined' : 'filled'"
+                @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])"
+              />
+              <RecipeOrganizerSelector
+                v-else-if="field.type === Organizer.Label"
+                v-model="field.organizers"
+                :selector-type="Organizer.Label"
+                :show-add="false"
+                :show-label="cookbookLayout"
+                :show-icon="false"
+                :variant="cookbookLayout ? 'outlined' : 'filled'"
+                @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])"
+              />
+            </v-col>
 
-          <!-- right parenthesis -->
-          <v-col v-if="showAdvanced" :cols="config.items.rightParens.cols(index)"
-            :sm="config.items.rightParens.sm(index)" :class="config.col.class">
-            <v-select :model-value="field.rightParenthesis" :items="['', ')', '))', ')))']" variant="underlined"
-              class="text-center" @update:model-value="setRightParenthesisValue(field, index, $event)" />
-          </v-col>
+            <!-- right parenthesis -->
+            <v-col
+              v-if="showAdvanced"
+              class="filter-right"
+              :cols="config.items.rightParens.cols(index)"
+              :sm="config.items.rightParens.sm(index)"
+              :class="config.col.class"
+            >
+              <v-select
+                :label="cookbookLayout ? $t('cookbook.close-group') : undefined"
+                :model-value="field.rightParenthesis"
+                :items="['', ')', '))', ')))']"
+                :variant="cookbookLayout ? 'outlined' : 'filled'"
+                :menu-props="cookbookLayout ? { contentClass: 'recipe-editor-overlay' } : undefined"
+                class="text-center"
+                @update:model-value="setRightParenthesisValue(field, index, $event)"
+              />
+            </v-col>
 
-          <!-- field actions -->
-          <v-col v-if="!$vuetify.display.smAndDown || index === fields.length - 1"
-            :cols="config.items.fieldActions.cols(index)" :sm="config.items.fieldActions.sm(index)"
-            :class="config.col.class">
-            <BaseButtonGroup :buttons="[
-              {
-                icon: $globals.icons.delete,
-                text: $t('general.delete'),
-                event: 'delete',
-                disabled: fields.length === 1,
-              },
-            ]" class="my-auto" @delete="removeField(index)" />
-          </v-col>
+            <!-- field actions -->
+            <v-col
+              v-if="cookbookLayout || !$vuetify.display.smAndDown || index === fields.length - 1"
+              class="filter-actions"
+              :cols="config.items.fieldActions.cols(index)"
+              :sm="config.items.fieldActions.sm(index)"
+              :class="config.col.class"
+            >
+              <BaseButtonGroup
+                :buttons="[
+                  {
+                    icon: $globals.icons.delete,
+                    text: $t('general.delete'),
+                    event: 'delete',
+                    disabled: fields.length === 1,
+                  },
+                ]"
+                class="my-auto"
+                @delete="removeField(index)"
+              />
+            </v-col>
+          </v-row>
+        </VueDraggable>
+      </v-card-text>
+      <v-card-actions class="filter-toolbar">
+        <v-row fluid class="filter-toolbar-row d-flex align-center ma-2">
+          <div class="d-flex align-center">
+            <v-switch
+              v-model="showAdvanced"
+              hide-details
+              color="primary"
+              :label="$t('general.show-advanced')"
+              class="my-auto mr-4"
+            />
+            <BaseButton
+              v-if="!$slots.actions"
+              create
+              :text="$t('general.add-field')"
+              class="my-auto ml-4"
+              @click="addField(fieldDefs[0])"
+            />
+          </div>
+          <slot name="actions" :add-field="() => addField(fieldDefs[0])" />
         </v-row>
-      </VueDraggable>
-    </v-card-text>
-    <v-card-actions>
-      <v-row fluid class="d-flex align-center ma-2">
-        <div class="d-flex align-center">
-          <v-switch v-model="showAdvanced" hide-details color="primary" :label="$t('general.show-advanced')"
-            class="my-auto mr-4" />
-          <BaseButton v-if="!$slots.actions" create :text="$t('general.add-field')" class="my-auto ml-4"
-            @click="addField(fieldDefs[0])" />
-        </div>
-        <slot name="actions" :add-field="() => addField(fieldDefs[0])" />
-      </v-row>
-    </v-card-actions>
-  </v-card>
+      </v-card-actions>
+    </v-card>
+  </v-defaults-provider>
 </template>
 
 <script setup lang="ts">
@@ -165,6 +374,7 @@ import { useUserStore } from "~/composables/store/use-user-store";
 import { type Field, type FieldDefinition, type FieldValue, type OrganizerBase, useQueryFilterBuilder } from "~/composables/use-query-filter-builder";
 
 const props = defineProps({
+  cookbookLayout: { type: Boolean, default: false },
   fieldDefs: {
     type: Array as () => FieldDefinition[],
     required: true,
@@ -318,7 +528,17 @@ function removeField(index: number) {
   state.datePickers.splice(index, 1);
 }
 
-const fieldsUpdater = useDebounceFn(() => {
+function moveField(index: number, direction: number) {
+  const destination = index + direction;
+  if (index < 0 || index >= fields.value.length || destination < 0 || destination >= fields.value.length) return;
+  const [field] = fields.value.splice(index, 1);
+  if (!field) return;
+  fields.value.splice(destination, 0, field);
+  const [datePicker] = state.datePickers.splice(index, 1);
+  state.datePickers.splice(destination, 0, datePicker ?? false);
+}
+
+function updateFields() {
   const qf = buildQueryFilterString(fields.value, state.showAdvanced);
   if (qf) {
     console.debug(`Set query filter: ${qf}`);
@@ -327,9 +547,13 @@ const fieldsUpdater = useDebounceFn(() => {
 
   emit("input", qf || undefined);
   emit("inputJSON", qf ? buildQueryFilterJSON() : undefined);
-}, 500);
+}
+const fieldsUpdater = useDebounceFn(updateFields, 500);
 
-watch(fields, fieldsUpdater, { deep: true });
+watch([fields, showAdvanced], () => {
+  if (props.cookbookLayout) updateFields();
+  else fieldsUpdater();
+}, { deep: true, flush: "sync" });
 
 async function hydrateOrganizers(field: FieldWithId, _index: number) {
   if (!field.values?.length || !isOrganizerType(field.type)) {
@@ -595,11 +819,11 @@ const config = computed(() => {
 }
 
 .bg-dark {
-  background-color: rgba(0, 0, 0, var(--bg-opactity));
+  background-color: rgba(var(--v-theme-media-scrim), var(--bg-opactity));
 }
 
 .bg-light {
-  background-color: rgba(255, 255, 255, var(--bg-opactity));
+  background-color: rgba(var(--v-theme-media-foreground), var(--bg-opactity));
 }
 
 :deep(.date-input input) {
@@ -609,5 +833,161 @@ const config = computed(() => {
 
 :deep(.date-input .v-field__field) {
   align-items: center;
+}
+
+.cookbook-filters {
+  background: transparent;
+  container-type: inline-size;
+  font-family: var(--bistro-body);
+}
+.cookbook-filters .filter-row {
+  display: grid !important;
+  grid-template-columns: 40px minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.3fr) 40px;
+  gap: 12px;
+  margin: 0 0 12px !important;
+  padding: 16px !important;
+  border: 1px solid rgb(var(--v-theme-separator));
+  border-radius: 14px;
+  background: rgb(var(--v-theme-surface));
+  box-sizing: border-box;
+}
+.cookbook-filters .filter-row > div {
+  width: auto;
+  max-width: none;
+  padding: 0 !important;
+  min-width: 0;
+  align-items: start !important;
+}
+.cookbook-filters .filter-drag {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: center;
+  justify-content: center !important;
+  color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
+}
+.cookbook-filters .filter-name {
+  grid-column: 2;
+  grid-row: 2;
+}
+.cookbook-filters .filter-condition {
+  grid-column: 3;
+  grid-row: 2;
+}
+.cookbook-filters .filter-value {
+  grid-column: 4;
+  grid-row: 2;
+}
+.cookbook-filters .filter-actions {
+  grid-column: 5;
+  grid-row: 2;
+  align-self: center;
+}
+.cookbook-filters
+  .filter-row:not(:has(.filter-join))
+  :is(.filter-drag, .filter-name, .filter-condition, .filter-value, .filter-actions) {
+  grid-row: 1;
+}
+.cookbook-filters .filter-row:not(:has(.filter-join)) :is(.filter-left, .filter-right) {
+  grid-row: 2;
+}
+.cookbook-filters .filter-join {
+  grid-column: 2 / 5;
+  grid-row: 1;
+  justify-self: start;
+}
+.cookbook-filters .filter-row > .filter-join {
+  width: 180px;
+  max-width: 100%;
+}
+.cookbook-filters .filter-left {
+  grid-column: 2;
+  grid-row: 3;
+}
+.cookbook-filters .filter-right {
+  grid-column: 3;
+  grid-row: 3;
+}
+.cookbook-filters .filter-toolbar {
+  padding: 0;
+  min-height: 44px;
+}
+.cookbook-filters .filter-toolbar-row {
+  margin: 0 !important;
+  justify-content: space-between;
+  gap: 8px 16px;
+  flex-wrap: wrap;
+}
+.cookbook-filters :deep(.v-select__selection-text) {
+  white-space: normal;
+}
+.cookbook-filters .filter-actions :deep(.v-btn) {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+}
+.cookbook-filters .filter-drag .v-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  cursor: grab;
+}
+.cookbook-filters .recipe-drop-target {
+  border: 2px dashed rgb(var(--v-theme-primary));
+  background: rgba(var(--v-theme-primary), 0.08);
+}
+.cookbook-filters :deep(.v-select__selection),
+.cookbook-filters :deep(.v-label) {
+  font-family: var(--bistro-body);
+}
+@container (max-width: 680px) {
+  .cookbook-filters .filter-row {
+    grid-template-columns: minmax(0, 1fr) 40px;
+    gap: 12px;
+    padding: 12px !important;
+  }
+  .cookbook-filters .filter-drag {
+    grid-column: 2;
+    grid-row: 3;
+  }
+  .cookbook-filters .filter-name {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .cookbook-filters .filter-condition {
+    grid-column: 1;
+    grid-row: 3;
+  }
+  .cookbook-filters .filter-value {
+    grid-column: 1;
+    grid-row: 4;
+  }
+  .cookbook-filters .filter-actions {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  .cookbook-filters .filter-join {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .cookbook-filters .filter-left {
+    grid-column: 1;
+    grid-row: 5;
+  }
+  .cookbook-filters .filter-right {
+    grid-column: 1;
+    grid-row: 6;
+  }
+  .cookbook-filters .filter-row:not(:has(.filter-join)) :is(.filter-drag, .filter-condition) {
+    grid-row: 2;
+  }
+  .cookbook-filters .filter-row:not(:has(.filter-join)) .filter-value {
+    grid-row: 3;
+  }
+  .cookbook-filters .filter-row:not(:has(.filter-join)) .filter-left {
+    grid-row: 4;
+  }
+  .cookbook-filters .filter-row:not(:has(.filter-join)) .filter-right {
+    grid-row: 5;
+  }
 }
 </style>

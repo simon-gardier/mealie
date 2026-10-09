@@ -1,17 +1,31 @@
 <template>
-  <v-app dark>
+  <v-app dark class="admin-layout settings-page">
     <TheSnackbar />
 
     <AppHeader>
-      <v-btn icon @click.stop="sidebar = !sidebar">
+      <v-btn
+        icon
+        variant="text"
+        color="text-primary"
+        class="bistro-navigation-toggle"
+        :aria-label="$t('general.menu')"
+        :aria-expanded="sidebar"
+        aria-controls="app-sidebar"
+        @click.stop="sidebar = !sidebar"
+      >
         <v-icon> {{ $globals.icons.menu }}</v-icon>
       </v-btn>
     </AppHeader>
 
-    <AppSidebar v-model="sidebar" :top-link="topLinks" :user="{ data: true }"
-      :secondary-header="$t('sidebar.developer')" :secondary-links="developerLinks" />
+    <AppSidebar
+      v-model="sidebar"
+      :top-link="topLinks"
+      :user="{ data: true }"
+      :secondary-header="$t('sidebar.developer')"
+      :secondary-links="developerLinks"
+    />
 
-    <v-main>
+    <v-main class="app-main">
       <v-scroll-x-transition>
         <div>
           <NuxtPage />
@@ -35,12 +49,6 @@ const { $globals } = useNuxtApp();
 const sidebar = ref<boolean>(false);
 onMounted(() => {
   sidebar.value = display.lgAndUp.value;
-});
-
-useHead({
-  bodyAttrs: {
-    class: "admin-layout",
-  },
 });
 
 const topLinks: SidebarLinks = [

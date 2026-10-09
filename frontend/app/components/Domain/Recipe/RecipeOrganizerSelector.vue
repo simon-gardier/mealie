@@ -1,16 +1,69 @@
 <template>
   <div v-if="externalChips && selected?.length" class="d-flex flex-wrap mb-2">
-    <v-chip v-for="(item, index) in selected" :key="index" class="mr-1 mb-1" color="accent" variant="flat" label
-      :text="item.name" closable @click:close="removeByIndex(index)" />
+    <v-chip
+      v-for="(item, index) in selected"
+      :key="item.id ?? item.name"
+      class="organizer-chip mr-1 mb-1"
+      color="primary"
+      variant="tonal"
+      label
+      :text="item.name"
+    >
+      <template #prepend>
+        <button
+          type="button"
+          class="organizer-chip-remove"
+          :aria-label="$t('general.delete')"
+          @click.stop.prevent="removeByIndex(index)"
+        >
+          <v-icon :icon="$globals.icons.close" size="18" />
+        </button>
+      </template>
+    </v-chip>
   </div>
-  <v-autocomplete v-model="selected" v-bind="inputAttrs" v-model:search="searchInput" :items="items"
-    :custom-filter="normalizeFilter" :label="label" :chips="!externalChips" :closable-chips="!externalChips"
-    :item-title="itemTitle" item-value="name" multiple :variant="variant" :prepend-inner-icon="icon"
-    :append-icon="showAdd ? $globals.icons.create : undefined" return-object auto-select-first class="pa-0 ma-0"
-    @update:model-value="resetSearchInput" @click:append="dialog = true" @keyup.enter="handleEnter">
+  <v-autocomplete
+    v-model="selected"
+    v-bind="inputAttrs"
+    v-model:search="searchInput"
+    :items="items"
+    :menu-props="{ contentClass: 'recipe-editor-overlay' }"
+    :custom-filter="normalizeFilter"
+    :label="label"
+    :chips="!externalChips"
+    :closable-chips="!externalChips"
+    :item-title="itemTitle"
+    item-value="name"
+    multiple
+    :variant="variant"
+    :prepend-inner-icon="icon"
+    :append-icon="showAdd ? $globals.icons.create : undefined"
+    return-object
+    auto-select-first
+    class="pa-0 ma-0"
+    @update:model-value="resetSearchInput"
+    @click:append="dialog = true"
+    @keyup.enter="handleEnter"
+  >
     <template v-if="!externalChips" #chip="{ item, index }">
-      <v-chip :key="index" class="ma-1" color="accent" variant="flat" label :text="item.name" closable
-        @click:close="removeByIndex(index)" />
+      <v-chip
+        :key="item.raw.id ?? item.value"
+        class="organizer-chip ma-1"
+        color="primary"
+        variant="tonal"
+        label
+        :text="item.name"
+      >
+        <template #prepend>
+          <button
+            type="button"
+            class="organizer-chip-remove"
+            :aria-label="$t('general.delete')"
+            @click.stop.prevent="removeByIndex(index)"
+          >
+            <v-icon :icon="$globals.icons.close" size="18" />
+          </button>
+        </template>
+      </v-chip>
     </template>
     <template v-if="externalChips" #selection />
     <template v-if="showAdd" #no-data>
@@ -19,8 +72,11 @@
       </div>
     </template>
     <template v-if="showAdd && searchInput" #append-item>
-      <div class="px-2">
-        <BaseButton block size="small" @click="createItem()" />
+      <div class="px-3 py-2">
+        <v-btn variant="tonal" color="primary" class="organizer-create-button" @click="createItem()">
+          <v-icon :icon="$globals.icons.create" size="18" class="mr-2" />
+          {{ $t('recipe.parser.add-item', { name: searchInput }) }}
+        </v-btn>
       </div>
     </template>
     <template v-if="showAdd" #append>
@@ -54,7 +110,7 @@ const props = withDefaults(defineProps<Props>(), {
   showLabel: true,
   showIcon: true,
   externalChips: false,
-  variant: "outlined",
+  variant: "filled",
 });
 
 const selected = defineModel<(
@@ -210,5 +266,54 @@ function resetSearchInput() {
 .v-autocomplete {
   /* This aligns the input with other standard input fields */
   margin-top: 6px;
+}
+.organizer-chip {
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: normal;
+  max-width: 100%;
+  height: auto;
+  min-height: 36px;
+  padding-block: 4px;
+}
+
+.organizer-create-button {
+  border-radius: 10px;
+  min-height: 44px;
+  height: auto;
+  max-width: 100%;
+  padding-block: 10px;
+  text-transform: none;
+  letter-spacing: normal;
+  font-size: 14px;
+}
+.organizer-create-button :deep(.v-btn__content) {
+  white-space: normal;
+}
+.organizer-chip-remove {
+  appearance: none;
+  background: rgb(var(--v-theme-chip-remove-background));
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  justify-content: center;
+  border: 0;
+  padding: 2px;
+  color: rgb(var(--v-theme-primary));
+  cursor: pointer;
+  line-height: 1;
+  box-shadow: none;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-inline-start: 0;
+  margin-inline-end: 8px;
+}
+
+.organizer-chip :deep(.v-chip__content) {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 </style>

@@ -7,7 +7,7 @@
       <v-card-text>
         {{ $t('recipe.import-from-zip-description') }}
         <v-file-input v-model="newRecipeZip" accept=".zip" label=".zip" class="my-3" density="compact"
-          variant="outlined" style="--v-input-control-height: 60px" clearable truncate-length="100"
+          variant="filled" style="--v-input-control-height: 60px" clearable truncate-length="100"
           :hint="$t('recipe.zip-files-must-have-been-exported-from-mealie')" persistent-hint prepend-icon=""
           :prepend-inner-icon="$globals.icons.zip" />
       </v-card-text>

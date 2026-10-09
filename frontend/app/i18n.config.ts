@@ -96,6 +96,7 @@ export default defineI18nConfig(() => {
     datetimeFormats: datetimeFormats as any,
     fallbackLocale: "en-US",
     fallbackWarn: true,
-    postTranslation: message => message.replace(/\bMealie\b/gi, "Petit Chef"),
+    // Component interpolation (i18n-t) returns VNodes rather than plain text.
+    postTranslation: message => typeof message === "string" ? message.replace(/\bMealie\b/gi, "Petit Chef") : message,
   };
 });

@@ -54,13 +54,13 @@ const theme = useTheme();
 const isDark = computed(() => theme.global.current.value.dark);
 
 const scrimColor = computed(() =>
-  isDark.value ? "rgba(0, 0, 0, 0.75)" : "rgba(255, 255, 255, 0.75)",
+  isDark.value ? "rgba(var(--v-theme-media-scrim), 0.75)" : "rgba(var(--v-theme-media-foreground), 0.75)",
 );
 
 const imageShadow = computed(() =>
   isDark.value
-    ? "0 0 24px rgba(255, 255, 255, 0.45), 0 0 140px rgba(255, 255, 255, 0.45)"
-    : "0 6px 16px rgba(0, 0, 0, 0.55), 0 18px 80px rgba(0, 0, 0, 0.7)",
+    ? "0 0 24px rgba(var(--v-theme-media-foreground), 0.45), 0 0 140px rgba(var(--v-theme-media-foreground), 0.45)"
+    : "0 6px 16px rgba(var(--v-theme-media-scrim), 0.55), 0 18px 80px rgba(var(--v-theme-media-scrim), 0.7)",
 );
 
 // The <img> box must be sized to the actual rendered pixels of the image (not the

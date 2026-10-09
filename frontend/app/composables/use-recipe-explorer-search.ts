@@ -34,6 +34,7 @@ interface RecipeExplorerSearchState {
   }>;
   selectedCategories: Ref<NoUndefinedField<RecipeCategory>[]>;
   selectedFoods: Ref<IngredientFood[]>;
+  selectedAuthor: Ref<string | null>;
   selectedHouseholds: Ref<NoUndefinedField<HouseholdSummary>[]>;
   selectedTags: Ref<NoUndefinedField<RecipeTag>[]>;
   selectedTools: Ref<NoUndefinedField<RecipeTool>[]>;
@@ -82,6 +83,7 @@ function createRecipeExplorerSearchState(groupSlug: ComputedRef<string>): Recipe
   // Selected items
   const selectedCategories = ref<NoUndefinedField<RecipeCategory>[]>([]);
   const selectedFoods = ref<IngredientFood[]>([]);
+  const selectedAuthor = ref<string | null>(null);
   const selectedHouseholds = ref<NoUndefinedField<HouseholdSummary>[]>([]);
   const selectedTags = ref<NoUndefinedField<RecipeTag>[]>([]);
   const selectedTools = ref<NoUndefinedField<RecipeTool>[]>([]);
@@ -114,6 +116,7 @@ function createRecipeExplorerSearchState(groupSlug: ComputedRef<string>): Recipe
   function calcPassedQuery(): RecipeSearchQuery {
     return {
       search: state.value.search ? state.value.search : "",
+      queryFilter: selectedAuthor.value ? `userId = "${selectedAuthor.value}"` : undefined,
       categories: toIDArray(selectedCategories.value),
       foods: toIDArray(selectedFoods.value),
       households: toIDArray(selectedHouseholds.value),
@@ -186,6 +189,7 @@ function createRecipeExplorerSearchState(groupSlug: ComputedRef<string>): Recipe
     state.value.requireAllFoods = queryDefaults.requireAllFoods;
     selectedCategories.value = [];
     selectedFoods.value = [];
+    selectedAuthor.value = null;
     selectedHouseholds.value = [];
     selectedTags.value = [];
     selectedTools.value = [];
@@ -211,6 +215,7 @@ function createRecipeExplorerSearchState(groupSlug: ComputedRef<string>): Recipe
 
     passedQuery.value = newQueryValue;
     const query = {
+      author: selectedAuthor.value || undefined,
       categories: passedQuery.value.categories,
       foods: passedQuery.value.foods,
       tags: passedQuery.value.tags,
@@ -289,6 +294,8 @@ function createRecipeExplorerSearchState(groupSlug: ComputedRef<string>): Recipe
       state.value.requireAllFoods = queryDefaults.requireAllFoods;
     }
 
+    const author = typeof query.author === "string" ? query.author : "";
+    selectedAuthor.value = isOwnGroup.value && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(author) ? author : null;
     const promises: Promise<void>[] = [];
 
     if (query.categories?.length) {
@@ -430,6 +437,7 @@ function createRecipeExplorerSearchState(groupSlug: ComputedRef<string>): Recipe
       () => state.value.orderDirection,
       selectedCategories,
       selectedFoods,
+      selectedAuthor,
       selectedHouseholds,
       selectedTags,
       selectedTools,
@@ -448,6 +456,7 @@ function createRecipeExplorerSearchState(groupSlug: ComputedRef<string>): Recipe
     // State
     state,
     selectedCategories,
+    selectedAuthor,
     selectedFoods,
     selectedHouseholds,
     selectedTags,

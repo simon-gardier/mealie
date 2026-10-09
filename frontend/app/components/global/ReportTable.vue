@@ -18,6 +18,7 @@
     </template>
     <template #[`item.actions`]="{ item }">
       <v-btn
+        color="error"
         icon
         @click.stop="deleteReport(item.id)"
       >

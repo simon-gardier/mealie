@@ -42,7 +42,7 @@ withDefaults(defineProps<{ size?: number }>(), { size: 75 });
   margin-bottom: -2.5rem;
 }
 .icon-avatar {
-  border-color: rgba(0, 0, 0, 0.12);
+  border-color: rgba(var(--v-theme-media-scrim), 0.12);
   border: 2px;
 }
 </style>

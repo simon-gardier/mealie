@@ -1,4 +1,5 @@
 import { defineNuxtConfig } from "nuxt/config";
+import { appThemes } from "./app/theme/colors";
 
 const AUTH_TOKEN = "mealie.access_token";
 
@@ -52,15 +53,14 @@ export default defineNuxtConfig({
       ],
       script: [
         {
-          innerHTML: `(function(){try{var d=localStorage.getItem('vueuse-color-scheme');var m=d==='dark'||(d!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches);document.documentElement.style.backgroundColor=m?'#211f1c':'#f5efe1'}catch(e){}})()`,
+          innerHTML: `(function(){try{var d=localStorage.getItem('vueuse-color-scheme');var m=d==='dark'||(d!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches);document.documentElement.style.backgroundColor=m?'${appThemes.dark.colors.background}':'${appThemes.light.colors.background}'}catch(e){}})()`,
           type: "text/javascript",
         },
       ],
       link: [
-        { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
-        { rel: "shortcut icon", type: "image/png", href: "/icons/icon-x64.png" },
-        { rel: "apple-touch-icon", type: "image/png", href: "/icons/apple-touch-icon.png" },
-        { rel: "mask-icon", href: "/icons/safari-pinned-tab.svg" },
+        { rel: "icon", type: "image/png", href: "/remy_logo.png" },
+        { rel: "shortcut icon", type: "image/png", href: "/remy_logo.png" },
+        { rel: "apple-touch-icon", type: "image/png", href: "/remy_logo.png" },
         { rel: "manifest", href: "/manifest.webmanifest", crossorigin: "use-credentials" },
       ],
     },
@@ -72,7 +72,7 @@ export default defineNuxtConfig({
     viewTransition: true,
   },
 
-  css: ["~/assets/main.css", "~/assets/style-overrides.scss", "~/assets/ratatouille/main.css"],
+  css: ["~/assets/main.css", "~/assets/style-overrides.scss", "~/assets/ratatouille/main.css", "~/assets/theme.css", "~/assets/settings.css"],
 
   runtimeConfig: {
     sessionPassword: process.env.SESSION_PASSWORD || "password-with-at-least-32-characters",
@@ -84,27 +84,7 @@ export default defineNuxtConfig({
       // ==============================================
       // Theme Runtime Config
       useDark: Boolean(process.env.THEME_USE_DARK) || false,
-      themes: {
-        dark: {
-          primary: process.env.THEME_DARK_PRIMARY || "#1D68AE",
-          accent: process.env.THEME_DARK_ACCENT || "#007A99",
-          secondary: process.env.THEME_DARK_SECONDARY || "#973542",
-          success: process.env.THEME_DARK_SUCCESS || "#43A047",
-          info: process.env.THEME_DARK_INFO || "#1D68AE",
-          warning: process.env.THEME_DARK_WARNING || "#FF6D00",
-          error: process.env.THEME_DARK_ERROR || "#EF5350",
-          background: "#1E1E1E",
-        },
-        light: {
-          primary: process.env.THEME_LIGHT_PRIMARY || "#1D68AE",
-          accent: process.env.THEME_LIGHT_ACCENT || "#007A99",
-          secondary: process.env.THEME_LIGHT_SECONDARY || "#973542",
-          success: process.env.THEME_LIGHT_SUCCESS || "#43A047",
-          info: process.env.THEME_LIGHT_INFO || "#1D68AE",
-          warning: process.env.THEME_LIGHT_WARNING || "#FF6D00",
-          error: process.env.THEME_LIGHT_ERROR || "#EF5350",
-        },
-      },
+      themes: { light: appThemes.light.colors, dark: appThemes.dark.colors },
     },
   },
 
@@ -252,7 +232,7 @@ export default defineNuxtConfig({
       installPrompt: true,
       periodicSyncForUpdates: 120,
     },
-    includeAssets: ["favicon.ico", "apple-touch-icon.png", "safari-pinned-tab.svg"],
+    includeAssets: ["remy_logo.png"],
     manifest: false, // This is served via the backend, see mealie/routes/spa/manifest.py
   },
 

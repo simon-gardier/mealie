@@ -1,7 +1,15 @@
 <template>
-  <v-select v-model="recipe.userId" :items="allUsers" :item-props="itemsProps" :label="$t('general.owner')"
-    :disabled="!canEditOwner" variant="outlined" density="compact" hide-details>
-  </v-select>
+  <v-select
+    v-model="recipe.userId"
+    :items="allUsers"
+    :menu-props="{ contentClass: 'recipe-editor-overlay' }"
+    :item-props="itemsProps"
+    :label="$t('general.owner')"
+    :disabled="!canEditOwner"
+    variant="filled"
+    density="compact"
+    hide-details
+  />
 </template>
 
 <script setup lang="ts">

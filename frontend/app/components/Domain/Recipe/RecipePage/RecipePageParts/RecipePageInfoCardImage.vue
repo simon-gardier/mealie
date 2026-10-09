@@ -1,10 +1,20 @@
 <template>
-  <div v-if="!hideImage" :key="imageKey" class="recipe-image-frame d-print-none" :style="frameStyle" v-bind="$attrs"
-    @click="openLightbox">
+  <div
+    v-if="!hideImage"
+    :key="imageKey"
+    class="recipe-image-frame d-print-none"
+    :style="frameStyle"
+    v-bind="$attrs"
+    @click="openLightbox"
+  >
     <v-img cover :src="recipeImageUrl" class="recipe-image-frame__image" @error="hideImage = true" />
   </div>
-  <RecipeImageLightbox v-if="lightboxOpen" v-model="lightboxOpen" :image-url="recipeFullImageUrl"
-    :image-alt="recipe.name" />
+  <RecipeImageLightbox
+    v-if="lightboxOpen"
+    v-model="lightboxOpen"
+    :image-url="recipeFullImageUrl"
+    :image-alt="recipe.name"
+  />
 </template>
 
 <script setup lang="ts">
