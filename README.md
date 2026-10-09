@@ -86,6 +86,13 @@ git commit
 git push origin main
 ```
 
+### Hosting update
+```
+git pull
+docker compose build remy
+docker compose up -d
+```
+
 ### AI setuo
 Name: Gemini
 Model: gemini-3.1-flash-lite
