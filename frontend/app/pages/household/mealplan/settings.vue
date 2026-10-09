@@ -54,7 +54,7 @@
           v-for="rule in allRules"
           :key="rule.id"
         >
-          <v-card class="meal-rule-saved my-3" elevation="0">
+          <v-card class="my-3" elevation="0">
             <v-card-title class="meal-rule-title">
               <span>
                 {{ rule.day === "unset" ? $t('meal-plan.applies-to-all-days') : $t('meal-plan.applies-on-days', [$t('general.' + rule.day)]) }}
@@ -92,10 +92,9 @@
                   v-model:query-filter-string="rule.queryFilterString"
                   :query-filter="rule.queryFilter"
                 />
-                <div class="d-flex justify-end mt-6">
+                <div class="d-flex justify-end">
                   <BaseButton
                     update
-                    variant="tonal"
                     :disabled="!rule.queryFilterString"
                     @click="updateRule(rule)"
                   />
@@ -207,13 +206,5 @@ async function updateRule(rule: PlanRulesOut) {
 }
 .meal-rule-title > span:first-child {
   flex: 1 1 240px;
-}
-.meal-rule-saved > .v-card-text {
-  padding: 24px;
-}
-@media (max-width: 600px) {
-  .meal-rule-saved > .v-card-text {
-    padding: 16px;
-  }
 }
 </style>

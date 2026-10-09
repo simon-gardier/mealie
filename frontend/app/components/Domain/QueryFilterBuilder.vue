@@ -1,6 +1,6 @@
 <template>
   <v-defaults-provider :defaults="cookbookLayout ? { VSelect: { hideDetails: 'auto', density: 'comfortable' }, VTextField: { hideDetails: 'auto', density: 'comfortable' }, VAutocomplete: { hideDetails: 'auto', density: 'comfortable' }, VNumberInput: { hideDetails: 'auto', density: 'comfortable' } } : {}">
-    <v-card class="ma-0" :class="{ 'cookbook-filters': cookbookLayout }" flat>
+    <v-card class="ma-0" :class="{ 'cookbook-filters': cookbookLayout, 'inset-filters': inset }" flat>
       <v-card-text class="ma-0 pa-0">
         <VueDraggable
           v-model="fields"
@@ -375,6 +375,7 @@ import { useUserStore } from "~/composables/store/use-user-store";
 import { type Field, type FieldDefinition, type FieldValue, type OrganizerBase, useQueryFilterBuilder } from "~/composables/use-query-filter-builder";
 
 const props = defineProps({
+  inset: { type: Boolean, default: false },
   cookbookLayout: { type: Boolean, default: false },
   filledInputs: { type: Boolean, default: false },
   fieldDefs: {
@@ -848,6 +849,15 @@ const config = computed(() => {
   background: transparent;
   container-type: inline-size;
   font-family: var(--bistro-body);
+}
+.inset-filters {
+  padding: 24px;
+  box-sizing: border-box;
+}
+@media (max-width: 600px) {
+  .inset-filters {
+    padding: 16px;
+  }
 }
 .cookbook-filters .filter-row {
   display: grid !important;

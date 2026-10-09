@@ -15,8 +15,9 @@
       />
     </div>
 
-    <div class="meal-rule-editor">
+    <div>
       <QueryFilterBuilder
+        inset
         cookbook-layout
         :field-defs="fieldDefs"
         :initial-query-filter="props.queryFilter"
@@ -153,18 +154,12 @@ const fieldDefs: FieldDefinition[] = [
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
-.meal-rule-editor {
-  padding: 24px;
-}
 .meal-rule-summary {
   margin: 0;
   color: rgb(var(--v-theme-text-secondary));
   font-size: 14px;
 }
 @media (max-width: 600px) {
-  .meal-rule-editor {
-    padding: 16px;
-  }
   .meal-rule-scope {
     grid-template-columns: minmax(0, 1fr);
   }
