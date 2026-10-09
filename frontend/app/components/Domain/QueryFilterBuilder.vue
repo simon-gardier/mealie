@@ -344,6 +344,7 @@
             <BaseButton
               v-if="!$slots.actions"
               create
+              :variant="cookbookLayout ? 'tonal' : undefined"
               :text="$t('general.add-field')"
               class="my-auto ml-4"
               @click="addField(fieldDefs[0])"
@@ -888,6 +889,8 @@ const config = computed(() => {
   display: block !important;
 }
 .cookbook-filters .filter-value :deep(.v-input) {
+  width: 100%;
+  min-width: 0;
   margin-block: 0 !important;
   padding-block: 0 !important;
   align-self: start;

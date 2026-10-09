@@ -341,7 +341,7 @@
     "meal-plan-rules": "Règles du menu",
     "new-rule": "Nouvelle règle",
     "meal-plan-rules-description": "Vous pouvez créer des règles pour ajouter automatiquement des recettes à votre menu. Ces règles sont utilisées par le serveur pour établir la liste aléatoire de recettes utilisée lors de la création de menus. Notez que si les règles ont les mêmes contraintes jour/type, alors les filtres des règles seront fusionnées. Dans la pratique, il est inutile de créer des règles en double, mais il est possible de le faire.",
-    "new-rule-description": "Lorsque vous créez une nouvelle règle pour un menu, vous pouvez restreindre la règle à un jour précis de la semaine et/ou un type de repas particulier. Pour appliquer une règle à tous les jours ou à tous les types de repas, vous pouvez définir la règle à \"Tous\".",
+    "new-rule-description": "Choisissez les jours et les repas concernés, puis les critères des recettes à proposer. Sélectionnez « Tous » pour ne pas limiter les jours ou les types de repas.",
     "recipe-rules": "Règles de recette",
     "applies-to-all-days": "S'applique à tous les jours",
     "applies-on-days": "S'applique les {0}s",

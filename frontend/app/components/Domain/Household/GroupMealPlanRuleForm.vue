@@ -1,8 +1,7 @@
 <template>
-  <div>
+  <div class="meal-rule-form">
     <div
-      class="d-md-flex"
-      style="gap: 10px"
+      class="meal-rule-scope"
     >
       <v-select
         v-model="day"
@@ -16,23 +15,25 @@
       />
     </div>
 
-    <div class="mb-5">
+    <div>
       <QueryFilterBuilder
+        cookbook-layout
         :field-defs="fieldDefs"
         :initial-query-filter="props.queryFilter"
         @input="handleQueryFilterInput"
       />
     </div>
 
-    <!-- TODO: proper pluralization of inputDay -->
-    {{ $t("meal-plan.this-rule-will-apply", {
-      dayCriteria: day === "unset"
-        ? $t("meal-plan.to-all-days")
-        : $t("meal-plan.on-days", [$t("general." + day)]),
-      mealTypeCriteria: entryType === "unset"
-        ? $t("meal-plan.for-all-meal-types")
-        : $t("meal-plan.for-type-meal-types", [$t("meal-plan." + entryType)]),
-    }) }}
+    <p class="meal-rule-summary">
+      {{ $t("meal-plan.this-rule-will-apply", {
+        dayCriteria: day === "unset"
+          ? $t("meal-plan.to-all-days")
+          : $t("meal-plan.on-days", [$t("general." + day)]),
+        mealTypeCriteria: entryType === "unset"
+          ? $t("meal-plan.for-all-meal-types")
+          : $t("meal-plan.for-type-meal-types", [$t("meal-plan." + entryType)]),
+      }) }}
+    </p>
   </div>
 </template>
 
@@ -141,3 +142,25 @@ const fieldDefs: FieldDefinition[] = [
   },
 ];
 </script>
+
+<style scoped>
+.meal-rule-form {
+  display: grid;
+  gap: 24px;
+}
+.meal-rule-scope {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.meal-rule-summary {
+  margin: 0;
+  color: rgb(var(--v-theme-text-secondary));
+  font-size: 14px;
+}
+@media (max-width: 600px) {
+  .meal-rule-scope {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+</style>

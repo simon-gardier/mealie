@@ -15,30 +15,30 @@
       {{ $t('meal-plan.meal-plan-rules-description') }}
     </BasePageTitle>
 
-    <v-card>
-      <v-card-title class="headline">
+    <section class="meal-rule-create">
+      <h2 class="meal-rule-heading">
         {{ $t('meal-plan.new-rule') }}
-      </v-card-title>
-      <v-divider class="mx-2" />
-      <v-card-text>
+      </h2>
+      <p class="text-secondary mb-6">
         {{ $t('meal-plan.new-rule-description') }}
-
-        <GroupMealPlanRuleForm
-          :key="createDataFormKey"
-          v-model:day="createData.day"
-          v-model:entry-type="createData.entryType"
-          v-model:query-filter-string="createData.queryFilterString"
-          class="mt-2"
-        />
-      </v-card-text>
-      <v-card-actions class="justify-end">
+      </p>
+      <GroupMealPlanRuleForm
+        :key="createDataFormKey"
+        v-model:day="createData.day"
+        v-model:entry-type="createData.entryType"
+        v-model:query-filter-string="createData.queryFilterString"
+        class="mt-2"
+      />
+      <div class="d-flex justify-end mt-6">
         <BaseButton
           create
-          :disabled="!createData.queryFilterString"
+          variant="tonal"
+          :loading="createPending"
+          :disabled="createPending || !createData.queryFilterString"
           @click="createRule"
         />
-      </v-card-actions>
-    </v-card>
+      </div>
+    </section>
 
     <section>
       <BaseCardSectionTitle
@@ -50,10 +50,12 @@
           v-for="rule in allRules"
           :key="rule.id"
         >
-          <v-card class="my-2 left-border">
-            <v-card-title class="headline pb-1">
-              {{ rule.day === "unset" ? $t('meal-plan.applies-to-all-days') : $t('meal-plan.applies-on-days', [rule.day]) }}
-              {{ rule.entryType === "unset" ? $t('meal-plan.for-all-meal-types') : $t('meal-plan.for-type-meal-types', [rule.entryType]) }}
+          <v-card class="my-3" elevation="0">
+            <v-card-title class="meal-rule-title">
+              <span>
+                {{ rule.day === "unset" ? $t('meal-plan.applies-to-all-days') : $t('meal-plan.applies-on-days', [$t('general.' + rule.day)]) }}
+                {{ rule.entryType === "unset" ? $t('meal-plan.for-all-meal-types') : $t('meal-plan.for-type-meal-types', [$t('meal-plan.' + rule.entryType)]) }}
+              </span>
               <span class="ml-auto">
                 <BaseButtonGroup
                   :buttons="[
@@ -141,6 +143,7 @@ useAsyncData(useAsyncKey(), async () => {
 // Creating Rules
 
 const createDataFormKey = ref(0);
+const createPending = ref(false);
 const createData = ref<PlanRulesCreate>({
   entryType: "unset",
   day: "unset",
@@ -148,16 +151,21 @@ const createData = ref<PlanRulesCreate>({
 });
 
 async function createRule() {
-  const { data } = await api.mealplanRules.createOne(createData.value);
-  if (data) {
-    refreshAll();
-    createData.value = {
-      entryType: "unset",
-      day: "unset",
-      queryFilterString: "",
-    };
-    createDataFormKey.value++;
+  if (createPending.value || !createData.value.queryFilterString) return;
+  createPending.value = true;
+  try {
+    const { data } = await api.mealplanRules.createOne(createData.value);
+    if (data) {
+      refreshAll();
+      createData.value = {
+        entryType: "unset",
+        day: "unset",
+        queryFilterString: "",
+      };
+      createDataFormKey.value++;
+    }
   }
+  finally { createPending.value = false; }
 }
 
 async function deleteRule(ruleId: string) {
@@ -175,3 +183,24 @@ async function updateRule(rule: PlanRulesOut) {
   }
 }
 </script>
+
+<style scoped>
+.meal-rule-create {
+  padding-block: 24px;
+}
+.meal-rule-heading {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.meal-rule-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  white-space: normal;
+}
+.meal-rule-title > span:first-child {
+  flex: 1 1 240px;
+}
+</style>
