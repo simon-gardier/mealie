@@ -15,9 +15,8 @@
       />
     </div>
 
-    <div>
+    <div class="meal-rule-editor">
       <QueryFilterBuilder
-        class="meal-rule-editor"
         cookbook-layout
         :field-defs="fieldDefs"
         :initial-query-filter="props.queryFilter"
