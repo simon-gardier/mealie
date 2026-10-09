@@ -70,3 +70,7 @@ First Docker startup installs the editable project and applies existing SQLite m
 Verified on 2026-10-08: Node 22.15.0, pnpm 11.23.0 installed on the user PATH (dependency installation initially used Codex's pnpm 11.25.0), Task 3.54.0, Docker Engine 29.6.2, Python 3.12 in Docker, locked frontend and backend dependencies. The app root, frontend-proxied app-info endpoint, and backend docs were checked for HTTP 200. No backend source or dependency lockfiles were changed.
 
 For frontend work, use `task ui:check`. Backend source and schemas are outside this fork's customization scope. Preserve Vuetify and existing API contracts.
+
+If Chrome reports Workbox `non-precached-url` for `/`, reload the development page twice. The development-only service-worker plugin unregisters stale Petit Chef workers for the current app scope; a second load releases the previously controlled page. Production precaching must include `index.html`: the Nuxt PWA module maps it to the app base URL used by `navigateFallback`. Do not exclude it in `workbox.globIgnores`.
+
+For modal backdrop blur, keep `-webkit-backdrop-filter` before the standard `backdrop-filter` declaration in `app/assets/theme.css`. Verified on 2026-10-09: the reversed order caused production minification to retain only the prefixed property, which Chromium ignored. After `pnpm generate`, check that the modal scrim rule in `.output/public/_nuxt/entry*.css` retains `backdrop-filter:blur(6px)`. Deploy the rebuilt frontend and reload to pick up its new hashed stylesheet.

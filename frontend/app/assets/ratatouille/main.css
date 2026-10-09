@@ -77,11 +77,11 @@ body,
 /* Retain the original dots as an opt-in fallback for future use. */
 .v-application {
   --bistro-dotted-background: radial-gradient(circle, rgba(var(--v-theme-separator), 0.4) 1.5px, transparent 1.5px);
-  --bistro-page-pattern: var(--bistro-dotted-background);
-  --bistro-page-pattern-size: 18px 18px;
+  --bistro-page-pattern: url("/light_background.png");
+  --bistro-page-pattern-size: 720px 720px;
 }
 .v-application.v-theme--dark {
-  --bistro-page-pattern: var(--bistro-dotted-background);
+  --bistro-page-pattern: url("/dark_background.png");
 }
 .v-application.bistro-background-dots {
   --bistro-page-pattern: var(--bistro-dotted-background);

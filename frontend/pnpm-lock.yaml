@@ -270,6 +270,9 @@ importers:
       vue-i18n:
         specifier: ^11.4.4
         version: 11.4.12(vue@3.5.43(typescript@5.9.3))
+      vue-router:
+        specifier: 5.3.1
+        version: 5.3.1(@vue/compiler-sfc@3.5.43)(esbuild@0.28.2)(rolldown@1.2.9)(rollup@4.63.4)(vite@8.3.0(@types/node@25.9.8)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.104.1)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))(vue@3.5.43(typescript@5.9.3))
       vuetify:
         specifier: ^4.1.2
         version: 4.2.1(typescript@5.9.3)(vue-i18n@11.4.12(vue@3.5.43(typescript@5.9.3)))(vue@3.5.43(typescript@5.9.3))

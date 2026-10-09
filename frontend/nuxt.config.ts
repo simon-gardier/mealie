@@ -219,10 +219,11 @@ export default defineNuxtConfig({
       suppressWarnings: true,
     },
     workbox: {
-      navigateFallback: "/",
+      navigateFallback: process.env.SUB_PATH || "/",
       navigateFallbackAllowlist: [/^(?!\/api|\/docs)/],
       globPatterns: ["**/*.{js,css,html,png,svg,ico}"],
-      globIgnores: ["404.html", "200.html", "index.html"],
+      // Nuxt PWA maps index.html to the app base URL used by navigateFallback.
+      globIgnores: ["404.html", "200.html"],
       cleanupOutdatedCaches: true,
       skipWaiting: true,
       clientsClaim: true,

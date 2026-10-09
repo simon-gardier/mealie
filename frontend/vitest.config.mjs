@@ -1,6 +1,9 @@
 import path from "path";
+import { fileURLToPath } from "node:url";
 import vue from "@vitejs/plugin-vue";
 import AutoImport from "unplugin-auto-import/vite";
+
+const root = fileURLToPath(new URL(".", import.meta.url));
 
 export default {
   plugins: [
@@ -32,10 +35,10 @@ export default {
   },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./app"),
-      "~": path.resolve(__dirname, "./app"),
-      "@@": path.resolve(__dirname, "."),
-      "~~": path.resolve(__dirname, "."),
+      "@": path.resolve(root, "./app"),
+      "~": path.resolve(root, "./app"),
+      "@@": path.resolve(root, "."),
+      "~~": path.resolve(root, "."),
     },
   },
 };

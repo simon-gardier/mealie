@@ -11,8 +11,8 @@
         :style="{ cursor }"
         hover
         :height="listMode || compact ? undefined : '100%'"
-        :to="$attrs.selected ? undefined : recipeRoute"
-        @click="$emit('selected')"
+        :href="!$attrs.selected && showRecipeContent ? recipeLink.href.value : undefined"
+        @click="onCardClick"
       >
         <v-img v-if="vertical" class="rounded-sm" cover>
           <RecipeCardImage
@@ -73,7 +73,7 @@
           >
             <div :class="{ 'recipe-list-title-row': listMode }">
               <button
-                v-if="listMode || compact"
+                v-if="compact"
                 type="button"
                 class="recipe-card-mobile__title recipe-title-toggle ma-0 text-top"
                 :class="listMode ? 'recipe-list-title' : 'recipe-compact-title'"
@@ -244,6 +244,7 @@
 </template>
 
 <script setup lang="ts">
+import { useLink } from "vue-router";
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 import RecipeCardImage from "./RecipeCardImage.vue";
 import RecipeCardRating from "./RecipeCardRating.vue";
@@ -295,7 +296,7 @@ const props = withDefaults(defineProps<Props>(), {
   contextMenuLeadingItems: () => [],
 });
 
-defineEmits<{
+const emit = defineEmits<{
   mealplanRemove: [];
   mealplanEdit: [];
   addToShoppingList: [];
@@ -337,6 +338,12 @@ watch(() => [props.slug, props.compact, props.listMode] as const, async ([slug, 
 const recipeRoute = computed<string>(() => {
   return showRecipeContent.value ? `/g/${groupSlug.value}/r/${props.slug}` : "";
 });
+const recipeLink = useLink({ to: recipeRoute });
+const attrs = useAttrs();
+function onCardClick(event: MouseEvent) {
+  emit("selected");
+  if (!attrs.selected && showRecipeContent.value) void recipeLink.navigate(event);
+}
 const cursor = computed(() => showRecipeContent.value ? "pointer" : "auto");
 const lightboxOpen = ref(false);
 const titleExpanded = ref(false);

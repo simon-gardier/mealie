@@ -8,9 +8,10 @@
         :class="{ 'on-hover': isHovering }"
         :style="{ cursor }"
         :elevation="0"
-        :to="recipeRoute"
+        :href="showRecipeContent ? recipeLink.href.value : undefined"
         :min-height="imageHeight + 75"
         @click.self="$emit('click')"
+        @click="showRecipeContent && recipeLink.navigate($event)"
       >
         <RecipeCardImage
           small
@@ -71,6 +72,7 @@
 </template>
 
 <script setup lang="ts">
+import { useLink } from "vue-router";
 import RecipeChips from "./RecipeChips.vue";
 import RecipeContextMenu from "./RecipeContextMenu/RecipeContextMenu.vue";
 import RecipeCardImage from "./RecipeCardImage.vue";
@@ -118,6 +120,7 @@ const showRecipeContent = computed(() => props.recipeId && props.slug);
 const recipeRoute = computed<string>(() => {
   return showRecipeContent.value ? `/g/${groupSlug.value}/r/${props.slug}` : "";
 });
+const recipeLink = useLink({ to: recipeRoute });
 const cursor = computed(() => showRecipeContent.value ? "pointer" : "auto");
 const isFavorite = computed(() => userRatings.value.find(rating => rating.recipeId === props.recipeId)?.isFavorite || false);
 const menuLeadingItems = computed<ContextMenuItem[]>(() => [
