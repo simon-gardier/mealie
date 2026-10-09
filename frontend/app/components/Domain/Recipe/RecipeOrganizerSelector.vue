@@ -44,7 +44,7 @@
     @click:append="dialog = true"
     @keyup.enter="handleEnter"
   >
-    <template v-if="!externalChips" #chip="{ item, index }">
+    <template v-if="!externalChips" #chip="{ internalItem: item, index }">
       <v-chip
         :key="item.raw.id ?? item.value"
         class="organizer-chip ma-1"
