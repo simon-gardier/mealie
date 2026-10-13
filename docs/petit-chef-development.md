@@ -6,7 +6,7 @@ Read the fork requirements at the top of `AGENTS.md`. This repository is the por
 
 ### Preferred Windows setup: Docker backend, local frontend
 
-The owner prefers Docker over WSL. Start Docker Desktop (Linux containers), install Node.js, pnpm, and Task, then run `pnpm install --frozen-lockfile` in `frontend`. Run `docker compose -f compose.petit-chef.yml build backend` from the root. The image installs Python 3.12, uv, and the Linux LDAP build libraries using the committed Python lockfile. Backend source is mounted from the checkout for reload; its Python environment stays inside the image at `/opt/mealie-venv`, separate from Windows `.venv`.
+The owner prefers Docker over WSL. Start Docker Desktop (Linux containers), install Node.js, pnpm, and Task, then run `pnpm install --frozen-lockfile` in `frontend`. Run `docker compose -f compose.petit-chef.yml build backend` from the root. The image installs Python 3.14, uv, and the Linux LDAP build libraries using the committed Python lockfile. Backend source is mounted from the checkout for reload; its Python environment stays inside the image at `/opt/mealie-venv`, separate from Windows `.venv`.
 
 With Node.js installed, run `npm install --global pnpm@11.23.0` (the version specified by this checkout), then open a fresh terminal. Do not rely on a pnpm executable in Codex's private runtime: ordinary visible terminals must find pnpm on their own PATH.
 
@@ -16,7 +16,7 @@ Native Windows `task setup:py` was attempted on 2026-10-08 and failed building `
 
 ### Upstream native or Linux setup
 
-Prerequisites: Git, Python 3.12 (uv can download it), Node.js compatible with the committed Nuxt dependencies, pnpm (version in `frontend/package.json`), uv, and Go Task (`task`). Keep the committed lockfiles; do not upgrade dependencies just to start development.
+Prerequisites: Git, Python 3.14 (uv can download it), Node.js compatible with the committed Nuxt dependencies, pnpm (version in `frontend/package.json`), uv, and Go Task (`task`). Keep the committed lockfiles; do not upgrade dependencies just to start development.
 
 On Windows, install uv and Task with:
 
@@ -74,3 +74,11 @@ For frontend work, use `task ui:check`. Backend source and schemas are outside t
 If Chrome reports Workbox `non-precached-url` for `/`, reload the development page twice. The development-only service-worker plugin unregisters stale Petit Chef workers for the current app scope; a second load releases the previously controlled page. Production precaching must include `index.html`: the Nuxt PWA module maps it to the app base URL used by `navigateFallback`. Do not exclude it in `workbox.globIgnores`.
 
 For modal backdrop blur, keep `-webkit-backdrop-filter` before the standard `backdrop-filter` declaration in `app/assets/theme.css`. Verified on 2026-10-09: the reversed order caused production minification to retain only the prefixed property, which Chromium ignored. After `pnpm generate`, check that the modal scrim rule in `.output/public/_nuxt/entry*.css` retains `backdrop-filter:blur(6px)`. Deploy the rebuilt frontend and reload to pick up its new hashed stylesheet.
+
+## Upstream update to Mealie 3.28.0 (2026-10-13)
+
+Mealie 3.28.0 requires Python 3.14. The Petit Chef development Dockerfile now uses `python:3.14-slim-bookworm`; its build with the upstream frozen lockfile succeeded. Rebuild the backend image before restarting it. Existing Python 3.12 virtual environments need replacement or recreation with Python 3.14; preserve application data.
+
+The merge preserves the fork's recipe UI, theme, and branding. Frontend validation: 83 test files / 594 tests passed, focused lint passed, and the production static build succeeded. This is code/build verification; authenticated visual verification and public deployment verification remain separate.
+
+Backend validation in the Python 3.14 container: Ruff passed; 90 focused tests passed for session cookies, settings, locale configuration, and email behavior. The full backend suite was not run.

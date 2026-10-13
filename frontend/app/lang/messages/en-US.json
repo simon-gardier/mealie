@@ -384,7 +384,7 @@
       "title": "Paprika Recipe Manager"
     },
     "mealie-pre-v1": {
-      "description-long": "Petit Chef can import recipes from the Petit Chef application from a pre v1.0 release. Export your recipes from your old instance, and upload the zip file below. Note that only recipes can be imported from the export.",
+      "description-long": "Petit Chef can import recipes from the Petit Chef application from a pre v1.0 release. Export your recipes from your old instance, and upload the zip file below. Note that only recipes can be imported from the export. This applies only to instances older than v1.0. A backup taken from v1.0 or later should be restored with the backup and restore tools.",
       "title": "Petit Chef Pre v1.0"
     },
     "tandoor": {
@@ -396,8 +396,8 @@
       "title": "DVO Cook'n X3"
     },
     "recipe-data-migrations": "Recipe Data Migrations",
-    "recipe-data-migrations-explanation": "Recipes can be migrated from another supported application to Petit Chef. This is a great way to get started with Petit Chef.",
-    "coming-from-another-application-or-an-even-older-version-of-mealie": "Coming from another application or an even older version of Petit Chef? Check out migrations and see if your data can be imported.",
+    "recipe-data-migrations-explanation": "Recipes can be migrated from another supported application to Petit Chef. This is a great way to get started with Petit Chef. Moving data between Petit Chef instances, or restoring an earlier Petit Chef backup, is done with the backup and restore tools instead.",
+    "migration-description": "Coming from another application, or a version of Petit Chef older than v1.0? Check out migrations and see if your data can be imported.",
     "choose-migration-type": "Choose Migration Type",
     "tag-all-recipes": "Tag all recipes with {tag-name} tag",
     "recipe-1": "Recipe 1",
