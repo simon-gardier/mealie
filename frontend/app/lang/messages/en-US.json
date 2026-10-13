@@ -30,6 +30,10 @@
     "error-submitting-form": "Error Submitting Form"
   },
   "category": {
+    "about-categories": "About categories",
+    "purpose": "Group recipes by type: starters, mains, sides or desserts.",
+    "tags-difference": "Use keywords for details such as quick or vegetarian.",
+    "filtering-help": "Find recipes more easily and organize your menus.",
     "categories": "Categories",
     "create-a-category": "Create a Category",
     "category-name": "Category Name",
@@ -351,6 +355,8 @@
     "meal-plan-settings": "Meal Plan Settings",
     "add-all-to-list": "Add All to List",
     "add-to-shopping-list": "Add to shopping list",
+    "add-meal-to-list": "Add this meal to a shopping list",
+    "load-more-recipes": "Load more recipes",
     "add-day-to-list": "Add Day to List",
     "randomize-recipe": "Randomize Recipe"
   },
@@ -437,6 +443,13 @@
     "an-error-occurred": "An error occurred"
   },
   "recipe": {
+    "save-error-title": "Recipe could not be saved",
+    "save-error-preserved": "Your edits are still here. Correct the fields below, then save again.",
+    "save-error-date": "Enter a valid date, or leave it empty if optional.",
+    "save-error-invalid": "The server rejected the recipe data but did not identify a field. Check the recipe fields and try again.",
+    "save-error-retry": "The recipe could not be saved. Check your connection and try again.",
+    "save-error-required": "This field is required.",
+    "save-error-number": "Enter a valid number.",
     "author": "Recipe author",
     "reframe-image": "Reframe current image",
     "edit-image": "Edit image",
@@ -920,7 +933,7 @@
     "deselect-all-ingredients": "Deselect all",
     "choose-list": "Choose a list for the recipe ingredients.",
     "products-count": "{count} products|{count} product|{count} products",
-    "analyze-before-adding": "First analyze all ingredients on the recipe edit page before adding the recipe to a shopping list.",
+    "analyze-before-adding": "Analyze all ingredients in the recipe editor first.",
     "analyze-before-scaling": "To change portions, analyze the ingredients of this recipe and all its subrecipes on their edit pages. Each ingredient must be associated with a food.",
     "unanalyzed-subrecipes": "Subrecipes requiring analysis: {recipes}.",
     "subrecipes-to-analyze": "Subrecipes to analyze",
@@ -975,6 +988,10 @@
     "cookbook": "Cookbook"
   },
   "tag": {
+    "about-tags": "About keywords and tags",
+    "purpose": "Describe your recipes with keywords: quick, vegetarian, Italian or spicy.",
+    "categories-difference": "A recipe can have several keywords, whatever its category.",
+    "filtering-help": "Use them to find recipes more easily.",
     "tags": "Tags",
     "create-a-tag": "Create a Tag",
     "tag-name": "Tag Name",
@@ -1012,6 +1029,8 @@
     "please-enter-password": "Please enter your new password.",
     "register": "Register",
     "reset-password": "Reset Password",
+    "reset-password-link-required": "Open the reset link from your email to choose a new password.",
+    "request-password-reset-link": "Request a reset link",
     "sign-in": "Sign in",
     "who-is-cooking-today": "Who's cooking today?",
     "signed-in": "Signed in",

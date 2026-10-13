@@ -1,8 +1,20 @@
 import { describe, expect, test } from "vitest";
-import { recipeView } from "./recipe-view";
+import { recipeSavePayload, recipeView } from "./recipe-view";
 import type { Recipe } from "~/lib/api/types/recipe";
 
 describe("recipe page defaults", () => {
+  test("keeps a never-cooked recipe's dates null when saved", () => {
+    const view = recipeView({ name: "New recipe", lastMade: null });
+    expect(view.lastMade).toBeNull();
+    expect(recipeSavePayload(view).lastMade).toBeNull();
+  });
+
+  test("normalizes only blank optional dates without mutating the draft or populated dates", () => {
+    const source: Recipe = { lastMade: "", dateAdded: " ", dateUpdated: "", createdAt: "2026-10-13T12:00:00Z", updatedAt: null, name: "New recipe", recipeIngredient: [{ note: "Salt" }] };
+    expect(recipeSavePayload(source)).toMatchObject({ lastMade: null, dateAdded: null, dateUpdated: null, createdAt: source.createdAt, updatedAt: null, recipeIngredient: source.recipeIngredient });
+    expect(source.lastMade).toBe("");
+    expect(recipeSavePayload({ lastMade: "invalid date" }).lastMade).toBe("invalid date");
+  });
   test("initializes missing and null page collections without inventing nested data", () => {
     const source: Recipe = { name: null, notes: null, recipeInstructions: null };
     const view = recipeView(source);

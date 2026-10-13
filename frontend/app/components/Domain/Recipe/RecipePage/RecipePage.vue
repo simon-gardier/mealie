@@ -2,6 +2,40 @@
   <div :class="{ 'cook-mode-surface': isCookMode, 'recipe-editor': isEditForm, 'recipe-view': !isEditMode && !isCookMode }">
     <RecipePageCreationCelebration v-if="showCreationCelebration" @complete="showCreationCelebration = false" />
     <BaseDialog
+      v-model="saveErrorOpen"
+      bottom-sheet
+      content-class="recipe-save-error-dialog"
+      :title="$t('recipe.save-error-title')"
+      :icon="$globals.icons.alertCircle"
+    >
+      <template #header>
+        <v-icon color="error" size="24" aria-hidden="true">
+          {{ $globals.icons.alertCircle }}
+        </v-icon>
+        <v-toolbar-title class="dialog-title">
+          {{ $t('recipe.save-error-title') }}
+        </v-toolbar-title>
+      </template>
+      <v-card-text role="alert">
+        <p class="mb-4">
+          {{ $t('recipe.save-error-preserved') }}
+        </p>
+        <ul class="recipe-save-errors">
+          <li v-for="(issue, index) in saveErrors" :key="index">
+            <strong>{{ issue.field }}</strong>
+            <p class="mb-0">
+              {{ issue.message }}
+            </p>
+          </li>
+        </ul>
+      </v-card-text>
+      <template #card-actions>
+        <v-btn color="primary" variant="tonal" @click="saveErrorOpen = false">
+          {{ $t('general.close') }}
+        </v-btn>
+      </template>
+    </BaseDialog>
+    <BaseDialog
       v-model="discardDialog"
       bottom-sheet
       :title="$t('general.discard-changes')"
@@ -29,6 +63,7 @@
           :recipe="recipe"
           :recipe-scale="scale"
           :landscape="landscape"
+          :saving="saving"
           @update:recipe="recipe = $event"
           @save="saveRecipe"
           @delete="deleteRecipe"
@@ -223,7 +258,7 @@
 </template>
 
 <script setup lang="ts">
-import { recipeView, type RecipeView } from "~/lib/recipe/recipe-view";
+import { recipeSavePayload, recipeView, type RecipeView } from "~/lib/recipe/recipe-view";
 import "~/assets/recipe-editor.css";
 import { invoke, until } from "@vueuse/core";
 import type { RouteLocationNormalized } from "vue-router";
@@ -246,6 +281,7 @@ import {
   usePageState,
 } from "~/composables/recipe-page/shared-state";
 import { useCookModeQuery, type BooleanString } from "~/composables/recipe-page/use-cook-mode-query";
+import { useRecipeSave } from "~/composables/recipe-page/use-recipe-save";
 import type { NoUndefinedField } from "~/lib/api/types/non-generated";
 import type { Recipe, RecipeCategory, RecipeIngredient, RecipeTag, RecipeTool } from "~/lib/api/types/recipe";
 import type { Parser } from "~/lib/api/user/recipes/recipe";
@@ -279,6 +315,8 @@ const ingredientStorageKey = computed(() => `recipe-ingredients:${recipe.value.i
 
 const router = useRouter();
 const api = useUserApi();
+const i18n = useI18n();
+const { saving, saveErrorOpen, saveErrors, save } = useRecipeSave(key => i18n.t(key));
 const { pageMode, setMode, isEditForm, isEditJSON, isCookMode, isEditMode, isParsing, toggleCookMode, toggleIsParsing }
   = usePageState(recipe.value.slug);
 const selectedParser = ref<Parser | null>(null);
@@ -429,13 +467,12 @@ watch(isParsing, () => {
  */
 
 async function saveRecipe() {
-  const { data, error } = await api.recipes.updateOne(recipe.value.slug, recipe.value);
-  if (!error) {
-    if (data?.slug && data.slug !== route.params.slug) {
-      isNavigatingAfterRename.value = true;
-    }
-    setMode(PageMode.VIEW);
+  const data = await save(() => api.recipes.updateOne(recipe.value.slug, recipeSavePayload(recipe.value)));
+  if (!data) return false;
+  if (data.slug && data.slug !== route.params.slug) {
+    isNavigatingAfterRename.value = true;
   }
+  setMode(PageMode.VIEW);
   if (data?.slug) {
     recipe.value = recipeView(data);
     originalRecipe.value = deepCopy(recipe.value);
@@ -443,12 +480,13 @@ async function saveRecipe() {
       router.replace(`/g/${groupSlug.value}/r/` + data.slug);
     }
   }
+  return true;
 }
 
 async function saveParsedIngredients(ingredients: NoUndefinedField<RecipeIngredient[]>) {
   const returnToEdit = isEditMode.value;
   recipe.value.recipeIngredient = ingredients;
-  await saveRecipe();
+  if (!await saveRecipe()) return;
   toggleIsParsing(false);
   if (returnToEdit) {
     setMode(PageMode.EDIT);
@@ -526,6 +564,29 @@ const scale = ref(1);
 </script>
 
 <style lang="css">
+.recipe-save-errors {
+  display: grid;
+  gap: 12px;
+  padding: 0;
+  list-style: none;
+  overflow-wrap: anywhere;
+}
+.recipe-save-error-dialog .dialog-title {
+  font-family: var(--bistro-body);
+}
+.recipe-save-errors li {
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgb(var(--v-theme-fill), 0.5);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.recipe-save-errors strong {
+  color: rgb(var(--v-theme-on-surface));
+}
+.recipe-save-errors p {
+  color: rgb(var(--v-theme-text-secondary));
+}
 .flip-list-move {
   transition: transform 0.5s;
 }

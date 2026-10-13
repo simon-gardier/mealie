@@ -45,7 +45,7 @@
           :icon="$globals.icons.close"
           :aria-label="$t('general.cancel')"
           :title="$t('general.cancel')"
-          :disabled="editLoading"
+          :disabled="editLoading || saving"
           @click="$emit('close')"
         />
         <v-btn
@@ -55,8 +55,8 @@
           :icon="isEditMode ? $globals.icons.save : $globals.icons.edit"
           :aria-label="$t(isEditMode ? 'general.save' : 'general.edit')"
           :title="$t(isEditMode ? 'general.save' : 'general.edit')"
-          :loading="editLoading"
-          :disabled="editLoading"
+          :loading="editLoading || saving"
+          :disabled="editLoading || saving"
           @click="handleSaveEdit"
         >
           <template #loader>
@@ -85,10 +85,12 @@ interface Props {
   recipe: RecipeView;
   recipeScale?: number;
   landscape?: boolean;
+  saving?: boolean;
 }
 const props = withDefaults(defineProps<Props>(), {
   recipeScale: 1,
   landscape: false,
+  saving: false,
 });
 
 const emit = defineEmits(["save", "delete", "print", "close", "update:recipe"]);
@@ -121,7 +123,7 @@ async function enterEditMode() {
 }
 
 function handleSaveEdit() {
-  if (editLoading.value) return;
+  if (editLoading.value || props.saving) return;
   if (isEditMode.value) emit("save");
   else void enterEditMode();
 }

@@ -369,9 +369,10 @@ function alertOnError(error: any) {
   opacity: 1;
 }
 
-/* Floating labels sit above the filled inputs, directly over the video. */
-.login-card :deep(.v-field-label--floating) {
-  color: rgb(var(--v-theme-media-foreground));
+/* Filled-field labels stay inside the input, so use its semantic text colors. */
+.login-card :deep(.v-field:not(.v-field--error) .v-field-label),
+.login-card :deep(input::placeholder) {
+  color: rgb(var(--v-theme-text-secondary));
   opacity: 1;
 }
 

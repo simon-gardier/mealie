@@ -67,6 +67,7 @@ export interface UserRecipeFinderPreferences {
 }
 
 export interface UserRecipeCreatePreferences {
+  organizerDefaultsVersion?: number;
   importKeywordsAsTags: boolean;
   importCategories: boolean;
   stayInEditMode: boolean;
@@ -235,15 +236,28 @@ export function useRecipeCreatePreferences(): Ref<UserRecipeCreatePreferences> {
   const fromStorage = useLocalStorage(
     "petit-chef-recipe-create-preferences",
     {
-      importKeywordsAsTags: true,
-      importCategories: true,
+      importKeywordsAsTags: false,
+      importCategories: false,
       stayInEditMode: true,
       parseRecipe: true,
       translateRecipe: true,
-      createNewOrganizers: true,
+      createNewOrganizers: false,
+      organizerDefaultsVersion: 0,
     },
     { mergeDefaults: true },
   );
+
+  // Apply the new opt-in defaults once to browsers that saved the old defaults,
+  // while retaining other creation preferences and later explicit choices.
+  if (fromStorage.value.organizerDefaultsVersion !== 1) {
+    fromStorage.value = {
+      ...fromStorage.value,
+      importKeywordsAsTags: false,
+      importCategories: false,
+      createNewOrganizers: false,
+      organizerDefaultsVersion: 1,
+    };
+  }
 
   return fromStorage;
 }

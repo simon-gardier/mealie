@@ -98,6 +98,40 @@ body,
   background-attachment: fixed;
 }
 
+/* The dark artwork is almost black. Brighten only its background layer,
+   leaving foreground content and the semantic surface colors untouched. */
+.v-theme--dark .app-main {
+  position: relative;
+  isolation: isolate;
+  background-image: none;
+}
+.v-theme--dark .app-main::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: var(--bistro-page-pattern);
+  background-size: var(--bistro-page-pattern-size);
+  background-repeat: repeat;
+  background-attachment: fixed;
+  filter: brightness(6);
+}
+.v-application.bistro-background-dots .app-main::before {
+  filter: none;
+}
+
+/* Mobile backgrounds must scroll with their full-page layer. Apply the same
+   treatment to the light surface and dark artwork layer, including tablets. */
+@media (max-width: 600px), (hover: none) and (pointer: coarse) {
+  .v-application,
+  .app-main,
+  .v-theme--dark .app-main::before {
+    background-attachment: scroll;
+    background-position: top left;
+  }
+}
+
 .v-btn:not(.v-btn--icon) {
   border-radius: 9px 12px 10px 11px;
   letter-spacing: 0;
@@ -542,6 +576,9 @@ body,
 }
 
 @media print {
+  .app-main::before {
+    display: none;
+  }
   .v-application,
   .app-main {
     background-image: none;

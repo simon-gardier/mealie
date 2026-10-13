@@ -1,82 +1,76 @@
 <template>
-  <v-container
-    fill-height
-    fluid
-    class="d-flex justify-center align-center"
-  >
-    <v-card
-      color="background d-flex flex-column align-center"
-      flat
-      width="600px"
-    >
-      <v-card-title class="text-h5 justify-center">
-        {{ $t("user.reset-password") }}
-      </v-card-title>
-      <BaseDivider />
-      <v-card-text>
-        <v-form ref="form" @submit.prevent="requestLink()">
+  <v-container fluid class="reset-password-page">
+    <v-card tag="section" aria-labelledby="reset-password-title" class="reset-password-card" color="surface" flat>
+      <header class="reset-password-heading">
+        <h1 id="reset-password-title">
+          {{ $t('user.reset-password') }}
+        </h1>
+        <p>{{ $t('user.please-enter-password') }}</p>
+      </header>
+      <v-form ref="form" validate-on="submit" @submit.prevent="requestLink()">
+        <div class="reset-password-fields">
           <v-text-field
             v-model="state.email"
             :prepend-inner-icon="$globals.icons.email"
-            variant="solo-filled"
-            flat
-            autofocus
-            name="login"
+            variant="filled"
+            density="comfortable"
+            name="email"
+            autocomplete="username"
             :label="$t('user.email')"
-            type="text"
+            type="email"
+            :rules="[validators.required, validators.email]"
+            :disabled="state.loading"
+            hide-details="auto"
           />
           <v-text-field
             v-model="state.password"
-            variant="solo-filled"
-            flat
             :prepend-inner-icon="$globals.icons.lock"
-            name="password"
+            variant="filled"
+            density="comfortable"
+            name="new-password"
+            autocomplete="new-password"
             :label="$t('user.password')"
             type="password"
             :rules="[validators.required]"
+            :disabled="state.loading"
+            hide-details="auto"
           />
           <v-text-field
             v-model="state.passwordConfirm"
-            variant="solo-filled"
-            flat
-            validate-on="blur"
             :prepend-inner-icon="$globals.icons.lock"
-            name="password"
+            variant="filled"
+            density="comfortable"
+            name="password-confirm"
+            autocomplete="new-password"
             :label="$t('user.confirm-password')"
             type="password"
             :rules="[validators.required, passwordMatch]"
+            :disabled="state.loading"
+            hide-details="auto"
           />
-          <p class="text-center">
-            {{ $t("user.please-enter-password") }}
-          </p>
-          <v-card-actions class="justify-center">
-            <div class="max-button">
-              <v-btn
-                :loading="state.loading"
-                color="primary"
-                :disabled="token === ''"
-                type="submit"
-                size="large"
-                rounded
-                class="rounded-xl"
-                block
-              >
-                <v-icon start>
-                  {{ $globals.icons.lock }}
-                </v-icon>
-                {{ token === "" ? "Token Required" : $t("user.reset-password") }}
-              </v-btn>
-            </div>
-          </v-card-actions>
-        </v-form>
-      </v-card-text>
-      <v-btn
-        class="mx-auto"
-        variant="text"
-        to="/login"
-      >
-        {{ $t("user.login") }}
-      </v-btn>
+        </div>
+        <p v-if="!token" class="reset-password-link-help">
+          {{ $t('user.reset-password-link-required') }}
+          <NuxtLink to="/forgot-password">{{ $t('user.request-password-reset-link') }}</NuxtLink>
+        </p>
+        <v-btn
+          class="reset-password-submit"
+          :loading="state.loading"
+          color="primary"
+          variant="tonal"
+          :disabled="!token || state.loading || !state.email.trim() || !state.password || !state.passwordConfirm"
+          :prepend-icon="$globals.icons.lock"
+          type="submit"
+          block
+        >
+          {{ $t('user.reset-password') }}
+        </v-btn>
+      </v-form>
+      <div class="reset-password-footer">
+        <v-btn variant="text" color="primary" to="/login">
+          {{ $t('user.login') }}
+        </v-btn>
+      </div>
     </v-card>
   </v-container>
 </template>
@@ -107,7 +101,7 @@ const passwordMatch = () => state.password === state.passwordConfirm || i18n.t("
 
 // Set page title
 useSeoMeta({
-  title: i18n.t("user.login"),
+  title: i18n.t("user.reset-password"),
 });
 
 // ===================
@@ -118,7 +112,7 @@ const token = useRouteQuery("token", "");
 // API
 const api = useUserApi();
 async function requestLink() {
-  if (!form.value) {
+  if (!form.value || state.loading || !token.value) {
     return;
   };
 
@@ -150,8 +144,71 @@ async function requestLink() {
 }
 </script>
 
-<style lang="css">
-.max-button {
-  width: 300px;
+<style scoped>
+.reset-password-page {
+  display: flex;
+  justify-content: center;
+  padding: calc(var(--bistro-header-bottom, 72px) + 24px) 24px 32px;
+}
+.reset-password-card {
+  width: 100%;
+  max-width: 520px;
+  padding: 24px;
+  border: 1px solid rgb(var(--v-theme-separator), 0.5);
+  border-radius: 20px;
+}
+.reset-password-heading {
+  margin-bottom: 24px;
+}
+.reset-password-heading h1 {
+  color: rgb(var(--v-theme-on-surface));
+  font: 600 22px/1.35 var(--bistro-body);
+  font-family: var(--bistro-body) !important;
+  margin: 0 0 8px;
+}
+.reset-password-heading p,
+.reset-password-link-help {
+  color: rgb(var(--v-theme-text-secondary));
+  font-size: 14px;
+  line-height: 1.5;
+}
+.reset-password-fields {
+  display: grid;
+  gap: 16px;
+}
+.reset-password-link-help {
+  margin-top: 16px;
+}
+.reset-password-link-help a {
+  display: block;
+  margin-top: 4px;
+}
+.reset-password-submit {
+  min-height: 44px;
+  height: auto;
+  margin-top: 24px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  text-transform: none;
+}
+.reset-password-submit :deep(.v-btn__content) {
+  white-space: normal;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.reset-password-footer {
+  display: flex;
+  justify-content: center;
+  padding-top: 16px;
+  margin-top: 24px;
+  border-top: 1px solid rgb(var(--v-theme-separator), 0.5);
+}
+@media (max-width: 600px) {
+  .reset-password-page {
+    padding: calc(var(--bistro-header-bottom, 72px) + 16px) 16px 24px;
+  }
+  .reset-password-card {
+    padding: 20px 16px;
+  }
 }
 </style>

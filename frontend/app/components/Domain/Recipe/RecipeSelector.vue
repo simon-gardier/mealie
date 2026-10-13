@@ -48,7 +48,7 @@
       </v-chip>
     </div>
 
-    <div ref="resultsContainer" class="recipe-results mt-3">
+    <div class="recipe-results mt-3">
       <v-list v-if="recipes.length" class="py-0">
         <RecipeCardLineItem
           v-for="recipe in recipes"
@@ -76,15 +76,25 @@
         </slot>
       </div>
 
-      <div ref="sentinel" />
-
-      <AppLoader v-if="loading" small />
+      <AppLoader v-if="loading && !recipes.length" small />
     </div>
+    <v-btn
+      v-if="hasMore && recipes.length"
+      class="flex-grow-0 mt-3"
+      variant="tonal"
+      color="primary"
+      :prepend-icon="$globals.icons.chevronDown"
+      :loading="loading"
+      :disabled="loading"
+      @click="loadMore"
+    >
+      {{ $t('meal-plan.load-more-recipes') }}
+    </v-btn>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useIntersectionObserver, watchDebounced } from "@vueuse/core";
+import { watchDebounced } from "@vueuse/core";
 import RecipeCardLineItem from "./RecipeCardLineItem.vue";
 import SearchFilter from "~/components/Domain/SearchFilter.vue";
 import { useLazyRecipes } from "~/composables/recipes";
@@ -108,7 +118,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const modelValue = defineModel<RecipeSummary | null>({ default: null });
 
-const PER_PAGE = 20;
+const PER_PAGE = 40;
 
 const { fetchMore } = useLazyRecipes();
 const { store: categories } = useCategoryStore();
@@ -154,16 +164,14 @@ async function reload() {
   const requestId = ++latestRequest;
   loading.value = true;
 
-  // we double-up the first call so the results overflow their container,
-  // otherwise there's nothing to scroll and no more recipes are ever loaded
-  const newRecipes = await fetchPage(1, PER_PAGE * 2);
+  const newRecipes = await fetchPage(1, PER_PAGE);
   if (requestId !== latestRequest) {
     return;
   }
 
   recipes.value = newRecipes;
-  hasMore.value = newRecipes.length >= PER_PAGE * 2;
-  page.value = 2;
+  hasMore.value = newRecipes.length >= PER_PAGE;
+  page.value = 1;
   loading.value = false;
 }
 
@@ -174,29 +182,18 @@ async function loadMore() {
 
   const requestId = ++latestRequest;
   loading.value = true;
-  page.value += 1;
+  const nextPage = page.value + 1;
 
-  const newRecipes = await fetchPage(page.value, PER_PAGE);
+  const newRecipes = await fetchPage(nextPage, PER_PAGE);
   if (requestId !== latestRequest) {
     return;
   }
 
   recipes.value = [...recipes.value, ...newRecipes];
+  page.value = nextPage;
   hasMore.value = newRecipes.length >= PER_PAGE;
   loading.value = false;
 }
-
-const resultsContainer = ref<HTMLElement | null>(null);
-const sentinel = ref<HTMLElement | null>(null);
-useIntersectionObserver(
-  sentinel,
-  ([entry]) => {
-    if (entry?.isIntersecting) {
-      loadMore();
-    }
-  },
-  { root: resultsContainer },
-);
 
 watchDebounced(
   [query, () => props.queryFilter],

@@ -1,14 +1,12 @@
 import { CHEESE, drawCheeseFrame, drawReducedMotion, loadCheeseFrames } from "~/lib/recipe-synesthesia/cheese-frames";
+import { FAVORITED_EVENT, type SynesthesiaOrigin } from "~/lib/recipe-synesthesia/events";
 
-const FAVORITED_EVENT = "mealie:recipe-favorited";
+export { playRecipeSynesthesia } from "~/lib/recipe-synesthesia/events";
+
 const OVERLAY_SIZE = 180;
 const OVERLAY_MARGIN = 12;
 const FADE_DURATION = 140;
 const PLAYBACK_FRAME_COUNT = Math.round(CHEESE.fps * 1.5);
-
-export function playRecipeSynesthesia() {
-  document.dispatchEvent(new CustomEvent(FAVORITED_EVENT));
-}
 
 export default defineNuxtPlugin((nuxtApp) => {
   let activeAnimation: { stop: (fade?: boolean) => void } | undefined;
@@ -17,7 +15,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   // Start decoding before the first favorite action, matching the supplied player.
   void loadCheeseFrames().catch(() => { });
 
-  function playSynesthesia() {
+  function playSynesthesia(event: Event) {
     const run = ++generation;
     activeAnimation?.stop();
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -31,15 +29,15 @@ export default defineNuxtPlugin((nuxtApp) => {
 
     activeAnimation?.stop();
     const animation = document.createElement("div");
-    const trigger = document.activeElement instanceof HTMLElement ? document.activeElement.getBoundingClientRect() : undefined;
+    const origin = (event as CustomEvent<SynesthesiaOrigin | undefined>).detail;
     const size = Math.min(OVERLAY_SIZE, window.innerWidth - OVERLAY_MARGIN * 2, window.innerHeight - OVERLAY_MARGIN * 2);
     const left = Math.max(
       OVERLAY_MARGIN,
-      Math.min(window.innerWidth - size - OVERLAY_MARGIN, (trigger?.left ?? window.innerWidth / 2) + (trigger?.width ?? 0) / 2 - size / 2),
+      Math.min(window.innerWidth - size - OVERLAY_MARGIN, (origin?.x ?? window.innerWidth / 2) - size / 2),
     );
     const top = Math.max(
       OVERLAY_MARGIN,
-      Math.min(window.innerHeight - size - OVERLAY_MARGIN, (trigger?.top ?? window.innerHeight / 2) + (trigger?.height ?? 0) / 2 - size / 2),
+      Math.min(window.innerHeight - size - OVERLAY_MARGIN, (origin?.y ?? window.innerHeight / 2) - size / 2),
     );
     animation.setAttribute("aria-hidden", "true");
     animation.style.cssText = [

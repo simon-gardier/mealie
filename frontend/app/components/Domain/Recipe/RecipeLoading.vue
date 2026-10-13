@@ -42,7 +42,9 @@ defineProps<{ label?: string }>();
   transform: rotate(calc(var(--segment) * 30deg));
   opacity: 0.2;
   animation: recipe-loading-pulse 1.2s linear infinite;
-  animation-delay: calc(var(--segment) * -0.1s);
+  /* Increasing delays follow the segments' clockwise positions. Keep every
+     delay negative so the spinner starts with a complete fading trail. */
+  animation-delay: calc((var(--segment) - 12) * 0.1s);
 }
 
 @keyframes recipe-loading-pulse {

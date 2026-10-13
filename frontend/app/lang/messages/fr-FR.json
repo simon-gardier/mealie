@@ -30,6 +30,10 @@
     "error-submitting-form": "Erreur lors de l’envoi du formulaire"
   },
   "category": {
+    "about-categories": "À propos des catégories",
+    "purpose": "Classez vos recettes par type : entrées, plats, accompagnements ou desserts.",
+    "tags-difference": "Utilisez les mots-clés pour des précisions comme rapide ou végétarien.",
+    "filtering-help": "Retrouvez vos recettes et organisez vos menus plus facilement.",
     "categories": "Catégories",
     "create-a-category": "Créer une catégorie",
     "category-name": "Nom de la catégorie",
@@ -349,6 +353,8 @@
     "meal-plan-settings": "Paramètres des menus",
     "add-all-to-list": "Ajouter tout à la liste",
     "add-to-shopping-list": "Ajouter tout à la liste de course",
+    "add-meal-to-list": "Ajouter ce repas à une liste de courses",
+    "load-more-recipes": "Afficher plus de recettes",
     "add-day-to-list": "Ajouter un jour à la liste",
     "randomize-recipe": "Recette au hasard"
   },
@@ -435,6 +441,13 @@
     "an-error-occurred": "Une erreur est survenue"
   },
   "recipe": {
+    "save-error-title": "Impossible d’enregistrer la recette",
+    "save-error-preserved": "Vos modifications sont conservées. Corrigez les champs ci-dessous, puis enregistrez à nouveau.",
+    "save-error-date": "Saisissez une date valide, ou laissez le champ vide s’il est facultatif.",
+    "save-error-invalid": "Le serveur a refusé les données sans préciser le champ concerné. Vérifiez les champs de la recette et réessayez.",
+    "save-error-retry": "La recette n’a pas pu être enregistrée. Vérifiez votre connexion et réessayez.",
+    "save-error-required": "Ce champ est obligatoire.",
+    "save-error-number": "Saisissez un nombre valide.",
     "author": "Auteur de la recette",
     "reframe-image": "Recadrer l’image actuelle",
     "edit-image": "Modifier l’image",
@@ -915,7 +928,7 @@
     "select-all-ingredients": "Tout sélectionner",
     "deselect-all-ingredients": "Tout désélectionner",
     "choose-list": "Choisissez la liste qui recevra les ingrédients de la recette.",
-    "analyze-before-adding": "Analysez d'abord tous les ingrédients dans la page de modification de la recette pour pouvoir l'ajouter à une liste de courses.",
+    "analyze-before-adding": "Analysez d’abord tous les ingrédients dans l’éditeur de la recette.",
     "analyze-before-scaling": "Pour modifier les portions, analysez les ingrédients de la recette et de toutes ses sous-recettes depuis leurs pages de modification. Chaque ingrédient doit être associé à un aliment.",
     "unanalyzed-subrecipes": "Sous-recettes à analyser : {recipes}.",
     "subrecipes-to-analyze": "Sous-recettes à analyser",
@@ -971,10 +984,14 @@
     "cookbook": "Livre de recettes"
   },
   "tag": {
+    "about-tags": "À propos des mots-clés",
+    "purpose": "Décrivez vos recettes avec des mots-clés : rapide, végétarien, italien ou épicé.",
+    "categories-difference": "Une recette peut avoir plusieurs mots-clés, quelle que soit sa catégorie.",
+    "filtering-help": "Utilisez-les pour retrouver vos recettes plus facilement.",
     "tags": "Mots-clés",
     "create-a-tag": "Créer un mot-clé",
     "tag-name": "Mot-clé",
-    "tag": "Étiquette"
+    "tag": "Mot-clé"
   },
   "tool": {
     "tools": "Ustensiles",
@@ -1008,6 +1025,8 @@
     "please-enter-password": "Veuillez entrer votre nouveau mot de passe.",
     "register": "S’inscrire",
     "reset-password": "Réinitialiser le mot de passe",
+    "reset-password-link-required": "Ouvrez le lien reçu par e-mail pour choisir un nouveau mot de passe.",
+    "request-password-reset-link": "Demander un lien de réinitialisation",
     "sign-in": "Se connecter",
     "who-is-cooking-today": "Qui cuisine aujourd’hui ?",
     "signed-in": "Connecté",

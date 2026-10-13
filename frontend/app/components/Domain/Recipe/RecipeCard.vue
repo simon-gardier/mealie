@@ -82,6 +82,7 @@ import type { ContextMenuItem } from "./RecipeContextMenu/RecipeContextMenu.vue"
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 import { useUserSelfRatings } from "~/composables/use-users";
 import { playRecipeSynesthesia } from "~/plugins/recipe-synesthesia.client";
+import type { SynesthesiaOrigin } from "~/lib/recipe-synesthesia/events";
 
 interface Props {
   name: string;
@@ -133,12 +134,12 @@ const menuLeadingItems = computed<ContextMenuItem[]>(() => [
 ]);
 
 const favoritePending = ref(false);
-async function toggleFavorite() {
+async function toggleFavorite(origin?: SynesthesiaOrigin) {
   if (favoritePending.value) return;
   favoritePending.value = true;
   try {
     const favorite = !isFavorite.value;
-    if (await setFavorite(props.recipeId, favorite) && favorite) playRecipeSynesthesia();
+    if (await setFavorite(props.recipeId, favorite) && favorite) playRecipeSynesthesia(origin);
   }
   finally { favoritePending.value = false; }
 }

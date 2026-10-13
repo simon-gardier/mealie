@@ -3,8 +3,9 @@
     <!-- Recipe Categories -->
     <section v-if="recipe.recipeCategory.length > 0 || isEditForm" class="recipe-organizer-section">
       <v-card>
-        <v-card-title class="recipe-organizer-title py-2">
-          {{ $t("recipe.categories") }}
+        <v-card-title class="recipe-organizer-title py-2 d-flex align-center ga-2">
+          <span>{{ $t("recipe.categories") }}</span>
+          <RecipeCategoryInfo />
         </v-card-title>
         <v-divider class="mx-2" />
         <v-card-text>
@@ -23,8 +24,9 @@
     <!-- Recipe Tags -->
     <section v-if="recipe.tags.length > 0 || isEditForm" class="recipe-organizer-section">
       <v-card>
-        <v-card-title class="recipe-organizer-title py-2">
-          {{ $t("tag.tags") }}
+        <v-card-title class="recipe-organizer-title py-2 d-flex align-center ga-2">
+          <span>{{ $t("tag.tags") }}</span>
+          <RecipeTagInfo />
         </v-card-title>
         <v-divider class="mx-2" />
         <v-card-text>

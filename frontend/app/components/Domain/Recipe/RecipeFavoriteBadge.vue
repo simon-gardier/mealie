@@ -27,6 +27,7 @@
 import { useUserSelfRatings } from "~/composables/use-users";
 
 import { playRecipeSynesthesia } from "~/plugins/recipe-synesthesia.client";
+import { captureSynesthesiaOrigin } from "~/lib/recipe-synesthesia/events";
 
 interface Props {
   recipeId?: string;
@@ -47,12 +48,13 @@ const isFavorite = computed(() => {
 });
 
 const favoritePending = ref(false);
-async function toggleFavorite() {
+async function toggleFavorite(event: MouseEvent) {
   if (favoritePending.value) return;
+  const origin = captureSynesthesiaOrigin(event.currentTarget instanceof Element ? event.currentTarget : null);
   favoritePending.value = true;
   try {
     const favorite = !isFavorite.value;
-    if (await setFavorite(props.recipeId, favorite) && favorite) playRecipeSynesthesia();
+    if (await setFavorite(props.recipeId, favorite) && favorite) playRecipeSynesthesia(origin);
   }
   finally { favoritePending.value = false; }
 }

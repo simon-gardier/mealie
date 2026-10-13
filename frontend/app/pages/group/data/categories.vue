@@ -93,6 +93,7 @@
       </template>
 
       <template #table-button-row>
+        <RecipeCategoryInfo />
         <BaseButton @click="mergeDialog = true">
           <template #icon>
             {{ $globals.icons.externalLink }}

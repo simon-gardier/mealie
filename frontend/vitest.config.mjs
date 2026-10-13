@@ -14,6 +14,7 @@ export default {
     }),
   ],
   test: {
+    server: { deps: { inline: ["vuetify"] } },
     globals: true,
     environment: "jsdom",
     setupFiles: ["./app/tests/setup.ts"],
@@ -35,6 +36,7 @@ export default {
   },
   resolve: {
     alias: {
+      "#app": path.resolve(root, "./node_modules/nuxt/dist/app/index.js"),
       "@": path.resolve(root, "./app"),
       "~": path.resolve(root, "./app"),
       "@@": path.resolve(root, "."),

@@ -178,41 +178,22 @@
                   </template>
                   <span>{{ t("meal-plan.edit-meal-plan") }}</span>
                 </v-tooltip>
-                <v-tooltip
+                <BaseDisabledActionTooltip
                   v-if="showRecipeContent"
-                  density="compact"
-                  location="bottom"
-                  content-class="text-caption"
+                  :disabled="!canAddToShoppingList"
+                  :message="t(canAddToShoppingList ? 'meal-plan.add-meal-to-list' : 'shopping-list.analyze-before-adding')"
+                  always
                 >
-                  <template #activator="{ props: tooltipProps }">
-                    <v-btn
-                      :icon="$globals.icons.cartCheck"
-                      :disabled="!canAddToShoppingList"
-                      class="recipe-compact-action"
-                      variant="text"
-                      size="default"
-                      :aria-label="t('recipe.add-to-list')"
-                      v-bind="tooltipProps"
-                      @click.stop.prevent="$emit('addToShoppingList')"
-                    />
-                  </template>
-                  <span>{{ t(canAddToShoppingList ? "recipe.add-to-list" : "shopping-list.analyze-before-adding") }}</span>
-                </v-tooltip>
-                <v-menu v-if="showRecipeContent && !canAddToShoppingList" location="bottom" max-width="320">
-                  <template #activator="{ props: infoProps }">
-                    <v-btn
-                      v-bind="infoProps"
-                      :icon="$globals.icons.information"
-                      variant="text"
-                      color="primary"
-                      :aria-label="t('shopping-list.analyze-before-adding')"
-                      @click.stop.prevent
-                    />
-                  </template>
-                  <v-sheet color="surface-elevated" class="pa-4 text-body-2" rounded="lg">
-                    {{ t('shopping-list.analyze-before-adding') }}
-                  </v-sheet>
-                </v-menu>
+                  <v-btn
+                    :icon="$globals.icons.cartCheck"
+                    :disabled="!canAddToShoppingList"
+                    class="recipe-compact-action"
+                    variant="text"
+                    size="default"
+                    :aria-label="t('meal-plan.add-meal-to-list')"
+                    @click.stop.prevent="$emit('addToShoppingList')"
+                  />
+                </BaseDisabledActionTooltip>
                 <span v-if="!showRecipeContent" class="recipe-compact-action-placeholder" aria-hidden="true" />
               </template>
               <slot v-else name="context-menu">
@@ -258,6 +239,7 @@ import { useStaticRoutes, useUserApi } from "~/composables/api";
 import { canScaleShoppingRecipe } from "~/lib/shopping-recipe-portions";
 import { useUserSelfRatings } from "~/composables/use-users";
 import { playRecipeSynesthesia } from "~/plugins/recipe-synesthesia.client";
+import type { SynesthesiaOrigin } from "~/lib/recipe-synesthesia/events";
 
 interface Props {
   name: string;
@@ -329,7 +311,7 @@ const canAddToShoppingList = ref(false);
 const recipeApi = useUserApi();
 watch(() => [props.slug, props.compact, props.listMode] as const, async ([slug, compact, listMode], _, onCleanup) => {
   canAddToShoppingList.value = false;
-  if (!slug || compact || listMode) return;
+  if (!slug || !compact || listMode) return;
   let active = true;
   onCleanup(() => { active = false; });
   const { data } = await recipeApi.recipes.getOne(slug);
@@ -368,12 +350,12 @@ function openImage(event: MouseEvent) {
 }
 
 const favoritePending = ref(false);
-async function toggleFavorite() {
+async function toggleFavorite(origin?: SynesthesiaOrigin) {
   if (favoritePending.value) return;
   favoritePending.value = true;
   try {
     const favorite = !isFavorite.value;
-    if (await setFavorite(props.recipeId, favorite) && favorite) playRecipeSynesthesia();
+    if (await setFavorite(props.recipeId, favorite) && favorite) playRecipeSynesthesia(origin);
   }
   finally { favoritePending.value = false; }
 }

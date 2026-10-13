@@ -40,10 +40,6 @@
       :icon="$globals.icons.cartCheck"
       width="100%"
       max-width="680px"
-      :submit-text="$t('recipe.add-to-list')"
-      can-submit
-      :submit-disabled="!portionsValid || !ingredientsAnalyzed || addingToList"
-      @submit="addRecipesToList()"
     >
       <v-sheet v-if="!ingredientsAnalyzed" color="fill" class="ma-4 pa-4 text-body-2" rounded="lg" role="status">
         <v-icon class="mr-2" color="text-secondary">
@@ -135,6 +131,23 @@
           {{ $t('shopping-list.deselect-all-ingredients') }}
         </v-btn>
       </div>
+      <template #card-actions>
+        <v-btn variant="text" color="primary" @click="dialog = false">
+          {{ $t('general.cancel') }}
+        </v-btn>
+        <v-spacer />
+        <BaseDisabledActionTooltip :disabled="!ingredientsAnalyzed" :message="$t('shopping-list.analyze-before-adding')">
+          <BaseButton
+            color="primary"
+            variant="tonal"
+            :icon="$globals.icons.cartCheck"
+            :text="$t('recipe.add-to-list')"
+            :loading="addingToList"
+            :disabled="!portionsValid || !ingredientsAnalyzed || addingToList"
+            @click="addRecipesToList()"
+          />
+        </BaseDisabledActionTooltip>
+      </template>
     </BaseDialog>
   </div>
 </template>

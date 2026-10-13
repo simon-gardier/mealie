@@ -48,17 +48,19 @@
   />
 
   <v-list density="compact">
-    <v-list-item v-for="(item, index) in menuItems" :key="index" :disabled="item.event === 'shoppingList' && !canAddToShoppingList" @click="contextMenuEventHandler(item.event)">
-      <template #prepend>
-        <v-icon :color="item.color">
-          {{ item.icon }}
-        </v-icon>
-      </template>
-      <v-list-item-title>{{ item.title }}</v-list-item-title>
-      <v-list-item-subtitle v-if="item.event === 'shoppingList' && recipeRef?.recipeIngredient && !canAddToShoppingList" class="shopping-analysis-help">
-        {{ $t('shopping-list.analyze-before-adding') }}
-      </v-list-item-subtitle>
-    </v-list-item>
+    <BaseDisabledActionTooltip v-for="(item, index) in menuItems" :key="index" block :disabled="item.event === 'shoppingList' && !canAddToShoppingList" :message="$t('shopping-list.analyze-before-adding')">
+      <v-list-item :disabled="item.event === 'shoppingList' && !canAddToShoppingList" @click="contextMenuEventHandler(item.event)">
+        <template #prepend>
+          <v-icon :color="item.color">
+            {{ item.icon }}
+          </v-icon>
+        </template>
+        <v-list-item-title>{{ item.title }}</v-list-item-title>
+        <v-list-item-subtitle v-if="item.event === 'shoppingList' && recipeRef?.recipeIngredient && !canAddToShoppingList" class="shopping-analysis-help">
+          {{ $t('shopping-list.analyze-before-adding') }}
+        </v-list-item-subtitle>
+      </v-list-item>
+    </BaseDisabledActionTooltip>
     <div v-if="useItems.recipeActions && recipeActions && recipeActions.length">
       <v-divider />
       <v-list-item

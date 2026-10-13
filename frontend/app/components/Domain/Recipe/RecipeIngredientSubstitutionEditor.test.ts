@@ -1,6 +1,8 @@
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, test, vi } from "vitest";
 import { nextTick } from "vue";
+import { createVuetify } from "vuetify";
+import { VAutocomplete, VTextField, VBtn, VIcon } from "vuetify/components";
 import RecipeIngredientSubstitutionEditor from "./RecipeIngredientSubstitutionEditor.vue";
 
 const mocks = vi.hoisted(() => ({ createOne: vi.fn() }));
@@ -11,6 +13,22 @@ vi.mock("~/composables/store", () => ({
 }));
 
 describe("RecipeIngredientSubstitutionEditor", () => {
+  test("renders a newly added blank substitute with real Vuetify controls", async () => {
+    vi.stubGlobal("ResizeObserver", class { observe() {} unobserve() {} disconnect() {} });
+    const wrapper = mount(RecipeIngredientSubstitutionEditor, {
+      props: { substitutions: [], foods: [{ id: "butter", name: "Butter" }] },
+      global: {
+        plugins: [createVuetify({ components: { VAutocomplete, VTextField, VBtn, VIcon } })],
+        mocks: { $globals: { icons: { delete: "mdi-delete", create: "mdi-plus" } } },
+      },
+    });
+    await wrapper.setProps({ substitutions: [{ substituteFoodId: null, note: "" }] });
+    await flushPromises();
+    expect(wrapper.findComponent(VAutocomplete).exists()).toBe(true);
+    expect(wrapper.findComponent(VTextField).exists()).toBe(true);
+    wrapper.unmount();
+    vi.unstubAllGlobals();
+  });
   test("creates an unmatched substitute and assigns it to the searched row", async () => {
     const substitutions = [
       { substituteFoodId: null, note: "" },

@@ -23,7 +23,7 @@
           :color="fab ? 'info' : 'secondary'"
           :fab="fab"
           v-bind="activatorProps"
-          @click.prevent
+          @click.prevent="captureMenuOrigin"
         >
           <v-icon
             :size="!fab ? undefined : 'x-large'"
@@ -39,7 +39,7 @@
           v-if="isMenuContentLoaded"
           v-bind="contentProps"
           @print="$emit('print')"
-          @favorite="$emit('favorite')"
+          @favorite="emitFavorite"
           @deleted="$emit('deleted', $event)"
           @mealplan-edit="$emit('mealplanEdit')"
           @mealplan-remove="$emit('mealplanRemove')"
@@ -52,6 +52,7 @@
 <script setup lang="ts">
 import type { Recipe } from "~/lib/api/types/recipe";
 import type { ContextMenuIncludes } from "./RecipeContextMenuContent.vue";
+import { captureSynesthesiaOrigin, type SynesthesiaOrigin } from "~/lib/recipe-synesthesia/events";
 
 export interface ContextMenuItem {
   title: string;
@@ -99,10 +100,10 @@ const props = withDefaults(defineProps<Props>(), {
   recipeScale: 1,
 });
 
-defineEmits<{
+const emit = defineEmits<{
   [key: string]: any;
   print: [];
-  favorite: [];
+  favorite: [origin: SynesthesiaOrigin | undefined];
   deleted: [slug: string];
   mealplanRemove: [];
   mealplanEdit: [];
@@ -111,6 +112,17 @@ defineEmits<{
 const { $globals } = useNuxtApp();
 
 const isMenuContentLoaded = ref(false);
+let menuOrigin: SynesthesiaOrigin | undefined;
+
+function captureMenuOrigin(event: MouseEvent) {
+  // Vuetify's activator bindings own the button ref. Read the actual clicked
+  // button instead, before the menu opens or focus moves into its items.
+  menuOrigin = captureSynesthesiaOrigin(event.currentTarget instanceof Element ? event.currentTarget : null);
+}
+
+function emitFavorite() {
+  emit("favorite", menuOrigin);
+}
 
 const icon = computed(() => {
   return props.menuIcon || $globals.icons.dotsVertical;

@@ -129,7 +129,7 @@
           </v-col>
         </v-row>
       </div>
-      <v-card v-intersect="infiniteScroll" variant="flat" />
+      <v-card v-if="hasMore" v-intersect="infiniteScroll" variant="flat" height="1" />
     </div>
     <v-fade-transition>
       <RecipeLoading v-if="loading" />
@@ -312,7 +312,7 @@ async function initRecipes() {
   // we double-up the first call to avoid a bug with large screens that render
   // the entire first page without scrolling, preventing additional loading
   const newRecipes = await fetchRecipes(page.value + 1);
-  if (newRecipes.length < perPage) {
+  if (newRecipes.length < perPage * 2) {
     hasMore.value = false;
   }
 
@@ -322,7 +322,12 @@ async function initRecipes() {
   emit(REPLACE_RECIPES_EVENT, newRecipes);
 }
 
-const infiniteScroll = useThrottleFn(async () => {
+function infiniteScroll(isIntersecting: boolean) {
+  // Vuetify also invokes this callback when the sentinel leaves the viewport.
+  if (isIntersecting) void loadNextPage();
+}
+
+const loadNextPage = useThrottleFn(async () => {
   if (!hasMore.value || loading.value) {
     return;
   }
