@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import GroupMealPlanEntryDialog from "./GroupMealPlanEntryDialog.vue";
 
 vi.mock("~/composables/use-group-mealplan", () => ({ usePlanTypeOptions: () => [{ text: "Dinner", value: "dinner" }, { text: "Lunch", value: "lunch" }] }));
-vi.mock("~/composables/use-mealplan-rules", () => ({ useMealplanRules: () => ({ rules: { value: [] } }), buildRuleQueryFilter: () => null }));
+vi.mock("~/composables/use-mealplan-rules", () => ({ useMealplanRules: () => ({ rules: { value: [] } }), buildRuleQueryFilter: () => "meal-rule-filter" }));
 
 function setup() {
   return mount(GroupMealPlanEntryDialog, {
@@ -13,9 +13,10 @@ function setup() {
       stubs: {
         BaseDialog: { template: "<div><slot /><slot name=\"card-actions\" /></div>" },
         MealPlanDatePicker: { props: ["modelValue"], template: "<div class=\"date-picker\" />" },
-        RecipeSelector: { name: "RecipeSelector", props: ["modelValue"], methods: { reset() {} }, template: "<div class=\"recipe-selector\" />" },
+        RecipeSelector: { name: "RecipeSelector", props: ["modelValue", "queryFilter"], methods: { reset() {} }, template: "<div class=\"recipe-selector\"><slot name=\"filters\" /></div>" },
         RecipeCardLineItem: { props: ["recipe"], template: "<div class=\"chosen-recipe\">{{ recipe.name }}<slot name=\"append\" /></div>" },
-        VTabs: { name: "VTabs", props: ["modelValue"], template: "<div class=\"tabs\"><slot /></div>" }, VTab: true, VIcon: true, VSwitch: true, BaseEmptyState: true,
+        VTabs: { name: "VTabs", props: ["modelValue"], template: "<div class=\"tabs\"><slot /></div>" }, VTab: true, VIcon: true, BaseEmptyState: true,
+        VSwitch: { name: "VSwitch", props: ["modelValue"], template: "<div class=\"ignore-rules\" />" },
         VSelect: { name: "VSelect", props: ["modelValue", "disabled"], template: "<select class=\"meal-type\" :disabled=\"disabled\" />" },
         VTextField: { props: ["modelValue"], template: "<input :value=\"modelValue\" @input=\"$emit('update:modelValue', $event.target.value)\" />" },
         VTextarea: { props: ["modelValue"], template: "<textarea :value=\"modelValue\" @input=\"$emit('update:modelValue', $event.target.value)\" />" },
@@ -27,6 +28,22 @@ function setup() {
 }
 
 describe("meal entry dialog", () => {
+  it("ignores rules by default, allows applying them, and resets the default on reopening", async () => {
+    const wrapper = setup();
+    const selector = wrapper.findComponent({ name: "RecipeSelector" });
+    const toggle = wrapper.findComponent({ name: "VSwitch" });
+    expect(toggle.props("modelValue")).toBe(true);
+    expect(selector.props("queryFilter")).toBeNull();
+    toggle.vm.$emit("update:modelValue", false);
+    await wrapper.vm.$nextTick();
+    expect(selector.props("queryFilter")).toBe("meal-rule-filter");
+    await wrapper.setProps({ modelValue: false });
+    await wrapper.setProps({ modelValue: true });
+    expect(toggle.props("modelValue")).toBe(true);
+    expect(selector.props("queryFilter")).toBeNull();
+    wrapper.unmount();
+  });
+
   it("allows choosing a meal type before selecting a recipe, then submits the selected date and recipe", async () => {
     const wrapper = setup();
     expect(wrapper.get(".submit").attributes("disabled")).toBeDefined();
@@ -42,8 +59,10 @@ describe("meal entry dialog", () => {
 
   it("requires a title for a custom meal and submits its note without a recipe", async () => {
     const wrapper = setup();
+    expect(wrapper.find(".entry-detail__content--recipe").exists()).toBe(true);
     wrapper.findComponent({ name: "VTabs" }).vm.$emit("update:modelValue", "note");
     await wrapper.vm.$nextTick();
+    expect(wrapper.find(".entry-detail__content--recipe").exists()).toBe(false);
     expect(wrapper.get(".submit").attributes("disabled")).toBeDefined();
     await wrapper.get("input").setValue("Restaurant");
     await wrapper.get("textarea").setValue("Avec la famille");

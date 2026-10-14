@@ -37,7 +37,7 @@
             </v-icon>{{ $t('meal-plan.free-meal') }}
           </v-tab>
         </v-tabs>
-        <div class="entry-detail__content">
+        <div class="entry-detail__content" :class="{ 'entry-detail__content--recipe': isRecipe }">
           <RecipeSelector
             v-if="isRecipe"
             ref="selector"
@@ -161,7 +161,7 @@ const entryType = ref<PlanEntryType>("dinner");
 const recipe = ref<RecipeSummary | null>(null);
 const title = ref("");
 const text = ref("");
-const ignoreRules = ref(false);
+const ignoreRules = ref(true);
 
 const isRecipe = computed(() => entryMode.value === "recipe");
 
@@ -182,7 +182,7 @@ function initialize() {
   recipe.value = props.entry?.recipe ?? null;
   title.value = props.entry?.title ?? "";
   text.value = props.entry?.text ?? "";
-  ignoreRules.value = false;
+  ignoreRules.value = true;
   selector.value?.reset();
 }
 
@@ -345,11 +345,16 @@ watch(dialog, (isOpen) => {
     gap: 12px;
   }
   .meal-entry-actions {
-    justify-content: flex-end;
+    justify-content: center;
     flex-wrap: wrap;
   }
   .meal-entry-selection:empty {
     display: none;
+  }
+}
+@media (max-width: 600px) {
+  .entry-detail__content--recipe {
+    height: 720px;
   }
 }
 </style>
