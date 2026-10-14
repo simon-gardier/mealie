@@ -1,5 +1,6 @@
 {
-  "about": {   "about": "About",
+  "about": {
+    "about": "About",
     "api-docs": "API Docs",
     "api-port": "API Port",
     "application-mode": "Application Mode",
@@ -508,8 +509,8 @@
       "problem-label": "Issue:",
       "consequence-label": "Consequence:",
       "empty-value": "Empty row",
-      "named-ingredient-location": "Ingredient {ingredient} - {name}",
-      "named-substitute-location": "Ingredient {ingredient} - {name} · substitute {substitute}: “{note}”",
+      "named-ingredient-location": "Ingredient {ingredient} ({name})",
+      "named-substitute-location": "Ingredient {ingredient} ({name}) - substitute {substitute}: “{note}”",
       "more-items": "And {count} more affected items"
     },
     "save-error-title": "Recipe could not be saved",

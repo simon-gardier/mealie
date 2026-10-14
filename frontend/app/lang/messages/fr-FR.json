@@ -1,5 +1,6 @@
 {
-  "about": {   "about": "À propos",
+  "about": {
+    "about": "À propos",
     "api-docs": "Documentation de l’API",
     "api-port": "Port de l’API",
     "application-mode": "Mode de l’application",
@@ -506,8 +507,8 @@
       "problem-label": "Problème :",
       "consequence-label": "Conséquence :",
       "empty-value": "Ligne vide",
-      "named-ingredient-location": "Ingrédient {ingredient} - {name}",
-      "named-substitute-location": "Ingrédient {ingredient} - {name} · substitution {substitute} : « {note} »",
+      "named-ingredient-location": "Ingrédient {ingredient} ({name})",
+      "named-substitute-location": "Ingrédient {ingredient} ({name}) - substitution {substitute} : « {note} »",
       "more-items": "Et {count} autres éléments concernés"
     },
     "save-error-title": "Impossible d’enregistrer la recette",
