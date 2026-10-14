@@ -67,6 +67,17 @@ describe("recipe save warnings", () => {
       { code: "note-only-substitutes", count: 1, substitutes: [{ ingredient: 1, substitute: 1 }] },
     ]);
   });
+  it("warns about empty substitutes including blank remarks without flagging linked foods", () => {
+    const recipe = complete();
+    recipe.recipeIngredient![0]!.substitutions = [
+      {}, { note: "" }, { note: "   " },
+      { substituteFoodId: "oil" }, { substituteFood: { id: "butter", name: "butter" } },
+    ];
+    expect(recipeSaveWarnings(recipe, "ingredients")).toEqual([{
+      code: "note-only-substitutes", count: 3,
+      substitutes: [1, 2, 3].map(substitute => ({ ingredient: 1, substitute })),
+    }]);
+  });
   it("uses the requested category and tag thresholds", () => {
     const category = { id: "id", name: "Name", slug: "name" };
     const recipe = { ...complete(), recipeCategory: Array.from({ length: 3 }, () => category), tags: Array.from({ length: 5 }, () => category) };

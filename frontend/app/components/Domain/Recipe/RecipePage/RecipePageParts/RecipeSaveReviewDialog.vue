@@ -89,7 +89,8 @@ watch(() => props.warnings.length, (length) => {
 });
 function ingredientText(index: number): string {
   const ingredient = props.recipe.recipeIngredient?.[index - 1];
-  return excerpt(ingredient?.food?.name || ingredient?.referencedRecipe?.name || ingredient?.note || ingredient?.originalText);
+  const name = ingredient?.food?.name?.trim() || ingredient?.referencedRecipe?.name?.trim();
+  return name ? excerpt(name) : "";
 }
 function excerpt(text?: string | null): string {
   const value = text?.trim() || t("recipe.save-review.empty-value");
@@ -98,12 +99,14 @@ function excerpt(text?: string | null): string {
 function affectedItems(warning: RecipeSaveWarning): string[] {
   const items = warning.substitutes?.map((item) => {
     const note = props.recipe.recipeIngredient?.[item.ingredient - 1]?.substitutions?.[item.substitute - 1]?.note;
-    return t("recipe.save-review.named-substitute-location", {
-      ...item, name: ingredientText(item.ingredient), note: excerpt(note),
+    const name = ingredientText(item.ingredient);
+    return t(`recipe.save-review.${name ? "named" : "unnamed"}-substitute-location`, {
+      ...item, name, note: excerpt(note),
     });
-  }) ?? warning.ingredients?.map(ingredient => t("recipe.save-review.named-ingredient-location", {
-    ingredient, name: ingredientText(ingredient),
-  })) ?? (warning.code === "excess-categories"
+  }) ?? warning.ingredients?.map((ingredient) => {
+    const name = ingredientText(ingredient);
+    return t(`recipe.save-review.${name ? "named" : "unnamed"}-ingredient-location`, { ingredient, name });
+  }) ?? (warning.code === "excess-categories"
     ? props.recipe.recipeCategory?.map(item => item.name)
     : warning.code === "excess-tags" ? props.recipe.tags?.map(item => item.name) : []) ?? [];
   const visible = items.slice(0, 5);

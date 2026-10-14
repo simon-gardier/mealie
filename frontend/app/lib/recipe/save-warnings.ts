@@ -32,7 +32,7 @@ export function recipeSaveWarnings(recipe: Recipe, scope: "recipe" | "ingredient
       else empty.push(index + 1);
     }
     ingredient.substitutions?.forEach((substitute, substituteIndex) => {
-      if (hasText(substitute.note) && !substitute.substituteFoodId && !substitute.substituteFood?.id) {
+      if (!substitute.substituteFoodId && !substitute.substituteFood?.id) {
         substitutes.push({ ingredient: index + 1, substitute: substituteIndex + 1 });
       }
     });

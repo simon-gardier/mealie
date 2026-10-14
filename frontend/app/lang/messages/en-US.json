@@ -465,7 +465,7 @@
       "note-only-substitutes": {
         "title": "Substitutes without a linked food ({count})",
         "consequence": "The note remains visible, but the app cannot identify the replacement ingredient. Select it to complete the substitution.",
-        "problem": "These substitutions contain only a note, with no ingredient selected."
+        "problem": "These substitutions have no selected food, whether or not a note has been entered."
       },
       "missing-category": {
         "title": "No category selected",
@@ -510,7 +510,9 @@
       "consequence-label": "Consequence:",
       "empty-value": "Empty row",
       "named-ingredient-location": "Ingredient {ingredient} ({name})",
-      "named-substitute-location": "Ingredient {ingredient} ({name}) - substitute {substitute}: “{note}”",
+      "named-substitute-location": "Ingredient {ingredient} ({name}) - substitute {substitute} ({note})",
+      "unnamed-ingredient-location": "Ingredient {ingredient}",
+      "unnamed-substitute-location": "Ingredient {ingredient} - substitute {substitute} ({note})",
       "more-items": "And {count} more affected items"
     },
     "save-error-title": "Recipe could not be saved",

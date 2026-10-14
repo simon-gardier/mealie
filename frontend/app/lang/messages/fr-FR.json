@@ -463,7 +463,7 @@
       "note-only-substitutes": {
         "title": "Substituts sans aliment associé ({count})",
         "consequence": "La remarque reste visible, mais l’application ne peut pas identifier l’ingrédient de remplacement. Sélectionnez-le pour compléter la substitution.",
-        "problem": "Ces substitutions ont seulement une remarque mais pas d'ingrédient sélectionné."
+        "problem": "Ces substitutions n’ont pas d’aliment sélectionné, qu’une remarque ait été saisie ou non."
       },
       "missing-category": {
         "title": "Aucune catégorie sélectionnée",
@@ -508,7 +508,9 @@
       "consequence-label": "Conséquence :",
       "empty-value": "Ligne vide",
       "named-ingredient-location": "Ingrédient {ingredient} ({name})",
-      "named-substitute-location": "Ingrédient {ingredient} ({name}) - substitution {substitute} : « {note} »",
+      "named-substitute-location": "Ingrédient {ingredient} ({name}) - substitution {substitute} ({note})",
+      "unnamed-ingredient-location": "Ingrédient {ingredient}",
+      "unnamed-substitute-location": "Ingrédient {ingredient} - substitution {substitute} ({note})",
       "more-items": "Et {count} autres éléments concernés"
     },
     "save-error-title": "Impossible d’enregistrer la recette",
