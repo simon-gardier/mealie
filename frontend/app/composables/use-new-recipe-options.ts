@@ -16,7 +16,6 @@ export function useNewRecipeOptions(props: UseNewRecipeOptionsProps = {}) {
     enableStayInEditMode = true,
     enableParseRecipe = true,
     enableTranslateRecipe = false,
-    enableCreateNewOrganizers = false,
   } = props;
 
   const router = useRouter();
@@ -77,16 +76,7 @@ export function useNewRecipeOptions(props: UseNewRecipeOptionsProps = {}) {
     },
   });
 
-  const createNewOrganizers = computed({
-    get() {
-      if (!enableCreateNewOrganizers) return false;
-      return recipeCreatePreferences.value.createNewOrganizers;
-    },
-    set(v: boolean) {
-      if (!enableCreateNewOrganizers) return;
-      recipeCreatePreferences.value.createNewOrganizers = v;
-    },
-  });
+  const createNewOrganizers = computed(() => false);
 
   function navigateToRecipe(recipeSlug: string, groupSlug: string, createPagePath: string) {
     const editParam = enableStayInEditMode ? stayInEditMode.value : false;
@@ -126,6 +116,6 @@ export function useNewRecipeOptions(props: UseNewRecipeOptionsProps = {}) {
     enableStayInEditMode,
     enableParseRecipe,
     enableTranslateRecipe,
-    enableCreateNewOrganizers,
+    enableCreateNewOrganizers: false,
   };
 }

@@ -1,3 +1,6 @@
+import re
+from collections import Counter
+
 from mealie.core.root_logger import get_logger
 from mealie.schema.openai.recipe import (
     OpenAIRecipe,
@@ -56,7 +59,7 @@ class TranslateRecipeStep(WorkflowStep):
         return OpenAIRecipe(
             name=recipe.name or "",
             description=recipe.description,
-            recipe_yield=recipe.recipe_yield,
+            recipe_yield=recipe.recipe_yield_display or None,
             total_time=recipe.total_time,
             prep_time=recipe.prep_time,
             perform_time=recipe.perform_time,
@@ -83,6 +86,32 @@ class TranslateRecipeStep(WorkflowStep):
             ]
         )
 
+    @staticmethod
+    def _validate_translation(original: OpenAIRecipe, translated: OpenAIRecipe) -> None:
+        """Reject lossy translations before they replace the source recipe."""
+        for field in ("ingredients", "instructions", "notes"):
+            before = getattr(original, field)
+            after = getattr(translated, field)
+            if len(before) != len(after):
+                raise ValueError(f"Translation changed the number of {field}")
+            for source, result in zip(before, after, strict=True):
+                if source.text.strip() and not result.text.strip():
+                    raise ValueError(f"Translation removed text from {field}")
+                # Markdown destinations are source evidence, not translatable prose.
+                links = r"!?\[[^\]]*\]\(([^\n]+?)\)"
+                if re.findall(links, source.text) != re.findall(links, result.text):
+                    raise ValueError(f"Translation changed image or link URLs in {field}")
+                # Ignore URL digits; decimal punctuation may change with the language.
+                source_text = re.sub(links, "", source.text)
+                result_text = re.sub(links, "", result.text)
+                numbers = r"\d+(?:[.,]\d+)?"
+                source_numbers = Counter(value.replace(",", ".") for value in re.findall(numbers, source_text))
+                result_numbers = Counter(value.replace(",", ".") for value in re.findall(numbers, result_text))
+                if source_numbers != result_numbers:
+                    raise ValueError(f"Translation changed quantities or temperatures in {field}")
+                if source.title and not result.title:
+                    raise ValueError(f"Translation removed a section heading from {field}")
+
     async def run(self, ctx: WorkflowContext) -> None:
         recipe = ctx.draft_recipe
         if not recipe:
@@ -99,9 +128,13 @@ class TranslateRecipeStep(WorkflowStep):
             logger.error("Translation returned no recipe, keeping the untranslated one")
             return
 
+        self._validate_translation(self._to_openai_recipe(recipe), response)
         translated = to_recipe(ctx, response)
         # nutrition never made the round trip, so it carries over untouched
         translated.nutrition = recipe.nutrition
 
         # cleaning again is what parses the translated times and yield back out of their new wording
-        ctx.draft_recipe = cleaner.clean(translated, ctx.translator)
+        translated = cleaner.clean(translated, ctx.translator)
+        for field in ("prep_time", "perform_time", "total_time", "recipe_servings", "recipe_yield_quantity"):
+            setattr(translated, field, getattr(recipe, field))
+        ctx.draft_recipe = translated

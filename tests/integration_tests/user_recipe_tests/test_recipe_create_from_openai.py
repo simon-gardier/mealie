@@ -9,6 +9,7 @@ from mealie.schema.group.ai_providers import AIProviderCreate, AIProviderSetting
 from mealie.schema.openai.compiled_source import OpenAICompiledSource
 from mealie.schema.openai.organizers import OpenAIOrganizers
 from mealie.schema.openai.recipe import OpenAIRecipe, OpenAIRecipeIngredient, OpenAIRecipeInstruction
+from mealie.schema.recipe.recipe_category import TagSave
 from mealie.services.openai import OpenAIService
 from mealie.services.recipe.recipe_data_service import RecipeDataService
 from mealie.services.scraper.scraper_strategies import RecipeScraperOpenAI
@@ -200,6 +201,7 @@ def test_tags_are_imported_when_requested(
     recipe_url: str,
 ):
     tag_name = random_string()
+    unique_user.repos.tags.create(TagSave(name=tag_name.title(), group_id=unique_user.repos.group_id))
     requested_schemas = mock_ai(monkeypatch, openai_recipe, OpenAIOrganizers(tags=[tag_name]))
 
     response = api_client.post(

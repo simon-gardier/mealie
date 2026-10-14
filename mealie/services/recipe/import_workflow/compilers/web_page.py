@@ -21,7 +21,7 @@ class WebPageCompiler(SourceCompiler):
         image_url: str | None = None
 
         try:
-            content, image_url = extract_page_content(content)
+            content, image_url = extract_page_content(content, self.ctx.resolved_url or self.ctx.input.url)
         except ValueError:
             return None
 

@@ -173,8 +173,13 @@ export class RecipeAPI extends BaseCRUDAPI<CreateRecipe, Recipe, Recipe> {
         payload: isFormData ? payload : JSON.stringify(payload),
         withCredentials: true,
         autoReconnect: false,
+        start: false,
       });
 
+      let responseStatus = 0;
+      sse.addEventListener("open", (e: SSEvent) => {
+        responseStatus = e.responseCode ?? 0;
+      });
       let settled = false;
       const settle = (result: RequestResponse<string>) => {
         if (settled) {
@@ -200,12 +205,13 @@ export class RecipeAPI extends BaseCRUDAPI<CreateRecipe, Recipe, Recipe> {
       sse.addEventListener(SSEDataEventStatus.Error, (e: SSEvent) => {
         let message: string | undefined;
         try {
-          ({ message } = JSON.parse(e.data) as SSEDataEventMessage);
+          const failure = JSON.parse(e.data);
+          message = failure.message || (typeof failure.detail === "string" ? failure.detail : failure.detail?.message);
         }
         catch {
           // Not a backend error payload (e.g. an XHR failure carrying the raw response body)
         }
-        settle({ response: null, data: null, error: new Error(message || "Recipe creation failed") });
+        settle({ response: null, data: null, error: Object.assign(new Error(message || "Recipe creation failed"), { status: responseStatus }) });
       });
 
       // The stream can also close without ever emitting a done/error event, e.g. when the
@@ -264,9 +270,6 @@ export class RecipeAPI extends BaseCRUDAPI<CreateRecipe, Recipe, Recipe> {
     }
     if (payload.translateLanguage) {
       formData.append("translateLanguage", payload.translateLanguage);
-    }
-    if (payload.createNewOrganizers) {
-      formData.append("createNewOrganizers", "true");
     }
 
     (payload.images || []).forEach((image, index) => {

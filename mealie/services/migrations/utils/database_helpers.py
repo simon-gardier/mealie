@@ -25,9 +25,7 @@ class DatabaseMigrationHelpers:
         self, accessor: RepositoryGeneric, items: Iterable[str], create_model: type[T], out_model: type[T]
     ) -> list[T]:
         """
-        Utility model for getting or setting categories or tags. This will only work for those two cases.
-
-        This is probably a bad implementation of this pattern.
+        Recipe migrations may attach existing categories/tags, but never create them.
         """
         items_out = []
 
@@ -36,16 +34,8 @@ class DatabaseMigrationHelpers:
 
             item_model = accessor.get_one(value=slug_lookup, key="slug", override_schema=out_model)
 
-            if not item_model:
-                item_model = accessor.create(
-                    create_model(
-                        group_id=self.db.group_id,
-                        name=item_name,
-                        slug=slug_lookup,
-                    )
-                )
-
-            items_out.append(item_model)
+            if item_model:
+                items_out.append(item_model)
         return items_out
 
     def get_or_set_category(self, categories: Iterable[str]) -> list[RecipeCategory]:

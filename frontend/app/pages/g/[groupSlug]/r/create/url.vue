@@ -118,57 +118,53 @@
       </div>
     </v-form>
     <v-expand-transition>
-      <v-alert v-if="state.error" color="error" class="mt-6 white--text">
-        <v-card-title class="ma-0 pa-0">
-          <v-icon start color="media-foreground" size="x-large">
-            {{ $globals.icons.robot }}
-          </v-icon>
-          {{ $t("new-recipe.error-title") }}
-        </v-card-title>
-        <v-divider class="my-3 mx-2" />
-
-        <div class="force-url-white">
-          <p>
-            {{ $t("recipe.scrape-recipe-website-being-blocked") }}
-            <router-link :to="htmlOrJsonImporterTarget">{{ $t("recipe.scrape-recipe-try-importing-raw-html-instead")
-            }}</router-link>
-          </p>
-          <p v-if="aiEnabled">
-            {{ $t("recipe.scrape-recipe-have-ai-read-the-page") }}
-            <router-link :to="aiImporterTarget">{{ $t("recipe.import-with-ai") }}</router-link>.
-          </p>
-          <br>
-          <p>
-            {{ $t("new-recipe.error-details") }}
-          </p>
+      <section v-if="state.error" class="recipe-import-error mt-6" role="alert">
+        <div class="recipe-import-error-heading">
+          <v-icon :icon="$globals.icons.alertCircle" color="error" size="24" />
+          <h2>{{ $t('recipe.url-import-error-title') }}</h2>
         </div>
-        <div class="d-flex row justify-space-around my-3 force-url-white">
-          <a
-            class="dark text-primary"
-            href="https://developers.google.com/search/docs/data-types/recipe"
-            target="_blank"
-            rel="noreferrer nofollow"
-          >
-            {{ $t("new-recipe.google-ld-json-info") }}
-          </a>
-          <a
-            class="text-primary"
-            href="https://github.com/mealie-recipes/mealie/issues"
-            target="_blank"
-            rel="noreferrer nofollow"
-          >
-            {{ $t("new-recipe.github-issues") }}
-          </a>
-          <a class="text-primary" href="https://schema.org/Recipe" target="_blank" rel="noreferrer nofollow">
-            {{ $t("new-recipe.recipe-markup-specification") }}
-          </a>
+        <p class="recipe-import-error-message">
+          {{ errorMessage }}
+        </p>
+        <p class="recipe-import-error-help">
+          {{ $t('recipe.url-import-error-help') }}
+        </p>
+        <div class="recipe-import-error-actions">
+          <BaseButton
+            v-if="errorStatus === 401"
+            :to="loginTarget"
+            :text="$t('user.sign-in')"
+            :icon="$globals.icons.user"
+            variant="tonal"
+          />
+          <BaseButton
+            :text="$t('recipe.url-import-retry')"
+            :icon="$globals.icons.refresh"
+            variant="tonal"
+            :disabled="state.loading || !recipeUrl?.trim()"
+            @click="createByUrl(recipeUrl, importKeywordsAsTags, importCategories)"
+          />
+          <BaseButton
+            v-if="aiEnabled"
+            :to="aiImporterTarget"
+            :text="$t('recipe.import-with-ai')"
+            :icon="$globals.icons.robot"
+            variant="tonal"
+          />
+          <BaseButton
+            :to="htmlOrJsonImporterTarget"
+            :text="$t('recipe.url-import-html')"
+            :icon="$globals.icons.codeTags"
+            variant="text"
+          />
         </div>
-      </v-alert>
+      </section>
     </v-expand-transition>
   </div>
 </template>
 
 <script setup lang="ts">
+import { recipeImportErrorKey } from "~/lib/recipe/import-errors";
 import { useRecipeImportUrl } from "~/composables/use-recipe-import-url";
 import type { AxiosResponse } from "axios";
 import { useUserApi } from "~/composables/api";
@@ -184,7 +180,15 @@ definePageMeta({
 const state = reactive({
   error: false,
   loading: false,
+  errorMessage: "",
 });
+
+const { t } = useI18n();
+const errorMessage = computed(() => {
+  const key = recipeImportErrorKey({ message: state.errorMessage, status: errorStatus.value });
+  return key ? t(key) : state.errorMessage;
+});
+const errorStatus = ref(0);
 
 const auth = useMealieAuth();
 const api = useUserApi();
@@ -221,6 +225,10 @@ function handleResponse(response: AxiosResponse<string> | null, refreshTags = fa
 }
 
 const recipeUrl = useRecipeImportUrl();
+const loginTarget = computed(() => {
+  const target = `/g/${groupSlug.value}/r/create/url?recipe_import_url=${encodeURIComponent(recipeUrl.value || "")}`;
+  return `/login?redirect=${encodeURIComponent(target)}`;
+});
 
 onMounted(() => {
   if (recipeUrl.value) {
@@ -261,15 +269,28 @@ async function createByUrl(url: string | null, importKeywordsAsTags: boolean, im
     console.log("Invalid URL", url);
     return;
   }
+  state.error = false;
+  state.errorMessage = "";
+  errorStatus.value = 0;
   state.loading = true;
-  const { response } = await api.recipes.createOneByUrl(
-    url,
-    importKeywordsAsTags,
-    importCategories,
-    (message: string) => createStatus.value = message,
-  );
-  createStatus.value = null;
-  handleResponse(response, importKeywordsAsTags);
+  try {
+    const { response, error } = await api.recipes.createOneByUrl(
+      url,
+      importKeywordsAsTags,
+      importCategories,
+      (message: string) => createStatus.value = message,
+    );
+    state.errorMessage = error?.message || "";
+    errorStatus.value = error?.status || 0;
+    handleResponse(response, importKeywordsAsTags);
+  }
+  catch {
+    state.error = true;
+  }
+  finally {
+    state.loading = false;
+    createStatus.value = null;
+  }
 }
 </script>
 
@@ -278,8 +299,48 @@ async function createByUrl(url: string | null, importKeywordsAsTags: boolean, im
   margin-top: 12px;
 }
 
-.force-url-white a {
-  color: rgb(var(--v-theme-media-foreground)) !important;
+.recipe-import-error {
+  padding: 24px;
+  border: 1px solid rgba(var(--v-theme-separator), 0.5);
+  border-radius: 14px;
+  background: rgb(var(--v-theme-surface));
+  color: rgb(var(--v-theme-on-surface));
+}
+.recipe-import-error-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.recipe-import-error h2 {
+  font: 600 18px var(--bistro-body);
+  font-family: var(--bistro-body) !important;
+}
+.recipe-import-error-message {
+  margin-top: 16px;
+  font: 400 15px/1.5 var(--bistro-body);
+  overflow-wrap: anywhere;
+}
+.recipe-import-error-help {
+  margin-top: 8px;
+  color: rgb(var(--v-theme-text-secondary));
+  font: 400 14px/1.5 var(--bistro-body);
+}
+.recipe-import-error-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+.recipe-import-error-actions :deep(.v-btn) {
+  min-height: 44px;
+  height: auto;
+  max-width: 100%;
+  padding-block: 10px;
+  border-radius: 10px;
+  text-transform: none;
+}
+.recipe-import-error-actions :deep(.v-btn__content) {
+  white-space: normal;
 }
 .recipe-url-form {
   padding: 20px;
@@ -304,7 +365,8 @@ async function createByUrl(url: string | null, importKeywordsAsTags: boolean, im
   text-transform: none;
 }
 @media (max-width: 599px) {
-  .recipe-url-form {
+  .recipe-url-form,
+  .recipe-import-error {
     padding: 16px;
   }
 }

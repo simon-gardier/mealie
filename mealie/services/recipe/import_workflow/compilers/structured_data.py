@@ -4,7 +4,7 @@ from typing import Any
 import bs4
 
 from mealie.schema.openai.compiled_source import OpenAICompiledSource
-from mealie.services.openai.content import extract_json_ld_data_from_html, find_image
+from mealie.services.openai.content import extract_json_ld_data_from_html, extract_page_content
 from mealie.services.scraper import cleaner
 
 from ..context import WorkflowContext
@@ -74,8 +74,7 @@ class StructuredDataCompiler(SourceCompiler):
         if _looks_like_json(content):
             image_url = self._image_from_json(content)
         elif _looks_like_html(content):
-            image_url = find_image(self.soup)
-            content = self.soup.get_text(separator="\n", strip=True) + extract_json_ld_data_from_html(self.soup)
+            content, image_url = extract_page_content(content, self.ctx.resolved_url or self.ctx.input.url)
 
         content = content.strip()
         if not content:

@@ -1,6 +1,13 @@
 <template>
   <div :class="{ 'cook-mode-surface': isCookMode, 'recipe-editor': isEditForm, 'recipe-view': !isEditMode && !isCookMode }">
     <RecipePageCreationCelebration v-if="showCreationCelebration" @complete="showCreationCelebration = false" />
+    <RecipeSaveReviewDialog
+      :model-value="saveReviewOpen"
+      :warnings="saveWarnings"
+      :recipe="recipe"
+      @confirm="finishSaveReview(true)"
+      @cancel="finishSaveReview(false)"
+    />
     <BaseDialog
       v-model="saveErrorOpen"
       bottom-sheet
@@ -65,7 +72,7 @@
           :landscape="landscape"
           :saving="saving"
           @update:recipe="recipe = $event"
-          @save="saveRecipe"
+          @save="saveRecipe()"
           @delete="deleteRecipe"
           @close="closeEditor"
         />
@@ -281,6 +288,9 @@ import {
   usePageState,
 } from "~/composables/recipe-page/shared-state";
 import { useCookModeQuery, type BooleanString } from "~/composables/recipe-page/use-cook-mode-query";
+import RecipeSaveReviewDialog from "./RecipePageParts/RecipeSaveReviewDialog.vue";
+import { recipeSaveWarnings } from "~/lib/recipe/save-warnings";
+import { useRecipeSaveReview } from "~/composables/recipe-page/use-recipe-save-review";
 import { useRecipeSave } from "~/composables/recipe-page/use-recipe-save";
 import type { NoUndefinedField } from "~/lib/api/types/non-generated";
 import type { Recipe, RecipeCategory, RecipeIngredient, RecipeTag, RecipeTool } from "~/lib/api/types/recipe";
@@ -317,6 +327,7 @@ const router = useRouter();
 const api = useUserApi();
 const i18n = useI18n();
 const { saving, saveErrorOpen, saveErrors, save } = useRecipeSave(key => i18n.t(key));
+const { saveReviewOpen, saveWarnings, requestSaveReview, finishSaveReview } = useRecipeSaveReview();
 const { pageMode, setMode, isEditForm, isEditJSON, isCookMode, isEditMode, isParsing, toggleCookMode, toggleIsParsing }
   = usePageState(recipe.value.slug);
 const selectedParser = ref<Parser | null>(null);
@@ -466,7 +477,9 @@ watch(isParsing, () => {
  * Recipe Save Delete
  */
 
-async function saveRecipe() {
+async function saveRecipe(scope: "recipe" | "ingredients" = "recipe") {
+  if (saving.value || saveReviewOpen.value) return false;
+  if (!await requestSaveReview(recipeSaveWarnings(recipe.value, scope))) return false;
   const data = await save(() => api.recipes.updateOne(recipe.value.slug, recipeSavePayload(recipe.value)));
   if (!data) return false;
   if (data.slug && data.slug !== route.params.slug) {
@@ -486,7 +499,7 @@ async function saveRecipe() {
 async function saveParsedIngredients(ingredients: NoUndefinedField<RecipeIngredient[]>) {
   const returnToEdit = isEditMode.value;
   recipe.value.recipeIngredient = ingredients;
-  if (!await saveRecipe()) return;
+  if (!await saveRecipe("ingredients")) return;
   toggleIsParsing(false);
   if (returnToEdit) {
     setMode(PageMode.EDIT);

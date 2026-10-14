@@ -8,10 +8,13 @@
     </div>
     <div>
       <div v-for="(ingredient, index) in value" :key="'ingredient' + index">
-        <h3 v-if="showTitleEditor[index]" class="mt-4 mb-0">
+        <h3
+          v-if="showTitleEditor[index]"
+          class="recipe-ingredient-group-heading"
+          :class="{ 'recipe-ingredient-group-heading--first': index === 0 }"
+        >
           {{ ingredient.title }}
         </h3>
-        <v-divider v-if="showTitleEditor[index]" class="my-2" />
         <v-list-item density="compact" class="px-0 py-1 ingredient-list-item" @click.stop="toggleChecked(index)">
           <template #prepend>
             <v-checkbox
@@ -129,5 +132,14 @@ function setChecked(index: number, value: boolean) {
   width: 28px;
   height: 28px;
   object-fit: contain;
+}
+.recipe-ingredient-group-heading {
+  margin: 24px 0 8px;
+  font: 600 14px/1.5 var(--bistro-body);
+  font-family: var(--bistro-body) !important;
+  color: rgb(var(--v-theme-text-secondary));
+}
+.recipe-ingredient-group-heading--first {
+  margin-top: 0;
 }
 </style>

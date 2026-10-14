@@ -32,7 +32,6 @@
     <slot name="before-fields" />
     <RecipeIngredientEditorLayout :header="enableDragHandle || (enableContextMenu && !contextMenuBelow)">
       <template v-if="enableDragHandle" #dragHandle>
-        <span v-if="compact" class="ingredient-editor-heading">{{ $t('recipe.editor.ingredient-details') }}</span>
         <v-icon class="ma-2 handle" size="large">
           {{ $globals.icons.arrowUpDown }}
         </v-icon>

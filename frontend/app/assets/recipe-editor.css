@@ -227,6 +227,13 @@
   outline: 2px solid rgb(var(--v-theme-primary));
   box-shadow: 0 8px 24px rgba(var(--v-theme-on-surface), 0.12);
 }
+/* Step drag previews have no temporary solid outline; the destination owns the dashed highlight. */
+.recipe-editor .recipe-instructions-list > .list-group-item {
+  border-radius: 14px;
+}
+.recipe-step-drag-active {
+  border-radius: 14px;
+}
 @media (min-width: 1280px) {
   .recipe-editor .recipe-ingredient-section .ingredient-labeled-grid {
     grid-template-columns: 160px 140px minmax(160px, 1fr) minmax(160px, 1fr);

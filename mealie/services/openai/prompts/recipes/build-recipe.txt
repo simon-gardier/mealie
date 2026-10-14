@@ -16,3 +16,6 @@ When converting:
 - Put tips, variations, storage advice, and similar asides into notes rather than instructions.
 - Only fill in nutrition if the source states it.
 - If the source gives only one time, use total_time and leave prep_time and perform_time empty.
+
+- Include each image explicitly associated with an instruction in that instruction's text as Markdown: ![](exact-source-image-url). Keep the image with its original step, after the instruction text. Put every image on its own line, with a blank line before and after it; never embed an image inline with instruction text. Do not add cover images or unrelated page images to steps. Never invent or modify image URLs.
+- Preserve all stated quantities, temperatures, resting/marinating times, and ingredient preparation details, including unfamiliar culinary terms. Do not replace an unfamiliar ingredient with a more familiar one.

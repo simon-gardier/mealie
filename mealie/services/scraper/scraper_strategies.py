@@ -59,7 +59,7 @@ def _is_stringified_mapping(text: str) -> bool:
 def prefer_structured_instructions(structured: list[dict], flat: list[dict]) -> bool:
     """Decide whether the structured parse should replace the scraper's flattened text.
 
-    Two things have to hold. The structured parse must gain a heading, otherwise there is
+    Two things have to hold. The structured parse must gain a heading or step image, otherwise there is
     nothing the flat text could not already express. And it must account for every piece of
     text the flat parse produced, as either a step or a heading: a site specific scraper
     reads the instructions off the page rather than out of the structured data, and its text
@@ -68,10 +68,11 @@ def prefer_structured_instructions(structured: list[dict], flat: list[dict]) -> 
     """
     headings = [step["title"] for step in structured if step.get("title")]
     headings += [step["summary"] for step in structured if step.get("summary")]
-    if not headings:
+    has_images = any("![" in step.get("text", "") for step in structured)
+    if not headings and not has_images:
         return False
 
-    covered = {_comparable(step.get("text", "")) for step in structured}
+    covered = {_comparable(step.get("text", "").split("\n\n![", 1)[0]) for step in structured}
     covered |= {_comparable(heading) for heading in headings}
 
     return all(
@@ -202,7 +203,7 @@ class RecipeScraperPackage(ABCScraperStrategy):
                 return []
 
             try:
-                structured = cleaner.clean_instructions(raw_instructions or [])
+                structured = cleaner.clean_instructions(raw_instructions or [], base_url=url)
             except TypeError:
                 self.logger.error("Error parsing structured instructions, falling back to the scraped text")
                 return []

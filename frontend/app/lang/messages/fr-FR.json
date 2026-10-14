@@ -441,6 +441,75 @@
     "an-error-occurred": "Une erreur est survenue"
   },
   "recipe": {
+    "save-review": {
+      "title": "Enregistrer cette recette ?",
+      "description": "Des éléments de la recette peuvent poser problème. Vous pouvez conserver la recette en l’état mais certaines fonctionnalités peuvent être réduites en conséquence.",
+      "edit": "Continuer la modification",
+      "save": "Enregistrer quand même",
+      "ingredient-locations": "Lignes d’ingrédients : {items}",
+      "substitute-location": "Ingrédient {ingredient}, substitut {substitute}",
+      "more": "{items} et {count} autres",
+      "empty-ingredients": {
+        "title": "Ingrédients manquants ou lignes vides",
+        "consequence": "La liste de courses peut être vide ou incomplète. Ajoutez les ingrédients ou supprimez les lignes vides.",
+        "problem": "La liste ne contient aucun ingrédient, ou certaines lignes ne contiennent ni aliment ni texte."
+      },
+      "unparsed-ingredients": {
+        "title": "Ingrédients non analysés ({count})",
+        "consequence": "Le texte est conservé, mais les quantités ne peuvent pas être ajustées de façon fiable. Le réglage des portions pour la liste de courses peut être indisponible.",
+        "problem": "Ces lignes n’ont pas d’aliment sélectionné. Le nom de l’ingrédient reste dans une remarque ou dans le texte d’origine."
+      },
+      "note-only-substitutes": {
+        "title": "Substituts sans aliment associé ({count})",
+        "consequence": "La remarque reste visible, mais l’application ne peut pas identifier l’ingrédient de remplacement. Sélectionnez-le pour compléter la substitution.",
+        "problem": "Ces substitutions ont seulement une remarque mais pas d'ingrédient sélectionné."
+      },
+      "missing-category": {
+        "title": "Aucune catégorie sélectionnée",
+        "consequence": "Une catégorie regroupe les grandes familles de recettes, par exemple « Diner ». Sans catégorie, cette recette ne sera pas retrouvée avec ce filtre. Choisissez une catégorie existante ou créez-en une manuellement.",
+        "problem": "Aucune grande famille de recettes n’est associée à cette recette."
+      },
+      "missing-tags": {
+        "title": "Aucun mot-clé sélectionné",
+        "consequence": "Un mot-clé précise la recette, par exemple « Cuisine Française ». Sans mot-clé, cette recette ne sera pas retrouvée avec ce filtre. Choisissez un mot-clé existant ou créez-en un manuellement.",
+        "problem": "Aucun mot-clé ne décrit cette recette pour faciliter sa recherche."
+      },
+      "excess-categories": {
+        "title": "Plus de 3 catégories ({count})",
+        "consequence": "Un classement trop large rend les catégories moins utiles. Réservez-les aux grandes familles de recettes.",
+        "problem": "Cette recette est associée à plus de 3 catégories. Les catégories servent à définir quelques grandes familles."
+      },
+      "excess-tags": {
+        "title": "Plus de 5 mots-clés ({count})",
+        "consequence": "De nombreux mots-clés rendent les filtres et la fiche moins lisibles. Gardez les plus utiles pour retrouver la recette.",
+        "problem": "Cette recette possède plus de 5 mots-clés. Certains peuvent être trop généraux ou redondants."
+      },
+      "no-steps": {
+        "title": "Aucune étape de préparation",
+        "consequence": "Le mode cuisine n’aura pas d’instructions à suivre.",
+        "problem": "Aucune étape ne contient de texte expliquant la préparation."
+      },
+      "missing-yield": {
+        "title": "Aucune portion ni quantité produite",
+        "consequence": "L’application utilise 1 par défaut pour les portions. Sans rendement de référence, l’ajustement des quantités peut être incorrect.",
+        "problem": "Ni le nombre de portions ni la quantité produite ne sont renseignés avec une valeur supérieure à zéro."
+      },
+      "missing-time": {
+        "title": "Durée incomplète",
+        "consequence": "Sans durée totale ou durées de préparation et de cuisson, la fiche ne donnera pas de durée complète pour préparer la recette.",
+        "problem": "La durée totale est absente, et les durées de préparation et de cuisson ne sont pas toutes deux renseignées."
+      },
+      "navigation": "Parcourir les points à vérifier",
+      "previous": "Précédent",
+      "next": "Suivant",
+      "position": "Point {current} sur {total}",
+      "problem-label": "Problème :",
+      "consequence-label": "Conséquence :",
+      "empty-value": "Ligne vide",
+      "named-ingredient-location": "Ingrédient {ingredient} - {name}",
+      "named-substitute-location": "Ingrédient {ingredient} - {name} · substitution {substitute} : « {note} »",
+      "more-items": "Et {count} autres éléments concernés"
+    },
     "save-error-title": "Impossible d’enregistrer la recette",
     "save-error-preserved": "Vos modifications sont conservées. Corrigez les champs ci-dessous, puis enregistrez à nouveau.",
     "save-error-date": "Saisissez une date valide, ou laissez le champ vide s’il est facultatif.",
@@ -643,10 +712,18 @@
     "import-from-html-or-json-have-ai-read-it": "Vous voulez que l'IA lise vos données à la place ?",
     "scrape-recipe-have-raw-html-or-json-data": "Vous avez des données brutes en HTML ou JSON ?",
     "scrape-recipe-you-can-import-from-raw-data-directly": "Vous pouvez directement importer des données brutes",
+    "url-import-error-title": "Impossible d'importer la recette",
+    "url-import-error-help": "L'adresse est conservée. Vous pouvez réessayer ou choisir une autre méthode d'importation.",
+    "url-import-error-session": "Votre session a expiré ou vous n'avez pas accès à cette action. Reconnectez-vous puis réessayez.",
+    "url-import-error-busy": "Trop de demandes d'importation. Patientez un instant puis réessayez.",
+    "url-import-error-connection": "La connexion au service d'importation a été interrompue. Réessayez dans un instant.",
+    "url-import-error-source": "Petit Chef n'a pas pu extraire la recette de cette page. Vérifiez l'adresse ou essayez une autre méthode.",
+    "url-import-retry": "Réessayer",
+    "url-import-html": "Importer le code HTML",
     "scrape-recipe-website-being-blocked": "Le site web est bloqué ?",
     "scrape-recipe-try-importing-raw-html-instead": "Essayez plutôt d'importer le code HTML brut.",
-    "import-original-keywords-as-tags": "Importer les mots-clés d'origine en tant que tags",
-    "import-original-categories": "Importer les catégories originales",
+    "import-original-keywords-as-tags": "Associer les mots-clés existants du site",
+    "import-original-categories": "Associer les catégories existantes du site",
     "stay-in-edit-mode": "Rester en mode édition",
     "parse-recipe-ingredients-after-import": "Analyser les ingrédients de la recette après l'import",
     "import-from-zip": "Importer depuis un zip",

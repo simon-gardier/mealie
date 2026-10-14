@@ -1,6 +1,7 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, test } from "vitest";
-import { nextTick } from "vue";
+import { nextTick, ref } from "vue";
+import { imageDropSuppressedKey } from "~/lib/image-drop-state";
 import DropZone from "./DropZone.vue";
 
 /**
@@ -8,8 +9,8 @@ import DropZone from "./DropZone.vue";
  * drop is valid and `files` to decide whether anything was actually attached, so a fake has to
  * provide both -- jsdom has no real DataTransfer.
  */
-function dropEvent(types: Record<string, string>, files: File[] = []) {
-  const event = new Event("drop", { bubbles: true, cancelable: true });
+function dropEvent(types: Record<string, string>, files: File[] = [], type = "drop") {
+  const event = new Event(type, { bubbles: true, cancelable: true });
 
   Object.defineProperty(event, "dataTransfer", {
     value: {
@@ -38,6 +39,20 @@ async function drop(types: Record<string, string>, files: File[] = []) {
 }
 
 describe("DropZone", () => {
+  test("reorder state suppresses image drops without changing the card props", async () => {
+    const active = ref(true);
+    const wrapper = mount(DropZone, { global: { provide: { [imageDropSuppressedKey as symbol]: active } } });
+    await nextTick();
+    const payload = { "text/uri-list": "https://example.test/step.jpg" };
+    wrapper.element.dispatchEvent(dropEvent(payload));
+    expect(wrapper.emitted("drop-url")).toBeUndefined();
+    active.value = false;
+    await nextTick();
+    wrapper.element.dispatchEvent(dropEvent(payload));
+    expect(wrapper.emitted("drop-url")).toEqual([["https://example.test/step.jpg"]]);
+    wrapper.unmount();
+  });
+
   test("emits the url of an image dragged out of another tab", async () => {
     const wrapper = await drop({ "text/uri-list": "https://example.test/pancakes.png" });
 

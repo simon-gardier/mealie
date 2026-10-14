@@ -5,7 +5,6 @@ from slugify import slugify
 
 from mealie.repos.repository_factory import AllRepositories
 from mealie.schema.recipe.recipe import RecipeCategory, RecipeTag, RecipeTool
-from mealie.schema.recipe.recipe_category import CategorySave, TagSave
 from mealie.schema.recipe.recipe_tool import RecipeToolSave
 from mealie.schema.response.pagination import PaginationQuery
 from mealie.services.matching import find_match
@@ -19,8 +18,7 @@ worse than missing one, and near-misses are common among organizer names ("Vegan
 
 class OrganizerResolver:
     """
-    Turns organizer names into database entities, matching against the group's existing
-    organizers before creating anything new.
+    Matches tags and categories against existing group records. Tools may be created.
     """
 
     def __init__(self, repos: AllRepositories, fuzzy_match_threshold: int = ORGANIZER_FUZZY_MATCH_THRESHOLD) -> None:
@@ -75,7 +73,7 @@ class OrganizerResolver:
         names: list[str],
         store: dict[str, T],
         create_missing: bool,
-        create: Callable[[str], T],
+        create: Callable[[str], T] | None,
     ) -> list[T]:
         resolved: list[T] = []
         seen: set[str] = set()
@@ -96,7 +94,7 @@ class OrganizerResolver:
                 resolved.append(match)
                 continue
 
-            if not create_missing:
+            if not create_missing or create is None:
                 continue
 
             created = create(name)
@@ -105,19 +103,12 @@ class OrganizerResolver:
 
         return resolved
 
-    def resolve_tags(self, names: list[str], create_missing: bool) -> list[RecipeTag]:
-        def create(name: str) -> RecipeTag:
-            saved = self.repos.tags.create(TagSave(name=name, group_id=self.repos.group_id))
-            return RecipeTag.model_validate(saved, from_attributes=True)
+    def resolve_tags(self, names: list[str], create_missing: bool = False) -> list[RecipeTag]:
+        # Legacy callers may still request creation; recipe imports never create tags.
+        return self._resolve(names, self.tags, False, None)
 
-        return self._resolve(names, self.tags, create_missing, create)
-
-    def resolve_categories(self, names: list[str], create_missing: bool) -> list[RecipeCategory]:
-        def create(name: str) -> RecipeCategory:
-            saved = self.repos.categories.create(CategorySave(name=name, group_id=self.repos.group_id))
-            return RecipeCategory.model_validate(saved, from_attributes=True)
-
-        return self._resolve(names, self.categories, create_missing, create)
+    def resolve_categories(self, names: list[str], create_missing: bool = False) -> list[RecipeCategory]:
+        return self._resolve(names, self.categories, False, None)
 
     def resolve_tools(self, names: list[str], create_missing: bool) -> list[RecipeTool]:
         def create(name: str) -> RecipeTool:

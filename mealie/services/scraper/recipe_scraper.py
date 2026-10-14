@@ -24,6 +24,14 @@ DEFAULT_SCRAPER_STRATEGIES: list[type[ABCScraperStrategy]] = [
 ]
 
 
+def has_recipe_content(text: str) -> bool:
+    return bool(text.strip()) and text.strip().casefold() not in {
+        "could not detect ingredients",
+        "could not detect instructions",
+        "no instructions found",
+    }
+
+
 class RecipeScraper:
     """
     Scrapes recipes from the web.
@@ -68,6 +76,7 @@ class RecipeScraper:
             if not html:
                 return None, None
 
+        partial: tuple[Recipe, ScrapedExtras] | None = None
         for ScraperClass in self.scrapers:
             scraper = ScraperClass(
                 url,
@@ -97,6 +106,36 @@ class RecipeScraper:
                 self.logger.exception(f"Failed to clean recipe data from {scraper.__class__.__name__}")
                 continue
 
+            has_ingredients = any(has_recipe_content(ingredient.display) for ingredient in recipe.recipe_ingredient)
+            has_instructions = any(has_recipe_content(step.text) for step in recipe.recipe_instructions or [])
+            if not (has_ingredients and has_instructions):
+                if partial is None:
+                    partial = recipe, extras
+                continue
+
+            if partial is not None:
+                original, original_extras = partial
+                # Keep usable source sections; AI only supplies the missing section.
+                if any(has_recipe_content(ingredient.display) for ingredient in original.recipe_ingredient):
+                    recipe.recipe_ingredient = original.recipe_ingredient
+                if any(has_recipe_content(step.text) for step in original.recipe_instructions or []):
+                    recipe.recipe_instructions = original.recipe_instructions
+                for field in (
+                    "name",
+                    "description",
+                    "recipe_yield",
+                    "recipe_servings",
+                    "recipe_yield_quantity",
+                    "prep_time",
+                    "perform_time",
+                    "total_time",
+                    "nutrition",
+                    "image",
+                ):
+                    value = getattr(original, field)
+                    if value and value != "no image":
+                        setattr(recipe, field, value)
+                extras = original_extras
             return recipe, extras
 
-        return None, None
+        return partial or (None, None)

@@ -74,7 +74,7 @@ describe("credential boundaries", () => {
     const adapter = vi.fn(ok);
     const client = await buildClient(adapter);
     await client.get("https://remy.sgdr.me/api/recipes");
-    expect(adapter.mock.calls[0][0].headers.Authorization).toBe("Bearer a.valid.token");
+    expect(adapter.mock.calls[0]?.[0].headers.Authorization).toBe("Bearer a.valid.token");
   });
 });
 

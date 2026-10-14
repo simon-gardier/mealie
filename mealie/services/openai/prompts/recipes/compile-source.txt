@@ -27,3 +27,6 @@ Rules:
 - If the source is one or more images, they may be photographs of a page, printed text, or handwriting. They may be rotated or poorly cropped. Work out which part of the image is the recipe and transcribe that. Multiple images are pages of the same recipe, in the order given.
 - Mark any text you cannot read as [illegible] rather than guessing at it.
 - If the source contains no recipe at all, set contains_recipe to false and leave the content empty.
+
+- Preserve images explicitly associated with cooking steps, with their exact source URLs and the corresponding step. Source image markers show an image's position in the page; use the surrounding recipe content to establish the association. Do not treat a cover photo, advertisement, logo, or related-recipe photo as a step image. Never invent image URLs.
+- Preserve French culinary details (for example c. à café, c. à soupe, sachets, thermostat, resting times) and unfamiliar English or Asian ingredient names without approximating or substituting them.

@@ -4,7 +4,6 @@ from slugify import slugify
 
 from mealie.repos.repository_factory import AllRepositories
 from mealie.schema.recipe import TagOut
-from mealie.schema.recipe.recipe_category import CategorySave, TagSave
 from mealie.schema.recipe.recipe_tool import RecipeToolOut, RecipeToolSave
 
 
@@ -52,11 +51,6 @@ class ScrapedExtras:
                 tags.append(db_tag)
                 continue
 
-            save_data = TagSave(name=tag, group_id=ctx.repos.group_id)
-            db_tag = repo.create(save_data)
-
-            tags.append(db_tag)
-
         return tags
 
     def use_categories(self, ctx: ScraperContext) -> list[TagOut]:
@@ -78,11 +72,6 @@ class ScrapedExtras:
             if db_category := repo.get_one(slugify_category, "slug"):
                 categories.append(db_category)
                 continue
-
-            save_data = CategorySave(name=category, group_id=ctx.repos.group_id)
-            db_category = repo.create(save_data)
-
-            categories.append(db_category)
 
         return categories
 

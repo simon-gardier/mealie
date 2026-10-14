@@ -443,6 +443,75 @@
     "an-error-occurred": "An error occurred"
   },
   "recipe": {
+    "save-review": {
+      "title": "Save this recipe?",
+      "description": "Some recipe details may cause problems. You can keep the recipe as it is, but some features may be limited as a result.",
+      "edit": "Continue editing",
+      "save": "Save anyway",
+      "ingredient-locations": "Ingredient rows: {items}",
+      "substitute-location": "Ingredient {ingredient}, substitute {substitute}",
+      "more": "{items} and {count} more",
+      "empty-ingredients": {
+        "title": "Missing ingredients or empty rows",
+        "consequence": "The shopping list may be empty or incomplete. Add ingredients or remove empty rows.",
+        "problem": "The ingredient list is empty, or some rows contain neither a food nor text."
+      },
+      "unparsed-ingredients": {
+        "title": "Unparsed ingredients ({count})",
+        "consequence": "The text is preserved, but quantities cannot be scaled reliably. Shopping-list portion controls may be unavailable.",
+        "problem": "These rows have no selected food. The ingredient name remains in a note or in the original text."
+      },
+      "note-only-substitutes": {
+        "title": "Substitutes without a linked food ({count})",
+        "consequence": "The note remains visible, but the app cannot identify the replacement ingredient. Select it to complete the substitution.",
+        "problem": "These substitutions contain only a note, with no ingredient selected."
+      },
+      "missing-category": {
+        "title": "No category selected",
+        "consequence": "A category groups broad recipe families, such as “Dinner”. Without a category, this recipe will not appear under that filter. Choose an existing category or create one manually.",
+        "problem": "No broad recipe family is associated with this recipe."
+      },
+      "missing-tags": {
+        "title": "No tags selected",
+        "consequence": "A tag adds a specific detail, such as “French cuisine”. Without tags, this recipe will not appear under those filters. Choose existing tags or create one manually.",
+        "problem": "No tags describe this recipe to help find it."
+      },
+      "excess-categories": {
+        "title": "More than 3 categories ({count})",
+        "consequence": "Broad classification makes categories less useful. Reserve them for the main recipe families.",
+        "problem": "This recipe has more than 3 categories. Categories should represent a few broad families."
+      },
+      "excess-tags": {
+        "title": "More than 5 tags ({count})",
+        "consequence": "Many tags make filters and the recipe harder to scan. Keep the most useful ones for finding the recipe.",
+        "problem": "This recipe has more than 5 tags. Some may be too general or redundant."
+      },
+      "no-steps": {
+        "title": "No preparation steps",
+        "consequence": "Cook mode will have no instructions to follow.",
+        "problem": "No step contains text describing the preparation."
+      },
+      "missing-yield": {
+        "title": "No servings or yield quantity",
+        "consequence": "The app defaults to 1 serving. Without a base yield, quantity adjustments may be incorrect.",
+        "problem": "Neither servings nor yield quantity has a value greater than zero."
+      },
+      "missing-time": {
+        "title": "Incomplete timing",
+        "consequence": "Without a total time or both preparation and cooking times, the recipe will not show a complete preparation duration.",
+        "problem": "There is no total time, and preparation and cooking times are not both provided."
+      },
+      "navigation": "Browse recipe issues",
+      "previous": "Previous",
+      "next": "Next",
+      "position": "Issue {current} of {total}",
+      "problem-label": "Issue:",
+      "consequence-label": "Consequence:",
+      "empty-value": "Empty row",
+      "named-ingredient-location": "Ingredient {ingredient} - {name}",
+      "named-substitute-location": "Ingredient {ingredient} - {name} · substitute {substitute}: “{note}”",
+      "more-items": "And {count} more affected items"
+    },
     "save-error-title": "Recipe could not be saved",
     "save-error-preserved": "Your edits are still here. Correct the fields below, then save again.",
     "save-error-date": "Enter a valid date, or leave it empty if optional.",
@@ -644,10 +713,18 @@
     "import-from-html-or-json-have-ai-read-it": "Want AI to read your data instead?",
     "scrape-recipe-have-raw-html-or-json-data": "Have raw HTML or JSON data?",
     "scrape-recipe-you-can-import-from-raw-data-directly": "You can import from raw data directly",
+    "url-import-error-title": "Unable to import the recipe",
+    "url-import-error-help": "Your address is preserved. Try again or choose another import method.",
+    "url-import-error-session": "Your session expired or you do not have access to this action. Sign in again and retry.",
+    "url-import-error-busy": "Too many import requests. Wait a moment and try again.",
+    "url-import-error-connection": "The connection to the import service was interrupted. Try again in a moment.",
+    "url-import-error-source": "Petit Chef could not extract the recipe from this page. Check the address or try another method.",
+    "url-import-retry": "Try again",
+    "url-import-html": "Import HTML",
     "scrape-recipe-website-being-blocked": "Website being blocked?",
     "scrape-recipe-try-importing-raw-html-instead": "Try importing the raw HTML instead.",
-    "import-original-keywords-as-tags": "Import original keywords as tags",
-    "import-original-categories": "Import original categories",
+    "import-original-keywords-as-tags": "Use matching existing tags from the website",
+    "import-original-categories": "Use matching existing categories from the website",
     "stay-in-edit-mode": "Stay in Edit mode",
     "parse-recipe-ingredients-after-import": "Parse recipe ingredients after import",
     "import-from-zip": "Import from Zip",

@@ -12,6 +12,7 @@ from zipfile import ZipFile
 
 import sqlalchemy as sa
 from fastapi import UploadFile
+from slugify import slugify
 
 from mealie.core import exceptions
 from mealie.lang.providers import Translator
@@ -225,6 +226,15 @@ class RecipeService(RecipeServiceBase):
             else:
                 data.settings = RecipeSettings()
 
+        if data.tags or data.recipe_category:
+            from .organizer_resolver import OrganizerResolver
+
+            resolver = OrganizerResolver(self.repos, fuzzy_match_threshold=100)
+            data.tags = resolver.resolve_tags([tag.name for tag in data.tags or []], False)
+            data.recipe_category = resolver.resolve_categories(
+                [category.name for category in data.recipe_category or []], False
+            )
+
         rating_input = data.rating
         data.last_made = None
         new_recipe = self.repos.recipes.create(data)
@@ -260,19 +270,20 @@ class RecipeService(RecipeServiceBase):
             # default to the current user
             return str(self.user.id)
 
-    def _transform_category_or_tag(self, data: dict, repo: RepositoryGeneric) -> dict:
+    def _transform_category_or_tag(self, data: dict, repo: RepositoryGeneric) -> dict | None:
         slug = data.get("slug")
         if not slug:
-            return data
+            slug = slugify(data.get("name") or "")
+        if not slug:
+            return None
 
         # if the item exists, return the actual data
         query = repo.get_one(slug, "slug")
         if query:
             return query.model_dump()
 
-        # otherwise, create the item
-        new_item = repo.create(data)
-        return new_item.model_dump()
+        # Imported organizers require an explicit manual creation first.
+        return None
 
     def _get_data_matcher(self) -> DataMatcher:
         if self._data_matcher is None:
@@ -366,7 +377,8 @@ class RecipeService(RecipeServiceBase):
 
     def _process_recipe_data(self, key: str, data: list | dict | Any):
         if isinstance(data, list):
-            return [self._process_recipe_data(key, item) for item in data]
+            processed = [self._process_recipe_data(key, item) for item in data]
+            return [item for item in processed if item is not None] if key in ("recipe_category", "tags") else processed
 
         elif isinstance(data, str):
             # make sure the user is valid

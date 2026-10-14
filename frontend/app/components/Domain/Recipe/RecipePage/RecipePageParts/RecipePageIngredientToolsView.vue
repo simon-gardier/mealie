@@ -1,13 +1,12 @@
 <template>
   <div>
     <div class="recipe-view-ingredients">
-      <div v-if="!isCookMode" class="d-flex align-center justify-space-between flex-wrap ga-2 mb-2">
+      <div v-if="!isCookMode" class="d-flex align-center justify-space-between flex-wrap ga-2 mb-4">
         <h2 class="recipe-section-title text-h5 font-weight-medium opacity-80">
           {{ $t("recipe.ingredients") }}
         </h2>
         <RecipePageScale compact :model-value="scale" :recipe="recipe" @update:model-value="emit('update:scale', $event)" />
       </div>
-      <v-divider v-if="!isCookMode" class="mb-4" />
       <RecipeIngredients
         :value="recipe.recipeIngredient"
         :scale="scale"
@@ -15,8 +14,8 @@
         :storage-key="ingredientStorageKey"
         hide-title
       />
-      <div v-if="!isEditMode && recipe.tools && recipe.tools.length > 0">
-        <h2 class="mt-4 text-h5 font-weight-medium opacity-80">
+      <div v-if="!isEditMode && recipe.tools && recipe.tools.length > 0" class="recipe-view-tools">
+        <h2 class="recipe-view-tools-heading">
           {{ $t('tool.required-tools') }}
         </h2>
         <v-list density="compact">
@@ -129,5 +128,14 @@ function updateTool(index: number) {
   width: 28px;
   height: 28px;
   object-fit: contain;
+}
+.recipe-view-tools {
+  margin-top: 24px;
+}
+.recipe-view-tools-heading {
+  margin-bottom: 8px;
+  font: 600 16px/1.5 var(--bistro-body);
+  font-family: var(--bistro-body) !important;
+  color: rgb(var(--v-theme-on-surface));
 }
 </style>

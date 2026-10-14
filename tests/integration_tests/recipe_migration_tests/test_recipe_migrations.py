@@ -12,6 +12,7 @@ from fastapi.testclient import TestClient
 
 from mealie.schema.group.group_migration import SupportedMigrations
 from mealie.schema.recipe.recipe import Recipe
+from mealie.schema.recipe.recipe_category import CategorySave
 from mealie.schema.reports.reports import ReportEntryOut
 from tests import data as test_data
 from tests.utils import api_routes
@@ -290,9 +291,15 @@ def test_bad_mealie_alpha_data_is_ignored(api_client: TestClient, unique_user: T
     assert report_entry.exception == "JSONDecodeError: Expecting value: line 1 column 1 (char 0)"
 
 
-def test_recipekeeper_imports_categories_and_yield(api_client: TestClient, unique_user_fn_scoped: TestUser) -> None:
+@pytest.mark.parametrize("existing_categories", [False, True])
+def test_recipekeeper_imports_categories_and_yield(
+    api_client: TestClient, unique_user_fn_scoped: TestUser, existing_categories: bool
+) -> None:
     """Recipe Keeper categories and yields were dropped by the migrator's snake_case alias keys."""
     unique_user = unique_user_fn_scoped
+    if existing_categories:
+        for name in ("Bread", "Fish"):
+            unique_user.repos.categories.create(CategorySave(name=name, group_id=unique_user.repos.group_id))
 
     response = api_client.post(
         api_routes.groups_migrations,
@@ -307,12 +314,12 @@ def test_recipekeeper_imports_categories_and_yield(api_client: TestClient, uniqu
 
     # a bare number in recipeYield is a yield quantity
     recipe = get("zucchini-bread")
-    assert [c.name for c in recipe.recipe_category or []] == ["Bread"]
+    assert [c.name for c in recipe.recipe_category or []] == (["Bread"] if existing_categories else [])
     assert recipe.recipe_yield_quantity == 16
 
     # a number with a unit is a serving count
     recipe = get("baked-salmon-fillets-dijon")
-    assert [c.name for c in recipe.recipe_category or []] == ["Fish"]
+    assert [c.name for c in recipe.recipe_category or []] == (["Fish"] if existing_categories else [])
     assert recipe.recipe_servings == 4
 
 

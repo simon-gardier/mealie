@@ -47,12 +47,12 @@ def test_unmatched_names_are_dropped_when_not_creating(unique_user: TestUser, re
     assert resolved == []
 
 
-def test_unmatched_names_are_created_when_requested(unique_user: TestUser, resolver: OrganizerResolver):
+def test_unmatched_tags_cannot_be_created_by_legacy_requests(unique_user: TestUser, resolver: OrganizerResolver):
     name = random_string()
 
     resolved = resolver.resolve_tags([name], create_missing=True)
-    assert [tag.name for tag in resolved] == [name]
-    assert unique_user.repos.tags.get_one(slugify(name), "slug")
+    assert resolved == []
+    assert unique_user.repos.tags.get_one(slugify(name), "slug") is None
 
 
 def test_existing_tools_are_reused_rather_than_recreated(unique_user: TestUser, resolver: OrganizerResolver):
@@ -65,6 +65,8 @@ def test_existing_tools_are_reused_rather_than_recreated(unique_user: TestUser, 
 
 def test_duplicate_and_blank_names_are_collapsed(unique_user: TestUser, resolver: OrganizerResolver):
     name = random_string()
+
+    unique_user.repos.tags.create(TagSave(name=name, group_id=unique_user.repos.group_id))
 
     resolved = resolver.resolve_tags([name, name.upper(), "  ", ""], create_missing=True)
     assert len(resolved) == 1
@@ -83,3 +85,14 @@ def test_existing_names_are_reported_for_prompt_injection(unique_user: TestUser,
     assert tag in existing["tags"]
     assert category in existing["categories"]
     assert tool in existing["tools"]
+
+
+def test_unmatched_categories_cannot_be_created(unique_user: TestUser, resolver: OrganizerResolver):
+    name = random_string()
+    assert resolver.resolve_categories([name], create_missing=True) == []
+    assert unique_user.repos.categories.get_one(slugify(name), "slug") is None
+
+
+def test_new_tools_can_still_be_created(unique_user: TestUser, resolver: OrganizerResolver):
+    name = random_string()
+    assert [tool.name for tool in resolver.resolve_tools([name], True)] == [name]

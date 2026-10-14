@@ -1,4 +1,8 @@
+from urllib.parse import quote, urljoin
+
 import bs4
+
+from mealie.services.scraper.cleaner import instruction_image_urls
 
 MAX_SOURCE_CONTENT_LENGTH = 100_000
 """
@@ -82,7 +86,7 @@ def find_image(soup: bs4.BeautifulSoup) -> str | None:
     return None
 
 
-def extract_page_content(html: str) -> tuple[str, str | None]:
+def extract_page_content(html: str, base_url: str | None = None) -> tuple[str, str | None]:
     """
     Strips an HTML document down to its text content, with any ld+json data appended,
     along with the page's primary image, if one can be found.
@@ -92,13 +96,34 @@ def extract_page_content(html: str) -> tuple[str, str | None]:
 
     soup = bs4.BeautifulSoup(html, "lxml")
 
+    structured = extract_json_ld_data_from_html(soup)
+    try:
+        image = find_image(soup)
+    except Exception:
+        image = None
+    # Keep image URLs in document order so AI can associate a photo with its step.
+    # JSON-LD is captured before scripts are removed.
+    for element in soup.select("script, style, nav, footer"):
+        element.decompose()
+    for img in soup.find_all("img"):
+        source = img.get("data-src") or img.get("data-original") or img.get("src")
+        if not isinstance(source, str):
+            img.decompose()
+            continue
+        urls = instruction_image_urls(urljoin(base_url or "", source))
+        if not urls:
+            img.decompose()
+            continue
+        target = quote(urls[0], safe="/:?&=#%+@,;~!$*")
+        img.replace_with(f"\n[Source image: ![]({target})]\n")
     text = soup.get_text(separator="\n", strip=True)
-    text += extract_json_ld_data_from_html(soup)
+    # Put structured evidence first so long introductions cannot push it past the limit.
+    text = (f"Structured recipe metadata:\n{structured}\n\nPage content:\n{text}" if structured else text).strip()
     if not text:
         raise ValueError("No text or ld+json data found in HTML")
 
     try:
-        image = find_image(soup)
+        image = urljoin(base_url or "", image) if image else None
     except Exception:
         image = None
 

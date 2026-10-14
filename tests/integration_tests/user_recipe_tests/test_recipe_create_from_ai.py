@@ -463,13 +463,13 @@ def test_create_from_video_url_without_audio_provider_falls_back_to_fetching(
     assert fetched == [VIDEO_URL]
 
 
-def test_organizers_are_skipped_when_there_is_nothing_to_do(
+def test_empty_collections_still_allow_tool_discovery(
     api_client: TestClient,
     unique_user: TestUser,
     monkeypatch: pytest.MonkeyPatch,
     openai_recipe: OpenAIRecipe,
 ):
-    """With no existing organizers and creation switched off, the step can't do anything."""
+    """Tools may be discovered even when tags and categories cannot be created."""
 
     assert not any(OrganizerResolver(unique_user.repos).existing_names().values()), (
         "this test needs a group that has no organizers yet"
@@ -479,7 +479,7 @@ def test_organizers_are_skipped_when_there_is_nothing_to_do(
 
     r = post_ai(api_client, unique_user, {"content": random_string()})
     assert r.status_code == 201
-    assert "OpenAIOrganizers" not in ai.requested_schemas
+    assert "OpenAIOrganizers" in ai.requested_schemas
 
 
 def test_existing_organizers_are_attached_without_creating_new_ones(
@@ -504,11 +504,11 @@ def test_existing_organizers_are_attached_without_creating_new_ones(
     # the existing tag is attached, and the unmatched names are dropped rather than created
     assert [tag["name"] for tag in recipe["tags"]] == [existing_tag.name]
     assert recipe["recipeCategory"] == []
-    assert recipe["tools"] == []
+    assert [tool["name"] for tool in recipe["tools"]] == [new_name]
     assert not unique_user.repos.tags.get_one(slugify(new_name), "slug")
 
 
-def test_new_organizers_are_created_when_requested(
+def test_legacy_creation_flag_only_allows_new_tools(
     api_client: TestClient,
     unique_user: TestUser,
     monkeypatch: pytest.MonkeyPatch,
@@ -527,8 +527,8 @@ def test_new_organizers_are_created_when_requested(
     slug = json.loads(r.text)
     recipe = api_client.get(api_routes.recipes_slug(slug), headers=unique_user.token).json()
 
-    assert [tag["name"] for tag in recipe["tags"]] == [tag_name]
-    assert [category["name"] for category in recipe["recipeCategory"]] == [category_name]
+    assert recipe["tags"] == []
+    assert recipe["recipeCategory"] == []
     assert [tool["name"] for tool in recipe["tools"]] == [tool_name]
 
 

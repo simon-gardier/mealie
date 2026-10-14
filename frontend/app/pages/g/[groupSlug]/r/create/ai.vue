@@ -118,23 +118,6 @@
                   :label="$t('recipe.should-translate-description')"
                   :disabled="state.loading"
                 />
-                <div class="d-flex align-center">
-                  <v-checkbox
-                    v-model="createNewOrganizers"
-                    color="primary"
-                    hide-details
-                    :label="$t('recipe.create-new-organizers')"
-                    :disabled="state.loading"
-                  />
-                  <v-tooltip location="bottom" max-width="300">
-                    <template #activator="{ props: tooltipProps }">
-                      <v-icon v-bind="tooltipProps" size="small" class="ms-2">
-                        {{ $globals.icons.help }}
-                      </v-icon>
-                    </template>
-                    <span>{{ $t('recipe.create-new-organizers-hint') }}</span>
-                  </v-tooltip>
-                </div>
                 <v-checkbox
                   v-model="stayInEditMode"
                   color="primary"
@@ -202,7 +185,6 @@
 import { useRecipeImportUrl } from "~/composables/use-recipe-import-url";
 import { useUserApi } from "~/composables/api";
 import { useGroupSelf } from "~/composables/use-groups";
-import { useTagStore } from "~/composables/store/use-tag-store";
 import { useNewRecipeOptions } from "~/composables/use-new-recipe-options";
 import { validators } from "~/composables/use-validators";
 import type { VForm } from "~/types/auto-forms";
@@ -222,7 +204,6 @@ const i18n = useI18n();
 const api = useUserApi();
 const auth = useMealieAuth();
 const route = useRoute();
-const tags = useTagStore();
 const { group } = useGroupSelf();
 
 const groupSlug = computed(() => route.params.groupSlug as string || auth.user.value?.groupSlug || "");
@@ -242,13 +223,11 @@ const {
   stayInEditMode,
   parseRecipe,
   translateRecipe,
-  createNewOrganizers,
   navigateToRecipe,
 } = useNewRecipeOptions({
   enableImportKeywords: false,
   enableImportCategories: false,
   enableTranslateRecipe: true,
-  enableCreateNewOrganizers: true,
 });
 
 const contentAsString = computed(() => {
@@ -305,7 +284,6 @@ async function createRecipe() {
       url: recipeUrl.value,
       images: uploadedImages.value,
       translateLanguage: translateRecipe.value ? i18n.locale.value : null,
-      createNewOrganizers: createNewOrganizers.value,
     },
     (message: string) => createStatus.value = message,
   );
@@ -317,10 +295,6 @@ async function createRecipe() {
     state.errorMessage = error?.message || "";
     state.loading = false;
     return;
-  }
-
-  if (createNewOrganizers.value) {
-    tags.actions.refresh();
   }
 
   navigateToRecipe(data, groupSlug.value, `/g/${groupSlug.value}/r/create/ai`);

@@ -18,7 +18,7 @@ model's ability to echo an existing name back; the resolver still matches agains
 class ResolveOrganizersStep(WorkflowStep):
     """
     Assigns tags, categories, and tools to the draft recipe, matching against the group's
-    existing organizers and optionally creating the ones that don't exist yet.
+    existing categories/tags, and creating explicitly used tools when needed.
     """
 
     name = "resolve-organizers"
@@ -32,10 +32,7 @@ class ResolveOrganizersStep(WorkflowStep):
         if tags := existing["tags"][:MAX_INJECTED_TAGS]:
             injections.append(
                 OpenAIDataInjection(
-                    description=(
-                        "Below are the tags that already exist in the user's collection. Prefer these over "
-                        "suggesting new ones, and return them exactly as they are written here."
-                    ),
+                    description=("Below are the existing tags. Only assign names from this list, exactly as written."),
                     value=tags,
                 )
             )
@@ -44,8 +41,7 @@ class ResolveOrganizersStep(WorkflowStep):
             injections.append(
                 OpenAIDataInjection(
                     description=(
-                        "Below are the categories that already exist in the user's collection. Prefer these "
-                        "over suggesting new ones, and return them exactly as they are written here."
+                        "Below are the existing categories. Only assign names from this list, exactly as written."
                     ),
                     value=categories,
                 )
@@ -55,8 +51,7 @@ class ResolveOrganizersStep(WorkflowStep):
             injections.append(
                 OpenAIDataInjection(
                     description=(
-                        "Below are the tools that already exist in the user's collection. Prefer these over "
-                        "suggesting new ones, and return them exactly as they are written here."
+                        "Prefer the exact names of these existing tools. Other explicitly used tools are allowed."
                     ),
                     value=tools,
                 )
@@ -94,13 +89,6 @@ class ResolveOrganizersStep(WorkflowStep):
             return
 
         resolver = OrganizerResolver(ctx.repos)
-        create_missing = ctx.options.create_new_organizers
-
-        existing = resolver.existing_names()
-        if ctx.options.attach_organizers and not (create_missing or any(existing.values())):
-            # nothing to match against and nothing may be created, so there's no work to do
-            return
-
         response = await ctx.ai.get_response(
             ctx.ai.get_prompt(RESOLVE_ORGANIZERS_PROMPT, data_injections=self._build_injections(resolver)),
             self._build_message(ctx),
@@ -115,6 +103,6 @@ class ResolveOrganizersStep(WorkflowStep):
             # the caller applies these itself
             return
 
-        recipe.tags = resolver.resolve_tags(response.tags, create_missing)
-        recipe.recipe_category = resolver.resolve_categories(response.categories, create_missing)
-        recipe.tools = resolver.resolve_tools(response.tools, create_missing)
+        recipe.tags = resolver.resolve_tags(response.tags, False)
+        recipe.recipe_category = resolver.resolve_categories(response.categories, False)
+        recipe.tools = resolver.resolve_tools(response.tools, True)

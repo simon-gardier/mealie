@@ -1,14 +1,14 @@
 <template>
   <div
     ref="el"
-    :class="isOverDropZone ? 'over' : ''"
+    :class="!isDisabled && isOverDropZone ? 'over' : ''"
   >
     <div
-      v-if="isOverDropZone"
+      v-if="!isDisabled && isOverDropZone"
       class="overlay"
     />
     <div
-      v-if="isOverDropZone"
+      v-if="!isDisabled && isOverDropZone"
       class="absolute text-container"
     >
       <p class="text-center drop-text">
@@ -21,13 +21,17 @@
 
 <script setup lang="ts">
 import { useDropZone } from "@vueuse/core";
+import { imageDropSuppressedKey } from "~/lib/image-drop-state";
 
-defineProps({
+const props = defineProps({
   disabled: {
     type: Boolean,
     default: false,
   },
 });
+
+const reorderActive = inject(imageDropSuppressedKey, null);
+const isDisabled = computed(() => props.disabled || !!reorderActive?.value);
 
 const emit = defineEmits(["drop", "drop-url", "drop-unsupported"]);
 
@@ -117,6 +121,7 @@ function imageSourceFrom(dataTransfer: DataTransfer | null) {
 }
 
 function onDrop(files: File[] | null, event: DragEvent) {
+  if (isDisabled.value) return;
   if (files?.length) {
     emit("drop", files);
     return;

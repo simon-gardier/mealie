@@ -65,6 +65,8 @@ The launcher keeps both windows open, checks for occupied ports, and runs each s
 
 ## Verification and troubleshooting
 
+If `/api/app/about` returns 502, check `docker compose -f compose.petit-chef.yml ps -a` first. A stopped backend causes Nuxt initialization warnings; restart it in the visible backend terminal and wait for startup before reloading the browser. The local frontend serves `/manifest.webmanifest` through `frontend/server/routes/manifest.webmanifest.ts`, because the development backend does not mount its production SPA manifest route.
+
 Confirm both services actually respond after startup; an open terminal alone does not mean a server started. Check the terminal error before changing configuration. Native Windows dependencies may need additional build prerequisites; prefer the repository's dev container when native installation cannot satisfy the lockfile, and document the exact limitation without modifying backend source or replacing pinned dependencies.
 
 First Docker startup installs the editable project and applies existing SQLite migrations; on a Windows bind mount this can take several minutes. Wait for `Application startup complete` in the backend terminal before opening the app. The frontend's app-info plugin requires `/api/app/about` during initialization: opening it too early produces an error page and `NUXT_E1005`. Once `http://localhost:3000/api/app/about` responds successfully, reload the page.

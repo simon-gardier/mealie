@@ -6,6 +6,7 @@ import numbers
 import re
 import typing
 from datetime import datetime, timedelta
+from urllib.parse import quote, urljoin, urlsplit
 
 from slugify import slugify
 
@@ -72,7 +73,9 @@ def clean(recipe_data: Recipe | dict, translator: Translator, url=None) -> Recip
     )
     recipe_data["recipeCategory"] = clean_categories(recipe_data.get("recipeCategory", []))
     recipe_data["recipeIngredient"] = clean_ingredients(recipe_data.get("recipeIngredient", []))
-    recipe_data["recipeInstructions"] = clean_instructions(recipe_data.get("recipeInstructions", []))
+    recipe_data["recipeInstructions"] = clean_instructions(
+        recipe_data.get("recipeInstructions", []), base_url=url or recipe_data.get("orgURL")
+    )
 
     recipe_data["image"] = clean_image(recipe_data.get("image"))[0]
     recipe_data["orgURL"] = url or recipe_data.get("orgURL")
@@ -145,6 +148,39 @@ def clean_image(image: str | list | dict | None = None, default: str = NO_IMAGE)
             return [default]
 
 
+def instruction_image_urls(value: typing.Any, base_url: str | None = None) -> list[str]:
+    """Read schema.org image values without admitting non-web URLs into Markdown."""
+    values = value if isinstance(value, list) else [value]
+    urls: list[str] = []
+    for image in values:
+        if isinstance(image, dict):
+            image = image.get("contentUrl") or image.get("url") or image.get("@id")
+        if not isinstance(image, str):
+            continue
+        image = urljoin(base_url or "", image.strip())
+        try:
+            parsed = urlsplit(image)
+        except ValueError:
+            continue
+        if parsed.scheme not in ("http", "https") or not parsed.netloc:
+            continue
+        if image not in urls:
+            urls.append(image)
+    return urls
+
+
+def instruction_text_with_images(instruction: dict, base_url: str | None = None) -> str:
+    text = _sanitize_instruction_text(instruction["text"])
+    for url in instruction_image_urls(instruction.get("image"), base_url):
+        # Escape Markdown delimiters; retain existing embeds when cleaning twice.
+        target = quote(url, safe="/:?&=#%+@,;~!$*")
+        if f"]({target})" not in text and f"](<{url}>)" not in text:
+            text += f"\n\n![]({target})"
+    # AI may return an inline embed; give each image its own Markdown paragraph.
+    text = re.sub(r"!\[[^\]\n]*\]\((?:<[^>\n]+>|[^)\n]+)\)", lambda match: f"\n\n{match[0]}\n\n", text)
+    return re.sub(r"\n{3,}", "\n\n", text).strip()
+
+
 def is_how_to_section(entry: typing.Any) -> bool:
     """schema.org groups steps with `@type: HowToSection`; some sites spell the key `type`."""
     return isinstance(entry, dict) and "HowToSection" in (entry.get("@type"), entry.get("type"))
@@ -182,7 +218,9 @@ def _step_heading(instruction: dict) -> str:
     return heading
 
 
-def clean_instructions(steps_object: list | dict | str, default: list | None = None) -> list[dict]:
+def clean_instructions(
+    steps_object: list | dict | str, default: list | None = None, *, base_url: str | None = None
+) -> list[dict]:
     """
     instructions attempts to parse the instructions field from a recipe and return a list of
     dictionaries. See match statement for supported types and structures
@@ -220,10 +258,12 @@ def clean_instructions(steps_object: list | dict | str, default: list | None = N
                 if not is_how_to_section(entry):
                     # a recipe can open with a few loose steps and only then start
                     # grouping them, so both kinds share the one list
-                    instructions.extend(clean_instructions([entry]))
+                    instructions.extend(clean_instructions([entry], base_url=base_url))
                     continue
 
-                section_steps = clean_instructions(entry.get("itemListElement", entry.get("item", [])))
+                section_steps = clean_instructions(
+                    entry.get("itemListElement", entry.get("item", [])), base_url=base_url
+                )
                 if not section_steps:
                     continue
 
@@ -245,7 +285,7 @@ def clean_instructions(steps_object: list | dict | str, default: list | None = N
             # ]
             #
             return [
-                {"text": _sanitize_instruction_text(instruction["text"])}
+                {"text": instruction_text_with_images(instruction, base_url)}
                 | ({"title": instruction["title"]} if instruction.get("title") else {})
                 | ({"summary": heading} if (heading := _step_heading(instruction)) else {})
                 for instruction in steps_object
@@ -256,10 +296,10 @@ def clean_instructions(steps_object: list | dict | str, default: list | None = N
             #
             # {"@type": "HowToStep", "text": "Instruction A"}
             #
-            return clean_instructions([steps_object])
+            return clean_instructions([steps_object], base_url=base_url)
         case {"@type": "HowToSection"} | {"type": "HowToSection"}:
             # Likewise, a recipe with only one section may pass that section on its own
-            return clean_instructions([steps_object])
+            return clean_instructions([steps_object], base_url=base_url)
         case {0: {"text": str()}} | {"0": {"text": str()}} | {1: {"text": str()}} | {"1": {"text": str()}}:
             # Some recipes have a dict with a string key representing the index, unsure if these can
             # be an int or not so we match against both. Additionally, we match against both 0 and 1 indexed
@@ -271,7 +311,7 @@ def clean_instructions(steps_object: list | dict | str, default: list | None = N
             # }
             #
             steps_object = typing.cast(dict, steps_object)
-            return clean_instructions(list(steps_object.values()))
+            return clean_instructions(list(steps_object.values()), base_url=base_url)
         case str(step_as_str):
             # Strings are weird, some sites return a single string with newlines
             # others returns a json string for some reasons
@@ -281,7 +321,7 @@ def clean_instructions(steps_object: list | dict | str, default: list | None = N
             #
             if step_as_str.startswith("[") or step_as_str.startswith("{"):
                 try:
-                    return clean_instructions(json.loads(step_as_str))
+                    return clean_instructions(json.loads(step_as_str), base_url=base_url)
                 except json.JSONDecodeError:
                     pass
             return [
