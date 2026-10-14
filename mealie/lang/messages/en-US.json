@@ -22,6 +22,7 @@
         "and-amount": "and {amount}",
         "import-errors": {
             "ai-not-enabled": "AI services are not enabled",
+            "ai-temporarily-unavailable": "The AI provider is temporarily unavailable or overloaded. Try again later, or choose another model in your group AI settings.",
             "ai-request-failed": "The AI provider was unable to complete the request. Please try again",
             "image-provider-not-enabled": "AI image services are not enabled",
             "no-recipe-found": "No recipe was found in the provided source",
@@ -36,7 +37,7 @@
             "creating-recipe-from-transcript-with-ai": "Creating recipe from transcript with AI...",
             "creating-recipe-from-webpage-data": "Creating recipe from webpage data...",
             "downloading-image": "Downloading image...",
-            "downloading-video": "Downloading video...",
+            "downloading-video": "Reading video captions or downloading audio...",
             "extracting-recipe-data": "Extracting recipe data...",
             "fetching-webpage": "Fetching webpage...",
             "organizing-recipe": "Organizing recipe...",

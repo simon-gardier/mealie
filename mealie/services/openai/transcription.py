@@ -56,7 +56,7 @@ def parse_subtitle_content(subtitle_content: str) -> str:
 
 
 def download_video(url: str, temp_path: Path) -> TranscribedAudio:
-    """Downloads audio and subtitles from a video URL."""
+    """Fetches one caption track first, downloading audio only when it is needed."""
 
     import yt_dlp
 
@@ -70,7 +70,13 @@ def download_video(url: str, temp_path: Path) -> TranscribedAudio:
         "writeautomaticsub": True,
         "subtitleslangs": SUBTITLE_LANGS,
         "skip_download": False,
-        "ignoreerrors": True,
+        "ignoreerrors": False,
+        "noplaylist": True,
+        "socket_timeout": 15,
+        "retries": 2,
+        "extractor_retries": 2,
+        "fragment_retries": 2,
+        "subtitlesformat": "vtt",
         "postprocessors": [
             {
                 "key": "FFmpegExtractAudio",
@@ -86,29 +92,49 @@ def download_video(url: str, temp_path: Path) -> TranscribedAudio:
         ydl_opts["cookiefile"] = settings.YTDLP_COOKIEFILE
 
     try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=True)
+        # Metadata is small; choose one track rather than downloading every translation.
+        caption_opts = {**ydl_opts, "skip_download": True, "postprocessors": []}
+        with yt_dlp.YoutubeDL(caption_opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+        if not info:
+            raise exceptions.VideoDownloadError("Failed to extract video information")
 
-            if info is None:
-                raise exceptions.VideoDownloadError(
-                    "Failed to extract video information. The video may be unavailable or the URL is invalid."
-                )
+        available = {**(info.get("automatic_captions") or {}), **(info.get("subtitles") or {})}
+        language = next((lang for lang in SUBTITLE_LANGS if lang in available), None)
+        if language is None:
+            language = next((lang for lang in available if lang != "live_chat"), None)
 
-            sub_path = None
-            for lang in SUBTITLE_LANGS:
-                potential_path = output_template.with_suffix(f".{lang}.vtt")
-                if potential_path.exists():
-                    sub_path = potential_path
-                    break
+        video_data: TranscribedAudio = {
+            "audio": output_template.with_suffix(".mp3"),
+            "subtitle": None,
+            "title": info.get("title", ""),
+            "description": info.get("description", ""),
+            "thumbnail_url": info.get("thumbnail") or None,
+            "transcription": "",
+        }
+        if language:
+            try:
+                caption_opts["subtitleslangs"] = [language]
+                with yt_dlp.YoutubeDL(caption_opts) as ydl:
+                    ydl.extract_info(url, download=True)
+                subtitle_path = output_template.with_suffix(f".{language}.vtt")
+                if subtitle_path.exists():
+                    video_data["subtitle"] = subtitle_path
+                    video_data["transcription"] = read_subtitles(video_data)
+                    if video_data["transcription"].strip():
+                        return video_data
+            except Exception:
+                logger.warning("Captions unavailable; falling back to audio", exc_info=True)
+            video_data["subtitle"] = None
+            video_data["transcription"] = ""
 
-            return {
-                "audio": output_template.with_suffix(".mp3"),
-                "subtitle": sub_path,
-                "title": info.get("title", ""),
-                "description": info.get("description", ""),
-                "thumbnail_url": info.get("thumbnail") or None,
-                "transcription": "",
-            }
+        # Captions may be unavailable or empty. Do not request them again during audio download.
+        audio_opts = {**ydl_opts, "writesubtitles": False, "writeautomaticsub": False}
+        with yt_dlp.YoutubeDL(audio_opts) as ydl:
+            audio_info = ydl.extract_info(url, download=True)
+        if not audio_info:
+            raise exceptions.VideoDownloadError("Failed to download video audio")
+        return video_data
     except exceptions.VideoDownloadError:
         raise
     except Exception as e:

@@ -22,6 +22,7 @@
         "and-amount": "et {amount}",
         "import-errors": {
             "ai-not-enabled": "Les services IA ne sont pas activés",
+            "ai-temporarily-unavailable": "Le fournisseur d’IA est temporairement indisponible ou surchargé. Réessayez plus tard ou choisissez un autre modèle dans les paramètres IA du groupe.",
             "ai-request-failed": "Le fournisseur d'IA n'a pas pu répondre à la demande. Veuillez réessayer",
             "image-provider-not-enabled": "Les services d'images d'IA ne sont pas activés",
             "no-recipe-found": "Aucune recette n'a été trouvée dans la source fournie",
@@ -36,7 +37,7 @@
             "creating-recipe-from-transcript-with-ai": "Création de la recette à partir de la transcription avec l'IA...",
             "creating-recipe-from-webpage-data": "Création de la recette à partir des données d'une page web...",
             "downloading-image": "Téléchargement de l'image...",
-            "downloading-video": "Téléchargement de la vidéo...",
+            "downloading-video": "Lecture des sous-titres ou téléchargement de l’audio...",
             "extracting-recipe-data": "Extraction des données de la recette...",
             "fetching-webpage": "Récupération de la page web...",
             "organizing-recipe": "Organisation de la recette...",

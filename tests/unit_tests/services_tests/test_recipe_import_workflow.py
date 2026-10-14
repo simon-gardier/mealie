@@ -359,3 +359,34 @@ def test_an_unsluggable_translation_falls_back_to_an_ascii_slug():
     name, slug = resolve_name_and_slug(NameContext(StubTranslator("🍲")), "")
 
     assert (name, slug) == ("🍲", DEFAULT_RECIPE_SLUG)
+
+
+@pytest.mark.parametrize("status_code", [500, 502, 503, 504, 401])
+@pytest.mark.parametrize("wrapped", [False, True])
+def test_ai_provider_http_errors_have_safe_actionable_messages(status_code: int, wrapped: bool):
+    from openai import APIStatusError
+
+    from mealie.routes.recipe.recipe_crud_routes import RecipeController
+
+    request = httpx.Request("POST", "https://provider.example/chat/completions")
+    provider_error = APIStatusError(
+        "private provider details", response=httpx.Response(status_code, request=request), body=None
+    )
+    error: Exception = provider_error
+    if wrapped:
+        error = Exception("OpenAI Request Failed: private provider details")
+        error.__cause__ = provider_error
+
+    controller = RecipeController.__new__(RecipeController)
+    controller.translator = translator
+    key = "ai-temporarily-unavailable" if status_code >= 500 else "ai-request-failed"
+    assert controller._error_message(error) == translator.t(f"recipe.import-errors.{key}")
+
+
+def test_ai_rate_limit_keeps_specific_feedback():
+    from mealie.core.exceptions import RateLimitError
+    from mealie.routes.recipe.recipe_crud_routes import RecipeController
+
+    controller = RecipeController.__new__(RecipeController)
+    controller.translator = translator
+    assert controller._error_message(RateLimitError("private details")) == translator.t("exceptions.rate-limit-error")

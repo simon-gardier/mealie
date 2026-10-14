@@ -23,6 +23,7 @@ from fastapi import (
 )
 from fastapi.datastructures import UploadFile
 from fastapi.sse import EventSourceResponse, ServerSentEvent
+from openai import APIError, APIStatusError
 from pydantic import UUID4
 from slugify import slugify
 
@@ -245,6 +246,17 @@ class RecipeController(BaseRecipeController):
 
         if isinstance(ex, exceptions.RateLimitError):
             return self.t("exceptions.rate-limit-error")
+
+        # The AI service wraps SDK exceptions; inspect the cause without exposing provider text.
+        cause: BaseException | None = ex
+        seen: set[int] = set()
+        while cause is not None and id(cause) not in seen:
+            seen.add(id(cause))
+            if isinstance(cause, APIStatusError) and cause.status_code >= 500:
+                return self.t("recipe.import-errors.ai-temporarily-unavailable")
+            if isinstance(cause, APIError):
+                return self.t("recipe.import-errors.ai-request-failed")
+            cause = cause.__cause__
 
         if isinstance(ex, NoRecipeDataError | AIProviderNotEnabledError):
             # these are raised with an already-translated message
