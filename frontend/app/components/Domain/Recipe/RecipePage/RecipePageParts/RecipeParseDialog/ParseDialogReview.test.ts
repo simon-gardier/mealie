@@ -5,7 +5,7 @@ import ParseDialogReview from "./ParseDialogReview.vue";
 
 function mountReview() {
   const ingredients = [
-    { input: "250 g flour", ingredient: { quantity: 250, food: { id: "flour", name: "flour" }, unit: { name: "gram", abbreviation: "g", useAbbreviation: true }, note: "sifted" } },
+    { input: "250 g flour", ingredient: { title: "Dough", quantity: 250, food: { id: "flour", name: "flour" }, unit: { name: "gram", abbreviation: "g", useAbbreviation: true }, note: "sifted" } },
     { input: "2 eggs", ingredient: { quantity: 2, food: { id: "egg", name: "egg" } } },
     { input: "25 cl milk", ingredient: { quantity: 25 } },
   ] as ParsedIngredient[];
@@ -13,11 +13,28 @@ function mountReview() {
     props: { modelValue: ingredients },
     global: {
       mocks: { $globals: { icons: { arrowUpDown: "", alert: "" } } },
-      stubs: { VueDraggable: { template: "<div><slot /></div>" }, VIcon: { template: "<i />" }, VBtn: { template: "<button><slot /></button>" }, RecipeIngredientEditor: { template: "<div><slot name=\"before-fields\" /><slot name=\"editor-actions\" /></div>" } },
+      stubs: { VueDraggable: { template: "<div><slot /></div>" }, VIcon: { template: "<i />" }, VBtn: { template: "<button><slot /></button>" }, RecipeIngredientEditor: { name: "RecipeIngredientEditor", props: ["sectionTitleTarget", "modelValue"], template: "<div><slot name=\"before-fields\" /><slot name=\"editor-actions\" /></div>" } },
     },
   });
 }
 describe("final ingredient review", () => {
+  test("places each section-title target above its card and keeps it with the ingredient when reordered", async () => {
+    const wrapper = mountReview();
+    const group = wrapper.findAll(".review-group")[0]!;
+    const target = group.get(".review-section-title");
+    const targetId = target.attributes("id");
+    expect(group.element.firstElementChild).toBe(target.element);
+    expect(group.get("details").find(".review-section-title").exists()).toBe(false);
+    const editor = group.findComponent({ name: "RecipeIngredientEditor" });
+    expect(editor.props("sectionTitleTarget")).toBe(`#${targetId}`);
+    expect(editor.props("modelValue").title).toBe("Dough");
+    await group.findAll("button")[1]!.trigger("click");
+    const moved = wrapper.findAll(".review-group")[1]!;
+    expect(moved.get(".review-section-title").attributes("id")).toBe(targetId);
+    expect(moved.findComponent({ name: "RecipeIngredientEditor" }).props("sectionTitleTarget")).toBe(`#${targetId}`);
+    wrapper.unmount();
+  });
+
   test("shows readable summaries and flags a missing food without flagging an optional unit", () => {
     const wrapper = mountReview();
     const rows = wrapper.findAll("details");

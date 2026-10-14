@@ -9,7 +9,8 @@
           { 'disable-highlight': disableHighlight, 'recipe-list-card': listMode, 'recipe-list-card-expanded': listMode && titleExpanded, 'recipe-compact-card': compact, 'recipe-compact-card-expanded': compact && titleExpanded },
         ]"
         :style="{ cursor }"
-        hover
+        :elevation="listMode ? 0 : undefined"
+        :hover="!listMode"
         :height="listMode || compact ? undefined : '100%'"
         :href="!$attrs.selected && showRecipeContent ? recipeLink.href.value : undefined"
         @click="onCardClick"
@@ -554,6 +555,7 @@ async function toggleFavorite(origin?: SynesthesiaOrigin) {
   display: flex;
   min-height: 240px;
   position: relative;
+  border: 1px solid rgb(var(--v-theme-separator));
 }
 
 .recipe-list-item {

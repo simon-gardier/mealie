@@ -85,7 +85,8 @@
             <div class="bulk-submit-wrapper">
               <BaseButton
                 :text="$t('recipe.editor.start-import')"
-                :disabled="bulkUrls.length === 0 || lockBulkImport"
+                :disabled="bulkUrls.length === 0 || lockBulkImport || state.loading"
+                :loading="state.loading"
                 variant="tonal"
                 block
                 @click="bulkCreate"
@@ -106,6 +107,16 @@
         </section>
       </div>
     </div>
+    <BaseDialog
+      v-model="state.error"
+      :title="$t('new-recipe.error-title')"
+      :cancel-text="$t('general.close')"
+      disable-submit-on-enter
+    >
+      <v-card-text role="alert" style="overflow-wrap: anywhere;">
+        {{ state.errorMessage || $t('recipe.bulk-import-process-has-failed') }}
+      </v-card-text>
+    </BaseDialog>
   </div>
 </template>
 
@@ -121,6 +132,9 @@ import RecipeDialogBulkAdd from "~/components/Domain/Recipe/RecipeDialogBulkAdd.
 const state = reactive({
   showCatTags: false,
   bulkDialog: false,
+  error: false,
+  errorMessage: "",
+  loading: false,
 });
 
 whenever(
@@ -139,21 +153,32 @@ watch(() => bulkUrls.value[0]?.url, (url) => { recipeUrl.value = url || null; },
 const lockBulkImport = ref(false);
 
 async function bulkCreate() {
-  if (bulkUrls.value.length === 0) {
+  if (bulkUrls.value.length === 0 || lockBulkImport.value || state.loading) {
     return;
   }
 
-  const { response } = await api.recipes.createManyByUrl({ imports: bulkUrls.value });
-
-  if (response?.status === 202) {
-    alert.success(i18n.t("recipe.bulk-import-process-has-started"));
-    lockBulkImport.value = true;
+  state.error = false;
+  state.errorMessage = "";
+  state.loading = true;
+  try {
+    const { response, error } = await api.recipes.createManyByUrl({ imports: bulkUrls.value });
+    if (response?.status === 202) {
+      alert.success(i18n.t("recipe.bulk-import-process-has-started"));
+      lockBulkImport.value = true;
+      fetchReports();
+    }
+    else {
+      state.errorMessage = error?.message || "";
+      state.error = true;
+    }
   }
-  else {
-    alert.error(i18n.t("recipe.bulk-import-process-has-failed"));
+  catch (error) {
+    state.errorMessage = error instanceof Error ? error.message : "";
+    state.error = true;
   }
-
-  fetchReports();
+  finally {
+    state.loading = false;
+  }
 }
 
 // =========================================================

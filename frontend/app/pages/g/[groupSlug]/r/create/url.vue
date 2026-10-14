@@ -117,12 +117,14 @@
         </v-card-actions>
       </div>
     </v-form>
-    <v-expand-transition>
-      <section v-if="state.error" class="recipe-import-error mt-6" role="alert">
-        <div class="recipe-import-error-heading">
-          <v-icon :icon="$globals.icons.alertCircle" color="error" size="24" />
-          <h2>{{ $t('recipe.url-import-error-title') }}</h2>
-        </div>
+    <BaseDialog
+      v-model="state.error"
+      :title="$t('recipe.url-import-error-title')"
+      :cancel-text="$t('general.close')"
+      width="650"
+      disable-submit-on-enter
+    >
+      <div class="recipe-import-error" role="alert">
         <p class="recipe-import-error-message">
           {{ errorMessage }}
         </p>
@@ -148,7 +150,7 @@
             v-if="aiEnabled"
             :to="aiImporterTarget"
             :text="$t('recipe.import-with-ai')"
-            :icon="$globals.icons.robot"
+            :icon="$globals.icons.autoFix"
             variant="tonal"
           />
           <BaseButton
@@ -158,8 +160,8 @@
             variant="text"
           />
         </div>
-      </section>
-    </v-expand-transition>
+      </div>
+    </BaseDialog>
   </div>
 </template>
 
@@ -284,7 +286,8 @@ async function createByUrl(url: string | null, importKeywordsAsTags: boolean, im
     errorStatus.value = error?.status || 0;
     handleResponse(response, importKeywordsAsTags);
   }
-  catch {
+  catch (error) {
+    state.errorMessage = error instanceof Error ? error.message : "";
     state.error = true;
   }
   finally {
@@ -301,22 +304,10 @@ async function createByUrl(url: string | null, importKeywordsAsTags: boolean, im
 
 .recipe-import-error {
   padding: 24px;
-  border: 1px solid rgba(var(--v-theme-separator), 0.5);
-  border-radius: 14px;
-  background: rgb(var(--v-theme-surface));
   color: rgb(var(--v-theme-on-surface));
 }
-.recipe-import-error-heading {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.recipe-import-error h2 {
-  font: 600 18px var(--bistro-body);
-  font-family: var(--bistro-body) !important;
-}
 .recipe-import-error-message {
-  margin-top: 16px;
+  margin: 0;
   font: 400 15px/1.5 var(--bistro-body);
   overflow-wrap: anywhere;
 }

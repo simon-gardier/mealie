@@ -16,7 +16,6 @@ from .import_workflow import (
     WorkflowOptions,
 )
 from .import_workflow.exceptions import NoRecipeDataError
-from .recipe_data_service import RecipeDataService
 from .recipe_service import RecipeService
 
 
@@ -60,7 +59,8 @@ class AIRecipeService(RecipeService):
             recipe = self.create_one(recipe_data)
             if local_images:
                 with open(local_images[0], "rb") as f:
-                    RecipeDataService(recipe.id).write_image(f.read(), "webp")
+                    self.update_recipe_image(recipe.slug, f.read(), "webp")
+                recipe = self.get_one(recipe.slug)
 
             return recipe
 
@@ -107,11 +107,11 @@ class AIRecipeService(RecipeService):
     @staticmethod
     def _store_images(images: list[UploadFile], temp_path: Path) -> list[Path]:
         local_images: list[Path] = []
-        for image in images:
+        for index, image in enumerate(images):
             if not image.filename:
                 continue
 
-            image_path = temp_path.joinpath(Path(image.filename).name)
+            image_path = temp_path.joinpath(f"{index}-{Path(image.filename).name}")
             with image_path.open("wb") as buffer:
                 shutil.copyfileobj(image.file, buffer)
             local_images.append(image_path)

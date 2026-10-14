@@ -12,6 +12,8 @@ function setup(files: (Blob | File)[] = [], disabled = false) {
       stubs: {
         VBtn: { props: ["disabled"], template: "<button :disabled=\"disabled\"><slot /></button>" },
         VSpacer: true,
+        VTooltip: true,
+        VIcon: true,
         BaseDialog: { props: ["modelValue"], template: "<div v-if=\"modelValue\" class=\"dialog\"><slot /><slot name=\"card-actions\" /></div>" },
         ImageCropper: { name: "ImageCropper", props: ["img"], emits: ["save"], template: "<div class=\"cropper\" />" },
       },
@@ -52,6 +54,10 @@ describe("import image selection", () => {
     const second = new Blob(["second"]);
     const cropped = new Blob(["cropped"]);
     const wrapper = setup([first, second]);
+    const editActions = wrapper.get(".import-image-edit-actions").findAll("button");
+    expect(editActions).toHaveLength(2);
+    expect(editActions[1]!.attributes("aria-label")).toBe("Remove");
+    expect(editActions[1]!.text()).toBe("");
     const oldUrls = wrapper.findAll("img").map(image => image.attributes("src"));
     await wrapper.findAll(".import-image-card")[1]!.get("button").trigger("click");
     wrapper.findComponent({ name: "ImageCropper" }).vm.$emit("save", cropped);

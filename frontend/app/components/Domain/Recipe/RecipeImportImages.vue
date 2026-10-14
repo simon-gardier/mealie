@@ -27,26 +27,33 @@
       <article v-for="(imageUrl, index) in previewUrls" :key="imageUrl" class="import-image-card">
         <img :src="imageUrl" :alt="$t('recipe.recipe-image')" class="import-image-preview">
         <div class="import-image-actions">
-          <v-btn
-            variant="tonal"
-            color="primary"
-            :prepend-icon="$globals.icons.edit"
-            :disabled="disabled"
-            type="button"
-            @click="openEditor(index)"
-          >
-            {{ $t('recipe.reframe-image') }}
-          </v-btn>
-          <v-btn
-            variant="text"
-            color="error"
-            :prepend-icon="$globals.icons.delete"
-            :disabled="disabled"
-            type="button"
-            @click="clearImage(index)"
-          >
-            {{ $t('recipe.remove-photo') }}
-          </v-btn>
+          <div class="import-image-edit-actions">
+            <v-btn
+              variant="tonal"
+              color="primary"
+              :prepend-icon="$globals.icons.edit"
+              :disabled="disabled"
+              type="button"
+              @click="openEditor(index)"
+            >
+              {{ $t('recipe.reframe-image') }}
+            </v-btn>
+            <v-btn
+              class="import-image-remove"
+              variant="text"
+              color="error"
+              icon
+              :aria-label="$t('recipe.remove-photo')"
+              :disabled="disabled"
+              type="button"
+              @click="clearImage(index)"
+            >
+              <v-icon :icon="$globals.icons.delete" />
+              <v-tooltip activator="parent" location="top">
+                {{ $t('recipe.remove-photo') }}
+              </v-tooltip>
+            </v-btn>
+          </div>
           <v-btn
             v-if="images.length > 1"
             variant="text"
@@ -218,6 +225,20 @@ onBeforeUnmount(() => {
   flex-wrap: wrap;
   gap: 8px;
   padding: 12px;
+}
+.import-image-edit-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.import-image-actions .import-image-remove {
+  flex: 0 0 44px;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 10px;
 }
 .import-image-cropper {
   width: 100%;

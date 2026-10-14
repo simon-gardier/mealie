@@ -140,22 +140,25 @@ export function useParseIngredientsDialog(
     return false;
   }
 
-  function checkUnit(ing: ParsedIngredient) {
-    const unit = ing.ingredient.unit?.name;
-    if (!unit || ing.ingredient.unit?.id) {
+  function checkUnit(ing: ParsedIngredient, missingUnit?: string) {
+    const unit = missingUnit || ing.ingredient.unit?.name;
+    if (!unit || (!missingUnit && ing.ingredient.unit?.id)) {
       currentMissingUnit.value = "";
       return;
     }
 
-    const potentialMatch = createdUnits.get(unit.toLowerCase());
-    if (potentialMatch) {
+    const normalizedUnit = unit.trim().toLowerCase();
+    const potentialMatch = createdUnits.get(normalizedUnit)
+      || unitStore.store.value.find(existingUnit => existingUnit.name.trim().toLowerCase() === normalizedUnit
+        || existingUnit.aliases?.some(alias => alias.name.trim().toLowerCase() === normalizedUnit));
+    if (potentialMatch && (!ing.ingredient.unit?.id || ing.ingredient.unit.id === potentialMatch.id)) {
       ing.ingredient.unit = potentialMatch;
       currentMissingUnit.value = "";
       return;
     }
 
     currentMissingUnit.value = unit;
-    ing.ingredient.unit = undefined;
+    if (!ing.ingredient.unit?.id) ing.ingredient.unit = undefined;
   }
 
   function checkFood(ing: ParsedIngredient) {
@@ -279,6 +282,7 @@ export function useParseIngredientsDialog(
     if (details) {
       currentMissingUnit.value = details.unit;
       currentMissingFood.value = details.food;
+      if (details.unit) checkUnit(ing, details.unit);
     }
     else {
       reviewHistory.value.push(ing);
@@ -486,22 +490,26 @@ export function useParseIngredientsDialog(
       return;
     }
 
-    unit.aliases = unit.aliases || [];
-    if (unit.aliases.map(a => a.name).includes(currentMissingUnit.value)) {
+    const alias = currentMissingUnit.value.trim();
+    const normalizedAlias = alias.toLowerCase();
+    if (unit.aliases?.some(existing => existing.name.trim().toLowerCase() === normalizedAlias)) {
+      createdUnits.set(normalizedAlias, unit);
+      currentMissingUnit.value = "";
       return;
     }
 
-    unit.aliases.push({ name: currentMissingUnit.value });
-
     state.loading.unit = true;
     try {
-      const updated = await unitStore.actions.updateOne(unit);
+      const updated = await unitStore.actions.updateOne({
+        ...unit, aliases: [...(unit.aliases || []), { name: alias }],
+      });
       if (!updated) {
         alert.error(i18n.t("events.something-went-wrong"));
         return;
       }
 
       currentIng.value!.ingredient.unit = updated;
+      createdUnits.set(normalizedAlias, updated);
       currentMissingUnit.value = "";
     }
     finally {

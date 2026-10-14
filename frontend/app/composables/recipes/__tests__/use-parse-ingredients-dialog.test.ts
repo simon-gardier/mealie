@@ -1,7 +1,7 @@
 import { mount } from "@vue/test-utils";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import type { NoUndefinedField } from "~/lib/api/types/non-generated";
-import type { ParsedIngredient, RecipeIngredient } from "~/lib/api/types/recipe";
+import type { IngredientUnit, ParsedIngredient, RecipeIngredient } from "~/lib/api/types/recipe";
 import { uuid4 } from "../../use-utils";
 import { ParseStep, useParseIngredientsDialog } from "../use-parse-ingredients-dialog";
 import type { Parser } from "~/lib/api/user/recipes/recipe";
@@ -62,6 +62,7 @@ const foodStore = {
 const createUnit = vi.fn().mockResolvedValue({ id: "unit_id", name: "uwunit" });
 const updateUnit = vi.fn().mockResolvedValue({ id: "unit_id", name: "uwunit" });
 const unitStore = {
+  store: ref<IngredientUnit[]>([]),
   actions: {
     createOne: createUnit,
     updateOne: updateUnit,
@@ -126,7 +127,59 @@ describe("useParseIngredientsDialog", () => {
     parsingStorageEmpty = false;
     lastDefaultParser = undefined;
     i18n.global.locale = "en-US";
+    unitStore.store.value = [];
     vi.clearAllMocks();
+  });
+
+  describe("unit aliases during review", () => {
+    test("resolves a saved alias in subsequent ingredients and revisited missing details", async () => {
+      const { vm } = wrapper();
+      vm.setParsedIngs(["SPOONS", "spoons", " spoons "].map(name => ({
+        ingredient: { unit: { name, id: "" } }, confidence: {},
+      })));
+      vm.nextIngredient();
+      vm.nextIngredient();
+      vm.currentIng!.ingredient.unit = { id: "unit_id", name: "uwunit" };
+      await vm.addMissingUnitAsAlias();
+      expect(vm.currentMissingUnit).toBe("");
+      vm.nextIngredient();
+      expect(vm.currentMissingUnit).toBe("");
+      expect(vm.currentIng!.ingredient.unit?.id).toBe("unit_id");
+      vm.previousIngredient();
+      vm.previousIngredient();
+      expect(vm.currentMissingUnit).toBe("");
+      expect(vm.currentIng!.ingredient.unit?.id).toBe("unit_id");
+      expect(updateUnit).toHaveBeenCalledTimes(1);
+    });
+
+    test("recognizes aliases already present in the unit store", () => {
+      unitStore.store.value = [{ id: "unit_id", name: "spoon", aliases: [{ name: "spoons" }] }];
+      const { vm } = wrapper();
+      vm.setParsedIngs([{ ingredient: { unit: { id: "", name: "SPOONS" } }, confidence: {} }]);
+      vm.nextIngredient();
+      expect(vm.currentMissingUnit).toBe("");
+      expect(vm.currentIng!.ingredient.unit?.id).toBe("unit_id");
+      expect(updateUnit).not.toHaveBeenCalled();
+    });
+
+    test("does not mark an alias as resolved after a failed save and allows retry", async () => {
+      updateUnit.mockResolvedValueOnce(null);
+      const { vm } = wrapper();
+      vm.setParsedIngs(["spoons", "spoons"].map(name => ({
+        ingredient: { unit: { name, id: "" } }, confidence: {},
+      })));
+      vm.nextIngredient();
+      vm.currentIng!.ingredient.unit = { id: "unit_id", name: "uwunit" };
+      await vm.addMissingUnitAsAlias();
+      expect(vm.currentMissingUnit).toBe("spoons");
+      expect(vm.currentIng!.ingredient.unit.aliases).toBeUndefined();
+      expect(vm.state.loading.unit).toBe(false);
+      await vm.addMissingUnitAsAlias();
+      vm.nextIngredient();
+      expect(vm.currentMissingUnit).toBe("");
+      expect(vm.currentIng!.ingredient.unit?.id).toBe("unit_id");
+      expect(updateUnit).toHaveBeenCalledTimes(2);
+    });
   });
 
   describe("additional ingredients from the same source", () => {

@@ -90,22 +90,22 @@
           </v-card-text>
         </div>
       </v-card-actions>
-      <v-expand-transition>
-        <v-alert v-if="state.error" color="error" class="mt-6 white--text">
-          <v-card-title class="ma-0 pa-0">
-            <v-icon start color="media-foreground" size="x-large">
-              {{ $globals.icons.robot }}
-            </v-icon>
-            {{ $t("new-recipe.error-title") }}
-          </v-card-title>
-          <v-divider class="my-3 mx-2" />
-
-          <div class="force-url-white">
+      <BaseDialog
+        v-model="state.error"
+        :title="$t('new-recipe.error-title')"
+        :cancel-text="$t('general.close')"
+        disable-submit-on-enter
+      >
+        <v-card-text role="alert" style="overflow-wrap: anywhere;">
+          <p v-if="state.errorMessage" class="mb-3">
+            {{ state.errorMessage }}
+          </p>
+          <div>
             <p>
               {{ $t("new-recipe.html-or-json-error-details") }}
             </p>
           </div>
-          <div class="d-flex row justify-space-around my-3 force-url-white">
+          <div class="d-flex flex-wrap ga-3 justify-space-around my-3">
             <a
               class="text-primary"
               href="https://developers.google.com/search/docs/data-types/recipe"
@@ -126,14 +126,15 @@
               {{ $t("new-recipe.recipe-markup-specification") }}
             </a>
           </div>
-        </v-alert>
-      </v-expand-transition>
+        </v-card-text>
+      </BaseDialog>
     </div>
   </v-form>
 </template>
 
 <script setup lang="ts">
 import { useRecipeImportUrl } from "~/composables/use-recipe-import-url";
+import { recipeImportErrorKey } from "~/lib/recipe/import-errors";
 import type { AxiosResponse } from "axios";
 import { useTagStore } from "~/composables/store/use-tag-store";
 import { useUserApi } from "~/composables/api";
@@ -144,10 +145,12 @@ import type { VForm } from "~/types/auto-forms";
 
 const state = reactive({
   error: false,
+  errorMessage: "",
   loading: false,
   isEditJSON: false,
 });
 const auth = useMealieAuth();
+const i18n = useI18n();
 const route = useRoute();
 const groupSlug = computed(() => route.params.groupSlug as string || auth.user.value?.groupSlug || "");
 const domUrlForm = ref<VForm | null>(null);
@@ -208,7 +211,7 @@ handleIsEditJson();
 
 const createStatus = ref<string | null>(null);
 async function createFromHtmlOrJson(htmlOrJsonData: string | object | null, importKeywordsAsTags: boolean, importCategories: boolean, url: string | null = null) {
-  if (!htmlOrJsonData) {
+  if (!htmlOrJsonData || state.loading) {
     return;
   }
 
@@ -226,21 +229,30 @@ async function createFromHtmlOrJson(htmlOrJsonData: string | object | null, impo
   }
 
   state.error = false;
+  state.errorMessage = "";
   state.loading = true;
-  const { response } = await api.recipes.createOneByHtmlOrJson(
-    dataString,
-    importKeywordsAsTags,
-    importCategories,
-    url,
-    (message: string) => createStatus.value = message,
-  );
-  createStatus.value = null;
-  handleResponse(response, importKeywordsAsTags);
+  try {
+    const { response, error } = await api.recipes.createOneByHtmlOrJson(
+      dataString,
+      importKeywordsAsTags,
+      importCategories,
+      url,
+      (message: string) => createStatus.value = message,
+    );
+    if (response?.status !== 201) {
+      const key = recipeImportErrorKey(error);
+      state.errorMessage = key ? i18n.t(key) : error?.message || "";
+    }
+    handleResponse(response, importKeywordsAsTags);
+  }
+  catch (error) {
+    const key = recipeImportErrorKey(error);
+    state.errorMessage = key ? i18n.t(key) : error instanceof Error ? error.message : "";
+    state.error = true;
+  }
+  finally {
+    createStatus.value = null;
+    state.loading = false;
+  }
 }
 </script>
-
-<style scoped>
-.force-url-white a {
-  color: rgb(var(--v-theme-media-foreground)) !important;
-}
-</style>

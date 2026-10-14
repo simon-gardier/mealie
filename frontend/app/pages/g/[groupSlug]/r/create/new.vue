@@ -35,6 +35,16 @@
         />
       </div>
     </v-card-actions>
+    <BaseDialog
+      v-model="state.error"
+      :title="$t('new-recipe.error-title')"
+      :cancel-text="$t('general.close')"
+      disable-submit-on-enter
+    >
+      <v-card-text role="alert" style="overflow-wrap: anywhere;">
+        {{ state.errorMessage || $t('events.something-went-wrong') }}
+      </v-card-text>
+    </BaseDialog>
   </div>
 </template>
 
@@ -46,6 +56,7 @@ import type { VForm } from "~/types/auto-forms";
 
 const state = reactive({
   error: false,
+  errorMessage: "",
   loading: false,
 });
 const auth = useMealieAuth();
@@ -68,10 +79,27 @@ const newRecipeName = ref("");
 const domCreateByName = ref<VForm | null>(null);
 
 async function createByName(name: string) {
-  if (!domCreateByName.value?.validate() || name === "") {
+  if (!name.trim() || state.loading) {
     return;
   }
-  const { response } = await api.recipes.createOne({ name });
-  handleResponse(response as any, true);
+  const validation = await domCreateByName.value?.validate();
+  if (!validation?.valid) {
+    return;
+  }
+  state.error = false;
+  state.errorMessage = "";
+  state.loading = true;
+  try {
+    const { response, error } = await api.recipes.createOne({ name });
+    state.errorMessage = error?.message || "";
+    handleResponse(response as any, true);
+  }
+  catch (error) {
+    state.errorMessage = error instanceof Error ? error.message : "";
+    state.error = true;
+  }
+  finally {
+    state.loading = false;
+  }
 }
 </script>

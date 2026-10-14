@@ -27,6 +27,16 @@
           <BaseButton :disabled="newRecipeZip === null" rounded block :loading="state.loading" @click="createByZip" />
         </div>
       </v-card-actions>
+      <BaseDialog
+        v-model="state.error"
+        :title="$t('new-recipe.error-title')"
+        :cancel-text="$t('general.close')"
+        disable-submit-on-enter
+      >
+        <v-card-text role="alert" style="overflow-wrap: anywhere;">
+          {{ state.errorMessage || $t('events.something-went-wrong') }}
+        </v-card-text>
+      </BaseDialog>
     </div>
   </v-form>
 </template>
@@ -34,10 +44,11 @@
 <script setup lang="ts">
 import { useUserApi } from "~/composables/api";
 import { useGlobalI18n } from "~/composables/use-global-i18n";
-import { alert } from "~/composables/use-toast";
 
 const state = reactive({
   loading: false,
+  error: false,
+  errorMessage: "",
 });
 const auth = useMealieAuth();
 const route = useRoute();
@@ -45,28 +56,31 @@ const groupSlug = computed(() => route.params.groupSlug as string || auth.user.v
 
 const api = useUserApi();
 const router = useRouter();
+const i18n = useGlobalI18n();
 
 const newRecipeZip = ref<File | null>(null);
 const newRecipeZipFileName = "archive";
 
 async function createByZip() {
-  if (!newRecipeZip.value) {
+  if (!newRecipeZip.value || state.loading) {
     return;
   }
   const formData = new FormData();
   formData.append(newRecipeZipFileName, newRecipeZip.value);
 
+  state.error = false;
+  state.errorMessage = "";
+  state.loading = true;
   try {
     const response = await api.upload.file("/api/recipes/create/zip", formData);
     if (response?.status !== 201) {
-      throw new Error("Failed to upload zip");
+      throw new Error(i18n.t("events.something-went-wrong"));
     }
     router.push(`/g/${groupSlug.value}/r/${response.data}`);
   }
   catch (error) {
-    console.error(error);
-    const i18n = useGlobalI18n();
-    alert.error(i18n.t("events.something-went-wrong"));
+    state.errorMessage = error instanceof Error ? error.message : "";
+    state.error = true;
   }
   finally {
     state.loading = false;

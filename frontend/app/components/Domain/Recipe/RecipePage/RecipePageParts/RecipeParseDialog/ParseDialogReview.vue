@@ -11,6 +11,7 @@
     drag-class="recipe-drag-active"
   >
     <div v-for="(ingredient, index) in parsedIngs" :key="rowKey(ingredient)" class="review-group">
+      <div :id="`${sectionTitleId}-${rowKey(ingredient)}`" class="review-section-title" />
       <details class="review-row">
         <summary>
           <span class="handle" :title="$t('recipe.parser.reorder-ingredient')" aria-hidden="true">
@@ -32,7 +33,7 @@
           <RecipeIngredientEditor
             v-model="ingredient.ingredient"
             show-field-labels
-
+            :section-title-target="`#${sectionTitleId}-${rowKey(ingredient)}`"
             enable-context-menu
             context-menu-below
             show-substitution-controls
@@ -79,11 +80,13 @@
 </template>
 
 <script setup lang="ts">
+import { useId } from "vue";
 import { VueDraggable } from "vue-draggable-plus";
 import type { ParsedIngredient } from "~/lib/api/types/recipe";
 
 const parsedIngs = defineModel<ParsedIngredient[]>({ required: true });
 const i18n = useI18n();
+const sectionTitleId = `review-section-${useId()}`;
 const rowKeys = new WeakMap<ParsedIngredient, number>();
 let nextKey = 0;
 function rowKey(ingredient: ParsedIngredient) {

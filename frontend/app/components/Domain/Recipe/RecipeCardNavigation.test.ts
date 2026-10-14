@@ -11,7 +11,7 @@ vi.mock("~/composables/use-users", () => ({ useUserSelfRatings: () => ({ userRat
 vi.mock("~/plugins/recipe-synesthesia.client", () => ({ playRecipeSynesthesia: vi.fn() }));
 vi.mock("~/composables/api", () => ({ useStaticRoutes: () => ({ recipeImage: vi.fn() }), useUserApi: () => ({}) }));
 
-const Card = defineComponent({ template: "<a v-bind=\"$attrs\"><slot /></a>" });
+const Card = defineComponent({ props: ["elevation", "hover"], template: "<a v-bind=\"$attrs\"><slot /></a>" });
 const Hover = defineComponent({ inheritAttrs: false, template: "<slot :props=\"{}\" :isHovering=\"false\" />" });
 const ListItem = defineComponent({ template: "<div><slot name=\"prepend\" /><slot /></div>" });
 
@@ -19,10 +19,12 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe("recipe card navigation", () => {
   async function render(mobile: boolean, selected = false) {
-    const router = createRouter({ history: createMemoryHistory(), routes: [
-      { path: "/g/family", component: Card },
-      { path: "/g/family/r/soup", component: Card },
-    ] });
+    const router = createRouter({
+      history: createMemoryHistory(), routes: [
+        { path: "/g/family", component: Card },
+        { path: "/g/family/r/soup", component: Card },
+      ]
+    });
     await router.push("/g/family");
     vi.stubGlobal("useRoute", () => router.currentRoute.value);
     vi.stubGlobal("useMealieAuth", () => ({ user: ref({ groupSlug: "family" }) }));
@@ -31,12 +33,14 @@ describe("recipe card navigation", () => {
     const wrapper = shallowMount(component, {
       props: { name: "Soup", slug: "soup", recipeId: "id", description: "Description", ...(mobile ? { listMode: true } : {}) },
       attrs: selected ? { selected: true } : {},
-      global: { plugins: [router], renderStubDefaultSlot: true, stubs: {
-        VCard: Card, VHover: Hover, VListItem: ListItem,
-        VExpandTransition: defineComponent({ template: "<div><slot /></div>" }),
-        VCardTitle: true, VListItemTitle: true, VListItemSubtitle: true,
-        VCardActions: true, VImg: true, VBtn: true, VTooltip: true, VSheet: true, VMenu: true, SafeMarkdown: true,
-      } },
+      global: {
+        plugins: [router], renderStubDefaultSlot: true, stubs: {
+          VCard: Card, VHover: Hover, VListItem: ListItem,
+          VExpandTransition: defineComponent({ template: "<div><slot /></div>" }),
+          VCardTitle: true, VListItemTitle: true, VListItemSubtitle: true,
+          VCardActions: true, VImg: true, VBtn: true, VTooltip: true, VSheet: true, VMenu: true, SafeMarkdown: true,
+        }
+      },
     });
     return { wrapper, router };
   }
@@ -58,6 +62,13 @@ describe("recipe card navigation", () => {
       wrapper.unmount();
     });
   }
+  test("classic list cards have no elevation or hover shadow", async () => {
+    const { wrapper } = await render(true);
+    const card = wrapper.findComponent(Card);
+    expect(card.props("elevation")).toBe(0);
+    expect(card.props("hover")).toBe(false);
+    wrapper.unmount();
+  });
   test("selection cards emit selection without navigating", async () => {
     const { wrapper, router } = await render(true, true);
     await wrapper.find("a").trigger("click");

@@ -1,21 +1,27 @@
 import json
 import re
+from contextlib import nullcontext
+from io import BytesIO
 from pathlib import Path
+from unittest.mock import AsyncMock, Mock
 
 import httpx
 import pytest
+from fastapi import UploadFile
 
 import mealie
 from mealie.lang import get_locale_provider
 from mealie.lang.providers import TRANSLATIONS
 from mealie.pkgs.safehttp.fetch import FetchResult
 from mealie.schema.openai.compiled_source import OpenAICompiledSource
+from mealie.schema.recipe.recipe import Recipe
 from mealie.services.openai.content import (
     MAX_SOURCE_CONTENT_LENGTH,
     TRUNCATION_NOTICE,
     truncate_source_content,
     truncate_source_parts,
 )
+from mealie.services.recipe.ai_recipe_service import AIRecipeService
 from mealie.services.recipe.import_workflow.compilers import DEFAULT_SOURCE_COMPILERS
 from mealie.services.recipe.import_workflow.compilers.base import SourceCompiler, SourceType
 from mealie.services.recipe.import_workflow.context import WorkflowInput
@@ -32,6 +38,56 @@ PROGRESS_KEY_PATTERN = re.compile(r"[\"'](recipe\.create-progress\.[a-zA-Z0-9-]+
 IMPORT_ERROR_KEY_PATTERN = re.compile(r"[\"'](recipe\.import-errors\.[a-zA-Z0-9-]+)[\"']")
 
 translator = get_locale_provider("en-US")
+
+
+def test_ai_uploads_with_duplicate_names_preserve_selected_cover(tmp_path: Path) -> None:
+    images = [
+        UploadFile(filename="photo.png", file=BytesIO(b"selected cover")),
+        UploadFile(filename="photo.png", file=BytesIO(b"other source image")),
+    ]
+
+    paths = AIRecipeService._store_images(images, tmp_path)
+
+    assert len(set(paths)) == 2
+    assert [path.read_bytes() for path in paths] == [b"selected cover", b"other source image"]
+    assert all(path.parent == tmp_path for path in paths)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("with_images", [True, False])
+async def test_ai_import_persists_selected_cover_metadata(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, with_images: bool
+) -> None:
+    recipe = Recipe(name="Cover recipe", slug="cover-recipe", image=None)
+    refreshed = recipe.model_copy(update={"image": "updated-image-key"})
+    service = AIRecipeService.__new__(AIRecipeService)
+    build_recipe = AsyncMock(return_value=recipe)
+    update_image = Mock(return_value="updated-image-key")
+    get_recipe = Mock(return_value=refreshed)
+    monkeypatch.setattr(service, "build_recipe", build_recipe)
+    monkeypatch.setattr(service, "create_one", Mock(return_value=recipe))
+    monkeypatch.setattr(service, "update_recipe_image", update_image)
+    monkeypatch.setattr(service, "get_one", get_recipe)
+    monkeypatch.setattr("mealie.services.recipe.ai_recipe_service.get_temporary_path", lambda: nullcontext(tmp_path))
+    images = (
+        [
+            UploadFile(filename="photo.png", file=BytesIO(b"selected cover")),
+            UploadFile(filename="photo.png", file=BytesIO(b"other source image")),
+        ]
+        if with_images
+        else []
+    )
+
+    result = await service.create_from_ai(content="Recipe content", images=images)
+
+    if with_images:
+        update_image.assert_called_once_with(recipe.slug, b"selected cover", "webp")
+        get_recipe.assert_called_once_with(recipe.slug)
+        assert result.image == "updated-image-key"
+    else:
+        update_image.assert_not_called()
+        get_recipe.assert_not_called()
+        assert result is recipe
 
 
 def is_translatable(key: str) -> bool:

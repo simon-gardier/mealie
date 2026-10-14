@@ -153,36 +153,23 @@
           {{ createStatus }}
         </p>
       </v-card-actions>
-      <v-expand-transition>
-        <v-alert
-          v-if="state.error"
-          type="error"
-          variant="tonal"
-          class="mt-6"
-        >
-          <v-card-title class="ma-0 pa-0">
-            <v-icon
-              start
-              color="error"
-              size="x-large"
-            >
-              {{ $globals.icons.robot }}
-            </v-icon>
-            {{ $t("new-recipe.error-title") }}
-          </v-card-title>
-          <v-divider class="my-3 mx-2" />
-
-          <div>
-            <p>{{ state.errorMessage || $t("recipe.import-with-ai-error-details") }}</p>
-          </div>
-        </v-alert>
-      </v-expand-transition>
+      <BaseDialog
+        v-model="state.error"
+        :title="$t('new-recipe.error-title')"
+        :cancel-text="$t('general.close')"
+        disable-submit-on-enter
+      >
+        <v-card-text role="alert" style="overflow-wrap: anywhere;">
+          {{ state.errorMessage || $t('recipe.import-with-ai-error-details') }}
+        </v-card-text>
+      </BaseDialog>
     </div>
   </v-form>
 </template>
 
 <script setup lang="ts">
 import { useRecipeImportUrl } from "~/composables/use-recipe-import-url";
+import { recipeImportErrorKey } from "~/lib/recipe/import-errors";
 import { useUserApi } from "~/composables/api";
 import { useGroupSelf } from "~/composables/use-groups";
 import { useNewRecipeOptions } from "~/composables/use-new-recipe-options";
@@ -278,26 +265,33 @@ async function createRecipe() {
   state.errorMessage = "";
   state.loading = true;
 
-  const { data, error } = await api.recipes.createOneWithAI(
-    {
-      content: contentAsString.value,
-      url: recipeUrl.value,
-      images: uploadedImages.value,
-      translateLanguage: translateRecipe.value ? i18n.locale.value : null,
-    },
-    (message: string) => createStatus.value = message,
-  );
-
-  createStatus.value = null;
-
-  if (error || !data) {
-    state.error = true;
-    state.errorMessage = error?.message || "";
-    state.loading = false;
-    return;
+  try {
+    const { data, error } = await api.recipes.createOneWithAI(
+      {
+        content: contentAsString.value,
+        url: recipeUrl.value,
+        images: uploadedImages.value,
+        translateLanguage: translateRecipe.value ? i18n.locale.value : null,
+      },
+      (message: string) => createStatus.value = message,
+    );
+    if (error || !data) {
+      const key = recipeImportErrorKey(error);
+      state.errorMessage = key ? i18n.t(key) : error?.message || "";
+      state.error = true;
+      return;
+    }
+    navigateToRecipe(data, groupSlug.value, `/g/${groupSlug.value}/r/create/ai`);
   }
-
-  navigateToRecipe(data, groupSlug.value, `/g/${groupSlug.value}/r/create/ai`);
+  catch (error) {
+    const key = recipeImportErrorKey(error);
+    state.errorMessage = key ? i18n.t(key) : error instanceof Error ? error.message : "";
+    state.error = true;
+  }
+  finally {
+    createStatus.value = null;
+    state.loading = false;
+  }
 }
 </script>
 

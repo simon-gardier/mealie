@@ -25,7 +25,7 @@
         />
       </section>
       <section class="entry-detail" :aria-label="$t('meal-plan.meal-content')">
-        <v-tabs v-model="entryMode" color="primary" grow class="entry-detail__tabs">
+        <v-tabs v-model="entryMode" color="primary" class="entry-detail__tabs">
           <v-tab value="recipe">
             <v-icon start>
               {{ $globals.icons.silverwareForkKnife }}
@@ -251,7 +251,29 @@ watch(dialog, (isOpen) => {
 }
 .entry-detail__tabs {
   flex: 0 0 auto;
-  margin-bottom: 16px;
+  width: fit-content;
+  max-width: 100%;
+  margin-bottom: 12px;
+  padding: 4px;
+  height: 52px;
+  border-radius: 12px;
+  background: rgba(var(--v-theme-fill), 0.6);
+}
+.entry-detail__tabs :deep(.v-tab) {
+  min-height: 44px;
+  height: 44px;
+  border-radius: 8px !important;
+  font: 500 14px var(--bistro-body);
+  text-transform: none;
+  color: rgb(var(--v-theme-text-secondary));
+}
+.entry-detail__tabs :deep(.v-tab--selected) {
+  background: rgb(var(--v-theme-surface));
+  color: rgb(var(--v-theme-on-surface));
+  box-shadow: 0 1px 4px rgba(var(--v-theme-shadow), 0.12);
+}
+.entry-detail__tabs :deep(.v-tab__slider) {
+  display: none;
 }
 .entry-detail__content {
   display: flex;

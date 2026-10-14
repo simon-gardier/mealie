@@ -180,7 +180,7 @@ function affectedItems(warning: RecipeSaveWarning): string[] {
 }
 .recipe-save-review-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   flex-wrap: wrap;
   gap: 8px;
   width: 100%;
