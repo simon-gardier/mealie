@@ -3,6 +3,7 @@ import type { UserOut } from "~/lib/api/types/user";
 import { clearAllStores } from "~/composables/store";
 import { clearComposableCaches } from "~/composables/use-clear-composable-caches";
 import { getTokenCookieOptions, getTokenExpiry, nextRefreshDelay, readTokenCookie } from "~/composables/use-token-cookie";
+import { isSafeRedirectTarget } from "~/lib/validators/redirect";
 
 interface AuthData {
   value: UserOut | null;
@@ -175,7 +176,7 @@ export const useAuthBackend = function (): AuthState {
       // Clear Nuxt's useAsyncData cache
       clearNuxtData();
 
-      await router.push(callbackUrl || "/login");
+      await router.push(isSafeRedirectTarget(callbackUrl) ? callbackUrl : "/login");
     }
   }
 

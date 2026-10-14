@@ -2,6 +2,7 @@ import type { AxiosInstance, InternalAxiosRequestConfig } from "axios";
 import { describe, expect, test, vi, beforeEach, afterEach } from "vitest";
 
 const TOKEN_NAME = "mealie.access_token";
+const PAGE_URL = "https://remy.sgdr.me/g/home/r/soup";
 
 /** Rejects the way axios does, so the interceptor sees the config it needs in order to retry. */
 function unauthorized(config: InternalAxiosRequestConfig) {
@@ -42,7 +43,7 @@ beforeEach(() => {
 
   // jsdom refuses real navigation, and the interceptor assigns to location.href on a dead session
   Object.defineProperty(window, "location", {
-    value: { pathname: "/g/home/r/soup", search: "", href: "" },
+    value: { pathname: "/g/home/r/soup", search: "", href: PAGE_URL, origin: "https://remy.sgdr.me" },
     writable: true,
     configurable: true,
   });
@@ -51,6 +52,30 @@ beforeEach(() => {
 afterEach(() => {
   document.cookie = `${TOKEN_NAME}=; max-age=0`;
   vi.unstubAllGlobals();
+});
+
+describe("credential boundaries", () => {
+  test.each(["https://evil.example/api/recipes", "//evil.example/api/recipes", "http://remy.sgdr.me/api/recipes"])("blocks requests outside the app origin: %s", async (url) => {
+    const adapter = vi.fn(ok);
+    const client = await buildClient(adapter);
+    await expect(client.get(url)).rejects.toThrow("must stay on the Petit Chef origin");
+    expect(adapter).not.toHaveBeenCalled();
+    expect(refreshMock).not.toHaveBeenCalled();
+  });
+
+  test("checks an overridden base URL before sending credentials", async () => {
+    const adapter = vi.fn(ok);
+    const client = await buildClient(adapter);
+    await expect(client.get("/api/recipes", { baseURL: "https://evil.example" })).rejects.toThrow("must stay on the Petit Chef origin");
+    expect(adapter).not.toHaveBeenCalled();
+  });
+
+  test("keeps credentials on same-origin requests", async () => {
+    const adapter = vi.fn(ok);
+    const client = await buildClient(adapter);
+    await client.get("https://remy.sgdr.me/api/recipes");
+    expect(adapter.mock.calls[0][0].headers.Authorization).toBe("Bearer a.valid.token");
+  });
 });
 
 describe("401 handling", () => {
@@ -67,7 +92,7 @@ describe("401 handling", () => {
     expect(refreshMock).toHaveBeenCalledTimes(1);
     expect(calls).toEqual(["/api/recipes", "/api/recipes"]);
     expect(response.status).toBe(200);
-    expect(window.location.href).toBe("");
+    expect(window.location.href).toBe(PAGE_URL);
   });
 
   test("sends the replay with the refreshed token", async () => {
@@ -122,7 +147,7 @@ describe("401 handling", () => {
 
     // signOut does its own SPA redirect. Reloading the page over it would also wipe the toast the
     // preceding request raised, which is how "password updated" used to vanish.
-    expect(window.location.href).toBe("");
+    expect(window.location.href).toBe(PAGE_URL);
     expect(refreshMock).not.toHaveBeenCalled();
   });
 
@@ -134,7 +159,7 @@ describe("401 handling", () => {
 
     // No token means this is probably just an unauthenticated visitor hitting a guarded route
     expect(refreshMock).not.toHaveBeenCalled();
-    expect(window.location.href).toBe("");
+    expect(window.location.href).toBe(PAGE_URL);
   });
 });
 

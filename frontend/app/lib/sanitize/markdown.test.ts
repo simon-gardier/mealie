@@ -26,6 +26,13 @@ describe("sanitizeMarkdownHtml", () => {
     expect(html).not.toContain("onerror");
   });
 
+  test("prevents authored links and images from leaking referrers or controlling the opener", () => {
+    const html = sanitizeMarkdownHtml("<a href=\"https://example.com\" target=\"_blank\" rel=\"opener\" referrerpolicy=\"unsafe-url\">Recipe</a><img src=\"https://example.com/photo\" referrerpolicy=\"unsafe-url\">");
+    expect(html).toContain("rel=\"noopener noreferrer\"");
+    expect(html.match(/referrerpolicy="no-referrer"/g)).toHaveLength(2);
+    expect(html).not.toContain("unsafe-url");
+  });
+
   // Form controls must never render in user content.
   test("strips form, input, and button elements", () => {
     const html = sanitizeMarkdownHtml("<form action=/x><input name=p><button>go</button></form>");
@@ -62,6 +69,7 @@ describe("sanitizeMarkdownHtml", () => {
     );
     expect(html).toContain("<iframe");
     expect(html).toContain("https://www.youtube.com/embed/abc");
+    expect(html).toContain("referrerpolicy=\"origin\"");
   });
 
   test("does not allow a lookalike host to pass the suffix check", () => {

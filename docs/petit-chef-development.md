@@ -2,6 +2,8 @@
 
 Read the fork requirements at the top of `AGENTS.md`. This repository is the portable source of project context; commit and push these instructions so a checkout on another machine includes them.
 
+For the public Caddy deployment, use [Petit Chef production](petit-chef-production.md) and `compose.petit-chef.production.yml`. The development instructions below are for local use.
+
 ## Fresh installation
 
 ### Preferred Windows setup: Docker backend, local frontend

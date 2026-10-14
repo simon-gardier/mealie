@@ -1,0 +1,32 @@
+services:
+  remy:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: production
+    image: remy:local
+    container_name: remy
+    restart: unless-stopped
+    environment:
+      PRODUCTION: "true"
+      TESTING: "false"
+      API_DOCS: "false"
+      ALLOW_SIGNUP: "false"
+      PUID: "1000"
+      PGID: "1000"
+      TZ: Europe/Brussels
+      BASE_URL: https://remy.sgdr.me
+      DATA_DIR: /app/data
+    volumes:
+      # This file lives in mealie/, alongside the existing sibling data/ directory.
+      - type: bind
+        source: ../data
+        target: /app/data
+        bind:
+          create_host_path: false
+    networks:
+      - caddy_net
+
+networks:
+  caddy_net:
+    external: true

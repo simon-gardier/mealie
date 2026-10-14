@@ -6,6 +6,16 @@
 .idea
 .vscode
 
+# Local credentials and data must never enter image build stages.
+**/.env
+**/.env.*
+.dev.env
+/dev/data/
+/tests/.temp/
+/frontend/.output/
+/frontend/.nuxt/
+/frontend/coverage/
+
 **/__pycache__/
 *.py[cod]
 *$py.class

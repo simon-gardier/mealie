@@ -184,6 +184,13 @@ describe("signIn", () => {
 });
 
 describe("signOut", () => {
+  test.each(["https://evil.example", "//evil.example", "/\t/evil.example"])("rejects an unsafe logout destination: %s", async (target) => {
+    const auth = useAuthBackend();
+    axiosMock.post.mockResolvedValue({ data: {} });
+    await auth.signOut(target);
+    expect(routerMock.push).toHaveBeenCalledWith("/login");
+  });
+
   test("clears the session even when the logout call fails", async () => {
     const auth = useAuthBackend();
     const token = validToken();

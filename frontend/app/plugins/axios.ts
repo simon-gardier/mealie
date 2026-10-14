@@ -25,6 +25,12 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   axiosInstance.interceptors.request.use(
     (config) => {
+      // This client carries the session token and is reserved for our own API.
+      // Resolve baseURL as Axios does before adding credentials.
+      const requestUrl = new URL(axiosInstance.getUri(config), window.location.href);
+      if (requestUrl.origin !== window.location.origin) {
+        throw new Error("Authenticated requests must stay on the Petit Chef origin");
+      }
       const token = readTokenCookie(tokenName);
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;

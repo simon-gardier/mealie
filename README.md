@@ -89,8 +89,10 @@ git push origin main
 ### Hosting update
 ```
 git pull
-docker compose build remy
-docker compose up -d
+docker compose config --quiet
+docker compose build --pull remy
+docker compose up -d --no-deps remy
+docker compose logs -f remy
 ```
 
 ### AI setuo

@@ -18,7 +18,7 @@ const BASE_ALLOWED_TAGS = [
 
 const BASE_ALLOWED_ATTR = [
   "href", "src", "alt", "height", "width", "class", "title",
-  "cite", "datetime", "name", "abbr", "target", "border", "start", "style",
+  "cite", "datetime", "name", "abbr", "target", "border", "start", "style", "rel", "referrerpolicy",
 ];
 
 // Attributes only meaningful on an <iframe>; added to the allowlist solely when iframe embeds
@@ -77,13 +77,23 @@ export function sanitizeMarkdownHtml(rawHtml: string | null | undefined, allowed
     }
   });
 
-  if (allowIframe) {
-    DOMPurify.addHook(DOMPurifyHook.AfterSanitizeAttributes, (node) => {
-      if (node.nodeName === "IFRAME" && !isAllowedIframeSrc(node.getAttribute("src") || "", allowedIframeHosts)) {
-        node.parentNode?.removeChild(node);
-      }
-    });
-  }
+  DOMPurify.addHook(DOMPurifyHook.AfterSanitizeAttributes, (node) => {
+    if (node.nodeName === "IFRAME" && !isAllowedIframeSrc(node.getAttribute("src") || "", allowedIframeHosts)) {
+      node.parentNode?.removeChild(node);
+    }
+    // Auth and sharing URLs can contain secrets. Authored content cannot override
+    // the page's referrer policy, or let a new tab control its opener.
+    if (["A", "IMG"].includes(node.nodeName)) {
+      node.setAttribute("referrerpolicy", "no-referrer");
+    }
+    if (node.nodeName === "IFRAME") {
+      // Video providers need the embedding origin, but never its path/query tokens.
+      node.setAttribute("referrerpolicy", "origin");
+    }
+    if (node.nodeName === "A") {
+      node.setAttribute("rel", "noopener noreferrer");
+    }
+  });
 
   const sanitized = DOMPurify.sanitize(rawHtml, {
     ALLOWED_TAGS: allowIframe ? [...BASE_ALLOWED_TAGS, "iframe"] : BASE_ALLOWED_TAGS,
@@ -91,7 +101,7 @@ export function sanitizeMarkdownHtml(rawHtml: string | null | undefined, allowed
   });
 
   DOMPurify.removeHook("uponSanitizeAttribute");
-  if (allowIframe) DOMPurify.removeHook("afterSanitizeAttributes");
+  DOMPurify.removeHook("afterSanitizeAttributes");
 
   return sanitized;
 }

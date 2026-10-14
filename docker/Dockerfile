@@ -60,10 +60,13 @@ COPY uv.lock pyproject.toml ./
 COPY mealie ./mealie
 
 # Copy frontend to package it into the wheel
-COPY --from=frontend-builder /frontend/dist ./mealie/frontend
+COPY --from=frontend-builder /frontend/.output/public ./mealie/frontend
 
 # Build the source and binary package
-RUN uv build --out-dir dist
+# Upstream CI stamps this before packaging; local Docker builds need the same label.
+# Only the build-stage copy changes, not backend source in the checkout.
+RUN python -c "import pathlib, tomllib; version = tomllib.loads(pathlib.Path('pyproject.toml').read_text())['project']['version']; pathlib.Path('mealie/__init__.py').write_text('__version__ = ' + repr(version) + chr(10))" \
+    && uv build --out-dir dist
 
 # dependencies.txt changes only when uv.lock does, so the venv build can cache
 # the install. requirements.txt adds the wheel that was just built, so an
