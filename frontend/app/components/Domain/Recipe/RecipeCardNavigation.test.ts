@@ -23,7 +23,7 @@ describe("recipe card navigation", () => {
       history: createMemoryHistory(), routes: [
         { path: "/g/family", component: Card },
         { path: "/g/family/r/soup", component: Card },
-      ]
+      ],
     });
     await router.push("/g/family");
     vi.stubGlobal("useRoute", () => router.currentRoute.value);
@@ -39,7 +39,7 @@ describe("recipe card navigation", () => {
           VExpandTransition: defineComponent({ template: "<div><slot /></div>" }),
           VCardTitle: true, VListItemTitle: true, VListItemSubtitle: true,
           VCardActions: true, VImg: true, VBtn: true, VTooltip: true, VSheet: true, VMenu: true, SafeMarkdown: true,
-        }
+        },
       },
     });
     return { wrapper, router };

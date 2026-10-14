@@ -22,7 +22,7 @@ function setup(issues = warnings, recipe: Recipe = {}) {
         VBtn: { props: ["disabled"], template: "<button :disabled=\"disabled\"><slot/></button>" },
         BaseButton: { props: ["text", "disabled"], template: "<button :disabled=\"disabled\">{{ text }}</button>" },
       },
-    }
+    },
   });
 }
 
@@ -33,7 +33,7 @@ describe("save warning pages", () => {
         food: null, quantity: 100, unit: { name: "g" },
         note: "old ingredient name", originalText: "100 g mascarpone",
         substitutions: [{ note: "replacement note" }],
-      }]
+      }],
     };
     const wrapper = setup(recipeSaveWarnings(recipe, "ingredients"), recipe);
     expect(wrapper.get(".recipe-save-review-affected").text()).toBe("Ingredient 1");

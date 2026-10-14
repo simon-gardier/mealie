@@ -1,26 +1,8 @@
 /* Headings share Petit Chef's Fraunces identity; controls keep their own sans-serif typography.
    Include teleported dialogs without applying heading typography to menu/list labels. */
-:is(.v-application, .v-overlay-container) :is(h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6,
-  .v-card-title,
-  .v-card-subtitle,
-  .v-toolbar-title,
-  .page-title,
-  .page-subtitle,
-  .dialog-title,
-  .dialog-subtitle,
-  .section-subtitle,
-  .subtitle-1) {
-  font-family: var(--bistro-heading) !important;
-}
-
-@media print {
-
-  :is(.v-application, .v-overlay-container) :is(h1,
+:is(.v-application, .v-overlay-container)
+  :is(
+    h1,
     h2,
     h3,
     h4,
@@ -34,7 +16,30 @@
     .dialog-title,
     .dialog-subtitle,
     .section-subtitle,
-    .subtitle-1) {
+    .subtitle-1
+  ) {
+  font-family: var(--bistro-heading) !important;
+}
+
+@media print {
+  :is(.v-application, .v-overlay-container)
+    :is(
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      .v-card-title,
+      .v-card-subtitle,
+      .v-toolbar-title,
+      .page-title,
+      .page-subtitle,
+      .dialog-title,
+      .dialog-subtitle,
+      .section-subtitle,
+      .subtitle-1
+    ) {
     font-family: var(--bistro-body) !important;
   }
 }
@@ -116,7 +121,9 @@
   color: rgb(var(--v-theme-text-primary));
 }
 
-a:not(.v-btn):not(.v-list-item):not(.text-media-foreground):not(.bistro-wordmark):not( :where(.ingredient-recipe-link a)) {
+a:not(.v-btn):not(.v-list-item):not(.text-media-foreground):not(.bistro-wordmark):not(
+    :where(.ingredient-recipe-link a)
+  ) {
   color: rgb(var(--v-theme-primary));
 }
 
@@ -147,39 +154,39 @@ a:not(.v-btn):not(.v-list-item):not(.text-media-foreground):not(.bistro-wordmark
 
 /* Shared Petit Chef popup language: matches the approved Add ingredient menu.
    Target Vuetify's teleported content, including internal select/search menus. */
-.v-menu>.v-overlay__content>.v-list,
-.v-menu>.v-overlay__content>.v-sheet:has(> .v-list),
-.v-menu>.v-overlay__content>.v-card,
-.v-menu>.v-overlay__content>.recipe-context-menu-body {
+.v-menu > .v-overlay__content > .v-list,
+.v-menu > .v-overlay__content > .v-sheet:has(> .v-list),
+.v-menu > .v-overlay__content > .v-card,
+.v-menu > .v-overlay__content > .recipe-context-menu-body {
   border-radius: 14px;
   border: 1px solid rgb(var(--v-theme-separator));
   background-color: rgb(var(--v-theme-surface-elevated));
   color: rgb(var(--v-theme-on-surface));
 }
 
-.v-menu>.v-overlay__content>.v-list,
-.v-menu>.v-overlay__content>.v-sheet>.v-list,
-.v-menu>.v-overlay__content>.v-card>.v-list,
-.v-menu>.v-overlay__content>.recipe-context-menu-body>.v-list {
+.v-menu > .v-overlay__content > .v-list,
+.v-menu > .v-overlay__content > .v-sheet > .v-list,
+.v-menu > .v-overlay__content > .v-card > .v-list,
+.v-menu > .v-overlay__content > .recipe-context-menu-body > .v-list {
   padding: 4px !important;
 }
 
-.v-menu>.v-overlay__content>.v-card:has(> .v-list),
-.v-menu>.v-overlay__content>.v-sheet:has(> .v-list) {
+.v-menu > .v-overlay__content > .v-card:has(> .v-list),
+.v-menu > .v-overlay__content > .v-sheet:has(> .v-list) {
   padding: 0 !important;
 }
 
-.v-menu>.v-overlay__content>.v-card>.v-list,
-.v-menu>.v-overlay__content>.v-sheet>.v-list,
-.v-menu>.v-overlay__content>.recipe-context-menu-body>.v-list {
+.v-menu > .v-overlay__content > .v-card > .v-list,
+.v-menu > .v-overlay__content > .v-sheet > .v-list,
+.v-menu > .v-overlay__content > .recipe-context-menu-body > .v-list {
   border: 0;
 }
 
-.v-menu>.v-overlay__content>.recipe-context-menu-body {
+.v-menu > .v-overlay__content > .recipe-context-menu-body {
   overflow: hidden;
 }
 
-.v-menu>.v-overlay__content>.recipe-context-menu-body>.v-list {
+.v-menu > .v-overlay__content > .recipe-context-menu-body > .v-list {
   border-radius: inherit;
 }
 
@@ -228,7 +235,7 @@ a:not(.v-btn):not(.v-list-item):not(.text-media-foreground):not(.bistro-wordmark
   background-color: rgb(var(--v-theme-fill));
 }
 
-.v-menu .v-list-item--active>.v-list-item__overlay {
+.v-menu .v-list-item--active > .v-list-item__overlay {
   opacity: 0;
 }
 
@@ -270,7 +277,7 @@ a:not(.v-btn):not(.v-list-item):not(.text-media-foreground):not(.bistro-wordmark
   line-height: 1.5;
 }
 
-.v-dialog>.v-overlay__content>.v-card {
+.v-dialog > .v-overlay__content > .v-card {
   border-radius: 20px;
 }
 
@@ -279,18 +286,18 @@ a:not(.v-btn):not(.v-list-item):not(.text-media-foreground):not(.bistro-wordmark
     --mobile-dialog-bottom-gap: calc(12px + env(safe-area-inset-bottom, 0px));
   }
 
-  .v-bottom-sheet>.v-overlay__content {
+  .v-bottom-sheet > .v-overlay__content {
     margin-bottom: var(--mobile-dialog-bottom-gap);
     max-height: calc(100% - 24px - var(--mobile-dialog-bottom-gap));
   }
 
-  .v-dialog--fullscreen>.v-overlay__content {
+  .v-dialog--fullscreen > .v-overlay__content {
     margin-bottom: var(--mobile-dialog-bottom-gap);
     height: calc(100% - var(--mobile-dialog-bottom-gap));
     max-height: calc(100% - var(--mobile-dialog-bottom-gap));
   }
 
-  .v-dialog--fullscreen>.v-overlay__content>.v-card {
+  .v-dialog--fullscreen > .v-overlay__content > .v-card {
     border-radius: 0;
   }
 }
@@ -328,14 +335,15 @@ a:not(.v-btn):not(.v-list-item):not(.text-media-foreground):not(.bistro-wordmark
 }
 
 /* Visible neutral outlines on elevated dialog and sheet surfaces. */
-:is(.v-dialog, .v-bottom-sheet) .v-field--variant-outlined:not(.v-field--focused):not(.v-field--error):not(.v-field--disabled) {
+:is(.v-dialog, .v-bottom-sheet)
+  .v-field--variant-outlined:not(.v-field--focused):not(.v-field--error):not(.v-field--disabled) {
   --v-field-border-color: rgb(var(--v-theme-field-border)) !important;
   --v-field-border-opacity: 1;
 }
 
 /* Select/autocomplete options are renderless virtual rows in Vuetify 4.
    Keep their gaps inside the measured border box, not in external margins. */
-.v-menu>.v-overlay__content:has(.v-list--navigable),
+.v-menu > .v-overlay__content:has(.v-list--navigable),
 .recipe-editor-overlay:has(.v-list--navigable) {
   border-radius: 14px;
 }
@@ -361,14 +369,14 @@ a:not(.v-btn):not(.v-list-item):not(.text-media-foreground):not(.bistro-wordmark
   min-height: 44px;
 }
 
-.v-overlay__content .v-list--navigable .v-list-item>.v-list-item__overlay,
-.v-overlay__content .v-list--navigable .v-list-item>.v-list-item__underlay {
+.v-overlay__content .v-list--navigable .v-list-item > .v-list-item__overlay,
+.v-overlay__content .v-list--navigable .v-list-item > .v-list-item__underlay {
   bottom: 4px;
   border-radius: 8px;
 }
 
-.v-overlay__content .v-list--navigable .v-list-item:last-child>.v-list-item__overlay,
-.v-overlay__content .v-list--navigable .v-list-item:last-child>.v-list-item__underlay {
+.v-overlay__content .v-list--navigable .v-list-item:last-child > .v-list-item__overlay,
+.v-overlay__content .v-list--navigable .v-list-item:last-child > .v-list-item__underlay {
   bottom: 0;
 }
 
@@ -391,12 +399,13 @@ a:not(.v-btn):not(.v-list-item):not(.text-media-foreground):not(.bistro-wordmark
 }
 
 /* Reserve room for both the inside-floating label and readable value. */
-.v-input:is(.v-input--density-compact, .v-input--density-comfortable) .v-field--variant-filled:not(.v-field--no-label):not(.v-field--single-line) {
+.v-input:is(.v-input--density-compact, .v-input--density-comfortable)
+  .v-field--variant-filled:not(.v-field--no-label):not(.v-field--single-line) {
   --v-input-control-height: 56px;
   --v-field-padding-bottom: 8px;
 }
 
-.shopping-tags-reorder-dialog .base-dialog-card>.v-spacer {
+.shopping-tags-reorder-dialog .base-dialog-card > .v-spacer {
   display: none;
 }
 
@@ -418,12 +427,12 @@ a:not(.v-btn):not(.v-list-item):not(.text-media-foreground):not(.bistro-wordmark
   background: rgba(var(--v-theme-fill), 0.5);
 }
 
-.shopping-tags-reorder-dialog .base-dialog-card>.v-card-actions {
+.shopping-tags-reorder-dialog .base-dialog-card > .v-card-actions {
   padding: 8px 16px;
 }
 
 /* Keep the modal backdrop opaque as a layer so its blur remains full strength. */
-:is(.v-dialog, .v-bottom-sheet)>.v-overlay__scrim {
+:is(.v-dialog, .v-bottom-sheet) > .v-overlay__scrim {
   background: rgba(var(--v-theme-media-scrim), 0.24);
   opacity: 1;
   /* Keep the standard declaration last: production minification merges these aliases. */

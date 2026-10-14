@@ -1,3 +1,5 @@
+# Mealie
+
 [![Latest Release][latest-release-shield]][latest-release-url]
 [![Contributors][contributors-shield]][contributors-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -7,6 +9,7 @@
 [![GHCR Pulls][ghcr-pulls]][ghcr-url]
 
 <!-- PROJECT LOGO -->
+<!-- markdownlint-disable MD033 -->
 <br />
 <p align="center">
   <a href="https://github.com/mealie-recipes/mealie">
@@ -30,21 +33,19 @@
     ·
     <a href="https://github.com/mealie-recipes/mealie/pkgs/container/mealie">GitHub Container Registry</a>
 </p>
-
-
-
+<!-- markdownlint-enable MD033 -->
 
 [![Product Name Screen Shot][product-screenshot]](https://docs.mealie.io)
 
-# About The Project
+## About The Project
 
 Mealie is a self hosted recipe manager, meal planner and shopping list with a RestAPI backend and a reactive frontend built in Vue for a pleasant user experience for the whole family. Easily add recipes into your database by providing the URL and Mealie will automatically import the relevant data, or add a family recipe with the UI editor. Mealie also provides an API for interactions from 3rd party applications.
 
 - [Remember to join the Discord](https://discord.gg/QuStdQGSGK)!
 - [Documentation](https://docs.mealie.io/)
 
-
 ## Key Features
+
 - Recipe imports: Create recipes, by **importing from a URL** or entering data manually
 - Meal Planner: Use the **Meal Planner** to plan your what you'll cook for the next week
 - Shopping List: Put the necessary ingredients on your **Shopping List**, organised into sections of your local supermarket
@@ -62,7 +63,7 @@ Contributions are what make the open source community such an amazing place to l
 
 If you are not a coder, you can still contribute financially. Financial contributions help me prioritize working on this project over others and helps me know that there is a real demand for project development.
 
-<a href="https://www.buymeacoffee.com/haykot" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-green.png" alt="Buy Me A Coffee" style="height: 30px !important;width: 107px !important;" ></a>
+[![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-green.png)](https://www.buymeacoffee.com/haykot)
 
 ### Translations
 
@@ -72,12 +73,12 @@ For more information, check out the translation page on the [contributor's guide
 
 ## Fork
 
-```
+```bash
 git remote add upstream https://github.com/mealie-recipes/mealie.git
 git remote -v
 ```
 
-```
+```bash
 git fetch upstream
 git checkout mealie-next
 git merge upstream/mealie-next
@@ -87,7 +88,8 @@ git push origin main
 ```
 
 ### Hosting update
-```
+
+```bash
 git pull
 docker compose config --quiet
 docker compose build --pull remy
@@ -95,17 +97,17 @@ docker compose up -d --no-deps remy
 docker compose logs -f remy
 ```
 
-### AI setuo
-Name: Gemini
-Model: gemini-3.1-flash-lite
-API key: https://aistudio.google.com/api-keys
-URL: https://generativelanguage.googleapis.com/v1beta/openai/
+### AI Setup
 
+- Name: Gemini
+- Model: gemini-3.1-flash-lite
+- API key: <https://aistudio.google.com/api-keys>
+- URL: <https://generativelanguage.googleapis.com/v1beta/openai/>
 
 <!-- LICENSE -->
 ## License
-Distributed under the AGPL License. See `LICENSE` for more information.
 
+Distributed under the AGPL License. See `LICENSE` for more information.
 
 ## Sponsors
 
@@ -114,8 +116,6 @@ Huge thanks to all the sponsors of this project on [Github Sponsors](https://git
 Thanks to Depot for providing build instances for our Docker image builds.
 
 [![Built with Depot](https://depot.dev/badges/built-with-depot.svg)](https://depot.dev?utm_source=Mealie)
-
-
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
@@ -133,6 +133,4 @@ Thanks to Depot for providing build instances for our Docker image builds.
 [latest-release-url]: https://github.com/mealie-recipes/mealie/releases
 [license-shield]: https://img.shields.io/github/license/mealie-recipes/mealie.svg?style=flat-square
 [license-url]: https://github.com/mealie-recipes/mealie/blob/mealie-next/LICENSE
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=flat-square&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/hay-kot
 [product-screenshot]: docs/docs/assets/img/home_screenshot.png
