@@ -41,16 +41,6 @@ const subpages = computed<MenuItem[]>(() => [
     value: "url",
   },
   {
-    icon: $globals.icons.link,
-    text: i18n.t("recipe.bulk-url-import"),
-    value: "bulk",
-  },
-  {
-    icon: $globals.icons.codeTags,
-    text: i18n.t("recipe.import-from-html-or-json"),
-    value: "html",
-  },
-  {
     icon: $globals.icons.autoFix,
     text: i18n.t("recipe.import-with-ai"),
     value: "ai",
@@ -60,6 +50,16 @@ const subpages = computed<MenuItem[]>(() => [
     icon: $globals.icons.edit,
     text: i18n.t("recipe.create-recipe"),
     value: "new",
+  },
+  {
+    icon: $globals.icons.link,
+    text: i18n.t("recipe.bulk-url-import"),
+    value: "bulk",
+  },
+  {
+    icon: $globals.icons.codeTags,
+    text: i18n.t("recipe.import-from-html-or-json"),
+    value: "html",
   },
   {
     icon: $globals.icons.zip,

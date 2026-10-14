@@ -37,7 +37,7 @@
           {{ $t('recipe.import-with-ai-provider-required') }}
         </v-alert>
       </v-card-text>
-      <v-card-text v-else>
+      <v-card-text v-else class="ai-import-sources">
         <p class="ai-import-intro">
           {{ $t('recipe.ai-import-intro') }}
         </p>
@@ -45,20 +45,20 @@
           v-model="recipeUrl"
           :label="$t('new-recipe.recipe-url')"
           :prepend-inner-icon="$globals.icons.link"
+          variant="filled"
           validate-on="blur"
-          variant="outlined"
           clearable
           :rules="[validators.urlOptional]"
           :hint="$t('recipe.import-with-ai-url-hint')"
           persistent-hint
-          class="mb-5"
+          class="ai-import-url"
           :disabled="state.loading"
         />
 
         <v-tabs
           v-model="state.isEditJSON"
           color="primary"
-          class="editor-tabs mt-2"
+          class="editor-tabs"
           :disabled="state.loading"
           @update:model-value="handleIsEditJson"
         >
@@ -81,8 +81,8 @@
           v-model="newRecipeData"
           :label="$t('recipe.import-with-ai-content')"
           :prepend-inner-icon="$globals.icons.textBox"
+          variant="filled"
           validate-on="blur"
-          variant="outlined"
           clearable
           rows="5"
           :hint="$t('recipe.import-with-ai-content-hint')"
@@ -90,8 +90,8 @@
           :disabled="state.loading"
         />
 
-        <div v-if="imagesEnabled" class="mt-6">
-          <RecipeImportImages v-model="uploadedImages" :disabled="state.loading" />
+        <div v-if="imagesEnabled" class="ai-import-images">
+          <RecipeImportImages v-model="uploadedImages" :disabled="state.loading" calm />
         </div>
         <v-alert
           v-else
@@ -102,71 +102,74 @@
           {{ $t('recipe.import-with-ai-image-provider-required') }}
         </v-alert>
 
-        <details class="ai-import-options">
-          <summary>{{ $t('recipe.editor.import-options') }}</summary>
-          <div class="ai-import-options-grid">
-            <v-checkbox
-              v-model="translateRecipe"
-              color="primary"
-              hide-details
-              :label="$t('recipe.should-translate-description')"
-              :disabled="state.loading"
-            />
-            <div class="d-flex align-center">
-              <v-checkbox
-                v-model="createNewOrganizers"
-                color="primary"
-                hide-details
-                :label="$t('recipe.create-new-organizers')"
-                :disabled="state.loading"
-              />
-              <v-tooltip location="bottom" max-width="300">
-                <template #activator="{ props: tooltipProps }">
-                  <v-icon v-bind="tooltipProps" size="small" class="ms-2">
-                    {{ $globals.icons.help }}
-                  </v-icon>
-                </template>
-                <span>{{ $t('recipe.create-new-organizers-hint') }}</span>
-              </v-tooltip>
-            </div>
-            <v-checkbox
-              v-model="stayInEditMode"
-              color="primary"
-              hide-details
-              :label="$t('recipe.stay-in-edit-mode')"
-              :disabled="state.loading"
-            />
-            <v-checkbox
-              v-model="parseRecipe"
-              color="primary"
-              hide-details
-              :label="$t('recipe.parse-recipe-ingredients-after-import')"
-              :disabled="state.loading"
-            />
-          </div>
-        </details>
-      </v-card-text>
-      <v-card-actions v-if="aiEnabled" class="justify-center">
-        <div style="width: 100%" class="text-center">
-          <div style="width: 250px; margin: 0 auto">
-            <BaseButton
-              :disabled="!hasSource || state.loading"
-              variant="tonal"
-              color="primary"
-              class="ai-import-create"
-              :text="$t('recipe.ai-import-create')"
-              block
-              type="submit"
-              :loading="state.loading"
-            />
-          </div>
-          <v-card-text v-if="createStatus" class="py-2" role="status">
-            <!-- render &nbsp; to maintain layout -->
-            {{ createStatus }}&nbsp;
-          </v-card-text>
+        <div class="ai-import-options">
+          <v-menu location="bottom start" :close-on-content-click="false" max-width="480">
+            <template #activator="{ props: optionsProps }">
+              <v-btn v-bind="optionsProps" variant="text" type="button" :append-icon="$globals.icons.chevronDown" :disabled="state.loading">
+                {{ $t('recipe.editor.import-options') }}
+              </v-btn>
+            </template>
+            <v-card>
+              <v-card-text class="ai-import-options-list">
+                <v-checkbox
+                  v-model="translateRecipe"
+                  color="primary"
+                  hide-details
+                  :label="$t('recipe.should-translate-description')"
+                  :disabled="state.loading"
+                />
+                <div class="d-flex align-center">
+                  <v-checkbox
+                    v-model="createNewOrganizers"
+                    color="primary"
+                    hide-details
+                    :label="$t('recipe.create-new-organizers')"
+                    :disabled="state.loading"
+                  />
+                  <v-tooltip location="bottom" max-width="300">
+                    <template #activator="{ props: tooltipProps }">
+                      <v-icon v-bind="tooltipProps" size="small" class="ms-2">
+                        {{ $globals.icons.help }}
+                      </v-icon>
+                    </template>
+                    <span>{{ $t('recipe.create-new-organizers-hint') }}</span>
+                  </v-tooltip>
+                </div>
+                <v-checkbox
+                  v-model="stayInEditMode"
+                  color="primary"
+                  hide-details
+                  :label="$t('recipe.stay-in-edit-mode')"
+                  :disabled="state.loading"
+                />
+                <v-checkbox
+                  v-model="parseRecipe"
+                  color="primary"
+                  hide-details
+                  :label="$t('recipe.parse-recipe-ingredients-after-import')"
+                  :disabled="state.loading"
+                />
+              </v-card-text>
+            </v-card>
+          </v-menu>
         </div>
+      </v-card-text>
+      <v-card-actions v-if="aiEnabled" class="ai-import-footer">
+        <v-btn
+          :disabled="!hasSource || state.loading"
+          :loading="state.loading"
+          variant="tonal"
+          color="primary"
+          :prepend-icon="$globals.icons.autoFix"
+          class="ai-import-create"
+          type="submit"
+        >
+          {{ $t('recipe.ai-import-create') }}
+        </v-btn>
+        <p v-if="createStatus" class="ai-import-status" role="status" aria-live="polite">
+          {{ createStatus }}
+        </p>
       </v-card-actions>
-
       <v-expand-transition>
         <v-alert
           v-if="state.error"
@@ -325,122 +328,115 @@ async function createRecipe() {
 </script>
 
 <style scoped>
-.ai-import-panel {
-  background: rgb(var(--v-theme-surface));
-  border-radius: 14px;
-  padding: 8px 0 16px;
-}
-.ai-import-options summary {
-  color: rgb(var(--v-theme-primary));
-  cursor: pointer;
-  font: 500 14px/1.5 var(--bistro-body);
-  padding-block: 12px;
-}
 .ai-import-form {
   max-width: 800px;
   margin-inline: auto;
   font-family: var(--bistro-body);
 }
+.ai-import-panel {
+  background: rgb(var(--v-theme-surface));
+  border: 1px solid rgba(var(--v-theme-separator), 0.5);
+  border-radius: 14px;
+  padding: 24px;
+}
 .ai-import-heading {
+  padding: 0;
   font: 600 18px/1.4 var(--bistro-body) !important;
   white-space: normal;
+  color: rgb(var(--v-theme-on-surface));
 }
-.ai-import-form :deep(.v-card-text) {
+.ai-import-sources {
+  padding: 16px 0 0;
   font-size: 15px;
   line-height: 1.5;
-  padding: 16px 24px;
 }
 .ai-import-intro {
   color: rgb(var(--v-theme-text-secondary));
-  margin-bottom: 12px;
+  margin-bottom: 24px;
+}
+.ai-import-url {
+  margin-bottom: 24px;
 }
 .ai-import-help {
-  margin-bottom: 24px;
   color: rgb(var(--v-theme-text-secondary));
-  font-size: 14px;
+  font: 400 14px/1.5 var(--bistro-body);
 }
-.ai-import-help summary {
-  cursor: pointer;
-  color: rgb(var(--v-theme-primary));
-  padding-block: 8px;
-}
-.ai-import-help p {
-  margin-block: 8px;
+.ai-import-help p + p {
+  margin-top: 12px;
 }
 .ai-import-form :deep(.v-messages) {
   font-size: 13px;
   line-height: 1.4;
-  opacity: 1;
   color: rgb(var(--v-theme-text-secondary));
 }
-.ai-import-options {
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid rgba(var(--v-theme-separator), 0.5);
-}
-.ai-import-options h2 {
-  font: 600 18px/1.4 var(--bistro-body) !important;
+.editor-tabs {
+  width: fit-content;
+  max-width: 100%;
   margin-bottom: 12px;
+  padding: 4px;
+  height: 52px;
+  border-radius: 12px;
+  background: rgba(var(--v-theme-fill), 0.6);
 }
-.ai-import-options-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px 16px;
+.editor-tabs :deep(.v-tab) {
+  min-height: 44px;
+  height: 44px;
+  border-radius: 8px !important;
+  font: 500 14px var(--bistro-body);
+  text-transform: none;
+  color: rgb(var(--v-theme-text-secondary));
 }
-.ai-import-options-grid :deep(.v-label) {
+.editor-tabs :deep(.v-tab--selected) {
+  background: rgb(var(--v-theme-surface));
+  color: rgb(var(--v-theme-on-surface));
+  box-shadow: 0 1px 4px rgba(var(--v-theme-shadow), 0.12);
+}
+.editor-tabs :deep(.v-tab__slider) {
+  display: none;
+}
+.ai-import-images {
+  margin-top: 24px;
+  padding: 16px;
+  border: 1px dashed rgb(var(--v-theme-separator));
+  border-radius: 12px;
+  background: rgba(var(--v-theme-fill), 0.2);
+}
+.ai-import-options {
+  margin-top: 16px;
+}
+.ai-import-options-list :deep(.v-label) {
   white-space: normal;
   font: 400 14px/1.4 var(--bistro-body);
-  opacity: 1;
+}
+.ai-import-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 0 0;
 }
 .ai-import-create {
   min-height: 44px;
   height: auto;
-  padding: 10px 16px;
+  padding: 10px 20px;
   border-radius: 10px;
+  font-size: 14px;
+  text-transform: none;
 }
 .ai-import-create :deep(.v-btn__content) {
   white-space: normal;
 }
+.ai-import-status {
+  flex-basis: 100%;
+  color: rgb(var(--v-theme-text-secondary));
+  font-size: 14px;
+}
 @media (max-width: 599px) {
-  .ai-import-form :deep(.v-card-text) {
+  .ai-import-panel {
     padding: 16px;
   }
-  .ai-import-options-grid {
-    grid-template-columns: minmax(0, 1fr);
+  .ai-import-create {
+    width: 100%;
   }
-}
-.editor-tabs {
-  width: 100%;
-}
-
-.editor-tabs :deep(.v-tab) {
-  flex: 0 0 auto;
-  border-top: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
-  border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
-  border-radius: 0;
-  background-color: rgb(var(--v-theme-surface));
-}
-
-.editor-tabs :deep(.v-tab:first-child) {
-  border-left: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
-  border-radius: 7px 0 0 7px;
-}
-
-.editor-tabs :deep(.v-tab + .v-tab) {
-  border-left: 0;
-}
-
-.editor-tabs :deep(.v-tab:last-child) {
-  border-right: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
-  border-radius: 0 7px 7px 0;
-}
-
-.editor-tabs :deep(.v-tab--selected) {
-  background-color: rgb(var(--v-theme-primary));
-  color: rgb(var(--v-theme-on-primary));
-}
-
-.editor-tabs :deep(.v-tab__slider) {
-  display: none;
 }
 </style>

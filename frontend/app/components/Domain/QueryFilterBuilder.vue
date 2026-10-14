@@ -62,7 +62,6 @@
                 :items="[logOps.AND, logOps.OR]"
                 item-title="label"
                 item-value="value"
-                :variant="cookbookLayout && !filledInputs ? 'outlined' : 'filled'"
                 :menu-props="cookbookLayout ? { contentClass: 'recipe-editor-overlay' } : undefined"
                 class="text-center"
                 @update:model-value="setLogicalOperatorValue(field, index, $event as unknown as LogicalOperator)"
@@ -81,7 +80,6 @@
                 :label="cookbookLayout ? $t('cookbook.open-group') : undefined"
                 :model-value="field.leftParenthesis"
                 :items="['', '(', '((', '(((']"
-                :variant="cookbookLayout && !filledInputs ? 'outlined' : 'filled'"
                 :menu-props="cookbookLayout ? { contentClass: 'recipe-editor-overlay' } : undefined"
                 class="text-center"
                 @update:model-value="setLeftParenthesisValue(field, index, $event)"
@@ -99,7 +97,6 @@
                 :label="cookbookLayout ? $t('cookbook.filter-field') : undefined"
                 :model-value="field.label"
                 :items="fieldDefs"
-                :variant="cookbookLayout && !filledInputs ? 'outlined' : 'filled'"
                 :menu-props="cookbookLayout ? { contentClass: 'recipe-editor-overlay' } : undefined"
                 item-title="label"
                 item-value="label"
@@ -122,7 +119,6 @@
                 :items="field.relationalOperatorChoices"
                 item-title="label"
                 item-value="value"
-                :variant="cookbookLayout && !filledInputs ? 'outlined' : 'filled'"
                 :menu-props="cookbookLayout ? { contentClass: 'recipe-editor-overlay' } : undefined"
                 class="text-center"
                 @update:model-value="setRelationalOperatorValue(field, index, $event as unknown as RelationalKeyword | RelationalOperator)"
@@ -144,7 +140,6 @@
                 item-title="label"
                 item-value="value"
                 multiple
-                :variant="cookbookLayout && !filledInputs ? 'outlined' : 'filled'"
                 :menu-props="cookbookLayout ? { contentClass: 'recipe-editor-overlay' } : undefined"
                 @update:model-value="setFieldValues(field, index, $event)"
               />
@@ -152,14 +147,12 @@
                 v-else-if="field.type === 'string'"
                 :label="cookbookLayout ? $t('general.value') : undefined"
                 :model-value="field.value"
-                :variant="cookbookLayout && !filledInputs ? 'outlined' : 'filled'"
                 @update:model-value="setFieldValue(field, index, $event)"
               />
               <v-number-input
                 v-else-if="field.type === 'number'"
                 :label="cookbookLayout ? $t('general.value') : undefined"
                 :model-value="field.value as number || 0"
-                :variant="cookbookLayout && !filledInputs ? 'outlined' : 'filled'"
                 inset
                 :min="0"
                 :max="5"
@@ -184,7 +177,6 @@
                   <v-text-field
                     :label="cookbookLayout ? $t('general.value') : undefined"
                     :model-value="$d(safeNewDate(field.value + 'T00:00:00'))"
-                    :variant="cookbookLayout && !filledInputs ? 'outlined' : 'filled'"
                     color="primary"
                     class="date-input"
                     v-bind="activatorProps"
@@ -208,7 +200,6 @@
                 :label="cookbookLayout ? $t('general.value') : undefined"
                 :model-value="parseRelativeDateOffset(String(field.value ?? ''))"
                 :suffix="$t('query-filter.dates.days-ago', parseRelativeDateOffset(String(field.value ?? '')))"
-                :variant="cookbookLayout && !filledInputs ? 'outlined' : 'filled'"
                 density="compact"
                 inset
                 :min="0"
@@ -223,7 +214,6 @@
                 :show-add="false"
                 :show-label="cookbookLayout"
                 :show-icon="false"
-                :variant="cookbookLayout && !filledInputs ? 'outlined' : 'filled'"
                 @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])"
               />
               <RecipeOrganizerSelector
@@ -233,7 +223,6 @@
                 :show-add="false"
                 :show-label="cookbookLayout"
                 :show-icon="false"
-                :variant="cookbookLayout && !filledInputs ? 'outlined' : 'filled'"
                 @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])"
               />
               <RecipeOrganizerSelector
@@ -243,7 +232,6 @@
                 :show-add="false"
                 :show-label="cookbookLayout"
                 :show-icon="false"
-                :variant="cookbookLayout && !filledInputs ? 'outlined' : 'filled'"
                 @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])"
               />
               <RecipeOrganizerSelector
@@ -253,7 +241,6 @@
                 :show-add="false"
                 :show-label="cookbookLayout"
                 :show-icon="false"
-                :variant="cookbookLayout && !filledInputs ? 'outlined' : 'filled'"
                 @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])"
               />
               <RecipeOrganizerSelector
@@ -263,7 +250,6 @@
                 :show-add="false"
                 :show-label="cookbookLayout"
                 :show-icon="false"
-                :variant="cookbookLayout && !filledInputs ? 'outlined' : 'filled'"
                 @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])"
               />
               <RecipeOrganizerSelector
@@ -273,7 +259,6 @@
                 :show-add="false"
                 :show-label="cookbookLayout"
                 :show-icon="false"
-                :variant="cookbookLayout && !filledInputs ? 'outlined' : 'filled'"
                 @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])"
               />
               <RecipeOrganizerSelector
@@ -283,7 +268,6 @@
                 :show-add="false"
                 :show-label="cookbookLayout"
                 :show-icon="false"
-                :variant="cookbookLayout && !filledInputs ? 'outlined' : 'filled'"
                 @update:model-value="val => setFieldOrganizers(field, index, (val || []) as OrganizerBase[])"
               />
             </v-col>
@@ -300,7 +284,6 @@
                 :label="cookbookLayout ? $t('cookbook.close-group') : undefined"
                 :model-value="field.rightParenthesis"
                 :items="['', ')', '))', ')))']"
-                :variant="cookbookLayout && !filledInputs ? 'outlined' : 'filled'"
                 :menu-props="cookbookLayout ? { contentClass: 'recipe-editor-overlay' } : undefined"
                 class="text-center"
                 @update:model-value="setRightParenthesisValue(field, index, $event)"
@@ -377,7 +360,6 @@ import { type Field, type FieldDefinition, type FieldValue, type OrganizerBase, 
 const props = defineProps({
   inset: { type: Boolean, default: false },
   cookbookLayout: { type: Boolean, default: false },
-  filledInputs: { type: Boolean, default: false },
   fieldDefs: {
     type: Array as () => FieldDefinition[],
     required: true,

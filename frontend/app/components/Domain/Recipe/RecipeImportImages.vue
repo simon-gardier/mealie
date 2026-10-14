@@ -1,113 +1,240 @@
 <template>
-  <div>
-    <AppButtonUpload
-      class="d-flex justify-center"
-      url="none"
-      file-name="images"
+  <section class="import-images">
+    <input
+      ref="fileInput"
+      class="d-none"
+      type="file"
       accept="image/*"
-      :text="images.length ? $t('recipe.upload-more-images') : $t('recipe.upload-images')"
-      :text-btn="false"
-      :post="false"
-      :multiple="true"
+      multiple
       :disabled="disabled"
-      @uploaded="uploadImages"
-    />
-    <div v-if="images.length" class="mt-3">
-      <p class="my-2">
-        {{ $t("recipe.crop-and-rotate-the-image") }}
-      </p>
-      <v-row>
-        <v-col
-          v-for="(imageUrl, index) in previewUrls"
-          :key="index"
-          cols="12"
-          sm="6"
-          lg="4"
-          xl="3"
-        >
-          <v-col>
-            <ImageCropper
-              :img="imageUrl"
-              cropper-width="100%"
-              :submitted="disabled"
-              class="mt-4 mb-2"
-              @save="(croppedImage: Blob) => updateImage(index, croppedImage)"
-              @delete="clearImage(index)"
-            />
-
-            <v-btn
-              v-if="images.length > 1"
-              :disabled="disabled || index === 0"
-              color="primary"
-              @click="() => setCoverImage(index)"
-            >
-              <v-icon start>
-                {{ index === 0 ? $globals.icons.check : $globals.icons.fileImage }}
-              </v-icon>
-
-              {{ index === 0 ? $t("recipe.cover-image") : $t("recipe.set-as-cover-image") }}
-            </v-btn>
-          </v-col>
-        </v-col>
-      </v-row>
+      @change="selectImages"
+    >
+    <v-btn
+      variant="tonal"
+      color="primary"
+      :prepend-icon="$globals.icons.createAlt"
+      :disabled="disabled"
+      class="import-images-action"
+      type="button"
+      @click="fileInput?.click()"
+    >
+      {{ images.length ? $t('recipe.upload-more-images') : $t('recipe.upload-images') }}
+    </v-btn>
+    <p v-if="images.length" class="import-images-hint">
+      {{ $t('recipe.crop-and-rotate-the-image') }}
+    </p>
+    <div v-if="images.length" class="import-images-grid">
+      <article v-for="(imageUrl, index) in previewUrls" :key="imageUrl" class="import-image-card">
+        <img :src="imageUrl" :alt="$t('recipe.recipe-image')" class="import-image-preview">
+        <div class="import-image-actions">
+          <v-btn
+            variant="tonal"
+            color="primary"
+            :prepend-icon="$globals.icons.edit"
+            :disabled="disabled"
+            type="button"
+            @click="openEditor(index)"
+          >
+            {{ $t('recipe.reframe-image') }}
+          </v-btn>
+          <v-btn
+            variant="text"
+            color="error"
+            :prepend-icon="$globals.icons.delete"
+            :disabled="disabled"
+            type="button"
+            @click="clearImage(index)"
+          >
+            {{ $t('recipe.remove-photo') }}
+          </v-btn>
+          <v-btn
+            v-if="images.length > 1"
+            variant="text"
+            color="primary"
+            :prepend-icon="index === 0 ? $globals.icons.check : $globals.icons.fileImage"
+            :disabled="disabled || index === 0"
+            type="button"
+            @click="setCoverImage(index)"
+          >
+            {{ index === 0 ? $t('recipe.cover-image') : $t('recipe.set-as-cover-image') }}
+          </v-btn>
+        </div>
+      </article>
     </div>
-  </div>
+
+    <BaseDialog v-model="editorOpen" :title="$t('recipe.edit-image')" width="800">
+      <ImageCropper
+        v-if="editorOpen && editorImageUrl"
+        ref="cropper"
+        class="import-image-cropper"
+        :img="editorImageUrl"
+        cropper-width="100%"
+        :submitted="disabled"
+        hide-delete
+        hide-actions
+        @save="applyCrop"
+        @error="previewFailed"
+      />
+      <template #card-actions>
+        <v-btn variant="text" color="secondary" type="button" @click="editorOpen = false">
+          {{ $t('general.cancel') }}
+        </v-btn>
+        <v-spacer />
+        <v-btn
+          variant="tonal"
+          color="primary"
+          :prepend-icon="$globals.icons.check"
+          :disabled="disabled || !cropper?.ready || !cropper?.canSave"
+          type="button"
+          @click="cropper?.save()"
+        >
+          {{ $t('recipe.apply-crop') }}
+        </v-btn>
+      </template>
+    </BaseDialog>
+  </section>
 </template>
 
 <script setup lang="ts">
-withDefaults(defineProps<{
+import { alert } from "~/composables/use-toast";
+
+const props = withDefaults(defineProps<{
   disabled?: boolean;
+  calm?: boolean;
 }>(), {
   disabled: false,
+  calm: false,
 });
 
+const i18n = useI18n();
 const images = defineModel<(Blob | File)[]>({ default: () => [] });
-
+const fileInput = ref<HTMLInputElement | null>(null);
 const previewUrls = ref<string[]>([]);
+const editorOpen = ref(false);
+const editorIndex = ref<number | null>(null);
+const editorImageUrl = computed(() => editorIndex.value === null ? undefined : previewUrls.value[editorIndex.value]);
+const cropper = ref<{ save: () => void; ready: boolean; canSave: boolean } | null>(null);
 
-function uploadImages(payload: unknown) {
-  if (!Array.isArray(payload)) return;
-  const files = payload.filter((file): file is File => file instanceof File);
+function selectImages(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const files = Array.from(input.files || []).filter(file => file.type.startsWith("image/"));
+  input.value = "";
+  if (props.disabled || !files.length) return;
   images.value = [...images.value, ...files];
-  previewUrls.value = [...previewUrls.value, ...files.map(file => URL.createObjectURL(file))];
+}
+
+watch(images, (files) => {
+  const previous = previewUrls.value;
+  previewUrls.value = files.map(file => URL.createObjectURL(file));
+  previous.forEach(url => URL.revokeObjectURL(url));
+}, { immediate: true });
+
+function openEditor(index: number) {
+  if (props.disabled) return;
+  editorIndex.value = index;
+  editorOpen.value = true;
 }
 
 function clearImage(index: number) {
-  // Revoke _before_ splicing
-  const previewUrl = previewUrls.value[index];
-  if (previewUrl) URL.revokeObjectURL(previewUrl);
-
-  images.value.splice(index, 1);
-  previewUrls.value.splice(index, 1);
+  if (props.disabled) return;
+  editorOpen.value = false;
+  images.value = images.value.filter((_, itemIndex) => itemIndex !== index);
 }
 
-function updateImage(index: number, croppedImage: Blob) {
-  images.value[index] = croppedImage;
-  previewUrls.value[index] = URL.createObjectURL(croppedImage);
+function applyCrop(blob: Blob) {
+  const index = editorIndex.value;
+  if (props.disabled || index === null || !images.value[index]) return;
+  images.value = images.value.map((image, itemIndex) => itemIndex === index ? blob : image);
+  editorOpen.value = false;
 }
 
-function swapItem(array: any[], i: number, j: number) {
-  if (i < 0 || j < 0 || i >= array.length || j >= array.length) {
-    return;
-  }
-
-  const temp = array[i];
-  array[i] = array[j];
-  array[j] = temp;
+function previewFailed() {
+  alert.error(i18n.t("recipe.image-preview-failed"));
 }
 
-// Put the intended cover image at the start of the array.
-// The backend uses the first image as the cover image.
 function setCoverImage(index: number) {
-  if (index < 0 || index >= images.value.length || index === 0) {
-    return;
-  }
-
-  swapItem(images.value, 0, index);
-  swapItem(previewUrls.value, 0, index);
+  if (props.disabled || index <= 0 || index >= images.value.length) return;
+  editorOpen.value = false;
+  const reordered = [...images.value];
+  [reordered[0], reordered[index]] = [reordered[index]!, reordered[0]!];
+  images.value = reordered;
 }
+
+watch(editorOpen, (open) => {
+  if (!open) editorIndex.value = null;
+});
 
 onBeforeUnmount(() => {
   previewUrls.value.forEach(url => URL.revokeObjectURL(url));
 });
 </script>
+
+<style scoped>
+.import-images {
+  min-width: 0;
+  container-type: inline-size;
+}
+.import-images-action,
+.import-image-actions :deep(.v-btn) {
+  min-height: 44px;
+  height: auto;
+  padding: 10px 16px;
+  border-radius: 10px;
+  text-transform: none;
+}
+.import-images-action :deep(.v-btn__content),
+.import-image-actions :deep(.v-btn__content) {
+  white-space: normal;
+}
+.import-images-hint {
+  color: rgb(var(--v-theme-text-secondary));
+  font: 400 13px/1.5 var(--bistro-body);
+}
+.import-images-hint {
+  margin-block: 16px 12px;
+}
+.import-images-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+.import-image-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgb(var(--v-theme-separator));
+  border-radius: 14px;
+  background: rgb(var(--v-theme-surface));
+}
+.import-image-preview {
+  display: block;
+  width: 100%;
+  height: 220px;
+  object-fit: contain;
+  padding: 12px;
+  background: rgba(var(--v-theme-fill), 0.4);
+}
+.import-image-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px;
+}
+.import-image-cropper {
+  width: 100%;
+  box-shadow: none !important;
+  background: transparent;
+}
+.import-image-cropper :deep(.v-card-text) {
+  padding: 16px;
+}
+.import-image-cropper :deep(.v-btn--icon) {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+}
+@container (min-width: 600px) {
+  .import-images-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+</style>

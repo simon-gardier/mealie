@@ -5,7 +5,6 @@
         <v-text-field
           v-model="cookbook.name"
           :label="$t('cookbook.cookbook-name')"
-          variant="outlined"
           hide-details="auto"
           :rules="[value => !!value?.trim() || $t('cookbook.name-required')]"
           color="primary"
@@ -15,7 +14,6 @@
           auto-grow
           :rows="2"
           :label="$t('cookbook.optional-description')"
-          variant="outlined"
           hide-details="auto"
           color="primary"
         />

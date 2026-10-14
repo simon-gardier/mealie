@@ -19,7 +19,6 @@
           :label="$t('meal-plan.meal-type')"
           item-title="text"
           item-value="value"
-          variant="outlined"
           density="comfortable"
           hide-details
           :menu-props="{ contentClass: 'recipe-editor-overlay' }"
@@ -75,13 +74,12 @@
             <p class="meal-entry-hint">
               {{ $t('meal-plan.free-meal-description') }}
             </p>
-            <v-text-field v-model="title" :label="$t('meal-plan.meal-title')" :rules="[validators.required]" variant="outlined" hide-details="auto" />
+            <v-text-field v-model="title" :label="$t('meal-plan.meal-title')" :rules="[validators.required]" hide-details="auto" />
             <v-textarea
               v-model="text"
               :label="$t('meal-plan.optional-meal-note')"
               rows="4"
               auto-grow
-              variant="outlined"
               hide-details="auto"
             />
           </div>

@@ -23,7 +23,6 @@
             class="mb-2"
             hide-details
             density="comfortable"
-            :variant="calm ? 'outlined' : 'filled'"
             :label="`${$t('search.search')}...`"
             :prepend-inner-icon="$globals.icons.search"
             clearable

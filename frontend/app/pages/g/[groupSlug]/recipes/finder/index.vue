@@ -65,7 +65,6 @@
                           <QueryFilterBuilder
                             :key="state.queryFilterMenuKey"
                             cookbook-layout
-                            filled-inputs
                             :initial-query-filter="state.queryFilterJSON"
                             :field-defs="queryFilterBuilderFields"
                             @input="(value) => state.queryFilterEditorValue = value || ''"

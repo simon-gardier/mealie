@@ -8,7 +8,6 @@
     <v-text-field
       v-model="search"
       class="flex-grow-0"
-      :variant="calm ? 'outlined' : 'filled'"
       :density="calm ? 'comfortable' : 'compact'"
       color="primary"
       :autofocus="!calm"
