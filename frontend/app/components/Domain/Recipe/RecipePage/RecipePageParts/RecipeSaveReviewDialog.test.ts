@@ -2,7 +2,7 @@ import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import RecipeSaveReviewDialog from "./RecipeSaveReviewDialog.vue";
 import type { RecipeSaveWarning } from "~/lib/recipe/save-warnings";
-import type { Recipe } from "~/lib/api/types/recipe";
+import type { RecipeDraft } from "~/lib/api/types/recipe";
 import { recipeSaveWarnings } from "~/lib/recipe/save-warnings";
 
 const warnings: RecipeSaveWarning[] = [
@@ -10,7 +10,7 @@ const warnings: RecipeSaveWarning[] = [
   { code: "missing-category", count: 0 },
   { code: "missing-time", count: 0 },
 ];
-function setup(issues = warnings, recipe: Recipe = {}) {
+function setup(issues = warnings, recipe: RecipeDraft = {}) {
   return mount(RecipeSaveReviewDialog, {
     props: { modelValue: true, warnings: issues, recipe }, global: {
       mocks: { $globals: { icons: {} } },
@@ -28,7 +28,7 @@ function setup(issues = warnings, recipe: Recipe = {}) {
 
 describe("save warning pages", () => {
   it("does not use remarks or original text as the name of a cleared ingredient", async () => {
-    const recipe: Recipe = {
+    const recipe: RecipeDraft = {
       recipeIngredient: [{
         food: null, quantity: 100, unit: { name: "g" },
         note: "old ingredient name", originalText: "100 g mascarpone",
@@ -43,7 +43,7 @@ describe("save warning pages", () => {
   });
 
   it("shows an empty substitute warning even when the parent ingredient is also empty", async () => {
-    const recipe: Recipe = { recipeIngredient: [{ food: null, quantity: 100, unit: { name: "g" }, substitutions: [{}] }] };
+    const recipe: RecipeDraft = { recipeIngredient: [{ food: null, quantity: 100, unit: { name: "g" }, substitutions: [{}] }] };
     const wrapper = setup(recipeSaveWarnings(recipe, "ingredients"), recipe);
     expect(wrapper.get(".recipe-save-review-affected").text()).toBe("Ingredient 1");
     await wrapper.findAll("button").find(button => button.text() === "Next")!.trigger("click");
@@ -52,7 +52,7 @@ describe("save warning pages", () => {
   });
 
   it("keeps the selected parent food name in substitution warnings", () => {
-    const recipe: Recipe = { recipeIngredient: [{ food: { name: "butter" }, substitutions: [{ note: "oil" }] }] };
+    const recipe: RecipeDraft = { recipeIngredient: [{ food: { name: "butter" }, substitutions: [{ note: "oil" }] }] };
     const wrapper = setup(recipeSaveWarnings(recipe, "ingredients"), recipe);
     expect(wrapper.get(".recipe-save-review-affected").text()).toBe("Ingredient 1 (butter) - substitute 1 (oil)");
     wrapper.unmount();

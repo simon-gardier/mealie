@@ -50,7 +50,7 @@ export const useUserSelfRatings = function () {
     const existing = userRatings.value.find(rating => rating.recipeId === recipeId);
     userRatings.value = [
       ...userRatings.value.filter(rating => rating.recipeId !== recipeId),
-      { ...existing, recipeId, isFavorite: favorite },
+      { ...existing, recipeId, rating: existing?.rating ?? null, isFavorite: favorite },
     ];
     return true;
   }

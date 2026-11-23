@@ -5,7 +5,7 @@
         <h2 class="mb-0 text-h5 font-weight-medium opacity-80">
           {{ $t("recipe.ingredients") }}
         </h2>
-        <div v-if="!hasFoodOrUnit" class="d-flex align-center ga-1">
+        <div v-if="recipe.recipeIngredient.length > 0 && !hasFoodOrUnit" class="d-flex align-center ga-1">
           <v-menu content-class="recipe-editor-overlay">
             <template #activator="{ props }">
               <v-btn
@@ -33,7 +33,7 @@
               />
               <v-list-item
                 v-if="group?.aiProviderSettings?.aiEnabled"
-                :title="$t('recipe.parser.openai-parser')"
+                :title="$t('recipe.parser.ai-parser')"
                 @click="selectParser('openai')"
               />
             </v-list>
@@ -79,6 +79,7 @@
         :key="ingredient.referenceId"
         :model-value="ingredient"
         :is-recipe="ingredientIsRecipe(ingredient)"
+        :autofocus="ingredient.referenceId === autofocusIngredientId"
         enable-drag-handle
         enable-context-menu
         show-field-labels
@@ -152,6 +153,8 @@ const emit = defineEmits<{ selectParser: [parser: Parser] }>();
 const ingredientsWithRecipe = new Map<string, boolean>();
 
 const drag = ref(false);
+// a row added one at a time takes focus so the user can type straight into it
+const autofocusIngredientId = ref<string | null>(null);
 const domBulkAddDialog = ref<InstanceType<typeof RecipeDialogBulkAdd> | null>(null);
 const { group } = useGroupSelf();
 
@@ -207,8 +210,10 @@ function addIngredient(ingredients: Array<string> | null = null) {
     }
   }
   else {
+    const referenceId = uuid4();
+    autofocusIngredientId.value = referenceId;
     recipe.value.recipeIngredient.push({
-      referenceId: uuid4(),
+      referenceId,
       title: "",
       note: "",
       unit: undefined,
@@ -239,6 +244,7 @@ function addRecipe(recipes: Array<string> | null = null) {
     }
   }
   else {
+    autofocusIngredientId.value = refId;
     recipe.value.recipeIngredient.push({
       referenceId: refId,
       title: "",
@@ -251,8 +257,10 @@ function addRecipe(recipes: Array<string> | null = null) {
 }
 
 function insertNewIngredient(dest: number) {
+  const referenceId = uuid4();
+  autofocusIngredientId.value = referenceId;
   recipe.value.recipeIngredient.splice(dest, 0, {
-    referenceId: uuid4(),
+    referenceId,
     title: "",
     note: "",
     unit: undefined,

@@ -179,11 +179,11 @@ import { useCookbookStore } from "~/composables/store/use-cookbook-store";
 import { useHouseholdSelf } from "@/composables/use-households";
 import CookbookEditor from "~/components/Domain/Cookbook/CookbookEditor.vue";
 import { useUserApi } from "~/composables/api";
-import type { ReadCookBook } from "~/lib/api/types/cookbook";
+import type { CookBookOut } from "~/lib/api/types/cookbook";
 import { useCookbookPreferences } from "~/composables/use-users/preferences";
 
 definePageMeta({
-  middleware: ["group-only"],
+  middleware: ["auth", "group-only"],
 });
 
 const dialogStates = reactive({
@@ -202,7 +202,7 @@ const auth = useMealieAuth();
 const { store: allCookbooks, actions, updateAll } = useCookbookStore();
 
 // Make a local reactive copy of myCookbooks
-const myCookbooks = ref<ReadCookBook[]>([]);
+const myCookbooks = ref<CookBookOut[]>([]);
 const openedCookbook = ref<string | null>(null);
 watch(
   allCookbooks,
@@ -242,8 +242,8 @@ function createCookbook() {
 }
 
 // delete
-const deleteTarget = ref<ReadCookBook | null>(null);
-function deleteEventHandler(item: ReadCookBook) {
+const deleteTarget = ref<CookBookOut | null>(null);
+function deleteEventHandler(item: CookBookOut) {
   deleteTarget.value = item;
   dialogStates.delete = true;
 }

@@ -93,6 +93,7 @@ const emit = defineEmits<{
 }>();
 
 const auth = useMealieAuth();
+const { isOwnGroup } = useLoggedInState();
 const route = useRoute();
 const { $globals } = useNuxtApp();
 const i18n = useI18n();
@@ -127,7 +128,10 @@ onUnmounted(() => {
   clearRecipeExplorerSearchState(groupSlug.value);
 });
 
-const selectedSort = computed(() => sortable.value.find(s => s.value === state.value.orderBy));
+const selectedSort = computed(() => {
+  const orderBy = !isOwnGroup.value && state.value.orderBy === "last_made" ? "created_at" : state.value.orderBy;
+  return sortable.value.find(s => s.value === orderBy);
+});
 const sortText = computed(() => selectedSort.value?.name || "");
 
 const sortable = computed(() => [
@@ -152,6 +156,11 @@ const sortable = computed(() => [
     value: "rating",
   },
   {
+    icon: $globals.icons.clockOutline,
+    name: i18n.t("recipe.total-time"),
+    value: "total_time_seconds",
+  },
+  {
     icon: $globals.icons.update,
     name: i18n.t("general.updated"),
     value: "updated_at",
@@ -161,7 +170,7 @@ const sortable = computed(() => [
     name: i18n.t("general.random"),
     value: "random",
   },
-]);
+].filter(item => isOwnGroup.value || item.value !== "last_made"));
 
 // Methods
 const input: Ref<any> = ref(null);

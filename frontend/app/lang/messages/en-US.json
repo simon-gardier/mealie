@@ -31,14 +31,14 @@
     "error-submitting-form": "Error Submitting Form"
   },
   "category": {
-    "about-categories": "About categories",
-    "purpose": "Group recipes by type: starters, mains, sides or desserts.",
-    "tags-difference": "Use keywords for details such as quick or vegetarian.",
-    "filtering-help": "Find recipes more easily and organize your menus.",
     "categories": "Categories",
     "create-a-category": "Create a Category",
     "category-name": "Category Name",
-    "category": "Category"
+    "category": "Category",
+    "about-categories": "About categories",
+    "purpose": "Group recipes by type: starters, mains, sides or desserts.",
+    "tags-difference": "Use keywords for details such as quick or vegetarian.",
+    "filtering-help": "Find recipes more easily and organize your menus."
   },
   "events": {
     "apprise-url": "Apprise URL",
@@ -67,8 +67,6 @@
     "label-events": "Label Events"
   },
   "general": {
-    "move-down": "Move down",
-    "move-up": "Move up",
     "add": "Add",
     "cancel": "Cancel",
     "clear": "Clear",
@@ -190,7 +188,11 @@
     "date-updated": "Date Updated",
     "key": "Key",
     "value": "Value",
-    "cant-create-permission": "Can't create. Please contact your administrator to get permission."
+    "cant-create-permission": "Can't create. Please contact your administrator to get permission.",
+    "request-failed-with-status": "The request failed with status {status}. Your changes may not have been saved.",
+    "request-failed-no-response": "The server could not be reached. Your changes may not have been saved.",
+    "move-down": "Move down",
+    "move-up": "Move up"
   },
   "group": {
     "create-group": "Create Group",
@@ -251,6 +253,8 @@
       "api-key": "API Key",
       "api-key-description-create": "Your provider's API key for authentication. If your service (e.g. Ollama) doesn't use an API key, you still have to put something here.",
       "api-key-description-edit": "Leave this blank unless you want to change it.",
+      "api-key-description-base-url-changed": "The base URL changed, so enter the API key for the new URL.",
+      "reenter-hidden-values": "The base URL changed, so re-enter each hidden (********) header and parameter value for the new URL.",
       "base-url": "Base URL",
       "base-url-description": "If you're using OpenAI leave this blank. Must be an OpenAI-compatible endpoint (e.g. \"http://localhost:11434/v1\").",
       "model": "Model",
@@ -270,6 +274,49 @@
       "test-connection-failed": "Connection failed",
       "supports-images": "Supports images",
       "text-only-provider": "Text-only, can't be your image provider"
+    },
+    "ai-prompts": {
+      "ai-prompts": "AI Prompts",
+      "ai-prompts-description": "Customize the instructions Mealie gives your AI provider for each task. Mealie's prompts are written in English, but that doesn't change the language of your recipes: they keep the language of their source unless you choose to translate them. You can write your own instructions in any language.",
+      "global-instructions": "Instructions for All Prompts",
+      "global-instructions-description": "Added to every prompt that produces recipe data, such as building recipes, parsing ingredients, and translating. System prompts aren't affected.",
+      "global-instructions-placeholder": "e.g. Always use metric units.",
+      "prompts": "Prompts",
+      "system": "System",
+      "system-description": "This is a system prompt. It transcribes your source material as faithfully as possible before it's turned into a recipe, so the instructions for all prompts aren't added to it. Changing it usually isn't necessary, and can make imports less reliable.",
+      "appended": "Appended",
+      "overridden": "Overridden",
+      "mode-default": "Default",
+      "mode-append": "Append",
+      "mode-override": "Override",
+      "append-description": "These instructions are added to Mealie's prompt, and take priority wherever the two conflict.",
+      "override-description": "Your prompt replaces Mealie's prompt entirely, so future updates to Mealie's prompt won't apply to it. Any data the task needs, such as your list of units, is still added after your prompt.",
+      "default-changed": "Mealie's prompt has changed since you overrode it. Compare it with yours, or switch back to the default to use the new version.",
+      "view-default-prompt": "View Default Prompt",
+      "hide-default-prompt": "Hide Default Prompt",
+      "default-prompt": "Default Prompt",
+      "prompt-saved": "Prompt saved",
+      "prompt-save-failed": "Failed to save prompt",
+      "prompt-titles": {
+        "recipes-build-recipe": "Build Recipe",
+        "recipes-enrich-instructions": "Add Step Details",
+        "recipes-parse-recipe-ingredients": "Parse Ingredients",
+        "recipes-parse-recipe-video": "Recipe from Video",
+        "recipes-resolve-organizers": "Assign Organizers",
+        "recipes-translate-recipe": "Translate Recipe",
+        "system-compile-source": "Read Source Material",
+        "system-transcribe-audio": "Transcribe Audio"
+      },
+      "prompt-descriptions": {
+        "recipes-build-recipe": "Turns the source material read from a webpage, photo, or text into a structured recipe.",
+        "recipes-enrich-instructions": "Links each step of an imported recipe to the ingredients and notes it uses, and picks out its duration and heading.",
+        "recipes-parse-recipe-ingredients": "Used by the AI ingredient parser to split each ingredient into its quantity, unit, food, and note.",
+        "recipes-parse-recipe-video": "Turns a video's transcript and caption into a recipe.",
+        "recipes-resolve-organizers": "Picks the tags, categories, and tools for an imported recipe.",
+        "recipes-translate-recipe": "Translates an imported recipe into the language you choose.",
+        "system-compile-source": "Reads webpages, photos, and text into a plain-text record of the recipe.",
+        "system-transcribe-audio": "Transcribes audio when your audio provider can't transcribe it directly."
+      }
     }
   },
   "household": {
@@ -287,25 +334,12 @@
     "private-household-description": "Setting your household to private will disable all public view options. This overrides any individual public view settings",
     "lock-recipe-edits-from-other-households": "Lock recipe edits from other households",
     "lock-recipe-edits-from-other-households-description": "When enabled only users in your household can edit recipes created by your household",
+    "lock-recipe-edits-from-other-households-admin-note": "Site administrators can always edit or delete recipes in any household, regardless of this setting.",
     "household-recipe-preferences": "Household Recipe Preferences",
     "default-recipe-preferences-description": "These are the default settings when a new recipe is created in your household. These can be changed for individual recipes in the recipe settings menu.",
     "household-preferences": "Household Preferences"
   },
   "meal-plan": {
-    "when": "Date and meal type",
-    "meal-content": "Meal choice",
-    "free-meal": "Custom meal",
-    "free-meal-description": "Add a meal without a recipe, such as eating out.",
-    "optional-meal-note": "Note (optional)",
-    "clear-recipe": "Remove selected recipe",
-    "create-meal": "Create meal",
-    "save-meal": "Save meal",
-    "ignore-rules-short": "Ignore rules",
-    "search-recipes": "Search recipes",
-    "previous-month": "Previous month",
-    "next-month": "Next month",
-    "drag-meal": "Move this meal to another day or meal slot",
-    "move-failed": "Could not move the meal. Please try again.",
     "create-a-new-meal-plan": "Create a new meal",
     "update-this-meal-plan": "Edit meal",
     "dinner-this-week": "Dinner This Week",
@@ -319,6 +353,13 @@
     "numberOfDaysPast-label": "Default Days in the Past",
     "numberOfDays-hint": "Number of days on page load",
     "numberOfDays-label": "Default Days",
+    "weeks": "Weeks",
+    "days": "Days",
+    "week-meals-hidden": "No meals planned for the week | One meal planned for the week, switch to Weeks to see it | {count} meals planned for the week, switch to Weeks to see them",
+    "numberOfWeeksPast-hint": "Number of weeks in the past on page load",
+    "numberOfWeeksPast-label": "Default Weeks in the Past",
+    "numberOfWeeks-hint": "Number of weeks on page load, including the current week",
+    "numberOfWeeks-label": "Default Weeks",
     "side": "Side",
     "rule-day": "Rule Day",
     "meal-type": "Meal Type",
@@ -335,6 +376,9 @@
     "select-meal-below": "Choose a meal above",
     "note": "Note",
     "ignore-rules": "Ignore Planner Rules",
+    "plan-for-the-whole-week": "Plan for the whole week",
+    "cooking-it-today": "Cooking It Today",
+    "weekday-rules-skip-week-entries": "Rules for a specific day don't apply to meals planned for a whole week.",
     "no-recipes-match-your-rules": "No recipes match your meal plan rules",
     "no-meal-planned": "No meal planned",
     "random-meal": "Random Meal",
@@ -359,7 +403,38 @@
     "add-meal-to-list": "Add this meal to a shopping list",
     "load-more-recipes": "Load more recipes",
     "add-day-to-list": "Add Day to List",
-    "randomize-recipe": "Randomize Recipe"
+    "add-week-to-list": "Add Week to List",
+    "randomize-recipe": "Randomize Recipe",
+    "calendar-feed": "Subscribe to Calendar",
+    "calendar-feed-description": "Subscribe to your household's meal plan from Google Calendar, Apple Calendar, Home Assistant or any other app that supports iCal links. Anyone with the link can see your meal plan.",
+    "calendar-feed-off": "The calendar link is turned off for your household.",
+    "calendar-feed-ask-manager": "Ask someone who can manage your household to turn it on.",
+    "calendar-feed-turn-on": "Turn On",
+    "calendar-feed-turn-off": "Turn Off",
+    "calendar-feed-reset-hint": "Resetting or turning off the link stops existing subscriptions from updating.",
+    "calendar-feed-include-notes": "Include notes",
+    "calendar-feed-times-hint": "Meals without a time are shown as all-day events.",
+    "calendar-feed-duration": "Length (minutes)",
+    "calendar-feed-event-details": "Event Details",
+    "calendar-feed-event-details-description": "Customize how meals show up in your calendar. You can use merge fields to fill in each meal's details (see the docs for the full list).",
+    "calendar-feed-event-details-change-warning": "Changing these will update the calendar link, so if you've already subscribed you'll need to replace it with the new link.",
+    "calendar-feed-event-title": "Event Title",
+    "calendar-feed-event-description": "Event Description",
+    "calendar-feed-url": "Calendar Link",
+    "when": "Date and meal type",
+    "meal-content": "Meal choice",
+    "free-meal": "Custom meal",
+    "free-meal-description": "Add a meal without a recipe, such as eating out.",
+    "optional-meal-note": "Note (optional)",
+    "clear-recipe": "Remove selected recipe",
+    "create-meal": "Create meal",
+    "save-meal": "Save meal",
+    "ignore-rules-short": "Ignore rules",
+    "search-recipes": "Search recipes",
+    "previous-month": "Previous month",
+    "next-month": "Next month",
+    "drag-meal": "Move this meal to another day or meal slot",
+    "move-failed": "Could not move the meal. Please try again."
   },
   "migration": {
     "new-migration": "New Migration",
@@ -444,96 +519,14 @@
     "an-error-occurred": "An error occurred"
   },
   "recipe": {
-    "save-review": {
-      "title": "Save this recipe?",
-      "description": "Some recipe details may cause problems. You can keep the recipe as it is, but some features may be limited as a result.",
-      "edit": "Continue editing",
-      "save": "Save anyway",
-      "ingredient-locations": "Ingredient rows: {items}",
-      "substitute-location": "Ingredient {ingredient}, substitute {substitute}",
-      "more": "{items} and {count} more",
-      "empty-ingredients": {
-        "title": "Missing ingredients or empty rows",
-        "consequence": "The shopping list may be empty or incomplete. Add ingredients or remove empty rows.",
-        "problem": "The ingredient list is empty, or some rows contain neither a food nor text."
-      },
-      "unparsed-ingredients": {
-        "title": "Unparsed ingredients ({count})",
-        "consequence": "The text is preserved, but quantities cannot be scaled reliably. Shopping-list portion controls may be unavailable.",
-        "problem": "These rows have no selected food. The ingredient name remains in a note or in the original text."
-      },
-      "note-only-substitutes": {
-        "title": "Substitutes without a linked food ({count})",
-        "consequence": "The note remains visible, but the app cannot identify the replacement ingredient. Select it to complete the substitution.",
-        "problem": "These substitutions have no selected food, whether or not a note has been entered."
-      },
-      "missing-category": {
-        "title": "No category selected",
-        "consequence": "A category groups broad recipe families, such as “Dinner”. Without a category, this recipe will not appear under that filter. Choose an existing category or create one manually.",
-        "problem": "No broad recipe family is associated with this recipe."
-      },
-      "missing-tags": {
-        "title": "No tags selected",
-        "consequence": "A tag adds a specific detail, such as “French cuisine”. Without tags, this recipe will not appear under those filters. Choose existing tags or create one manually.",
-        "problem": "No tags describe this recipe to help find it."
-      },
-      "excess-categories": {
-        "title": "More than 3 categories ({count})",
-        "consequence": "Broad classification makes categories less useful. Reserve them for the main recipe families.",
-        "problem": "This recipe has more than 3 categories. Categories should represent a few broad families."
-      },
-      "excess-tags": {
-        "title": "More than 5 tags ({count})",
-        "consequence": "Many tags make filters and the recipe harder to scan. Keep the most useful ones for finding the recipe.",
-        "problem": "This recipe has more than 5 tags. Some may be too general or redundant."
-      },
-      "no-steps": {
-        "title": "No preparation steps",
-        "consequence": "Cook mode will have no instructions to follow.",
-        "problem": "No step contains text describing the preparation."
-      },
-      "missing-yield": {
-        "title": "No servings or yield quantity",
-        "consequence": "The app defaults to 1 serving. Without a base yield, quantity adjustments may be incorrect.",
-        "problem": "Neither servings nor yield quantity has a value greater than zero."
-      },
-      "missing-time": {
-        "title": "Incomplete timing",
-        "consequence": "Without a total time or both preparation and cooking times, the recipe will not show a complete preparation duration.",
-        "problem": "There is no total time, and preparation and cooking times are not both provided."
-      },
-      "navigation": "Browse recipe issues",
-      "previous": "Previous",
-      "next": "Next",
-      "position": "Issue {current} of {total}",
-      "problem-label": "Issue:",
-      "consequence-label": "Consequence:",
-      "empty-value": "Empty row",
-      "named-ingredient-location": "Ingredient {ingredient} ({name})",
-      "named-substitute-location": "Ingredient {ingredient} ({name}) - substitute {substitute} ({note})",
-      "unnamed-ingredient-location": "Ingredient {ingredient}",
-      "unnamed-substitute-location": "Ingredient {ingredient} - substitute {substitute} ({note})",
-      "more-items": "And {count} more affected items"
-    },
-    "save-error-title": "Recipe could not be saved",
-    "save-error-preserved": "Your edits are still here. Correct the fields below, then save again.",
-    "save-error-date": "Enter a valid date, or leave it empty if optional.",
-    "save-error-invalid": "The server rejected the recipe data but did not identify a field. Check the recipe fields and try again.",
-    "save-error-retry": "The recipe could not be saved. Check your connection and try again.",
-    "save-error-required": "This field is required.",
-    "save-error-number": "Enter a valid number.",
-    "author": "Recipe author",
-    "reframe-image": "Reframe current image",
-    "edit-image": "Edit image",
-    "image-preview-before-save": "Import an image or reframe the current one. Changes apply only after saving.",
-    "import-image": "Import image",
-    "image-url": "Image URL",
-    "preview-image": "Preview image",
-    "image-preview-failed": "This image could not be previewed. Download it, then import it from your device.",
-    "image-flipHorizontal": "Mirror horizontally",
-    "image-flipVertical": "Mirror vertically",
-    "image-rotateLeft": "Rotate left",
-    "image-rotateRight": "Rotate right",
+    "download-pdf": "Download PDF",
+    "preparing-pdf": "Preparing PDF...",
+    "step-duration-minutes": "Duration (minutes)",
+    "step-duration-saved": "Saved duration: {duration}. Editing this field replaces it with whole minutes.",
+    "step-duration-placeholder": "Minutes",
+    "step-duration-value-seconds": "{seconds}s",
+    "step-duration-value-hours": "{hours}h",
+    "step-duration-value-minutes": "{minutes}m",
     "add-to-favorites": "Add to Favorites",
     "api-extras": "API Extras",
     "calories": "Calories",
@@ -568,10 +561,12 @@
     "nutrition": "Nutrition",
     "linked-ingredients": "Linked Ingredients",
     "original-url": "Original URL",
+    "per-serving": "Per serving",
     "perform-time": "Cook Time",
     "prep-time": "Prep Time",
     "protein-content": "Protein",
     "public-recipe": "Public Recipe",
+    "public-recipe-visibility-note": "Also depends on your group and household privacy settings — a recipe won't be publicly visible if either is set to private.",
     "recipe-created": "Recipe created",
     "recipe-image": "Recipe Image",
     "reframe-current-image": "Reframe current recipe image",
@@ -583,6 +578,8 @@
     "remove-from-favorites": "Remove from Favorites",
     "saturated-fat-content": "Saturated fat",
     "save-recipe-before-use": "Save recipe before use",
+    "next-image": "Next image",
+    "previous-image": "Previous image",
     "section-title": "Section Title",
     "ingredient-section-title": "Ingredient section title",
     "note-show-code": "View Markdown source",
@@ -747,8 +744,8 @@
     "report-deletion-failed": "Report deletion failed",
     "recipe-debugger": "Recipe Debugger",
     "recipe-debugger-description": "Grab the URL of the recipe you want to debug and paste it here. The URL will be scraped by the recipe scraper and the results will be displayed. If you don't see any data returned, the site you are trying to scrape is not supported by Petit Chef or its scraper library.",
-    "use-openai": "Use OpenAI",
-    "recipe-debugger-use-openai-description": "Use OpenAI to parse the results instead of relying on the scraper library. When creating a recipe via URL, this is done automatically if the scraper library fails, but you may test it manually here.",
+    "use-ai": "Use AI",
+    "recipe-debugger-use-ai-description": "Use AI to parse the results instead of relying on the scraper library. When creating a recipe via URL, this is done automatically if the scraper library fails, but you may test it manually here.",
     "debug": "Debug",
     "tree-view": "Tree View",
     "recipe-servings": "Recipe Servings",
@@ -760,7 +757,39 @@
     "remove-image": "Remove image",
     "nextStep": "Next step",
     "recipe-actions": "Recipe Actions",
+    "unit-system": {
+      "as-written": "As written",
+      "metric": "Metric",
+      "metric-with-hint": "Metric (g, ml)",
+      "imperial": "Imperial",
+      "imperial-with-hint": "Imperial (cups, oz)"
+    },
     "parser": {
+      "ingredient-parser": "Ingredient Parser",
+      "select-parser": "Select Parser",
+      "ingredients-review-progress": "Reviewed {current} of {total} ingredients",
+      "dont-show-again": "Don't show this again",
+      "try-again-with-parser": "Try again with {parser}",
+      "natural-language-processor": "Natural Language Processor",
+      "natural-language-processor-english-only": "The Natural Language Processor is trained on English recipes. For recipes in other languages it usually recognizes the amount but not the unit, so the Brute Parser or the AI Parser tends to give better results.",
+      "brute-parser": "Brute Parser",
+      "ai-parser": "AI Parser",
+      "missing-unit": "Create missing unit: {unit}",
+      "missing-food": "Create missing food: {food}",
+      "this-unit-could-not-be-parsed-automatically": "This unit could not be parsed automatically",
+      "this-food-could-not-be-parsed-automatically": "This food could not be parsed automatically",
+      "review-parsed-ingredients": "Review parsed ingredients",
+      "confidence-score": "Confidence Score",
+      "ingredient-parser-headline": "Ingredients Parsed",
+      "ingredient-parser-title": "What's next",
+      "ingredient-parser-description": "You may need to confirm results we're not sure about or create new foods or units that are required by this recipe. We'll let you know what's needed.",
+      "ingredient-parser-final-review-description": "Once everything looks good, you can review the final results, then apply the changes to this recipe.",
+      "add-text-as-alias-for-item": "Add \"{text}\" as alias for {item}",
+      "delete-item": "Delete Item",
+      "parsing-ingredients": "Parsing ingredients...",
+      "ingredient-parser-result-title": "For this recipe",
+      "ingredient-parser-result-success": "No ingredients auto parsed | {count} ingredient auto parsed | {count} ingredients auto parsed",
+      "ingredient-parser-result-failed": "No ingredients to review | {count} ingredient to review | {count} ingredients to review",
       "alias-description": "Save \"{name}\" as another name for \"{item}\".",
       "source-text": "Original text",
       "recognized-ingredient": "Recognized ingredient",
@@ -806,33 +835,8 @@
       "empty-ingredient": "New ingredient",
       "reorder-ingredient": "Drag to reorder",
       "analyzer": "Analyzer",
-      "ingredient-parser": "Ingredient Parser",
-      "select-parser": "Select Parser",
-      "ingredients-review-progress": "Reviewed {current} of {total} ingredients",
-      "dont-show-again": "Don't show this again",
-      "try-again-with-parser": "Try again with {parser}",
-      "natural-language-processor": "Natural Language Processor",
-      "natural-language-processor-english-only": "The Natural Language Processor is trained on English recipes. For recipes in other languages it usually recognizes the amount but not the unit, so the Brute Parser or the AI Parser tends to give better results.",
-      "brute-parser": "Brute Parser",
-      "openai-parser": "AI Parser",
       "ingredient-text-to-parse": "Ingredient text to parse",
-      "fill-in-the-information": "Fill in the information",
-      "missing-unit": "Create missing unit: {unit}",
-      "missing-food": "Create missing food: {food}",
-      "this-unit-could-not-be-parsed-automatically": "This unit could not be parsed automatically",
-      "this-food-could-not-be-parsed-automatically": "This food could not be parsed automatically",
-      "review-parsed-ingredients": "Review parsed ingredients",
-      "confidence-score": "Confidence Score",
-      "ingredient-parser-headline": "Ingredients Parsed",
-      "ingredient-parser-title": "What's next",
-      "ingredient-parser-description": "You may need to confirm results we're not sure about or create new foods or units that are required by this recipe. We'll let you know what's needed.",
-      "ingredient-parser-final-review-description": "Once everything looks good, you can review the final results, then apply the changes to this recipe.",
-      "add-text-as-alias-for-item": "Add \"{text}\" as alias for {item}",
-      "delete-item": "Delete Item",
-      "parsing-ingredients": "Parsing ingredients...",
-      "ingredient-parser-result-title": "For this recipe",
-      "ingredient-parser-result-success": "No ingredients auto parsed | {count} ingredient auto parsed | {count} ingredients auto parsed",
-      "ingredient-parser-result-failed": "No ingredients to review | {count} ingredient to review | {count} ingredients to review"
+      "fill-in-the-information": "Fill in the information"
     },
     "reset-servings-count": "Reset Servings Count",
     "not-linked-ingredients": "Additional Ingredients",
@@ -880,13 +884,99 @@
       "add-url": "Add a URL",
       "start-import": "Start imports",
       "no-bulk-imports": "No bulk imports yet."
-    }
+    },
+    "save-review": {
+      "title": "Save this recipe?",
+      "description": "Some recipe details may cause problems. You can keep the recipe as it is, but some features may be limited as a result.",
+      "edit": "Continue editing",
+      "save": "Save anyway",
+      "ingredient-locations": "Ingredient rows: {items}",
+      "substitute-location": "Ingredient {ingredient}, substitute {substitute}",
+      "more": "{items} and {count} more",
+      "empty-ingredients": {
+        "title": "Missing ingredients or empty rows",
+        "consequence": "The shopping list may be empty or incomplete. Add ingredients or remove empty rows.",
+        "problem": "The ingredient list is empty, or some rows contain neither a food nor text."
+      },
+      "unparsed-ingredients": {
+        "title": "Unparsed ingredients ({count})",
+        "consequence": "The text is preserved, but quantities cannot be scaled reliably. Shopping-list portion controls may be unavailable.",
+        "problem": "These rows have no selected food. The ingredient name remains in a note or in the original text."
+      },
+      "note-only-substitutes": {
+        "title": "Substitutes without a linked food ({count})",
+        "consequence": "The note remains visible, but the app cannot identify the replacement ingredient. Select it to complete the substitution.",
+        "problem": "These substitutions have no selected food, whether or not a note has been entered."
+      },
+      "missing-category": {
+        "title": "No category selected",
+        "consequence": "A category groups broad recipe families, such as “Dinner”. Without a category, this recipe will not appear under that filter. Choose an existing category or create one manually.",
+        "problem": "No broad recipe family is associated with this recipe."
+      },
+      "missing-tags": {
+        "title": "No tags selected",
+        "consequence": "A tag adds a specific detail, such as “French cuisine”. Without tags, this recipe will not appear under those filters. Choose existing tags or create one manually.",
+        "problem": "No tags describe this recipe to help find it."
+      },
+      "excess-categories": {
+        "title": "More than 3 categories ({count})",
+        "consequence": "Broad classification makes categories less useful. Reserve them for the main recipe families.",
+        "problem": "This recipe has more than 3 categories. Categories should represent a few broad families."
+      },
+      "excess-tags": {
+        "title": "More than 5 tags ({count})",
+        "consequence": "Many tags make filters and the recipe harder to scan. Keep the most useful ones for finding the recipe.",
+        "problem": "This recipe has more than 5 tags. Some may be too general or redundant."
+      },
+      "no-steps": {
+        "title": "No preparation steps",
+        "consequence": "Cook mode will have no instructions to follow.",
+        "problem": "No step contains text describing the preparation."
+      },
+      "missing-yield": {
+        "title": "No servings or yield quantity",
+        "consequence": "The app defaults to 1 serving. Without a base yield, quantity adjustments may be incorrect.",
+        "problem": "Neither servings nor yield quantity has a value greater than zero."
+      },
+      "missing-time": {
+        "title": "Incomplete timing",
+        "consequence": "Without a total time or both preparation and cooking times, the recipe will not show a complete preparation duration.",
+        "problem": "There is no total time, and preparation and cooking times are not both provided."
+      },
+      "navigation": "Browse recipe issues",
+      "previous": "Previous",
+      "next": "Next",
+      "position": "Issue {current} of {total}",
+      "problem-label": "Issue:",
+      "consequence-label": "Consequence:",
+      "empty-value": "Empty row",
+      "named-ingredient-location": "Ingredient {ingredient} ({name})",
+      "named-substitute-location": "Ingredient {ingredient} ({name}) - substitute {substitute} ({note})",
+      "unnamed-ingredient-location": "Ingredient {ingredient}",
+      "unnamed-substitute-location": "Ingredient {ingredient} - substitute {substitute} ({note})",
+      "more-items": "And {count} more affected items"
+    },
+    "save-error-title": "Recipe could not be saved",
+    "save-error-preserved": "Your edits are still here. Correct the fields below, then save again.",
+    "save-error-date": "Enter a valid date, or leave it empty if optional.",
+    "save-error-invalid": "The server rejected the recipe data but did not identify a field. Check the recipe fields and try again.",
+    "save-error-retry": "The recipe could not be saved. Check your connection and try again.",
+    "save-error-required": "This field is required.",
+    "save-error-number": "Enter a valid number.",
+    "author": "Recipe author",
+    "reframe-image": "Reframe current image",
+    "edit-image": "Edit image",
+    "image-preview-before-save": "Import an image or reframe the current one. Changes apply only after saving.",
+    "import-image": "Import image",
+    "image-url": "Image URL",
+    "preview-image": "Preview image",
+    "image-preview-failed": "This image could not be previewed. Download it, then import it from your device.",
+    "image-flipHorizontal": "Mirror horizontally",
+    "image-flipVertical": "Mirror vertically",
+    "image-rotateLeft": "Rotate left",
+    "image-rotateRight": "Rotate right"
   },
   "recipe-finder": {
-    "search-failed": "Search failed. Please try again.",
-    "foods-filter": "Ingredients",
-    "search-settings": "Search options",
-    "reset-filters": "Reset filters",
     "recipe-finder": "Recipe Finder",
     "recipe-finder-description": "Search for recipes based on ingredients you have on hand. You can also filter by tools you have available, and set a maximum number of missing ingredients or tools.",
     "selected-ingredients": "Selected Ingredients",
@@ -904,7 +994,11 @@
     "selected-tools": "Selected Tools",
     "other-filters": "Other Filters",
     "ready-to-make": "Ready to Make",
-    "almost-ready-to-make": "Almost Ready to Make"
+    "almost-ready-to-make": "Almost Ready to Make",
+    "search-failed": "Search failed. Please try again.",
+    "foods-filter": "Ingredients",
+    "search-settings": "Search options",
+    "reset-filters": "Reset filters"
   },
   "search": {
     "has-any": "Has Any",
@@ -967,13 +1061,13 @@
       "you-have-token-count": "You have no active tokens.|You have one active token.|You have {count} active tokens."
     },
     "webhooks": {
-      "scheduled-time": "Scheduled time",
-      "hours": "Hours",
-      "minutes": "Minutes",
       "webhook-url": "Webhook URL",
       "webhooks": "Webhooks",
       "webhook-name": "Webhook Name",
-      "description": "The webhooks defined below will be executed when a meal is defined for the day. At the scheduled time the webhooks will be sent with the data from the recipe that is scheduled for the day. Note that webhook execution is not exact. The webhooks are executed on a 5 minutes interval so the webhooks will be executed within 5 +/- minutes of the scheduled."
+      "description": "The webhooks defined below will be executed when a meal is defined for the day. At the scheduled time the webhooks will be sent with the data from the recipe that is scheduled for the day. Note that webhook execution is not exact. The webhooks are executed on a 5 minutes interval so the webhooks will be executed within 5 +/- minutes of the scheduled.",
+      "scheduled-time": "Scheduled time",
+      "hours": "Hours",
+      "minutes": "Minutes"
     },
     "bug-report": "Bug Report",
     "bug-report-information": "Use this information to report a bug. Providing details of your instance to developers is the best way to get your issues resolved quickly.",
@@ -1009,15 +1103,6 @@
     "untagged-recipes": "Untagged Recipes"
   },
   "shopping-list": {
-    "select-all-ingredients": "Select all",
-    "deselect-all-ingredients": "Deselect all",
-    "choose-list": "Choose a list for the recipe ingredients.",
-    "products-count": "{count} products|{count} product|{count} products",
-    "analyze-before-adding": "Analyze all ingredients in the recipe editor first.",
-    "analyze-before-scaling": "To change portions, analyze the ingredients of this recipe and all its subrecipes on their edit pages. Each ingredient must be associated with a food.",
-    "unanalyzed-subrecipes": "Subrecipes requiring analysis: {recipes}.",
-    "subrecipes-to-analyze": "Subrecipes to analyze",
-    "empty-list": "Your list is empty. Add items or ingredients from your recipes.",
     "all-lists": "All Lists",
     "only-my-lists": "Show only my lists",
     "create-shopping-list": "Create Shopping List",
@@ -1052,7 +1137,22 @@
     "are-you-sure-you-want-to-uncheck-all-items": "Are you sure you want to uncheck all items?",
     "are-you-sure-you-want-to-delete-checked-items": "Are you sure you want to delete all checked items?",
     "no-shopping-lists-found": "No Shopping Lists Found",
-    "item-checked-off": "Checked off {item}"
+    "new-list-name": "List Name",
+    "failed-to-create-shopping-list": "Failed to create shopping list",
+    "item-checked-off": "Checked off {item}",
+    "changes-not-saved": "Some changes couldn't be saved. They stay on this device and will be sent again.",
+    "more-options": "More options",
+    "fewer-options": "Fewer options",
+    "save-as-new-food": "Save \"{text}\" as a new food",
+    "select-all-ingredients": "Select all",
+    "deselect-all-ingredients": "Deselect all",
+    "choose-list": "Choose a list for the recipe ingredients.",
+    "products-count": "{count} products|{count} product|{count} products",
+    "analyze-before-adding": "Analyze all ingredients in the recipe editor first.",
+    "analyze-before-scaling": "To change portions, analyze the ingredients of this recipe and all its subrecipes on their edit pages. Each ingredient must be associated with a food.",
+    "unanalyzed-subrecipes": "Subrecipes requiring analysis: {recipes}.",
+    "subrecipes-to-analyze": "Subrecipes to analyze",
+    "empty-list": "Your list is empty. Add items or ingredients from your recipes."
   },
   "sidebar": {
     "backups": "Backups",
@@ -1068,14 +1168,14 @@
     "cookbook": "Cookbook"
   },
   "tag": {
-    "about-tags": "About keywords and tags",
-    "purpose": "Describe your recipes with keywords: quick, vegetarian, Italian or spicy.",
-    "categories-difference": "A recipe can have several keywords, whatever its category.",
-    "filtering-help": "Use them to find recipes more easily.",
     "tags": "Tags",
     "create-a-tag": "Create a Tag",
     "tag-name": "Tag Name",
-    "tag": "Tag"
+    "tag": "Tag",
+    "about-tags": "About keywords and tags",
+    "purpose": "Describe your recipes with keywords: quick, vegetarian, Italian or spicy.",
+    "categories-difference": "A recipe can have several keywords, whatever its category.",
+    "filtering-help": "Use them to find recipes more easily."
   },
   "tool": {
     "tools": "Tools",
@@ -1150,15 +1250,22 @@
     "authentication-method-hint": "This specifies how a user will authenticate with Petit Chef. If you're not sure, choose 'Petit Chef'",
     "permissions": "Permissions",
     "administrator": "Administrator",
+    "administrator-hint": "Full access across every group and household on this instance.",
     "user-can-invite-other-to-group": "User can invite others to group",
+    "user-can-invite-other-to-group-hint": "User can invite new users to their own group and household.",
     "user-can-manage-group": "User can manage group settings",
+    "user-can-manage-group-hint": "User can manage the group's shared settings, like AI providers, and edit permissions for members of their household.",
     "user-can-manage-household": "User can manage household",
-    "user-can-organize-group-data": "User can manage foods, tags, and categories",
+    "user-can-manage-household-hint": "User can manage the settings of the household they belong to, like its name, privacy, recipe-editing rules, notifiers, and webhooks.",
+    "user-can-organize-group-data": "User can manage group data such as foods, units, tags, and categories",
+    "user-can-organize-group-data-hint": "Create, edit, and delete foods, units, tags, categories, tools, labels, and recipe actions shared across the group.",
     "enable-advanced-features": "Enable advanced features",
+    "enable-advanced-features-hint": "Enables Webhooks, Notifiers, and Data Migrations",
     "it-looks-like-this-is-your-first-time-logging-in": "It looks like this is your first time logging in.",
     "dont-want-to-see-this-anymore-be-sure-to-change-your-email": "Don't want to see this anymore? Be sure to change your email in your user settings!",
     "forgot-password": "Forgot Password",
     "forgot-password-text": "Please enter your email address and we will send you a link to reset your password.",
+    "reset-link-invalid": "This reset link expired or is not valid. Request a new link.",
     "changes-reflected-immediately": "Changes to this user will be reflected immediately.",
     "default-activity": "Default Activity",
     "default-activity-hint": "Select which page you'd like to navigate to upon logging in from this device"
@@ -1171,10 +1278,6 @@
     "read-the-docs": "Read the docs"
   },
   "data-pages": {
-    "selection-actions": "Actions for selected rows",
-    "selected-count": "{count} items selected",
-    "select-rows-help": "Select table rows to act on several items.",
-    "visible-columns": "Choose visible columns",
     "foods": {
       "delete-affects-recipes": "Warning: this food is used in {count} recipe(s). Deleting it will leave an empty ingredient in the recipe(s).",
       "delete-affects-recipes-more": "View all {count} recipes",
@@ -1191,6 +1294,8 @@
       "food-data": "Food Data",
       "label-overwrite-warning": "This will assign the chosen label to all selected foods and potentially overwrite your existing labels.",
       "on-hand-checkbox-label": "Setting this flag will make this food unchecked by default when adding a recipe to a shopping list.",
+      "delete-unused-confirm": "Okay to delete this unused food? This cannot be undone. | Okay to delete these {count} unused foods? This cannot be undone.",
+      "no-unused-foods": "No unused foods to delete",
       "substitutions": "Substitutions",
       "manage-substitutions": "Manage Substitutions",
       "substitution-dialog-text": "Suggest foods that can be used in place of {food}. A substitution can be a food, a note, or both.",
@@ -1229,7 +1334,14 @@
       "edit-label": "Edit Label",
       "new-label": "New Label",
       "labels": "Labels",
-      "assign-label": "Assign Label"
+      "assign-label": "Assign Label",
+      "combine-label": "Combine Label",
+      "source-label": "Source Label",
+      "target-label": "Target Label",
+      "merge-dialog-text": "Combining the selected labels will merge the source label and target label into a single label. The source label will be deleted and all of the references to the source label will be updated to point to the target label.",
+      "merge-label-example": "Merging {label1} into {label2}",
+      "delete-unused-confirm": "Okay to delete this unused label? This cannot be undone. | Okay to delete these {count} unused labels? This cannot be undone.",
+      "no-unused-labels": "No unused labels to delete"
     },
     "recipes": {
       "purge-exports": "Purge Exports",
@@ -1302,8 +1414,19 @@
     "tools": {
       "new-tool": "New Tool",
       "edit-tool": "Edit Tool",
-      "tool-data": "Tool Data"
-    }
+      "tool-data": "Tool Data",
+      "combine-tool": "Combine Tool",
+      "source-tool": "Source Tool",
+      "target-tool": "Target Tool",
+      "merge-dialog-text": "Combining the selected tools will merge the source tool and target tool into a single tool. The source tool will be deleted and all of the references to the source tool will be updated to point to the target tool.",
+      "merge-tool-example": "Merging {tool1} into {tool2}",
+      "delete-unused-confirm": "Okay to delete this unused tool? This cannot be undone. | Okay to delete these {count} unused tools? This cannot be undone.",
+      "no-unused-tools": "No unused tools to delete"
+    },
+    "selection-actions": "Actions for selected rows",
+    "selected-count": "{count} items selected",
+    "select-rows-help": "Select table rows to act on several items.",
+    "visible-columns": "Choose visible columns"
   },
   "user-registration": {
     "user-registration": "User Registration",
@@ -1336,6 +1459,8 @@
     "share-recipe": "Share Recipe",
     "default-30-days": "Default 30 Days",
     "expires-at": "Expires At",
+    "show-qr-code": "Show QR Code",
+    "scan-qr-code": "Scan with a phone camera to open this recipe",
     "recipe-link-copied-message": "Recipe link copied",
     "description": "Anyone with the link can view this recipe until its expiration date.",
     "create-link": "Create a link",
@@ -1395,7 +1520,7 @@
     "ingredients-natural-language-processor-explanation-2": "It's not perfect, but it yields great results in general and is a good starting point for manually parsing ingredients into individual fields. Alternatively, you can also use the \"Brute\" processor that uses a pattern matching technique to identify ingredients.",
     "nlp": "NLP",
     "brute": "Brute",
-    "openai": "OpenAI",
+    "ai-providers": "AI Providers",
     "show-individual-confidence": "Show individual confidence",
     "ingredient-text": "Ingredient Text",
     "average-confident": "{0} Confident",
@@ -1412,8 +1537,8 @@
       "restore-from-v1-backup": "Have a backup from a previous instance of Petit Chef v1? You can restore it here.",
       "manage-profile-or-get-invite-link": "Manage your own profile, or grab an invite link to share with others."
     },
-    "debug-openai-services": "Debug OpenAI Services",
-    "debug-openai-services-description": "Use this page to debug OpenAI services. You can test your OpenAI connection and see the results here. If you have image services enabled, you can also provide an image.",
+    "debug-ai-providers": "Debug AI Providers",
+    "debug-ai-providers-description": "Use this page to debug AI providers. You can test your AI connection and see the results here. If you have image services enabled, you can also provide an image.",
     "run-test": "Run Test",
     "test-results": "Test Results",
     "group-delete-note": "Groups with users or households cannot be deleted",
@@ -1467,6 +1592,16 @@
     "manage-data-migrations": "Manage Data Migrations"
   },
   "cookbook": {
+    "cookbooks": "Cookbooks",
+    "description": "Cookbooks are another way to organize recipes by creating cross sections of recipes, organizers, and other filters. Creating a cookbook will add an entry to the side-bar and all the recipes with the filters chosen will be displayed in the cookbook.",
+    "hide-cookbooks-from-other-households": "Hide Cookbooks from Other Households",
+    "hide-cookbooks-from-other-households-description": "When enabled, only cookbooks from your household will appear on the sidebar",
+    "public-cookbook": "Public Cookbook",
+    "public-cookbook-description": "A public cookbook appears on the group page and can be viewed without a Petit Chef account.",
+    "cookbook-name": "Cookbook Name",
+    "household-cookbook-name": "{0} Cookbook {1}",
+    "create-a-cookbook": "Create a Cookbook",
+    "cookbook": "Cookbook",
     "open-group": "Open a group",
     "close-group": "Close a group",
     "filter-join": "Combine with",
@@ -1486,17 +1621,7 @@
     "filters-title": "Recipes to include",
     "name-required": "Give your cookbook a name.",
     "optional-description": "Description (optional)",
-    "details-title": "Book details",
-    "cookbooks": "Cookbooks",
-    "description": "Cookbooks are another way to organize recipes by creating cross sections of recipes, organizers, and other filters. Creating a cookbook will add an entry to the side-bar and all the recipes with the filters chosen will be displayed in the cookbook.",
-    "hide-cookbooks-from-other-households": "Hide Cookbooks from Other Households",
-    "hide-cookbooks-from-other-households-description": "When enabled, only cookbooks from your household will appear on the sidebar",
-    "public-cookbook": "Public Cookbook",
-    "public-cookbook-description": "A public cookbook appears on the group page and can be viewed without a Petit Chef account.",
-    "cookbook-name": "Cookbook Name",
-    "household-cookbook-name": "{0} Cookbook {1}",
-    "create-a-cookbook": "Create a Cookbook",
-    "cookbook": "Cookbook"
+    "details-title": "Book details"
   },
   "query-filter": {
     "logical-operators": {
@@ -1511,7 +1636,9 @@
       "is-less-than": "is less than",
       "is-less-than-or-equal-to": "is less than or equal to",
       "is-older-than": "is older than",
-      "is-newer-than": "is newer than"
+      "is-newer-than": "is newer than",
+      "has-a-value": "has a value",
+      "has-no-value": "has no value"
     },
     "relational-keywords": {
       "is": "is",

@@ -121,12 +121,13 @@
                 item-value="value"
                 :menu-props="cookbookLayout ? { contentClass: 'recipe-editor-overlay' } : undefined"
                 class="text-center"
-                @update:model-value="setRelationalOperatorValue(field, index, $event as unknown as RelationalKeyword | RelationalOperator)"
+                @update:model-value="setRelationalOperatorValue(field, $event as unknown as RelationalKeyword | RelationalOperator)"
               />
             </v-col>
 
             <!-- field value -->
             <v-col
+              v-if="!isNullOperator(field.relationalOperatorValue)"
               class="filter-value"
               :cols="config.items.fieldValue.cols(index)"
               :sm="config.items.fieldValue.sm(index)"
@@ -206,6 +207,13 @@
                 :precision="0"
                 class="date-input"
                 @update:model-value="setFieldValue(field, index, $event)"
+              />
+              <RecipeTimeInput
+                v-else-if="field.type === 'duration'"
+                :seconds="field.value as number || null"
+                hide-text
+                class="w-100"
+                @update:seconds="setFieldValue(field, index, $event ?? '')"
               />
               <RecipeOrganizerSelector
                 v-else-if="field.type === Organizer.Category"
@@ -330,10 +338,10 @@
               :variant="cookbookLayout ? 'tonal' : undefined"
               :text="$t('general.add-field')"
               class="my-auto ml-4"
-              @click="addField(fieldDefs[0])"
+              @click="addField(fieldDefs[0]!)"
             />
           </div>
-          <slot name="actions" :add-field="() => addField(fieldDefs[0])" />
+          <slot name="actions" :add-field="() => addField(fieldDefs[0]!)" />
         </v-row>
       </v-card-actions>
     </v-card>
@@ -345,6 +353,7 @@ import { VueDraggable } from "vue-draggable-plus";
 import { useDebounceFn } from "@vueuse/core";
 import { useHouseholdSelf } from "~/composables/use-households";
 import RecipeOrganizerSelector from "~/components/Domain/Recipe/RecipeOrganizerSelector.vue";
+import RecipeTimeInput from "~/components/Domain/Recipe/RecipeTimeInput.vue";
 import { Organizer } from "~/lib/api/types/non-generated";
 import type {
   LogicalOperator,
@@ -383,6 +392,8 @@ const {
   buildQueryFilterString,
   getFieldFromFieldDef,
   isOrganizerType,
+  isNullOperator,
+  updateRelationalOperator,
 } = useQueryFilterBuilder();
 
 const firstDayOfWeek = computed(() => {
@@ -461,6 +472,9 @@ function setField(index: number, fieldLabel: string) {
     case "relativeDate":
       nextField.value = "$NOW-30d";
       break;
+    case "duration":
+      nextField.value = 30 * 60;
+      break;
 
     default:
       break;
@@ -486,10 +500,10 @@ function setLogicalOperatorValue(field: FieldWithId, index: number, value: Logic
   field.logicalOperator = value ? logOps.value[value] : undefined;
 }
 
-function setRelationalOperatorValue(field: FieldWithId, index: number, value: RelationalKeyword | RelationalOperator) {
-  const relOps = getRelOps(field.type);
+function setRelationalOperatorValue(field: FieldWithId, value: RelationalKeyword | RelationalOperator) {
   if (!fields.value.includes(field)) return;
-  field.relationalOperatorValue = relOps.value[value];
+  // also resets the value when switching to or from an "is empty" operator
+  updateRelationalOperator(field, value);
 }
 
 function setFieldValue(field: FieldWithId, index: number, value: FieldValue) {
@@ -623,7 +637,10 @@ async function initializeFields() {
       state.showAdvanced = true;
     }
 
-    if (field.fieldChoices?.length || isOrganizerType(field.type)) {
+    if (isNullOperator(field.relationalOperatorValue)) {
+      field.value = "";
+    }
+    else if (field.fieldChoices?.length || isOrganizerType(field.type)) {
       if (typeof part.value === "string") {
         field.values = part.value ? [part.value] : [];
       }
@@ -639,7 +656,7 @@ async function initializeFields() {
       const firstCharacter = String(part.value || "false").charAt(0).toLowerCase();
       field.value = ["t", "y", "1"].includes(firstCharacter);
     }
-    else if (field.type === "number") {
+    else if (field.type === "number" || field.type === "duration") {
       field.value = Number(part.value as string || "0");
       if (isNaN(field.value)) {
         error = true;
@@ -688,7 +705,10 @@ function buildQueryFilterJSON(): QueryFilterJSON {
       relationalOperator: field.relationalOperatorValue?.value,
     };
 
-    if (field.fieldChoices?.length || isOrganizerType(field.type)) {
+    if (isNullOperator(field.relationalOperatorValue)) {
+      part.value = null;
+    }
+    else if (field.fieldChoices?.length || isOrganizerType(field.type)) {
       part.value = field.values.map(value => value.toString());
     }
     else if (field.type === "boolean") {

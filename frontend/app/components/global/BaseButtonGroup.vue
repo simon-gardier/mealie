@@ -26,6 +26,7 @@
             :color="getActionColor(btn, $globals.icons.delete)"
             :large="large"
             :disabled="btn.disabled"
+            :loading="btn.loading"
             :style="stretch ? `width: ${maxButtonWidth};` : ''"
             variant="plain"
             v-bind="tooltipProps"

@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { recipeSaveWarnings } from "./save-warnings";
-import type { Recipe } from "~/lib/api/types/recipe";
+import type { RecipeDraft } from "~/lib/api/types/recipe";
 
-function complete(): Recipe {
+function complete(): RecipeDraft {
   return {
     recipeIngredient: [{ quantity: 100, food: { name: "farine" } }],
     recipeInstructions: [{ text: "Mélanger." }], recipeServings: 4, totalTime: "20 minutes",
@@ -10,19 +10,19 @@ function complete(): Recipe {
     tags: [{ id: "french", name: "Cuisine Française", slug: "cuisine-francaise" }],
   };
 }
-const codes = (recipe: Recipe) => recipeSaveWarnings(recipe).map(issue => issue.code);
+const codes = (recipe: RecipeDraft) => recipeSaveWarnings(recipe).map(issue => issue.code);
 
 describe("recipe save warnings", () => {
   it("warns when categories or tags are absent", () => {
     expect(codes({ ...complete(), recipeCategory: [] })).toEqual(["missing-category"]);
     expect(codes({ ...complete(), tags: [] })).toEqual(["missing-tags"]);
-    expect(codes({ ...complete(), recipeCategory: null, tags: null })).toEqual(["missing-category", "missing-tags"]);
+    expect(codes({ ...complete(), recipeCategory: null, tags: null } as unknown as RecipeDraft)).toEqual(["missing-category", "missing-tags"]);
   });
   it("does not interrupt complete recipes", () => {
     expect(recipeSaveWarnings(complete())).toEqual([]);
   });
   it("only reviews ingredients and substitutes when applying analyzed ingredients", () => {
-    const recipe: Recipe = {
+    const recipe: RecipeDraft = {
       recipeIngredient: [{}, { originalText: "Salt to taste" }, {
         food: { name: "flour" }, substitutions: [{ note: "Or butter" }],
       }],
@@ -71,7 +71,7 @@ describe("recipe save warnings", () => {
     const recipe = complete();
     recipe.recipeIngredient![0]!.substitutions = [
       {}, { note: "" }, { note: "   " },
-      { substituteFoodId: "oil" }, { substituteFood: { id: "butter", name: "butter" } },
+      { substituteFoodId: "oil" }, { substituteFood: { id: "butter", name: "butter", pluralName: null } },
     ];
     expect(recipeSaveWarnings(recipe, "ingredients")).toEqual([{
       code: "note-only-substitutes", count: 3,
@@ -95,7 +95,7 @@ describe("recipe save warnings", () => {
   });
   it("accepts total time or both preparation and cooking time", () => {
     expect(codes({ ...complete(), totalTime: "", prepTime: "10 minutes", performTime: "20 minutes" })).toEqual([]);
-    expect(codes({ ...complete(), totalTime: "", prepTime: "10 minutes", cookTime: "20 minutes" })).toEqual([]);
+    expect(codes({ ...complete(), totalTime: "", prepTime: "10 minutes", performTime: "20 minutes" })).toEqual([]);
     expect(codes({ ...complete(), totalTime: "", prepTime: "10 minutes" })).toEqual(["missing-time"]);
   });
   it.each(["0", "0 minutes", "PT0H0M0S"])("treats zero durations as missing (%s)", (totalTime) => {

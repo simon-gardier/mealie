@@ -143,7 +143,7 @@
           </UserProfileLinkCard>
         </v-col>
         <AdvancedOnly>
-          <v-col v-if="user.advanced" cols="12" sm="12" md="6">
+          <v-col v-if="user.canManageHousehold" cols="12" sm="12" md="6">
             <UserProfileLinkCard
               :link="{ text: $t('profile.manage-webhooks'), to: `/household/webhooks` }"
               image="/svgs/manage-webhooks.svg"
@@ -156,7 +156,7 @@
           </v-col>
         </AdvancedOnly>
         <AdvancedOnly>
-          <v-col cols="12" sm="12" md="6">
+          <v-col v-if="user.canManageHousehold" cols="12" sm="12" md="6">
             <UserProfileLinkCard
               :link="{ text: $t('profile.manage-notifiers'), to: `/household/notifiers` }"
               image="/svgs/manage-notifiers.svg"
@@ -230,6 +230,7 @@ import UserInviteDialog from "~/components/Domain/User/UserInviteDialog.vue";
 
 definePageMeta({
   name: "UserProfile",
+  middleware: ["auth"],
   scrollToTop: true,
 });
 

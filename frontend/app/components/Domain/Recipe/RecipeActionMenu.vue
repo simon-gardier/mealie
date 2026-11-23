@@ -57,7 +57,7 @@
           </template>
           <span>{{ $t("recipe.cook-mode") }}</span>
         </v-tooltip>
-        <v-tooltip v-if="recipe.orgURL" location="bottom">
+        <v-tooltip v-if="isHttpUrl(recipe.orgURL)" location="bottom">
           <template #activator="{ props: tooltipProps }">
             <v-btn
               icon
@@ -66,8 +66,9 @@
               size="small"
               color="info"
               class="mr-1"
-              :href="recipe.orgURL"
+              :href="recipe.orgURL ?? undefined"
               target="_blank"
+              rel="noopener noreferrer"
               v-bind="tooltipProps"
             >
               <v-icon size="x-large" color="primary">
@@ -77,30 +78,31 @@
           </template>
           <span>{{ $t("recipe.original-url") }}</span>
         </v-tooltip>
-        <RecipeFavoriteBadge v-if="loggedIn" color="info" button-style :recipe-id="recipe.id!" show-always />
+        <RecipeFavoriteBadge v-if="loggedIn" color="info" button-style :recipe-id="recipe.id" show-always />
         <RecipeTimelineBadge
           v-if="loggedIn"
           class="ml-1"
           color="info"
           button-style
           :slug="recipe.slug"
-          :recipe-name="recipe.name!"
+          :recipe-name="recipe.name"
         />
         <RecipeContextMenu
           show-print
           :menu-top="false"
-          :name="recipe.name!"
-          :slug="recipe.slug!"
+          :name="recipe.name"
+          :slug="recipe.slug"
           :menu-icon="$globals.icons.dotsVertical"
           fab
           color="info"
           :card-menu="false"
           :recipe="recipe"
-          :recipe-id="recipe.id!"
+          :recipe-id="recipe.id"
           :recipe-scale="recipeScale"
           :use-items="{
             edit: false,
             download: loggedIn,
+            downloadPdf: loggedIn,
             duplicate: loggedIn,
             mealplanner: loggedIn,
             shoppingList: loggedIn,
@@ -173,14 +175,15 @@ import RecipeFavoriteBadge from "./RecipeFavoriteBadge.vue";
 import RecipeTimelineBadge from "./RecipeTimelineBadge.vue";
 import UserAvatar from "~/components/Domain/User/UserAvatar.vue";
 import { useUserStore } from "~/composables/store/use-user-store";
-import type { Recipe } from "~/lib/api/types/recipe";
+import type { RecipeOut } from "~/lib/api/types/recipe";
+import { isHttpUrl } from "~/lib/validators/url";
 
 const DELETE_EVENT = "delete";
 const CLOSE_EVENT = "close";
 const JSON_EVENT = "json";
 
 interface Props {
-  recipe: Recipe;
+  recipe: RecipeOut;
   slug: string;
   recipeScale?: number;
   open: boolean;

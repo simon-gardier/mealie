@@ -160,14 +160,16 @@ import { useUserApi } from "~/composables/api";
 import { alert } from "~/composables/use-toast";
 import { useShoppingListPreferences } from "~/composables/use-users/preferences";
 import type { RecipeIngredient, ShoppingListAddRecipeParamsBulk, ShoppingListSummary } from "~/lib/api/types/household";
-import type { Recipe } from "~/lib/api/types/recipe";
+import type { RecipeOut, RecipeDraft, RecipeSummary } from "~/lib/api/types/recipe";
 import UserAvatar from "~/components/Domain/User/UserAvatar.vue";
 import RecipeIngredientListItem from "./RecipeIngredientListItem.vue";
 import RecipeScaleEditButton from "./RecipeScaleEditButton.vue";
 
-export interface RecipeWithScale extends Recipe {
+/** Ingredients are fetched on demand when the caller only has a summary. */
+export type RecipeWithScale = RecipeSummary & {
+  recipeIngredient?: RecipeOut["recipeIngredient"];
   scale: number;
-}
+};
 
 export interface ShoppingListIngredient {
   checked: boolean;
@@ -188,7 +190,7 @@ export interface ShoppingListRecipeIngredientSection {
   canScale: boolean;
   unanalyzedSubrecipes?: string[];
   ingredientSections: ShoppingListIngredientSection[];
-  parentRecipe?: Recipe;
+  parentRecipe?: Pick<RecipeDraft, "id" | "name">;
 }
 
 interface Props {
@@ -290,7 +292,7 @@ async function consolidateRecipesIntoSections(recipes: RecipeWithScale[]) {
   ingredientsAnalyzed.value = recipes.length > 0;
   const recipeSectionMap = new Map<string, ShoppingListRecipeIngredientSection>();
 
-  function addSubRecipeToMap(ing: RecipeIngredient, parentQuantity: number, parentScale: number, parentRecipe: Recipe) {
+  function addSubRecipeToMap(ing: RecipeIngredient, parentQuantity: number, parentScale: number, parentRecipe: Pick<RecipeDraft, "id" | "name">) {
     const subRecipe = ing.referencedRecipe!;
     const canScale = canScaleShoppingRecipe(subRecipe.recipeIngredient);
     const scale = canScale ? parentQuantity * parentScale : 1;

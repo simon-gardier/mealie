@@ -16,7 +16,7 @@
           <template #activator="{ props: activatorProps }">
             <v-btn variant="text" :icon="$vuetify.display.xs" v-bind="activatorProps" :loading="sortLoading">
               <v-icon :start="!$vuetify.display.xs">
-                {{ preferences.sortIcon }}
+                {{ sortIcon }}
               </v-icon>
               {{ $vuetify.display.xs ? null : $t("general.sort") }}
             </v-btn>
@@ -54,12 +54,20 @@
                 <v-list-item-title>{{ $t("general.updated") }}</v-list-item-title>
               </div>
             </v-list-item>
-            <v-list-item @click="sortRecipes(EVENTS.lastMade)">
+            <v-list-item v-if="isOwnGroup" @click="sortRecipes(EVENTS.lastMade)">
               <div class="d-flex align-center flex-nowrap">
                 <v-icon class="mr-2" inline>
                   {{ $globals.icons.chefHat }}
                 </v-icon>
                 <v-list-item-title>{{ $t("general.last-made") }}</v-list-item-title>
+              </div>
+            </v-list-item>
+            <v-list-item @click="sortRecipes(EVENTS.totalTime)">
+              <div class="d-flex align-center flex-nowrap">
+                <v-icon class="mr-2" inline>
+                  {{ $globals.icons.clockOutline }}
+                </v-icon>
+                <v-list-item-title>{{ $t("recipe.total-time") }}</v-list-item-title>
               </div>
             </v-list-item>
             <v-list-item @click="sortRecipes(EVENTS.shuffle)">
@@ -96,35 +104,37 @@
         <v-row v-if="!useMobileCards" class="bistro-recipe-grid">
           <v-col
             v-for="(recipe, index) in recipes"
-            :key="recipe.id!"
+            :key="recipe.id"
             :sm="6"
             :md="6"
             :lg="6"
             :xl="6"
           >
             <RecipeCard
-              :name="recipe.name!"
+              :name="recipe.name"
               :description="recipe.description!"
-              :slug="recipe.slug!"
+              :slug="recipe.slug"
               :rating="recipe.rating!"
               :image="recipe.image!"
-              :tags="recipe.tags!"
-              :recipe-id="recipe.id!"
+              :tags="recipe.tags"
+              :recipe-id="recipe.id"
               :style="getRecipeCardStyle(recipe, index)"
+              @item-selected="(item, urlPrefix) => emit('itemSelected', item, urlPrefix)"
             />
           </v-col>
         </v-row>
         <v-row v-else density="comfortable" class="bistro-recipe-list">
-          <v-col v-for="recipe in recipes" :key="recipe.id!" cols="12">
+          <v-col v-for="recipe in recipes" :key="recipe.id" cols="12">
             <RecipeCardMobile
-              :name="recipe.name!"
+              :name="recipe.name"
               :description="recipe.description!"
-              :slug="recipe.slug!"
+              :slug="recipe.slug"
               :rating="recipe.rating!"
               :image="recipe.image!"
-              :tags="recipe.tags!"
-              :recipe-id="recipe.id!"
+              :tags="recipe.tags"
+              :recipe-id="recipe.id"
               list-mode
+              @item-selected="(item, urlPrefix) => emit('itemSelected', item, urlPrefix)"
             />
           </v-col>
         </v-row>
@@ -142,9 +152,10 @@
 import { useThrottleFn } from "@vueuse/core";
 import RecipeCard from "./RecipeCard.vue";
 import RecipeCardMobile from "./RecipeCardMobile.vue";
+import type { UrlPrefixParam } from "./RecipeChips.vue";
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 import { useLazyRecipes } from "~/composables/recipes";
-import type { Recipe } from "~/lib/api/types/recipe";
+import type { RecipeSummary, TagOut } from "~/lib/api/types/recipe";
 import { useUserSortPreferences } from "~/composables/use-users/preferences";
 import type { RecipeSearchQuery } from "~/lib/api/user/recipes/recipe";
 
@@ -157,7 +168,7 @@ interface Props {
   title?: string | null;
   titleImage?: string | null;
   singleColumn?: boolean;
-  recipes?: Recipe[];
+  recipes?: RecipeSummary[];
   query?: RecipeSearchQuery | null;
 }
 const props = withDefaults(defineProps<Props>(), {
@@ -171,8 +182,9 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  replaceRecipes: [recipes: Recipe[]];
-  appendRecipes: [recipes: Recipe[]];
+  replaceRecipes: [recipes: RecipeSummary[]];
+  appendRecipes: [recipes: RecipeSummary[]];
+  itemSelected: [item: TagOut, urlPrefix: UrlPrefixParam];
 }>();
 
 const preferences = useUserSortPreferences();
@@ -183,14 +195,33 @@ const EVENTS = {
   created: "created",
   updated: "updated",
   lastMade: "lastMade",
+  totalTime: "totalTime",
   shuffle: "shuffle",
 };
+
+// recipes without a value can't be ranked by these, so they always go to the end regardless of direction
+const NULLS_LAST_ORDER_BY = ["total_time_seconds"];
 
 const auth = useMealieAuth();
 const { $globals } = useNuxtApp();
 const { isOwnGroup } = useLoggedInState();
 const useMobileCards = computed(() => {
   return preferences.value.useMobileCards;
+});
+
+const requestedOrderBy = computed(() => props.query?.orderBy || preferences.value.orderBy);
+const effectiveOrderBy = computed(() => {
+  return !isOwnGroup.value && requestedOrderBy.value === "last_made" ? "created_at" : requestedOrderBy.value;
+});
+
+const sortIcon = computed(() => {
+  if (!isOwnGroup.value && requestedOrderBy.value === "last_made") {
+    return preferences.value.orderDirection === "asc"
+      ? $globals.icons.sortCalendarAscending
+      : $globals.icons.sortCalendarDescending;
+  }
+
+  return preferences.value.sortIcon;
 });
 
 const sortLoading = ref(false);
@@ -209,7 +240,7 @@ const { fetchMore, getRandom } = useLazyRecipes(isOwnGroup.value ? null : groupS
 const { savePosition, getSavedPage, restorePosition } = useScrollPosition();
 const router = useRouter();
 
-function getRecipeCardStyle(recipe: Recipe, index: number) {
+function getRecipeCardStyle(recipe: RecipeSummary, index: number) {
   const seed = Array.from((recipe.id || recipe.slug || recipe.name || `${index}`)).reduce((total, char) => {
     return total + char.charCodeAt(0);
   }, 0);
@@ -244,8 +275,9 @@ const queryFilter = computed(() => {
 
 async function fetchRecipes(pageCount = 1) {
   const orderDir = props.query?.orderDirection || preferences.value.orderDirection;
-  const orderByNullPosition = props.query?.orderByNullPosition || orderDir === "asc" ? "first" : "last";
-  const orderBy = props.query?.orderBy || preferences.value.orderBy;
+  const orderBy = effectiveOrderBy.value;
+  const orderByNullPosition = props.query?.orderByNullPosition
+    || (NULLS_LAST_ORDER_BY.includes(orderBy) || orderDir !== "asc" ? "last" : "first");
   const localQuery = { ...props.query };
   if (orderBy === "random") {
     localQuery._searchSeed = randomSeed.value;
@@ -303,7 +335,7 @@ watch(
 );
 
 async function initRecipes() {
-  if (preferences.value.orderBy === "random") {
+  if (effectiveOrderBy.value === "random") {
     randomSeed.value = Date.now().toString();
   }
   page.value = 1;
@@ -350,6 +382,10 @@ const loadNextPage = useThrottleFn(async () => {
 
 async function sortRecipes(sortType: string) {
   if (sortLoading.value || loading.value) {
+    return;
+  }
+
+  if (!isOwnGroup.value && sortType === EVENTS.lastMade) {
     return;
   }
 
@@ -402,6 +438,15 @@ async function sortRecipes(sortType: string) {
         $globals.icons.sortCalendarAscending,
         $globals.icons.sortCalendarDescending,
         "desc",
+        true,
+      );
+      break;
+    case EVENTS.totalTime:
+      setter(
+        "total_time_seconds",
+        $globals.icons.sortAscending,
+        $globals.icons.sortDescending,
+        "asc",
         true,
       );
       break;

@@ -1,8 +1,13 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import GroupMealPlanEntryDialog from "./GroupMealPlanEntryDialog.vue";
+import type { PlanEntryOut } from "~/lib/api/types/meal-plan";
 
-vi.mock("~/composables/use-group-mealplan", () => ({ usePlanTypeOptions: () => [{ text: "Dinner", value: "dinner" }, { text: "Lunch", value: "lunch" }] }));
+vi.mock("~/composables/use-group-mealplan", async importOriginal => ({
+  ...(await importOriginal<typeof import("~/composables/use-group-mealplan")>()),
+  usePlanTypeOptions: () => [{ text: "Dinner", value: "dinner" }, { text: "Lunch", value: "lunch" }],
+}));
+vi.mock("~/composables/use-households", () => ({ useHouseholdSelf: () => ({ household: { value: null } }) }));
 vi.mock("~/composables/use-mealplan-rules", () => ({ useMealplanRules: () => ({ rules: { value: [] } }), buildRuleQueryFilter: () => "meal-rule-filter" }));
 
 function setup() {
@@ -31,7 +36,8 @@ describe("meal entry dialog", () => {
   it("ignores rules by default, allows applying them, and resets the default on reopening", async () => {
     const wrapper = setup();
     const selector = wrapper.findComponent({ name: "RecipeSelector" });
-    const toggle = wrapper.findComponent({ name: "VSwitch" });
+    // the ignore-rules switch sits in the recipe selector, after the "whole week" switch
+    const toggle = wrapper.findAllComponents({ name: "VSwitch" }).at(-1)!;
     expect(toggle.props("modelValue")).toBe(true);
     expect(selector.props("queryFilter")).toBeNull();
     toggle.vm.$emit("update:modelValue", false);
@@ -76,7 +82,7 @@ describe("meal entry dialog", () => {
     await wrapper.setProps({ modelValue: false });
     await wrapper.setProps({
       modelValue: true,
-      entry: { id: 7, groupId: "group", userId: "user", householdId: "household", date: "2026-10-15", entryType: "lunch", title: "Restaurant", text: "Original note", recipeId: null },
+      entry: { id: 7, groupId: "group", userId: "user", householdId: "household", date: "2026-10-15", entryType: "lunch", title: "Restaurant", text: "Original note", recipeId: null } as PlanEntryOut,
     });
     expect((wrapper.get("input").element as HTMLInputElement).value).toBe("Restaurant");
     await wrapper.get(".submit").trigger("click");

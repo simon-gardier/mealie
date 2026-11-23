@@ -93,6 +93,7 @@
 </template>
 
 <script setup lang="ts" generic="T extends { id?: string | null; name: string; slug?: string; onHand?: boolean }">
+import type { Ref } from "vue";
 import Fuse from "fuse.js";
 import { useContextPresets } from "~/composables/use-context-presents";
 import RecipeOrganizerDialog from "~/components/Domain/Recipe/RecipeOrganizerDialog.vue";
@@ -153,8 +154,8 @@ const translationKey = computed<string>(() => {
   return typeMap[props.itemType] || "";
 });
 
-const deleteTarget = shallowRef<T | null>(null);
-const updateTarget = shallowRef<T | null>(null);
+const deleteTarget = ref<T | null>(null) as Ref<T | null>;
+const updateTarget = ref<T | null>(null) as Ref<T | null>;
 
 function confirmDelete(item: T) {
   deleteTarget.value = item;

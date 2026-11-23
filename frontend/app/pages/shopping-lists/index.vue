@@ -90,7 +90,7 @@
           >
             <UserAvatar :user-id="list.userId" :tooltip="false" size="32" />
           </v-btn>
-          <span class="flex-grow-1">
+          <span class="flex-grow-1 text-truncate">
             {{ list.name }}
           </span>
           <v-btn
@@ -117,6 +117,10 @@ import { useAsyncKey } from "~/composables/use-utils";
 import { useShoppingListPreferences } from "~/composables/use-users/preferences";
 import type { UserOut } from "~/lib/api/types/user";
 import UserAvatar from "~/components/Domain/User/UserAvatar.vue";
+
+definePageMeta({
+  middleware: ["auth"],
+});
 
 const auth = useMealieAuth();
 const i18n = useI18n();

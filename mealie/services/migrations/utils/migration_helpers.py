@@ -1,14 +1,13 @@
 import json
-from datetime import timedelta
+import zipfile
 from pathlib import Path
-from typing import cast
 
-import isodate
 import yaml
 from PIL import UnidentifiedImageError
 from pydantic import UUID4
 
 from mealie.core import root_logger
+from mealie.pkgs.archive import ArchiveBudget
 from mealie.services.recipe.recipe_data_service import RecipeDataService
 
 
@@ -45,6 +44,38 @@ class MigrationReaders:
                     recipe_data["description"] = document
 
         return recipe_data
+
+
+MAX_EXTRACTED_ARCHIVE_SIZE = 5 * 1024**3
+"""Upper bound, in bytes, on what a single migration may unpack, nested archives included"""
+
+MAX_EXTRACTED_FILE_SIZE = 100 * 1024**2
+"""Upper bound, in bytes, on one unpacked file; recipe documents and photos run to a few MB"""
+
+MAX_ARCHIVE_ENTRIES = 100_000
+"""Upper bound on files a single migration may unpack, nested archives included"""
+
+
+def migration_budget() -> ArchiveBudget:
+    return ArchiveBudget(
+        bytes_left=MAX_EXTRACTED_ARCHIVE_SIZE,
+        entries_left=MAX_ARCHIVE_ENTRIES,
+        max_file_size=MAX_EXTRACTED_FILE_SIZE,
+    )
+
+
+def extract_zip(archive: Path, dest: str | Path, budget: ArchiveBudget | None = None) -> None:
+    """Extracts `archive` into `dest`, charging it against `budget` (a fresh migration budget by default).
+
+    Raises ArchiveTooLargeError, before writing anything, when the archive is over the budget.
+    Migrators that unpack nested archives pass one budget to every call.
+    """
+    if budget is None:
+        budget = migration_budget()
+
+    with zipfile.ZipFile(archive) as zip_file:
+        budget.spend(zip_file)
+        zip_file.extractall(dest)
 
 
 def split_by_comma(tag_string: str):
@@ -136,17 +167,19 @@ def import_image(src: str | Path, recipe_id: UUID4, extraction_root: Path | None
         src = Path(src)
 
     if extraction_root is not None:
-        if safe_local_path(src, extraction_root) is None:
+        safe_src = safe_local_path(src, extraction_root)
+        if safe_src is None:
             root_logger.get_logger().warning(
                 "Rejected image path outside extraction root: %s (root: %s)", src, extraction_root
             )
             return None
+        src = safe_src
 
     if not src.exists():
         return None
 
     data_service = RecipeDataService(recipe_id=recipe_id)
-    return data_service.write_image(src, src.suffix)
+    return data_service.write_image(src.read_bytes(), src.suffix)
 
 
 async def scrape_image(image_url: str, recipe_id: UUID4) -> Path | None:
@@ -166,63 +199,3 @@ async def scrape_image(image_url: str, recipe_id: UUID4) -> Path | None:
         return await data_service.scrape_image(image_url)
     except UnidentifiedImageError:
         return None
-
-
-def parse_iso8601_duration(time: str | None) -> str:
-    """
-    Parses an ISO8601 duration string
-
-    https://en.wikipedia.org/wiki/ISO_8601#Durations
-    """
-
-    if not time:
-        return ""
-    if time[0] == "P":
-        try:
-            delta = isodate.parse_duration(time)
-            if not isinstance(delta, timedelta):
-                return time
-        except isodate.ISO8601Error:
-            return time
-
-    # TODO: make singular and plural translatable
-    time_part_map: dict[str, dict] = {
-        "days": {"singular": "day", "plural": "days"},
-        "hours": {"singular": "hour", "plural": "hours"},
-        "minutes": {"singular": "minute", "plural": "minutes"},
-        "seconds": {"singular": "second", "plural": "seconds"},
-    }
-
-    delta = cast(timedelta, delta)
-    time_part_map["days"]["value"] = delta.days
-    time_part_map["hours"]["value"] = delta.seconds // 3600
-    time_part_map["minutes"]["value"] = (delta.seconds // 60) % 60
-    time_part_map["seconds"]["value"] = delta.seconds % 60
-
-    return_strings: list[str] = []
-    for value_map in time_part_map.values():
-        if not (value := value_map["value"]):
-            continue
-
-        unit_key = "singular" if value == 1 else "plural"
-        return_strings.append(f"{value} {value_map[unit_key]}")
-
-    return " ".join(return_strings) if return_strings else time
-
-
-def format_time(minutes: int) -> str:
-    # TODO: make this translatable
-    hour_label = "hour"
-    hours_label = "hours"
-    minute_label = "minute"
-    minutes_label = "minutes"
-
-    hours, minutes = divmod(minutes, 60)
-    parts: list[str] = []
-
-    if hours:
-        parts.append(f"{int(hours)} {hour_label if hours == 1 else hours_label}")
-    if minutes:
-        parts.append(f"{minutes} {minute_label if minutes == 1 else minutes_label}")
-
-    return " ".join(parts)

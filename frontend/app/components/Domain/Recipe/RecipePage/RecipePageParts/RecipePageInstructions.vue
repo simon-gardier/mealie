@@ -164,6 +164,8 @@
               variant="filled"
               :label="$t('recipe.section-title')"
               hide-details
+              :autofocus="autofocusSectionId === step.id"
+              @update:focused="onSectionTitleFocused(step.id, $event)"
               @click.stop
             >
               <template #append-inner>
@@ -213,7 +215,7 @@
                     </v-icon>
                   </template>
                 </RecipeStepTitleInput>
-                <div v-else class="summary-wrapper">
+                <div v-else class="summary-wrapper d-flex justify-space-between">
                   <template v-if="step.summary">
                     <SafeMarkdown class="recipe-step-summary pr-2" :source="step.summary" />
                   </template>
@@ -222,6 +224,7 @@
                       {{ $t('recipe.step-index', { step: index + 1 }) }}
                     </span>
                   </template>
+                  <CookTime :model-value="step.durationSeconds ?? null" :is-edit-mode="false" />
                 </div>
                 <v-btn
                   v-if="isCookMode"
@@ -325,6 +328,12 @@
                     {{ noteRef.referenceId != null ? (noteLookup[noteRef.referenceId] || $t('recipe.note')) : '' }}
                   </div>
                 </div>
+                <CookTime
+                  v-if="isEditForm"
+                  :model-value="step.durationSeconds ?? null"
+                  :is-edit-mode="true"
+                  @update:model-value="step.durationSeconds = $event"
+                />
               </v-card-text>
             </DropZone>
             <div v-if="!isEditForm" class="m-0 p-0">
@@ -392,13 +401,8 @@ import DropZone from "~/components/global/DropZone.vue";
 import { alert } from "~/composables/use-toast";
 import RecipeIngredients from "~/components/Domain/Recipe/RecipeIngredients.vue";
 import RecipeIngredientHtml from "~/components/Domain/Recipe/RecipeIngredientHtml.vue";
-
-interface MergerHistory {
-  target: number;
-  source: number;
-  targetText: string;
-  sourceText: string;
-}
+import { mergeSteps, undoStepMerge, type StepMerge } from "~/lib/recipe/instruction-merge";
+import CookTime from "./CookTime.vue";
 
 const instructionList = defineModel<RecipeStep[]>("modelValue", { required: true, default: () => [] });
 const assets = defineModel<RecipeAsset[]>("assets", { required: true, default: () => [] });
@@ -431,6 +435,9 @@ const unusedIngredients = ref<RecipeIngredient[]>([]);
 const usedIngredients = ref<RecipeIngredient[]>([]);
 
 const showTitleEditor = ref<{ [key: string]: boolean }>({});
+// set when a section is opened from the toolbar, cleared once its field takes focus, so that
+// scrolling an already-open section back into view does not pull focus again
+const autofocusSectionId = ref<string | null>(null);
 
 // ===============================================================
 // UI State Helpers
@@ -493,6 +500,12 @@ function isChecked(stepIndex: number) {
   }
 }
 
+function onSectionTitleFocused(id: string | undefined, focused: boolean) {
+  if (focused && id && autofocusSectionId.value === id) {
+    autofocusSectionId.value = null;
+  }
+}
+
 function toggleShowTitle(id?: string) {
   if (!id) {
     return;
@@ -506,6 +519,10 @@ function toggleShowTitle(id?: string) {
     if (step) {
       step.title = "";
     }
+  }
+  else {
+    // the field is rendered by the line below, so ask for focus and let it claim it on mount
+    autofocusSectionId.value = id;
   }
 
   showTitleEditor.value[id] = !showing;
@@ -769,47 +786,26 @@ const groupedUsedIngredients = computed((): Record<string, RecipeIngredient[]> =
 
 // ===============================================================
 // Instruction Merger
-const mergeHistory = ref<MergerHistory[]>([]);
+const mergeHistory = ref<StepMerge[]>([]);
 
 function mergeAbove(target: number, source: number) {
-  const targetStep = instructionList.value[target];
-  const sourceStep = instructionList.value[source];
-  if (target < 0 || !targetStep || !sourceStep || target === source) {
+  if (target === source) {
     return;
   }
-
-  mergeHistory.value.push({
-    target,
-    source,
-    targetText: targetStep.text,
-    sourceText: sourceStep.text,
-  });
-
-  targetStep.text += " " + sourceStep.text;
-  instructionList.value.splice(source, 1);
+  const merge = mergeSteps(instructionList.value, target, source);
+  if (merge) {
+    mergeHistory.value.push(merge);
+  }
 }
 
 function undoMerge(event: KeyboardEvent) {
-  if (event.ctrlKey && event.code === "KeyZ") {
-    if (!(mergeHistory.value?.length > 0)) {
-      return;
-    }
+  if (!(event.ctrlKey && event.code === "KeyZ")) {
+    return;
+  }
 
-    const lastMerge = mergeHistory.value.pop();
-    if (!lastMerge) {
-      return;
-    }
-
-    const targetStep = instructionList.value[lastMerge.target];
-    if (!targetStep) return;
-    targetStep.text = lastMerge.targetText;
-    instructionList.value.splice(lastMerge.source, 0, {
-      id: uuid4(),
-      title: "",
-      text: lastMerge.sourceText,
-      ingredientReferences: [],
-      noteReferences: [],
-    });
+  const lastMerge = mergeHistory.value.pop();
+  if (lastMerge) {
+    undoStepMerge(instructionList.value, lastMerge);
   }
 }
 

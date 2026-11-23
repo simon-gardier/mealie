@@ -75,7 +75,7 @@
 <script setup lang="ts">
 import { normalize, normalizeFilter } from "~/composables/use-utils";
 import { useFoodData, useFoodStore } from "~/composables/store";
-import type { IngredientFood } from "~/lib/api/types/recipe";
+import type { IngredientFoodOut } from "~/lib/api/types/recipe";
 
 /**
  * The shape both tiers share. Callers hold richer rows of their own -- the food dialog tracks a
@@ -89,7 +89,7 @@ export interface EditableSubstitution {
 
 interface Props {
   substitutions: EditableSubstitution[];
-  foods: IngredientFood[];
+  foods: IngredientFoodOut[];
   // left unset inside a dialog, so the menu stays in Vuetify's overlay stack rather than being
   // teleported to the body and risking a render behind the dialog
   menuAttachTarget?: string;

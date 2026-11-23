@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { useTools } from "../use-recipe-tools";
 import type { VForm } from "~/types/auto-forms";
+import type { ToolOut } from "~/lib/api/types/recipe";
 
 const api = vi.hoisted(() => ({ getAll: vi.fn(), createOne: vi.fn(), updateOne: vi.fn(), deleteOne: vi.fn() }));
 vi.mock("~/composables/api", () => ({ useUserApi: () => ({ tools: api }) }));
@@ -25,7 +26,7 @@ describe("tool request safety", () => {
 
   test("updates an existing tool without duplicating it", async () => {
     const state = useTools(false);
-    state.tools.value = [{ id: "tool", name: "Old", slug: "old" }];
+    state.tools.value = [{ id: "tool", name: "Old", slug: "old" } as ToolOut];
     state.workingToolData.id = "tool";
     api.updateOne.mockResolvedValue({ data: { id: "tool", name: "New", slug: "new" } });
     await state.actions.updateOne();

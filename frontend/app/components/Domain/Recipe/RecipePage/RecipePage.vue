@@ -111,7 +111,7 @@
               <RecipePageIngredientToolsView
                 v-if="!isEditForm"
                 v-model:scale="scale"
-                :recipe="recipe"
+                :recipe="displayedRecipe"
                 :ingredient-storage-key="ingredientStorageKey"
                 class="pr-2"
               />
@@ -127,48 +127,50 @@
               rendered.
             -->
             <v-col cols="12" sm="12" :md="8 + (isCookMode ? 1 : 0) * 4">
-              <RecipePageInstructions
-                v-model="recipe.recipeInstructions"
-                v-model:assets="recipe.assets"
-                :recipe="recipe"
-                :scale="scale"
-                :ingredient-storage-key="ingredientStorageKey"
-              >
-                <template v-if="isEditForm" #footer>
-                  <div class="d-flex justify-center">
-                    <RecipeDialogBulkAdd
-                      ref="domBulkAddDialog"
-                      class="my-2"
-                      style="display: none"
-                      @bulk-data="addStep"
-                    />
-                    <div class="d-inline-flex my-2 recipe-section-add-action">
-                      <v-btn color="primary" variant="tonal" class="split-main" @click="addStep()">
-                        <v-icon start>
-                          {{ $globals.icons.createAlt }}
-                        </v-icon>
-                        {{ $t("recipe.editor.add-step") }}
-                      </v-btn>
-                      <v-menu content-class="recipe-editor-overlay">
-                        <template #activator="{ props }">
-                          <v-btn color="primary" variant="tonal" class="split-dropdown" v-bind="props">
-                            <v-icon>{{ $globals.icons.chevronDown }}</v-icon>
-                          </v-btn>
-                        </template>
-                        <v-list>
-                          <v-list-item
-                            slim
-                            density="comfortable"
-                            :prepend-icon="$globals.icons.create"
-                            :title="$t('new-recipe.bulk-add')"
-                            @click="domBulkAddDialog?.open()"
-                          />
-                        </v-list>
-                      </v-menu>
+              <v-form ref="instructionForm" @submit.prevent>
+                <RecipePageInstructions
+                  v-model="recipe.recipeInstructions"
+                  v-model:assets="recipe.assets"
+                  :recipe="displayedRecipe"
+                  :scale="scale"
+                  :ingredient-storage-key="ingredientStorageKey"
+                >
+                  <template v-if="isEditForm" #footer>
+                    <div class="d-flex justify-center">
+                      <RecipeDialogBulkAdd
+                        ref="domBulkAddDialog"
+                        class="my-2"
+                        style="display: none"
+                        @bulk-data="addStep"
+                      />
+                      <div class="d-inline-flex my-2 recipe-section-add-action">
+                        <v-btn color="primary" variant="tonal" class="split-main" @click="addStep()">
+                          <v-icon start>
+                            {{ $globals.icons.createAlt }}
+                          </v-icon>
+                          {{ $t("recipe.editor.add-step") }}
+                        </v-btn>
+                        <v-menu content-class="recipe-editor-overlay">
+                          <template #activator="{ props }">
+                            <v-btn color="primary" variant="tonal" class="split-dropdown" v-bind="props">
+                              <v-icon>{{ $globals.icons.chevronDown }}</v-icon>
+                            </v-btn>
+                          </template>
+                          <v-list>
+                            <v-list-item
+                              slim
+                              density="comfortable"
+                              :prepend-icon="$globals.icons.create"
+                              :title="$t('new-recipe.bulk-add')"
+                              @click="domBulkAddDialog?.open()"
+                            />
+                          </v-list>
+                        </v-menu>
+                      </div>
                     </div>
-                  </div>
-                </template>
-              </RecipePageInstructions>
+                  </template>
+                </RecipePageInstructions>
+              </v-form>
               <div v-if="!$vuetify.display.mdAndUp">
                 <RecipePageOrganizers v-model="recipe" />
               </div>
@@ -183,7 +185,7 @@
         v-model="recipe"
         class="px-1 my-4 d-print-none"
       />
-      <RecipePrintContainer :recipe="recipe" :scale="scale" />
+      <RecipePrintContainer :recipe="displayedRecipe" :scale="scale" />
     </v-container>
     <header v-if="isCookMode" class="cook-mode-toolbar">
       <div class="cook-mode-heading">
@@ -215,7 +217,7 @@
           <RecipePageIngredientToolsView
             v-if="!isEditForm"
             v-model:scale="scale"
-            :recipe="recipe"
+            :recipe="displayedRecipe"
             :is-cook-mode="isCookMode"
             :ingredient-storage-key="ingredientStorageKey"
           />
@@ -230,7 +232,7 @@
             v-model="recipe.recipeInstructions"
             v-model:assets="recipe.assets"
             class="overflow-y-hidden px-4"
-            :recipe="recipe"
+            :recipe="displayedRecipe"
             :scale="scale"
             :ingredient-storage-key="ingredientStorageKey"
           />
@@ -242,7 +244,7 @@
         v-model="recipe.recipeInstructions"
         v-model:assets="recipe.assets"
         class="overflow-y-hidden"
-        :recipe="recipe"
+        :recipe="displayedRecipe"
         :scale="scale"
         :ingredient-storage-key="ingredientStorageKey"
       />
@@ -267,6 +269,7 @@
 <script setup lang="ts">
 import { recipeSavePayload, recipeView, type RecipeView } from "~/lib/recipe/recipe-view";
 import "~/assets/recipe-editor.css";
+import type { VForm } from "~/types/auto-forms";
 import { invoke, until } from "@vueuse/core";
 import type { RouteLocationNormalized } from "vue-router";
 import RecipeIngredients from "../RecipeIngredients.vue";
@@ -293,7 +296,7 @@ import { recipeSaveWarnings } from "~/lib/recipe/save-warnings";
 import { useRecipeSaveReview } from "~/composables/recipe-page/use-recipe-save-review";
 import { useRecipeSave } from "~/composables/recipe-page/use-recipe-save";
 import type { NoUndefinedField } from "~/lib/api/types/non-generated";
-import type { Recipe, RecipeCategory, RecipeIngredient, RecipeTag, RecipeTool } from "~/lib/api/types/recipe";
+import type { RecipeOut, CategoryOut, RecipeIngredient, RecipeStep, TagOut, ToolOut } from "~/lib/api/types/recipe";
 import type { Parser } from "~/lib/api/user/recipes/recipe";
 import { useRouteQuery } from "~/composables/use-router";
 import { useUserApi } from "~/composables/api";
@@ -302,6 +305,7 @@ import RecipeDialogBulkAdd from "~/components/Domain/Recipe/RecipeDialogBulkAdd.
 import RecipeNotes from "~/components/Domain/Recipe/RecipeNotes.vue";
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 import { useNavigationWarning } from "~/composables/use-navigation-warning";
+import { useUnitConversion, useUnitSystem } from "~/composables/recipes";
 import { useHouseholdSelf } from "~/composables/use-households";
 import { useAmbianceMusic } from "~/composables/use-ambiance-music";
 
@@ -339,8 +343,34 @@ function startParsing(parser: Parser) {
 useAmbianceMusic(isCookMode, "assets/End_Creditouilles-Michael_Giacchino_cooking_mode.mp3");
 const { deactivateNavigationWarning } = useNavigationWarning();
 const domBulkAddDialog = ref<InstanceType<typeof RecipeDialogBulkAdd> | null>(null);
+const scale = ref(1);
+
+const { unitSystem } = useUnitSystem();
+const { convertIngredient } = useUnitConversion();
+
+/**
+ * The recipe as the reader asked to see it: the recipe itself unless they've opted into a unit
+ * system. Cook mode, print and the ingredient list all read this, so they convert together.
+ *
+ * Returns `recipe` by identity whenever nothing is being converted, and always does so in edit
+ * mode: `recipe` is a defineModel the editors mutate in place, so handing them a derived copy
+ * would silently drop edits. Conversion is display-only and never reaches anything that saves.
+ */
+const displayedRecipe = computed<RecipeView>(() => {
+  if (isEditMode.value || !unitSystem.value) {
+    return recipe.value;
+  }
+
+  return {
+    ...recipe.value,
+    recipeIngredient: recipe.value.recipeIngredient.map(
+      ingredient => convertIngredient(ingredient, unitSystem.value!, scale.value),
+    ),
+  };
+});
+
 const notLinkedIngredients = computed(() => {
-  return recipe.value.recipeIngredient.filter((ingredient) => {
+  return displayedRecipe.value.recipeIngredient.filter((ingredient) => {
     return !recipe.value.recipeInstructions.some(step =>
       step.ingredientReferences?.map(ref => ref.referenceId).includes(ingredient.referenceId),
     );
@@ -352,7 +382,7 @@ const notLinkedIngredients = computed(() => {
  * this is used to determine if the recipe has been changed since the last save
  * and prompts the user to save if they have unsaved changes.
  */
-const originalRecipe = ref<Recipe | null>(null);
+const originalRecipe = ref<RecipeOut | null>(null);
 const discardDialog = ref(false);
 const pendingRoute = ref<RouteLocationNormalized | null>(null);
 
@@ -413,7 +443,7 @@ onBeforeRouteLeave((to) => {
 
 onUnmounted(() => {
   deactivateNavigationWarning();
-  clearPageState(recipe.value.slug || "");
+  clearPageState(recipe.value.slug);
 });
 const hasLinkedIngredients = computed(() => {
   return recipe.value.recipeInstructions.some(
@@ -427,6 +457,7 @@ const hasLinkedIngredients = computed(() => {
 const paramsEdit = useRouteQuery<BooleanString>("edit", "");
 const paramsParse = useRouteQuery<BooleanString>("parse", "");
 const paramsCook = useRouteQuery<BooleanString>("cook", "");
+const paramsScale = useRouteQuery<string>("scale", "");
 const paramsCelebrate = useRouteQuery<BooleanString>("celebrate", "");
 const showCreationCelebration = ref(false);
 const { hydrateCookMode } = useCookModeQuery({
@@ -450,6 +481,12 @@ onMounted(() => {
     paramsCelebrate.value = undefined;
   }
 
+  // e.g. set when opened from a meal plan entry, so the recipe starts at the entry's scale
+  const initialScale = parseFloat(paramsScale.value);
+  if (initialScale > 0 && isFinite(initialScale)) {
+    scale.value = initialScale;
+  }
+
   hydrateCookMode();
 });
 
@@ -468,7 +505,7 @@ watch(isEditMode, (newVal) => {
 });
 
 watch(isParsing, () => {
-  if (!isParsing.value) {
+  if (!isParsing.value && paramsParse.value) {
     paramsParse.value = undefined;
   }
 });
@@ -477,10 +514,17 @@ watch(isParsing, () => {
  * Recipe Save Delete
  */
 
+const instructionForm = ref<VForm | null>(null);
+
 async function saveRecipe(scope: "recipe" | "ingredients" = "recipe") {
   if (saving.value || saveReviewOpen.value) return false;
+  if (isEditForm.value && instructionForm.value) {
+    const { valid } = await instructionForm.value.validate();
+    if (!valid) return false;
+  }
   if (!await requestSaveReview(recipeSaveWarnings(recipe.value, scope))) return false;
-  const data = await save(() => api.recipes.updateOne(recipe.value.slug, recipeSavePayload(recipe.value)));
+  // the route's slug is the recipe being edited; the editable JSON can't redirect the save elsewhere
+  const data = await save(() => api.recipes.updateOne(route.params.slug as string, recipeSavePayload(recipe.value)));
   if (!data) return false;
   if (data.slug && data.slug !== route.params.slug) {
     isNavigatingAfterRename.value = true;
@@ -540,21 +584,25 @@ function addStep(steps: Array<string> | null = null) {
     return;
   }
 
+  // New steps use the API's nullable fields, not the populated-view helper type.
+  const instructions: RecipeStep[] = recipe.value.recipeInstructions;
+
   if (steps) {
     const cleanedSteps = steps.map((step) => {
-      return { id: uuid4(), text: step, title: "", summary: "", ingredientReferences: [], noteReferences: [] };
+      return { id: uuid4(), text: step, title: "", summary: "", ingredientReferences: [], noteReferences: [], durationSeconds: null };
     });
 
-    recipe.value.recipeInstructions.push(...cleanedSteps);
+    instructions.push(...cleanedSteps);
   }
   else {
-    recipe.value.recipeInstructions.push({
+    instructions.push({
       id: uuid4(),
       text: "",
       title: "",
       summary: "",
       ingredientReferences: [],
       noteReferences: [],
+      durationSeconds: null,
     });
   }
 }
@@ -563,14 +611,12 @@ function addStep(steps: Array<string> | null = null) {
  * RecipeChip Clicked
  */
 
-function chipClicked(item: RecipeTag | RecipeCategory | RecipeTool, itemType: string) {
+function chipClicked(item: TagOut | CategoryOut | ToolOut, itemType: string) {
   if (!item.id) {
     return;
   }
   router.push(`/g/${groupSlug.value}?${itemType}=${item.id}`);
 }
-
-const scale = ref(1);
 
 // expose to template
 // (all variables used in template are top-level in <script setup>)

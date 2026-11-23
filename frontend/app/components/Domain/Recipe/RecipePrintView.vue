@@ -1,11 +1,12 @@
-<!-- eslint-disable vue/no-v-html -->
 <template>
   <div :class="dense ? 'wrapper' : 'wrapper pa-3'">
     <header class="print-header" :class="{ 'print-header-with-image': showImage, 'print-image-right': preferences.imagePosition === ImagePosition.right }">
       <img v-if="showImage" :key="imageKey" :src="recipeImageUrl" :alt="recipe.name" class="print-image">
       <div class="print-overview">
         <h1>{{ recipe.name }}</h1>
-        <p v-if="recipeYield" class="print-yield" v-html="recipeYield" />
+        <p v-if="recipeYield" class="print-yield">
+          <SafeInlineHtml :html="recipeYield" />
+        </p>
         <dl v-if="printTimes.length" class="print-times">
           <div v-for="time in printTimes" :key="time.label">
             <dt>{{ time.label }}</dt>
@@ -40,11 +41,9 @@
             :key="`ingredient-${ingredientIndex}`"
             class="ingredient-cell"
           >
-            <!-- eslint-disable-next-line vue/no-v-html -->
-            <p
-              class="ingredient-body"
-              v-html="parseText(ingredient)"
-            />
+            <p class="ingredient-body">
+              <SafeInlineHtml :html="parseText(ingredient)" />
+            </p>
             <!-- paper has nothing to tap, so what the menu holds on screen is spelled out here -->
             <SafeMarkdown
               v-if="preferences.showSubstitutions && substitutionSummary(ingredient)"
@@ -106,11 +105,9 @@
                   v-for="(ingredient, ingredientIndex) in stepLinkedIngredients.get(`${sectionIndex}-${stepIndex}`) ?? []"
                   :key="`ingredient-${ingredientIndex}`"
                 >
-                  <!-- eslint-disable-next-line vue/no-v-html -->
-                  <p
-                    class="ingredient-body"
-                    v-html="parseText(ingredient)"
-                  />
+                  <p class="ingredient-body">
+                    <SafeInlineHtml :html="parseText(ingredient)" />
+                  </p>
                 </template>
               </div>
             </div>
@@ -143,6 +140,7 @@
     <div v-if="preferences.showNutrition && hasNutrition">
       <h2>
         {{ i18n.t("recipe.nutrition") }}
+        <span class="nutrition-per-serving">({{ i18n.t("recipe.per-serving") }})</span>
       </h2>
 
       <section>
@@ -168,11 +166,10 @@
 
 <script setup lang="ts">
 import type { RecipeView } from "~/lib/recipe/recipe-view";
-import DOMPurify from "dompurify";
 import { useStaticRoutes } from "~/composables/api";
 import type { RecipeIngredient, RecipeStep } from "~/lib/api/types/recipe";
 import { ImagePosition, useUserPrintPreferences } from "~/composables/use-users/preferences";
-import { ingredientSubstitutionSummary, useFoodPlurality, useIngredientTextParser, useNutritionLabels } from "~/composables/recipes";
+import { ingredientSubstitutionSummary, useFoodPlurality, useIngredientTextParser, useNutritionLabels, useRecipeTime } from "~/composables/recipes";
 import { usePageState } from "~/composables/recipe-page/shared-state";
 import { useScaledAmount } from "~/composables/recipes/use-scaled-amount";
 
@@ -202,13 +199,8 @@ const preferences = useUserPrintPreferences();
 const { recipeImage } = useStaticRoutes();
 const { imageKey } = usePageState(props.recipe.slug);
 const { labels } = useNutritionLabels();
+const { recipeTimeDisplay } = useRecipeTime();
 
-function sanitizeHTML(rawHtml: string) {
-  return DOMPurify.sanitize(rawHtml, {
-    USE_PROFILES: { html: true },
-    ALLOWED_TAGS: ["strong", "sup"],
-  });
-}
 const servingsDisplay = computed(() => {
   const { scaledAmountDisplay } = useScaledAmount(props.recipe.recipeYieldQuantity, props.scale);
   return scaledAmountDisplay || props.recipe.recipeYield
@@ -226,10 +218,10 @@ const yieldDisplay = computed(() => {
 
 const recipeYield = computed(() => {
   if (servingsDisplay.value && yieldDisplay.value) {
-    return sanitizeHTML(`${yieldDisplay.value}; ${servingsDisplay.value}`);
+    return `${yieldDisplay.value}; ${servingsDisplay.value}`;
   }
   else {
-    return sanitizeHTML(yieldDisplay.value || servingsDisplay.value);
+    return yieldDisplay.value || servingsDisplay.value;
   }
 });
 
@@ -339,9 +331,9 @@ const instructionSections = computed<InstructionSection[]>(() => {
 
 const showImage = computed(() => !!props.recipe.image && !!preferences.value.imagePosition && preferences.value.imagePosition !== ImagePosition.hidden);
 const printTimes = computed(() => [
-  { label: i18n.t("recipe.total-time"), value: props.recipe.totalTime },
-  { label: i18n.t("recipe.prep-time"), value: props.recipe.prepTime },
-  { label: i18n.t("recipe.perform-time"), value: props.recipe.performTime },
+  { label: i18n.t("recipe.total-time"), value: recipeTimeDisplay(props.recipe.totalTimeSeconds, props.recipe.totalTime) },
+  { label: i18n.t("recipe.prep-time"), value: recipeTimeDisplay(props.recipe.prepTimeSeconds, props.recipe.prepTime) },
+  { label: i18n.t("recipe.perform-time"), value: recipeTimeDisplay(props.recipe.performTimeSeconds, props.recipe.performTime) },
 ].filter(time => time.value));
 const populatedNutrition = computed(() => Object.fromEntries(Object.entries(props.recipe.nutrition || {}).filter(([, value]) => !!value)) as Partial<typeof props.recipe.nutrition>);
 const hasNutrition = computed(() => Object.keys(populatedNutrition.value).length > 0);
@@ -375,7 +367,8 @@ const { parseIngredientText } = useIngredientTextParser();
 
 function parseText(ingredient: RecipeIngredient) {
   if (!ingredient.food && !ingredient.referencedRecipe && (ingredient.originalText || ingredient.note)) {
-    return DOMPurify.sanitize(ingredient.originalText || ingredient.note || "");
+    // SafeInlineHtml sanitizes this when it renders
+    return ingredient.originalText || ingredient.note || "";
   }
   return parseIngredientText(ingredient, props.scale);
 }
@@ -518,6 +511,11 @@ h6 {
   line-height: 1.4;
   margin-top: 1mm;
 }
+.nutrition-per-serving {
+  font-size: 0.9rem;
+  font-weight: normal;
+}
+
 .nutrition-table {
   width: 100%;
   border-collapse: collapse;

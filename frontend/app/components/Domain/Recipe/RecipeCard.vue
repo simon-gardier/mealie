@@ -34,7 +34,7 @@
             :title="false"
             small
             url-prefix="tags"
-            v-bind="$attrs"
+            @item-selected="(item, urlPrefix) => $emit('itemSelected', item, urlPrefix)"
           />
 
           <slot name="actions">
@@ -52,6 +52,7 @@
                   delete: false,
                   edit: false,
                   download: true,
+                  downloadPdf: true,
                   mealplanner: true,
                   shoppingList: true,
                   print: false,
@@ -73,7 +74,7 @@
 
 <script setup lang="ts">
 import { useLink } from "vue-router";
-import RecipeChips from "./RecipeChips.vue";
+import RecipeChips, { type UrlPrefixParam } from "./RecipeChips.vue";
 import RecipeContextMenu from "./RecipeContextMenu/RecipeContextMenu.vue";
 import RecipeCardImage from "./RecipeCardImage.vue";
 import RecipeRating from "./RecipeRating.vue";
@@ -83,6 +84,7 @@ import { useLoggedInState } from "~/composables/use-logged-in-state";
 import { useUserSelfRatings } from "~/composables/use-users";
 import { playRecipeSynesthesia } from "~/plugins/recipe-synesthesia.client";
 import type { SynesthesiaOrigin } from "~/lib/recipe-synesthesia/events";
+import type { TagOut } from "~/lib/api/types/recipe";
 
 interface Props {
   name: string;
@@ -107,6 +109,7 @@ const props = withDefaults(defineProps<Props>(), {
 defineEmits<{
   click: [];
   delete: [slug: string];
+  itemSelected: [item: TagOut, urlPrefix: UrlPrefixParam];
 }>();
 
 const auth = useMealieAuth();

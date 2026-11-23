@@ -22,7 +22,7 @@ import { useGroupSelf } from "~/composables/use-groups";
 import { readRecipeImportUrl, recipeImportUrlKey } from "~/composables/use-recipe-import-url";
 
 definePageMeta({
-  middleware: ["group-only"],
+  middleware: ["auth", "group-only"],
 });
 
 const i18n = useI18n();

@@ -39,12 +39,13 @@
       />
     </v-card-text>
   </BaseDialog>
-  <MealPlanAddRecipeDialog v-model="mealplannerDialog" :recipe-id="recipeId" />
+  <MealPlanAddRecipeDialog v-model="mealplannerDialog" :recipe-id="recipeId" :recipe-scale="recipeScale" />
   <RecipeDialogAddToShoppingList
     v-if="shoppingLists && recipeRefWithScale"
     v-model="shoppingListDialog"
     :recipes="[recipeRefWithScale]"
     :shopping-lists="shoppingLists"
+    @list-created="addShoppingList"
   />
 
   <v-list density="compact">
@@ -93,9 +94,9 @@ import { useGroupRecipeActions } from "~/composables/use-group-recipe-actions";
 import { useGroupSelf } from "~/composables/use-groups";
 import { useHouseholdSelf } from "~/composables/use-households";
 import { useLoggedInState } from "~/composables/use-logged-in-state";
-import { alert } from "~/composables/use-toast";
+import { alert, loader } from "~/composables/use-toast";
 import type { GroupRecipeActionOut, HouseholdSummary } from "~/lib/api/types/household";
-import type { Recipe } from "~/lib/api/types/recipe";
+import type { RecipeOut } from "~/lib/api/types/recipe";
 import { isRecipeFullyPublic } from "~/lib/recipe/recipe-visibility";
 import { canScaleShoppingRecipe } from "~/lib/shopping-recipe-portions";
 
@@ -103,6 +104,7 @@ export interface ContextMenuIncludes {
   delete: boolean;
   edit: boolean;
   download: boolean;
+  downloadPdf: boolean;
   duplicate: boolean;
   mealplanner: boolean;
   shoppingList: boolean;
@@ -130,7 +132,7 @@ interface Props {
   slug: string;
   menuIcon?: string | null;
   name: string;
-  recipe?: Recipe;
+  recipe?: RecipeOut;
   recipeId: string;
   recipeScale?: number;
 }
@@ -139,6 +141,7 @@ const props = withDefaults(defineProps<Props>(), {
     delete: true,
     edit: true,
     download: true,
+    downloadPdf: true,
     duplicate: false,
     mealplanner: true,
     shoppingList: true,
@@ -167,7 +170,7 @@ const emit = defineEmits<{
 }>();
 
 const api = useUserApi();
-const { open: shoppingListDialog, shoppingLists, getShoppingLists } = useAddToShoppingListDialog();
+const { open: shoppingListDialog, shoppingLists, getShoppingLists, addShoppingList } = useAddToShoppingListDialog();
 
 const printPreferencesDialog = ref(false);
 const shareDialog = ref(false);
@@ -188,7 +191,7 @@ const route = useRoute();
 const groupSlug = computed(() => route.params.groupSlug as string || auth.user.value?.groupSlug || "");
 
 const { share, isSupported: shareIsSupported } = useShare();
-const { copy, copied, isSupported: clipboardIsSupported } = useClipboard();
+const { copy, copied, isSupported: clipboardIsSupported } = useClipboard({ legacy: true });
 
 function getPlainRecipeLink() {
   return `${window.location.origin}/g/${groupSlug.value}/r/${props.slug}`;
@@ -235,6 +238,13 @@ const defaultItems: { [key: string]: ContextMenuItem } = {
     icon: $globals.icons.download,
     color: undefined,
     event: "download",
+    isPublic: false,
+  },
+  downloadPdf: {
+    title: i18n.t("recipe.download-pdf"),
+    icon: $globals.icons.filePDF,
+    color: undefined,
+    event: "downloadPdf",
     isPublic: false,
   },
   duplicate: {
@@ -286,7 +296,7 @@ const defaultItems: { [key: string]: ContextMenuItem } = {
 // ===========================================================================
 // Context Menu Event Handler
 
-const recipeRef = ref<Recipe | undefined>(props.recipe);
+const recipeRef = ref<RecipeOut | undefined>(props.recipe);
 const canAddToShoppingList = computed(() => canScaleShoppingRecipe(recipeRef.value?.recipeIngredient));
 watch(() => props.recipe, (recipe) => {
   recipeRef.value = recipe;
@@ -388,6 +398,17 @@ async function handleDownloadEvent() {
   download(api.recipes.share.getZipRedirectUrl(shareToken.id), `${props.slug}.zip`);
 }
 
+async function handleDownloadPdfEvent() {
+  // The menu closes on click, so a toast is the only place left to show that a PDF is coming.
+  loader.info(i18n.t("recipe.preparing-pdf"));
+  try {
+    await download(api.recipes.getPdfUrl(props.slug), `${props.slug}.pdf`);
+  }
+  finally {
+    loader.close();
+  }
+}
+
 async function duplicateRecipe() {
   const { data } = await api.recipes.duplicateOne(props.slug, recipeName.value);
   if (data && data.slug) {
@@ -403,6 +424,7 @@ const eventHandlers: { [key: string]: () => void | Promise<any> } = {
   },
   edit: () => router.push(`/g/${groupSlug.value}/r/${props.slug}` + "?edit=true"),
   download: handleDownloadEvent,
+  downloadPdf: handleDownloadPdfEvent,
   duplicate: () => {
     recipeDuplicateDialog.value = true;
   },

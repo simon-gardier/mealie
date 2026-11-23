@@ -4,6 +4,7 @@ import { nextTick } from "vue";
 import { createVuetify } from "vuetify";
 import { VAutocomplete, VTextField, VBtn, VIcon } from "vuetify/components";
 import RecipeIngredientSubstitutionEditor from "./RecipeIngredientSubstitutionEditor.vue";
+import type { IngredientFoodOut } from "~/lib/api/types/recipe";
 
 const mocks = vi.hoisted(() => ({ createOne: vi.fn() }));
 
@@ -16,7 +17,7 @@ describe("RecipeIngredientSubstitutionEditor", () => {
   test("renders a newly added blank substitute with real Vuetify controls", async () => {
     vi.stubGlobal("ResizeObserver", class { observe() {} unobserve() {} disconnect() {} });
     const wrapper = mount(RecipeIngredientSubstitutionEditor, {
-      props: { substitutions: [], foods: [{ id: "butter", name: "Butter" }] },
+      props: { substitutions: [], foods: [{ id: "butter", name: "Butter" }] as IngredientFoodOut[] },
       global: {
         plugins: [createVuetify({ components: { VAutocomplete, VTextField, VBtn, VIcon } })],
         mocks: { $globals: { icons: { delete: "mdi-delete", create: "mdi-plus" } } },
@@ -38,7 +39,7 @@ describe("RecipeIngredientSubstitutionEditor", () => {
     mocks.createOne.mockResolvedValueOnce({ id: "created", name: "Margarine" });
 
     const wrapper = mount(RecipeIngredientSubstitutionEditor, {
-      props: { substitutions, foods },
+      props: { substitutions, foods: foods as IngredientFoodOut[] },
       global: {
         mocks: { $globals: { icons: { delete: "delete", create: "create" } }, $vuetify: { display: { mdAndDown: false } } },
         stubs: {

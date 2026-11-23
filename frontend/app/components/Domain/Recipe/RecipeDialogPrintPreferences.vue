@@ -100,12 +100,12 @@
 
 <script setup lang="ts">
 import { recipeView } from "~/lib/recipe/recipe-view";
-import type { Recipe } from "~/lib/api/types/recipe";
+import type { RecipeOut } from "~/lib/api/types/recipe";
 import { ImagePosition, useUserPrintPreferences } from "~/composables/use-users/preferences";
 import RecipePrintView from "~/components/Domain/Recipe/RecipePrintView.vue";
 
 interface Props {
-  recipe?: Recipe;
+  recipe?: RecipeOut;
 }
 withDefaults(defineProps<Props>(), {
   recipe: undefined,

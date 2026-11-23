@@ -12,6 +12,7 @@
       :submit-text="$t('general.save')"
       :submit-disabled="!editTarget.queryFilterString"
       can-submit
+      disable-submit-on-enter
       @submit="editCookbook"
     >
       <v-card-text>
@@ -29,9 +30,7 @@
             {{ book.name }}
           </v-toolbar-title>
         </div>
-        <div v-if="book.description" class="subtitle-1 text-secondary-label mb-2">
-          {{ book.description }}
-        </div>
+        <SafeMarkdown v-if="book.description" :source="book.description" class="subtitle-1 text-secondary-label mb-2" />
       </v-sheet>
 
       <v-container class="pa-0">
@@ -45,6 +44,19 @@
           @delete="removeRecipe"
         >
           <template #toolbar-actions>
+            <v-btn
+              v-if="isOwnGroup"
+              :icon="$vuetify.display.xs"
+              variant="text"
+              :loading="downloadingPdf"
+              :aria-label="$t('recipe.download-pdf')"
+              @click="downloadPdf"
+            >
+              <v-icon :start="!$vuetify.display.xs">
+                {{ $globals.icons.download }}
+              </v-icon>
+              {{ $vuetify.display.xs ? null : $t("recipe.download-pdf") }}
+            </v-btn>
             <v-btn v-if="canEdit" :icon="$vuetify.display.xs" variant="text" @click="handleEditCookbook">
               <v-icon :start="!$vuetify.display.xs">
                 {{ $globals.icons.edit }}
@@ -64,8 +76,11 @@ import RecipeCardSection from "@/components/Domain/Recipe/RecipeCardSection.vue"
 import { useCookbookStore } from "~/composables/store/use-cookbook-store";
 import { useCookbook } from "~/composables/use-group-cookbooks";
 import { useLoggedInState } from "~/composables/use-logged-in-state";
-import type { ReadCookBook } from "~/lib/api/types/cookbook";
+import type { CookBookOut } from "~/lib/api/types/cookbook";
 import CookbookEditor from "~/components/Domain/Cookbook/CookbookEditor.vue";
+import { useDownloader } from "~/composables/api/use-downloader";
+import { loader } from "~/composables/use-toast";
+import { useUserApi } from "~/composables/api";
 
 const auth = useMealieAuth();
 const { isOwnGroup } = useLoggedInState();
@@ -90,11 +105,33 @@ const isOwnHousehold = computed(() => {
 });
 const canEdit = computed(() => isOwnGroup.value && isOwnHousehold.value);
 
+const api = useUserApi();
+const download = useDownloader();
+const i18n = useI18n();
+
+const downloadingPdf = ref(false);
+
+async function downloadPdf() {
+  if (!book.value || downloadingPdf.value) {
+    return;
+  }
+  downloadingPdf.value = true;
+  // A big cookbook takes a while to render, and the browser shows nothing until the file arrives.
+  loader.info(i18n.t("recipe.preparing-pdf"));
+  try {
+    await download(api.cookbooks.getPdfUrl(book.value.id), `${book.value.slug}.pdf`);
+  }
+  finally {
+    downloadingPdf.value = false;
+    loader.close();
+  }
+}
+
 const dialogStates = reactive({
   edit: false,
 });
 
-const editTarget = ref<ReadCookBook | null>(null);
+const editTarget = ref<CookBookOut | null>(null);
 function handleEditCookbook() {
   dialogStates.edit = true;
   editTarget.value = book.value ?? null;

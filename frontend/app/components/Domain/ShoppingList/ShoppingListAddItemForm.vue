@@ -45,7 +45,7 @@
 import { useShoppingListItemEditor } from "~/composables/shopping-list-page/use-shopping-list-item-editor";
 import type { ShoppingListItemOut } from "~/lib/api/types/household";
 import type { MultiPurposeLabelOut } from "~/lib/api/types/labels";
-import type { IngredientFood, IngredientUnit } from "~/lib/api/types/recipe";
+import type { IngredientFoodOut, IngredientUnitOut } from "~/lib/api/types/recipe";
 import ShoppingListItemDetails from "./ShoppingListItemDetails.vue";
 import { onClickOutside, useElementSize } from "@vueuse/core";
 
@@ -58,11 +58,11 @@ defineProps({
     required: true,
   },
   units: {
-    type: Array as () => IngredientUnit[],
+    type: Array as () => IngredientUnitOut[],
     required: true,
   },
   foods: {
-    type: Array as () => IngredientFood[],
+    type: Array as () => IngredientFoodOut[],
     required: true,
   },
 });

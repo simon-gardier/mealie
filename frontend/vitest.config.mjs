@@ -17,6 +17,9 @@ export default {
     server: { deps: { inline: ["vuetify"] } },
     globals: true,
     environment: "jsdom",
+    // Node 25+ defines its own global localStorage, which is undefined without --localstorage-file
+    // and hides the jsdom one.
+    execArgv: ["--no-experimental-webstorage"],
     setupFiles: ["./app/tests/setup.ts"],
     coverage: {
       provider: "v8",

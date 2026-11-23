@@ -28,18 +28,18 @@
 
 <script setup lang="ts">
 import type { MultiPurposeLabelSummary } from "~/lib/api/types/labels";
-import type { IngredientFood, IngredientUnit } from "~/lib/api/types/recipe";
+import type { IngredientFoodOut, IngredientUnitOut } from "~/lib/api/types/recipe";
 import { useSearch } from "~/composables/use-search";
 
 // v-model for the selected item
-const modelValue = defineModel<MultiPurposeLabelSummary | IngredientFood | IngredientUnit | null>({ default: null });
+const modelValue = defineModel<MultiPurposeLabelSummary | IngredientFoodOut | IngredientUnitOut | null>({ default: null });
 
 // support v-model:item-id binding
 const itemId = defineModel<string | null | undefined>("item-id", { default: undefined });
 
 const props = defineProps({
   items: {
-    type: Array as () => Array<MultiPurposeLabelSummary | IngredientFood | IngredientUnit>,
+    type: Array as () => Array<MultiPurposeLabelSummary | IngredientFoodOut | IngredientUnitOut>,
     required: true,
   },
   icon: {
@@ -70,7 +70,7 @@ const autocompleteRef = ref<HTMLInputElement>();
 // Use the search composable
 const { search: searchInput, filtered: filteredItems } = useSearch(computed(() => props.items));
 
-const itemVal = computed<MultiPurposeLabelSummary | IngredientFood | IngredientUnit | null>({
+const itemVal = computed<MultiPurposeLabelSummary | IngredientFoodOut | IngredientUnitOut | null>({
   get: () => {
     if (!modelValue.value || Object.keys(modelValue.value).length === 0) {
       return null;

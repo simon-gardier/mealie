@@ -6,6 +6,10 @@ import pytest
 from recipe_scrapers import scrape_html
 
 from mealie.lang.providers import get_locale_provider
+from mealie.schema.recipe.recipe import RecipeDraft
+from mealie.schema.recipe.recipe_ingredient import RecipeIngredient
+from mealie.schema.recipe.recipe_notes import RecipeNote
+from mealie.schema.recipe.recipe_step import IngredientReferences, NoteReference, RecipeStep
 from mealie.services.scraper import cleaner
 from mealie.services.scraper.scraper_strategies import RecipeScraperOpenGraph, RecipeScraperPackage
 from tests import data as test_data
@@ -88,3 +92,89 @@ def test_clean_scraper_preserves_notes():
     assert recipe.notes[0].text == "Keep refrigerated up to 3 days"
     assert recipe.notes[1].title == "Variation"
     assert recipe.notes[1].text == "Add chili flakes for extra heat"
+
+
+def test_cleaner_clean_structures_times():
+    translator = get_locale_provider()
+    recipe = cleaner.clean(
+        {
+            "name": "Test Recipe",
+            "totalTime": "PT1H30M",
+            "prepTime": 20,
+            "performTime": "about an hour",
+        },
+        translator,
+    )
+
+    assert recipe.total_time_seconds == 5400
+    assert recipe.total_time is None
+    assert recipe.prep_time_seconds == 1200
+    assert recipe.prep_time is None
+    assert recipe.perform_time_seconds is None
+    assert recipe.perform_time == "about an hour"
+
+
+def test_cleaner_clean_keeps_existing_seconds():
+    translator = get_locale_provider()
+    recipe = cleaner.clean({"name": "Test Recipe", "totalTime": "PT2H", "totalTimeSeconds": 60}, translator)
+
+    assert recipe.total_time_seconds == 60
+    assert recipe.total_time == "2 hours"
+
+
+def test_cleaner_clean_keeps_instruction_links_and_durations():
+    ingredient = RecipeIngredient(title="Dough", note="1 cup flour")
+    note = RecipeNote(title="", text="Sift the flour first.")
+    recipe = RecipeDraft(
+        name="Test Recipe",
+        recipe_ingredient=[ingredient],
+        notes=[note],
+        recipe_instructions=[
+            RecipeStep(
+                text="Mix the flour, then rest the dough.",
+                ingredient_references=[IngredientReferences(reference_id=ingredient.reference_id)],
+                note_references=[NoteReference(reference_id=note.reference_id)],
+                duration_seconds=600,
+            ),
+            RecipeStep(text="Bake."),
+        ],
+    )
+
+    cleaned = cleaner.clean(recipe, get_locale_provider())
+
+    assert [ing.reference_id for ing in cleaned.recipe_ingredient] == [ingredient.reference_id]
+    assert cleaned.recipe_ingredient[0].title == "Dough"
+    assert cleaned.notes and [n.reference_id for n in cleaned.notes] == [note.reference_id]
+
+    linked, plain = cleaned.recipe_instructions or []
+    assert [ref.reference_id for ref in linked.ingredient_references] == [ingredient.reference_id]
+    assert [ref.reference_id for ref in linked.note_references] == [note.reference_id]
+    assert linked.duration_seconds == 600
+    assert plain.ingredient_references == []
+    assert plain.note_references == []
+    assert plain.duration_seconds is None
+
+
+def test_clean_scraper_structures_times():
+    ld_json = json.dumps(
+        {
+            "@context": "https://schema.org",
+            "@type": "Recipe",
+            "name": "Test Recipe",
+            "totalTime": "PT1H30M",
+            "prepTime": "PT20M",
+            "cookTime": "PT1H10M",
+            "recipeIngredient": ["1 cup flour"],
+            "recipeInstructions": [{"@type": "HowToStep", "text": "Mix everything together"}],
+        }
+    )
+    html = RecipeScraperPackage.ld_json_to_html(ld_json)
+    scraped = scrape_html(html, org_url="https://example.com", supported_only=False)
+    translator = get_locale_provider()
+    strategy = RecipeScraperPackage("https://example.com", translator, None)  # type: ignore[arg-type]
+
+    recipe, _ = strategy.clean_scraper(scraped, "https://example.com")
+    recipe = cleaner.clean(recipe, translator)
+
+    assert (recipe.total_time_seconds, recipe.prep_time_seconds, recipe.perform_time_seconds) == (5400, 1200, 4200)
+    assert (recipe.total_time, recipe.prep_time, recipe.perform_time) == (None, None, None)

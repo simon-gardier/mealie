@@ -105,6 +105,12 @@
           class="d-flex"
           rounded
           :buttons="[
+            ...(canSearch || isSearchOpen ? [{
+              icon: $globals.icons.search,
+              text: $t('search.search'),
+              event: 'search',
+              color: isSearchOpen ? 'primary' : undefined,
+            }] : []),
             {
               icon: $globals.icons.contentCopy,
               text: ('general.actions'),
@@ -126,6 +132,7 @@
               icon: $globals.icons.checkboxMultipleMarkedOutline,
               text: $t('shopping-list.check-all-items'),
               event: 'check',
+              disabled: isSearching,
             },
             {
               icon: $globals.icons.dotsVertical,
@@ -150,6 +157,7 @@
               ],
             },
           ]"
+          @search="toggleSearch"
           @edit="edit = true"
           @three-dot="threeDot = true"
           @check="openCheckAll"
@@ -186,6 +194,22 @@
 
     <!-- Viewer -->
     <section v-if="!edit" class="py-2 d-flex flex-column ga-1 shopping-list-view recipe-editor-overlay">
+      <!-- Search, toggled from the page title -->
+      <v-text-field
+        v-if="isSearchOpen"
+        :model-value="search"
+        :label="$t('search.search')"
+        :prepend-inner-icon="$globals.icons.search"
+        autofocus
+        clearable
+        hide-details
+        density="comfortable"
+        variant="filled"
+        single-line
+        @update:model-value="value => search = value ?? ''"
+        @click:clear="clearSearch"
+      />
+
       <!-- Create Item -->
       <ShoppingListAddItemForm
         v-if="$vuetify.display.smAndDown"
@@ -223,90 +247,95 @@
 
       <BaseEmptyState v-if="!totalItemCount" :message="$t('shopping-list.empty-list')" :icon="$globals.icons.cartCheck" />
       <TransitionGroup name="scroll-x-transition">
-        <BaseExpansionPanels v-for="(value, key) in itemsByLabel" :key="key" :v-model="0" start-open>
-          <v-expansion-panel class="shopping-list-section">
-            <!-- the label colour fills the header bar; an uncoloured (or unlabelled) header is muted instead -->
-            <v-expansion-panel-title
-              color="surface"
-              class="body-1 section-title"
-            >
-              <span class="shopping-label-dot" :style="{ backgroundColor: value[0]?.label?.color || getLabelColor(key) || 'rgb(var(--v-theme-separator))' }" aria-hidden="true" />
-              <span class="section-heading-content">
-                <span class="section-label">{{ key }}</span>
-                <span class="section-count">{{ $t('shopping-list.products-count', value.length) }}</span>
-              </span>
-            </v-expansion-panel-title>
-            <v-expansion-panel-text eager>
-              <VueDraggable
-                :model-value="value"
-                handle=".handle"
-                :delay="250"
-                :delay-on-touch-only="true"
-                ghost-class="recipe-drop-target"
-                chosen-class="recipe-drag-chosen"
-                drag-class="recipe-drag-active"
-                fallback-class="shopping-item-drag-preview"
-                :force-fallback="true"
-                :fallback-on-body="false"
-                :animation="180"
-                @start="loadingCounter += 1"
-                @end="loadingCounter -= 1"
-                @update:model-value="updateIndexUncheckedByLabel(key.toString(), $event)"
+        <template v-for="(value, key) in itemsByLabel" :key="key">
+          <BaseExpansionPanels v-if="hasMatches(value)" :v-model="0" start-open>
+            <v-expansion-panel class="shopping-list-section">
+              <!-- the label colour fills the header bar; an uncoloured (or unlabelled) header is muted instead -->
+              <v-expansion-panel-title
+                color="surface"
+                class="body-1 section-title"
               >
-                <TransitionGroup name="scroll-x-transition">
-                  <ShoppingListItem
-                    v-for="(item, index) in value"
-                    :key="item.id"
-                    :model-value="item"
-                    class="my-2 w-auto shopping-list-item-row"
-                    :edit="editingItem === item.id"
-                    :labels="allLabels || []"
-                    :units="allUnits || []"
-                    :foods="allFoods || []"
-                    :recipes="recipeMap"
-                    @update:model-value="value[index] = $event"
-                    @checked="(item) => {
-                      saveListItem(item);
-                      itemCheckedToast(item);
-                    }"
-                    @save="(item) => {
-                      editingItem = undefined;
-                      saveListItem(item);
-                    }"
-                    @delete="deleteListItem(item)"
-                    @view="editingItem = undefined"
-                    @edit="editingItem = item.id"
-                  />
-                </TransitionGroup>
-              </VueDraggable>
-            </v-expansion-panel-text>
-          </v-expansion-panel>
-        </BaseExpansionPanels>
+                <span class="shopping-label-dot" :style="{ backgroundColor: value[0]?.label?.color || getLabelColor(key) || 'rgb(var(--v-theme-separator))' }" aria-hidden="true" />
+                <span class="section-heading-content">
+                  <span class="section-label">{{ key }}</span>
+                  <span class="section-count">{{ $t('shopping-list.products-count', value.length) }}</span>
+                </span>
+              </v-expansion-panel-title>
+              <v-expansion-panel-text eager>
+                <VueDraggable
+                  :model-value="value"
+                  handle=".handle"
+                  :delay="250"
+                  :delay-on-touch-only="true"
+                  ghost-class="recipe-drop-target"
+                  chosen-class="recipe-drag-chosen"
+                  drag-class="recipe-drag-active"
+                  fallback-class="shopping-item-drag-preview"
+                  :force-fallback="true"
+                  :fallback-on-body="false"
+                  :animation="180"
+                  :disabled="isSearching"
+                  @start="loadingCounter += 1"
+                  @end="loadingCounter -= 1"
+                  @update:model-value="updateIndexUncheckedByLabel(key.toString(), $event)"
+                >
+                  <TransitionGroup name="scroll-x-transition">
+                    <ShoppingListItem
+                      v-for="(item, index) in value"
+                      v-show="matchesSearch(item)"
+                      :key="item.id"
+                      :model-value="item"
+                      class="my-2 w-auto shopping-list-item-row"
+                      :edit="editingItem === item.id"
+                      :labels="allLabels || []"
+                      :units="allUnits || []"
+                      :foods="allFoods || []"
+                      :recipes="recipeMap"
+                      @update:model-value="value[index] = $event"
+                      @checked="(item) => {
+                        saveListItem(item);
+                        itemCheckedToast(item);
+                      }"
+                      @save="(item) => {
+                        editingItem = undefined;
+                        saveListItem(item);
+                      }"
+                      @delete="deleteListItem(item)"
+                      @view="editingItem = undefined"
+                      @edit="editingItem = item.id"
+                    />
+                  </TransitionGroup>
+                </VueDraggable>
+              </v-expansion-panel-text>
+            </v-expansion-panel>
+          </BaseExpansionPanels>
+        </template>
       </TransitionGroup>
       <!-- Checked Items -->
-      <v-expansion-panels flat rounded>
+      <v-expansion-panels v-model="checkedPanel" flat rounded>
         <v-expansion-panel
-          v-if="listItems.checked && listItems.checked.length > 0"
+          v-if="listItems.checked && hasMatches(listItems.checked)"
           class="shopping-list-checked-section"
         >
           <v-expansion-panel-title class="shopping-checked-header">
             <div class="d-flex align-center flex-0-1-100">
               <div class="flex-1-0">
-                {{ $t('shopping-list.items-checked-count', listItems.checked ? listItems.checked.length : 0) }}
+                {{ $t('shopping-list.items-checked-count', visibleCheckedCount) }}
               </div>
             </div>
           </v-expansion-panel-title>
           <v-expansion-panel-text eager>
+            <!-- both act on every checked item, including any the search is hiding -->
             <div class="shopping-checked-actions">
-              <v-btn variant="tonal" color="primary" :prepend-icon="$globals.icons.checkboxMultipleBlankOutline" @click="openUncheckAll">
+              <v-btn variant="tonal" color="primary" :disabled="isSearching" :prepend-icon="$globals.icons.checkboxMultipleBlankOutline" @click="openUncheckAll">
                 {{ $t('shopping-list.uncheck-all-items') }}
               </v-btn>
-              <v-btn variant="text" color="error" :prepend-icon="$globals.icons.delete" @click="openDeleteChecked">
+              <v-btn variant="text" color="error" :disabled="isSearching" :prepend-icon="$globals.icons.delete" @click="openDeleteChecked">
                 {{ $t('shopping-list.delete-checked') }}
               </v-btn>
             </div>
             <TransitionGroup name="scroll-x-transition">
-              <div v-for="(item, idx) in listItems.checked" :key="item.id">
+              <div v-for="(item, idx) in listItems.checked" v-show="matchesSearch(item)" :key="item.id">
                 <ShoppingListItem
                   :model-value="item"
                   class="shopping-list-item-row"
@@ -323,6 +352,15 @@
           </v-expansion-panel-text>
         </v-expansion-panel>
       </v-expansion-panels>
+
+      <v-alert
+        v-if="!hasSearchResults"
+        type="info"
+        variant="tonal"
+        density="compact"
+      >
+        {{ $t('search.no-results') }}
+      </v-alert>
     </section>
 
     <!-- Recipe References -->
@@ -391,6 +429,10 @@ import { useUserApi } from "~/composables/api";
 import { alert } from "~/composables/use-toast";
 import type { ShoppingListItemOut } from "~/lib/api/types/household";
 import type { UserOut } from "~/lib/api/types/user";
+
+definePageMeta({
+  middleware: ["auth"],
+});
 
 const i18n = useI18n();
 const totalItemCount = computed(() => shoppingList.value?.listItems?.length ?? 0);
@@ -485,7 +527,6 @@ const {
   copyListItems,
   toggleReorderLabelsDialog,
   isOffline,
-  createEditorOpen,
   createListItemData,
   createListItem,
   itemsByLabel,
@@ -502,7 +543,34 @@ const {
   removeRecipeReferenceToList,
   addRecipeReferenceToList,
   refresh,
+  search,
+  isSearching,
+  isSearchOpen,
+  canSearch,
+  toggleSearch,
+  matchesSearch,
+  hasMatches,
+  clearSearch,
+  visibleCheckedCount,
+  hasSearchResults,
 } = shoppingListPage;
+
+// Desktop add-item editor visibility (page-local UI state)
+const createEditorOpen = ref(false);
+
+// Once per streak of failures: the items stay queued and look saved, so this is the only sign they aren't
+watch(shoppingListPage.hasFailedWrites, (failed) => {
+  if (failed) {
+    alert.error(i18n.t("shopping-list.changes-not-saved"));
+  }
+});
+
+// Expand the checked section while searching, so an item that has already been
+// checked off can be found and unchecked without expanding the section by hand.
+const checkedPanel = ref<number | undefined>(undefined);
+watch(isSearching, (searching) => {
+  checkedPanel.value = searching ? 0 : undefined;
+});
 
 const portionTargets = reactive<Record<string, number>>({});
 const portionTimers = new Map<string, ReturnType<typeof setTimeout>>();

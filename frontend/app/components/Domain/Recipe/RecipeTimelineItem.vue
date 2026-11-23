@@ -94,15 +94,16 @@
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 import RecipeCardMobile from "./RecipeCardMobile.vue";
 import RecipeTimelineContextMenu from "./RecipeTimelineContextMenu.vue";
+import type { TimelineEventEdit } from "./RecipeTimelineContextMenu.vue";
 import { useStaticRoutes } from "~/composables/api";
 import { useTimelineEventTypes } from "~/composables/recipes/use-recipe-timeline-events";
-import type { Recipe, RecipeTimelineEventOut, RecipeTimelineEventUpdate } from "~/lib/api/types/recipe";
+import type { RecipeSummary, RecipeTimelineEventOut } from "~/lib/api/types/recipe";
 import UserAvatar from "~/components/Domain/User/UserAvatar.vue";
 import SafeMarkdown from "~/components/global/SafeMarkdown.vue";
 
 interface Props {
   event: RecipeTimelineEventOut;
-  recipe?: Recipe;
+  recipe?: RecipeSummary;
   showRecipeCards?: boolean;
 }
 
@@ -115,7 +116,7 @@ const showRecipeContent = computed(() => Boolean(props.recipe?.id && props.recip
 
 defineEmits<{
   selected: [];
-  update: [event: RecipeTimelineEventUpdate];
+  update: [edit: TimelineEventEdit];
   delete: [];
 }>();
 
@@ -170,14 +171,18 @@ const icon = computed(() => {
 });
 
 const hideImage = ref(false);
-const imageVersion = ref(0);
-watch(() => props.event, () => { imageVersion.value++; hideImage.value = false; });
+const imageKey = ref(1);
+watch(() => props.event, () => {
+  hideImage.value = false;
+  imageKey.value++;
+});
+
 const eventImageUrl = computed<string>(() => {
   if (props.event.image !== "has image") {
     return "";
   }
 
-  return `${recipeTimelineEventSmallImage(props.event.recipeId, props.event.id)}?v=${imageVersion.value}`;
+  return recipeTimelineEventSmallImage(props.event.recipeId, props.event.id, imageKey.value);
 });
 </script>
 

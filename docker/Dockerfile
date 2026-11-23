@@ -1,14 +1,20 @@
 ###############################################
 # Frontend Build
 ###############################################
-FROM node:24@sha256:64af3819f9275802414d7cdc38c27e9d82bd564dec4d4da87d008255d36c63b4 \
+FROM node:26@sha256:438603bbb5cda404b9416f0b5c8026f61501ab911760d861ec28c36b5d675725 \
     AS frontend-builder
 
-RUN npm install --global pnpm@11
+# renovate: datasource=npm depName=pnpm
+RUN npm install --global pnpm@12.18.0
 
 WORKDIR /frontend
 
 COPY frontend .
+
+# The lang files import the seeded ingredient unit names, which live with the backend rather
+# than in frontend/. Copy them to the same path they occupy in the repo, so the relative import
+# in app/lang/locales/*.ts resolves identically here and in local dev.
+COPY mealie/repos/seed/resources/units/locales /mealie/repos/seed/resources/units/locales
 
 RUN pnpm clean-install
 
@@ -17,7 +23,7 @@ RUN pnpm generate
 ###############################################
 # Base Image - Python
 ###############################################
-FROM python:3.14-slim@sha256:caaf356f40667c496d405780745b9ac25771c189a51dfcc42430d531ea09f8a2 \
+FROM python:3.14-slim@sha256:a2b82f3c48559aa0a8446d9af49826b6e2b2016f4cd2afabfe6013ec53729170 \
     AS python-base
 
 ENV MEALIE_HOME="/app"
@@ -46,7 +52,8 @@ RUN apt-get update \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install uv
+# renovate: datasource=pypi depName=uv
+RUN pip install uv==0.13.7
 
 # Install from the committed lockfile; never re-resolve. The rolling
 # `exclude-newer` cooling window (pyproject [tool.uv]) would otherwise make
@@ -71,7 +78,7 @@ RUN python -c "import pathlib, tomllib; version = tomllib.loads(pathlib.Path('py
 # dependencies.txt changes only when uv.lock does, so the venv build can cache
 # the install. requirements.txt adds the wheel that was just built, so an
 # install from it gets that exact one.
-RUN uv export --no-editable --no-emit-project --extra pgsql --format requirements-txt --output-file dist/dependencies.txt \
+RUN uv export --no-dev --no-editable --no-emit-project --extra pgsql --format requirements-txt --output-file dist/dependencies.txt \
     && cp dist/dependencies.txt dist/requirements.txt \
     && MEALIE_VERSION=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])") \
     && echo "mealie[pgsql]==${MEALIE_VERSION} \\" >> dist/requirements.txt \
@@ -81,7 +88,7 @@ RUN uv export --no-editable --no-emit-project --extra pgsql --format requirement
 
 ###############################################
 # Package Container
-# Only role is to hold the packages, or be overriden by a --build-context flag.
+# Only role is to hold the packages, or be overridden by a --build-context flag.
 ###############################################
 FROM scratch AS packages
 COPY --from=backend-builder /mealie/dist /

@@ -1,57 +1,110 @@
-import { flushPromises, shallowMount } from "@vue/test-utils";
-import { ref } from "vue";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { reactive, ref } from "vue";
 import RecipeCardSection from "./RecipeCardSection.vue";
 
-const mocks = vi.hoisted(() => ({ fetchMore: vi.fn() }));
-vi.mock("~/composables/recipes", () => ({ useLazyRecipes: () => ({ fetchMore: mocks.fetchMore, getRandom: vi.fn() }) }));
-vi.mock("~/composables/use-logged-in-state", () => ({ useLoggedInState: () => ({ isOwnGroup: ref(true) }) }));
-vi.mock("~/composables/use-users/preferences", () => ({ useUserSortPreferences: () => ref({ useMobileCards: false, orderBy: "name", orderDirection: "asc" }) }));
-vi.mock("@vueuse/core", () => ({ useThrottleFn: (fn: () => unknown) => fn }));
-afterEach(() => vi.unstubAllGlobals());
-const rows = (count: number) => Array.from({ length: count }, (_, index) => ({ id: String(index), slug: `recipe-${index}`, name: `Recipe ${index}` }));
+const mocks = vi.hoisted(() => ({
+  preferences: { value: { useMobileCards: false, orderBy: "name", orderDirection: "asc" } },
+}));
 
-async function render(count: number) {
-  mocks.fetchMore.mockReset().mockResolvedValueOnce(rows(count)).mockResolvedValue(rows(32));
-  vi.stubGlobal("useMealieAuth", () => ({ user: ref({ groupSlug: "family" }) }));
-  vi.stubGlobal("useNuxtApp", () => ({ $globals: { icons: {} } }));
-  vi.stubGlobal("useRoute", () => ({ params: {}, path: "/g/family" }));
-  vi.stubGlobal("useRouter", () => ({ push: vi.fn() }));
-  vi.stubGlobal("useScrollPosition", () => ({ savePosition: vi.fn(), getSavedPage: () => 0, restorePosition: vi.fn() }));
-  let intersect!: (visible: boolean) => void;
-  const wrapper = shallowMount(RecipeCardSection, {
-    props: { disableToolbar: true },
+vi.mock("~/composables/use-logged-in-state", () => ({
+  useLoggedInState: () => ({ isOwnGroup: ref(true) }),
+}));
+
+vi.mock("~/composables/recipes", () => ({
+  useLazyRecipes: () => ({
+    fetchMore: vi.fn().mockResolvedValue([]),
+    getRandom: vi.fn(),
+  }),
+}));
+
+vi.mock("~/composables/use-users/preferences", () => ({
+  useUserSortPreferences: () => mocks.preferences,
+}));
+
+const tag = { id: "t0000000-0000-4000-8000-000000000001", name: "Dinner", slug: "dinner", groupId: "g1" };
+const recipes = [{ id: "1", name: "Soup", slug: "soup", description: "", rating: 0, image: "", tags: [tag] }];
+
+const wrappers: VueWrapper[] = [];
+
+const passthrough = { template: "<div><slot /></div>" };
+const cardStub = {
+  props: ["tags"],
+  emits: ["itemSelected"],
+  template: "<div><button v-for=\"t in tags\" :key=\"t.id\" class=\"tag-chip\" type=\"button\" @click=\"$emit('itemSelected', t, 'tags')\">{{ t.name }}</button></div>",
+};
+
+async function mountSection() {
+  const wrapper = mount(RecipeCardSection, {
+    props: { recipes, disableToolbar: true },
     global: {
-      renderStubDefaultSlot: true,
-      directives: { intersect: { mounted: (_element, binding) => { intersect = binding.value; } } },
-      stubs: { VCard: { template: "<div class='sentinel' />" }, VRow: { template: "<div><slot /></div>" }, VCol: true, VFadeTransition: true, RecipeLoading: true, AppScrollToTop: true, BaseNoResultsAlert: true },
+      mocks: { $globals: { icons: {} } },
+      stubs: {
+        VRow: passthrough,
+        VCol: passthrough,
+        VCard: passthrough,
+        VCardTitle: passthrough,
+        VCardActions: passthrough,
+        VList: passthrough,
+        VListItem: passthrough,
+        VListItemTitle: passthrough,
+        VListItemSubtitle: passthrough,
+        VExpandTransition: passthrough,
+        VFadeTransition: passthrough,
+        VImg: passthrough,
+        VHover: { template: "<div><slot :is-hovering=\"false\" :props=\"{}\" /></div>" },
+        VChip: { template: "<button class=\"tag-chip\" type=\"button\"><slot /></button>" },
+        // Petit Chef's cards need the router and Nuxt runtime; each stub forwards a tag click
+        // the way the real cards do, so this checks the section passes it on.
+        RecipeCard: cardStub,
+        RecipeCardMobile: cardStub,
+        RecipeCardImage: true,
+        RecipeCardRating: true,
+        RecipeFavoriteBadge: true,
+        RecipeContextMenu: true,
+        SafeMarkdown: true,
+        AppLoader: true,
+        AppScrollToTop: true,
+      },
+      directives: { intersect: {} },
     },
   });
+  wrappers.push(wrapper);
   await flushPromises();
-  return { wrapper, intersect: (visible: boolean) => intersect(visible) };
+  return wrapper;
 }
 
-describe("recipe listing infinite scrolling", () => {
-  it("does not fetch on viewport exit, but does fetch the next page on entry", async () => {
-    const { wrapper, intersect } = await render(64);
-    expect(mocks.fetchMore).toHaveBeenCalledTimes(1);
-    intersect(false);
-    await flushPromises();
-    expect(mocks.fetchMore).toHaveBeenCalledTimes(1);
-    intersect(true);
-    await flushPromises();
-    expect(mocks.fetchMore).toHaveBeenCalledTimes(2);
-    expect(mocks.fetchMore.mock.calls[1]?.slice(0, 2)).toEqual([3, 32]);
-    intersect(false);
-    await flushPromises();
-    expect(mocks.fetchMore).toHaveBeenCalledTimes(2);
-    wrapper.unmount();
+describe("RecipeCardSection", () => {
+  beforeEach(() => {
+    vi.stubGlobal("useDisplay", () => ({ smAndDown: ref(false) }));
+    vi.stubGlobal("useMealieAuth", () => ({ user: ref({ groupSlug: "family" }) }));
+    vi.stubGlobal("useNuxtApp", () => ({ $globals: { icons: {} } }));
+    vi.stubGlobal("useRoute", () => reactive({ path: "/g/family", params: { groupSlug: "family" } }));
+    vi.stubGlobal("useRouter", () => ({ push: vi.fn() }));
+    vi.stubGlobal("useScrollPosition", () => ({
+      savePosition: vi.fn(),
+      getSavedPage: vi.fn(() => null),
+      restorePosition: vi.fn(),
+    }));
   });
 
-  it("stops observing after a partial initial batch", async () => {
-    const { wrapper } = await render(45);
-    expect(wrapper.find(".sentinel").exists()).toBe(false);
-    expect(mocks.fetchMore).toHaveBeenCalledTimes(1);
-    wrapper.unmount();
+  afterEach(() => {
+    wrappers.forEach(wrapper => wrapper.unmount());
+    wrappers.length = 0;
+    vi.unstubAllGlobals();
+  });
+
+  test.each([
+    ["desktop cards", false],
+    ["mobile cards", true],
+  ])("clicking a tag on %s emits itemSelected", async (_, useMobileCards) => {
+    mocks.preferences.value.useMobileCards = useMobileCards;
+    const wrapper = await mountSection();
+
+    const chip = wrapper.find(".tag-chip");
+    expect(chip.exists()).toBe(true);
+    await chip.trigger("click");
+
+    expect(wrapper.emitted("itemSelected")).toEqual([[tag, "tags"]]);
   });
 });

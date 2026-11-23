@@ -13,6 +13,7 @@
 
       @beforeinput.capture="onQuantityInput"
       @paste.capture="onQuantityPaste"
+      @keydown.enter.prevent="emit('save')"
     />
     <InputLabelType
       v-model="listItem.unit"
@@ -67,7 +68,7 @@ import { useQuantityInput } from "~/composables/use-quantity-input";
 import { useShoppingListItemEditor } from "~/composables/shopping-list-page/use-shopping-list-item-editor";
 import type { ShoppingListItemOut } from "~/lib/api/types/household";
 import type { MultiPurposeLabelOut } from "~/lib/api/types/labels";
-import type { IngredientUnit } from "~/lib/api/types/recipe";
+import type { IngredientUnitOut } from "~/lib/api/types/recipe";
 
 const { quantityDecimalSeparator, onQuantityInput, onQuantityPaste } = useQuantityInput();
 
@@ -80,7 +81,7 @@ defineProps({
     required: true,
   },
   units: {
-    type: Array as () => IngredientUnit[],
+    type: Array as () => IngredientUnitOut[],
     required: true,
   },
 });

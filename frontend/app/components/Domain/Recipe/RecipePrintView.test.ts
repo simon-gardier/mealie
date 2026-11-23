@@ -14,6 +14,7 @@ vi.mock("~/composables/recipes", () => ({
   useIngredientTextParser: () => ({ parseIngredientText: (ingredient: any) => [ingredient.quantity, ingredient.unit?.name, ingredient.food?.name, ingredient.note].filter(Boolean).join(" ") }),
   useFoodPlurality: () => ({ shouldPluralizeFood: () => false }),
   ingredientSubstitutionSummary: (ingredient: any) => ingredient.substitutions?.map((item: any) => item.note).join(", ") || "",
+  useRecipeTime: () => ({ recipeTimeDisplay: (seconds: number | null | undefined, text: string | null | undefined) => [seconds ? `${seconds / 60} min` : "", text?.trim()].filter(Boolean).join(" ") }),
   useNutritionLabels: () => ({ labels: { calories: { label: "Calories", suffix: "kcal" }, proteinContent: { label: "Proteines", suffix: "g" } } }),
 }));
 
@@ -46,7 +47,7 @@ const recipe = {
 
 function render(value = recipe) {
   vi.stubGlobal("useI18n", () => ({ t: translate }));
-  return mount(RecipePrintView, { props: { recipe: value as any }, global: { stubs: { SafeMarkdown: { props: ["source"], template: "<div><p>{{ source }}</p></div>" } } } });
+  return mount(RecipePrintView, { props: { recipe: value as any }, global: { stubs: { SafeMarkdown: { props: ["source"], template: "<div><p>{{ source }}</p></div>" }, SafeInlineHtml: { props: ["html"], template: "<span>{{ html }}</span>" } } } });
 }
 
 test("all print options preserve titles, unresolved ingredients, notes, substitutions and nutrition without mutating recipe data", () => {

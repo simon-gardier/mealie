@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import { defineNuxtConfig } from "nuxt/config";
 import { appThemes } from "./app/theme/colors";
 
@@ -46,6 +47,9 @@ export default defineNuxtConfig({
         },
         { charset: "utf-8" },
         { name: "referrer", content: "no-referrer" },
+        // Read by the inline head script, which paints the themed background before the app loads
+        { name: "petit-chef-background-light", content: String(appThemes.light.colors.background) },
+        { name: "petit-chef-background-dark", content: String(appThemes.dark.colors.background) },
         { name: "viewport", content: "width=device-width, initial-scale=1" },
         {
           name: "description",
@@ -54,7 +58,8 @@ export default defineNuxtConfig({
       ],
       script: [
         {
-          innerHTML: `(function(){try{var d=localStorage.getItem('vueuse-color-scheme');var m=d==='dark'||(d!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches);document.documentElement.style.backgroundColor=m?'${appThemes.dark.colors.background}':'${appThemes.light.colors.background}'}catch(e){}})()`,
+          // A constant script (see the raw-HTML lint rules); the theme colours come from the meta tags above.
+          innerHTML: `(function(){try{var d=localStorage.getItem('vueuse-color-scheme');var m=d==='dark'||(d!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches);var t=document.querySelector('meta[name="petit-chef-background-'+(m?'dark':'light')+'"]');if(t)document.documentElement.style.backgroundColor=t.content}catch(e){}})()`,
           type: "text/javascript",
         },
       ],
@@ -108,6 +113,21 @@ export default defineNuxtConfig({
 
   nitro: {
     baseURL: process.env.SUB_PATH || "",
+  },
+
+  vite: {
+    server: {
+      fs: {
+        // app/lang/locales/*.ts import the seeded unit names from mealie/, which is outside
+        // this project. Vite's fs.allow *replaces* its default rather than extending it, and
+        // the default here resolves to frontend/ itself — there's no pnpm-workspace.yaml or
+        // root package.json for vite to detect — so the project root has to be listed too.
+        allow: [
+          fileURLToPath(new URL(".", import.meta.url)),
+          fileURLToPath(new URL("../mealie/repos/seed/resources/units/locales", import.meta.url)),
+        ],
+      },
+    },
   },
 
   // eslint rules

@@ -14,7 +14,7 @@ from mealie.lang import get_locale_provider
 from mealie.lang.providers import TRANSLATIONS
 from mealie.pkgs.safehttp.fetch import FetchResult
 from mealie.schema.openai.compiled_source import OpenAICompiledSource
-from mealie.schema.recipe.recipe import Recipe
+from mealie.schema.recipe.recipe import RecipeDraft
 from mealie.services.openai.content import (
     MAX_SOURCE_CONTENT_LENGTH,
     TRUNCATION_NOTICE,
@@ -58,7 +58,7 @@ def test_ai_uploads_with_duplicate_names_preserve_selected_cover(tmp_path: Path)
 async def test_ai_import_persists_selected_cover_metadata(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, with_images: bool
 ) -> None:
-    recipe = Recipe(name="Cover recipe", slug="cover-recipe", image=None)
+    recipe = RecipeDraft(name="Cover recipe", slug="cover-recipe", image=None)
     refreshed = recipe.model_copy(update={"image": "updated-image-key"})
     service = AIRecipeService.__new__(AIRecipeService)
     build_recipe = AsyncMock(return_value=recipe)

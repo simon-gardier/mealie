@@ -115,7 +115,7 @@
                 :limit="listMode ? undefined : 2"
                 small
                 url-prefix="tags"
-                v-bind="$attrs"
+                @item-selected="(item, urlPrefix) => $emit('itemSelected', item, urlPrefix)"
               />
               <span v-else class="recipe-card-empty-message">{{ t("recipe.no-tags") }}</span>
             </div>
@@ -205,6 +205,7 @@
                   :menu-icon="listMode ? $globals.icons.dotsVertical : $globals.icons.dotsHorizontal"
                   :name="name"
                   :recipe-id="recipeId"
+                  :recipe-scale="scale"
                   :class="listMode ? 'recipe-list-menu' : 'ml-auto'"
                   :use-items="contextMenuItems"
                   :leading-items="listMode ? listMenuLeadingItems : contextMenuLeadingItems"
@@ -221,7 +222,7 @@
         <slot />
       </v-card>
     </v-expand-transition>
-    <RecipeImageLightbox v-if="lightboxOpen" v-model="lightboxOpen" :image-url="fullImageUrl" :image-alt="name" />
+    <RecipeImageLightbox v-if="lightboxOpen" v-model="lightboxOpen" :items="fullImageUrl ? [{ src: fullImageUrl, alt: name }] : []" />
   </div>
 </template>
 
@@ -232,10 +233,11 @@ import RecipeCardImage from "./RecipeCardImage.vue";
 import RecipeCardRating from "./RecipeCardRating.vue";
 import RecipeRating from "./RecipeRating.vue";
 import RecipeImageLightbox from "./RecipeImageLightbox.vue";
-import RecipeChips from "./RecipeChips.vue";
+import RecipeChips, { type UrlPrefixParam } from "./RecipeChips.vue";
 import RecipeContextMenu from "./RecipeContextMenu/RecipeContextMenu.vue";
 import RecipeFavoriteBadge from "./RecipeFavoriteBadge.vue";
 import type { ContextMenuItem } from "./RecipeContextMenu/RecipeContextMenu.vue";
+import type { TagOut } from "~/lib/api/types/recipe";
 import { useStaticRoutes, useUserApi } from "~/composables/api";
 import { canScaleShoppingRecipe } from "~/lib/shopping-recipe-portions";
 import { useUserSelfRatings } from "~/composables/use-users";
@@ -262,6 +264,7 @@ interface Props {
   };
   contextMenuAppendItems?: ContextMenuItem[];
   contextMenuLeadingItems?: ContextMenuItem[];
+  scale?: number;
 }
 const props = withDefaults(defineProps<Props>(), {
   rating: 0,
@@ -277,6 +280,7 @@ const props = withDefaults(defineProps<Props>(), {
   contextMenuUseItems: () => ({}),
   contextMenuAppendItems: () => [],
   contextMenuLeadingItems: () => [],
+  scale: 1,
 });
 
 const emit = defineEmits<{
@@ -285,6 +289,7 @@ const emit = defineEmits<{
   addToShoppingList: [];
   selected: [];
   delete: [slug: string];
+  itemSelected: [item: TagOut, urlPrefix: UrlPrefixParam];
 }>();
 
 const auth = useMealieAuth();
@@ -300,6 +305,7 @@ const contextMenuItems = computed(() => ({
   delete: false,
   edit: false,
   download: true,
+  downloadPdf: true,
   mealplanner: true,
   shoppingList: true,
   print: false,
@@ -319,7 +325,13 @@ watch(() => [props.slug, props.compact, props.listMode] as const, async ([slug, 
   if (active) canAddToShoppingList.value = canScaleShoppingRecipe(data?.recipeIngredient);
 }, { immediate: true });
 const recipeRoute = computed<string>(() => {
-  return showRecipeContent.value ? `/g/${groupSlug.value}/r/${props.slug}` : "";
+  if (!showRecipeContent.value) {
+    return "";
+  }
+
+  const recipePath = `/g/${groupSlug.value}/r/${props.slug}`;
+  // open the recipe at the same scale it's shown with here (e.g. the scale of a meal plan entry)
+  return props.scale === 1 ? recipePath : `${recipePath}?scale=${props.scale}`;
 });
 const recipeLink = useLink({ to: recipeRoute });
 const attrs = useAttrs();

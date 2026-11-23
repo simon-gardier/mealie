@@ -7,7 +7,7 @@ const { updateImage, reportError } = vi.hoisted(() => ({
   reportError: vi.fn(),
 }));
 vi.mock("~/composables/api", () => ({ useUserApi: () => ({ recipes: { updateImage } }) }));
-vi.mock("~/composables/use-toast", () => ({ alertUnreportedError: reportError, alert: { error: reportError } }));
+vi.mock("~/composables/use-toast", () => ({ alert: { error: reportError } }));
 
 function mountEditor(imageUrl = "/api/media/recipes/id/images/original.webp") {
   return shallowMount(RecipeImageUploadBtn, {

@@ -1,4 +1,4 @@
-import type { Recipe } from "~/lib/api/types/recipe";
+import type { RecipeDraft } from "~/lib/api/types/recipe";
 
 export type RecipeSaveWarningCode = "empty-ingredients" | "unparsed-ingredients" | "note-only-substitutes"
   | "missing-category" | "missing-tags" | "excess-categories" | "excess-tags" | "no-steps" | "missing-yield" | "missing-time";
@@ -19,7 +19,7 @@ function hasTime(text?: string | null): boolean {
 }
 
 /** Advisory checks only: preserve the draft and never rewrite recipe data. */
-export function recipeSaveWarnings(recipe: Recipe, scope: "recipe" | "ingredients" = "recipe"): RecipeSaveWarning[] {
+export function recipeSaveWarnings(recipe: RecipeDraft, scope: "recipe" | "ingredients" = "recipe"): RecipeSaveWarning[] {
   const warnings: RecipeSaveWarning[] = [];
   const empty: number[] = [];
   const unparsed: number[] = [];
@@ -47,7 +47,7 @@ export function recipeSaveWarnings(recipe: Recipe, scope: "recipe" | "ingredient
   if ((recipe.tags?.length ?? 0) > 5) warnings.push({ code: "excess-tags", count: recipe.tags!.length });
   if (!recipe.recipeInstructions?.some(step => hasText(step.text))) warnings.push({ code: "no-steps", count: 0 });
   if (!positive(recipe.recipeServings) && !positive(recipe.recipeYieldQuantity)) warnings.push({ code: "missing-yield", count: 0 });
-  if (!hasTime(recipe.totalTime) && !(hasTime(recipe.prepTime) && (hasTime(recipe.performTime) || hasTime(recipe.cookTime)))) {
+  if (!hasTime(recipe.totalTime) && !(hasTime(recipe.prepTime) && hasTime(recipe.performTime))) {
     warnings.push({ code: "missing-time", count: 0 });
   }
   return warnings;

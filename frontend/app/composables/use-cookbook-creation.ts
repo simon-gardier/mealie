@@ -1,8 +1,8 @@
 import { ref } from "vue";
-import type { CreateCookBook } from "~/lib/api/types/cookbook";
+import type { CookBookCreate } from "~/lib/api/types/cookbook";
 
-export function useCookbookCreation(createOne: (data: CreateCookBook) => Promise<unknown>) {
-  const draft = ref<CreateCookBook | null>(null);
+export function useCookbookCreation(createOne: (data: CookBookCreate) => Promise<unknown>) {
+  const draft = ref<CookBookCreate | null>(null);
   const saving = ref(false);
 
   function open(name: string) {

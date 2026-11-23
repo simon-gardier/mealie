@@ -1,8 +1,17 @@
 import type { AxiosInstance, InternalAxiosRequestConfig } from "axios";
 import { describe, expect, test, vi, beforeEach, afterEach } from "vitest";
+import { i18n } from "~/tests/setup";
 
 const TOKEN_NAME = "mealie.access_token";
 const PAGE_URL = "https://remy.sgdr.me/g/home/r/soup";
+const toastMocks = vi.hoisted(() => ({
+  error: vi.fn(),
+  info: vi.fn(),
+}));
+
+vi.mock("~/composables/use-toast", () => ({
+  alert: toastMocks,
+}));
 
 /** Rejects the way axios does, so the interceptor sees the config it needs in order to retry. */
 function unauthorized(config: InternalAxiosRequestConfig) {
@@ -17,6 +26,32 @@ function ok(config: InternalAxiosRequestConfig) {
   return Promise.resolve({ data: { ok: true }, status: 200, statusText: "OK", headers: {}, config });
 }
 
+/** A response that never came from Mealie, such as a reverse proxy's HTML error page. */
+function rejectedByProxy(config: InternalAxiosRequestConfig, status: number) {
+  const error = new Error(`Request failed with status code ${status}`) as Error & Record<string, unknown>;
+  error.config = config;
+  error.response = { status, data: "<html><body><h1>Rejected</h1></body></html>", config, headers: {}, statusText: "" };
+  error.isAxiosError = true;
+  return Promise.reject(error);
+}
+
+/** No response at all: a dropped connection, or a redirect to another origin the browser refused to follow. */
+function networkError(config: InternalAxiosRequestConfig) {
+  const error = new Error("Network Error") as Error & Record<string, unknown>;
+  error.config = config;
+  error.code = "ERR_NETWORK";
+  error.isAxiosError = true;
+  return Promise.reject(error);
+}
+
+function unprocessable(config: InternalAxiosRequestConfig, detail: unknown) {
+  const error = new Error("Unprocessable Entity") as Error & Record<string, unknown>;
+  error.config = config;
+  error.response = { status: 422, data: { detail }, config, headers: {}, statusText: "Unprocessable Entity" };
+  error.isAxiosError = true;
+  return Promise.reject(error);
+}
+
 let refreshMock: ReturnType<typeof vi.fn>;
 let setTokenMock: ReturnType<typeof vi.fn>;
 
@@ -24,14 +59,17 @@ async function buildClient(adapter: (config: InternalAxiosRequestConfig) => Prom
   vi.resetModules();
   const plugin = (await import("../axios")).default as unknown as (nuxtApp: {
     runWithContext: <T>(fn: () => T) => T;
+    $i18n: typeof i18n.global;
   }) => { provide: { axios: AxiosInstance } };
 
-  const { provide } = plugin({ runWithContext: fn => fn() });
+  const { provide } = plugin({ runWithContext: fn => fn(), $i18n: i18n.global });
   provide.axios.defaults.adapter = adapter as never;
   return provide.axios;
 }
 
 beforeEach(() => {
+  toastMocks.error.mockClear();
+  toastMocks.info.mockClear();
   document.cookie = `${TOKEN_NAME}=a.valid.token`;
 
   refreshMock = vi.fn().mockResolvedValue(undefined);
@@ -189,5 +227,138 @@ describe("request headers", () => {
     Object.defineProperty(window, "top", { value: top, configurable: true });
 
     expect(seen).toBe("true");
+  });
+});
+
+describe("error alerts", () => {
+  test.each([
+    [401, "Could not validate credentials"],
+    [404, "recipe not found"],
+    [422, "Invalid recipe"],
+  ])("does not show a toast for a plain string detail on %s", async (status, detail) => {
+    document.cookie = `${TOKEN_NAME}=; max-age=0`;
+    const error = { response: { status, data: { detail } } };
+    const client = await buildClient(() => Promise.reject(error));
+
+    await expect(client.get("/api/recipes/test-recipe")).rejects.toBe(error);
+
+    expect(toastMocks.error).not.toHaveBeenCalled();
+  });
+
+  test("shows validation messages returned as a detail array", async () => {
+    const client = await buildClient(config => unprocessable(config, [
+      { loc: ["body", "tools", 0, "id"], msg: "Field required", type: "missing" },
+      { loc: ["body", "tools", 0, "slug"], msg: "Field required", type: "missing" },
+      { loc: ["body", "tools", 0, "id"], msg: "Field required", type: "missing" },
+    ]));
+
+    await expect(client.put("/api/recipes/test-recipe", {})).rejects.toBeDefined();
+
+    expect(toastMocks.error).toHaveBeenCalledOnce();
+    expect(toastMocks.error).toHaveBeenCalledWith("tools.0.id: Field required; tools.0.slug: Field required");
+  });
+
+  test.each([undefined, null, [], ["body"], "body.name"])("preserves validation messages without a usable location: %j", async (loc) => {
+    const client = await buildClient(config => unprocessable(config, [
+      null,
+      { msg: 123 },
+      { loc, msg: "Invalid value" },
+    ]));
+
+    await expect(client.put("/api/recipes/test-recipe", {})).rejects.toBeDefined();
+
+    expect(toastMocks.error).toHaveBeenCalledWith("Invalid value");
+  });
+
+  test("preserves structured API error messages", async () => {
+    const client = await buildClient(config => unprocessable(config, { message: "Recipe could not be saved" }));
+
+    await expect(client.put("/api/recipes/test-recipe", {})).rejects.toBeDefined();
+
+    expect(toastMocks.error).toHaveBeenCalledWith("Recipe could not be saved");
+  });
+});
+
+describe("failures without a Mealie error message", () => {
+  test.each([
+    ["put", 403],
+    ["patch", 403],
+    ["post", 502],
+    ["delete", 500],
+  ] as const)("reports a %s rejected with %s by something in front of Mealie", async (method, status) => {
+    const client = await buildClient(config => rejectedByProxy(config, status));
+
+    await expect(client[method]("/api/recipes/test-recipe")).rejects.toBeDefined();
+
+    expect(toastMocks.error).toHaveBeenCalledOnce();
+    expect(toastMocks.error).toHaveBeenCalledWith(
+      `The request failed with status ${status}. Your changes may not have been saved.`,
+    );
+  });
+
+  test("reports a write that got no response at all", async () => {
+    const client = await buildClient(config => networkError(config));
+
+    await expect(client.put("/api/recipes/test-recipe", {})).rejects.toBeDefined();
+
+    expect(toastMocks.error).toHaveBeenCalledOnce();
+    expect(toastMocks.error).toHaveBeenCalledWith("The server could not be reached. Your changes may not have been saved.");
+  });
+
+  test("reports a write that failed after a successful refresh and replay", async () => {
+    const calls: string[] = [];
+    const client = await buildClient(async (config) => {
+      calls.push(config.url!);
+      return calls.length === 1 ? unauthorized(config) : rejectedByProxy(config, 502);
+    });
+
+    await expect(client.put("/api/recipes/test-recipe", {})).rejects.toBeDefined();
+
+    // The replay passes through the interceptor itself, so the outer call must not report it again
+    expect(toastMocks.error).toHaveBeenCalledOnce();
+    expect(toastMocks.error).toHaveBeenCalledWith("The request failed with status 502. Your changes may not have been saved.");
+  });
+
+  test("shows only Mealie's message when there is one", async () => {
+    const client = await buildClient(config => unprocessable(config, { message: "Recipe could not be saved" }));
+
+    await expect(client.put("/api/recipes/test-recipe", {})).rejects.toBeDefined();
+
+    expect(toastMocks.error).toHaveBeenCalledOnce();
+  });
+
+  test("stays quiet for reads", async () => {
+    const client = await buildClient(config => rejectedByProxy(config, 403));
+
+    await expect(client.get("/api/recipes/test-recipe")).rejects.toBeDefined();
+
+    expect(toastMocks.error).not.toHaveBeenCalled();
+  });
+
+  test("stays quiet when the caller suppresses alerts", async () => {
+    const client = await buildClient(config => networkError(config));
+
+    await expect(client.post("/api/auth/refresh", null, { suppressAlert: true })).rejects.toBeDefined();
+
+    expect(toastMocks.error).not.toHaveBeenCalled();
+  });
+
+  test("leaves a 401 to the session handling", async () => {
+    const client = await buildClient(config => unauthorized(config));
+
+    await expect(client.put("/api/recipes/test-recipe", {})).rejects.toBeDefined();
+
+    expect(toastMocks.error).not.toHaveBeenCalled();
+    expect(window.location.href).toBe("/login?redirect=%2Fg%2Fhome%2Fr%2Fsoup");
+  });
+
+  test("stays quiet for a cancelled request", async () => {
+    const controller = new AbortController();
+    controller.abort();
+    const client = await buildClient(config => ok(config));
+
+    await expect(client.put("/api/recipes/test-recipe", {}, { signal: controller.signal })).rejects.toBeDefined();
+
+    expect(toastMocks.error).not.toHaveBeenCalled();
   });
 });

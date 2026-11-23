@@ -8,7 +8,7 @@ import pytest
 
 from mealie.lang.providers import get_locale_provider
 from mealie.schema.openai.recipe import OpenAIRecipe, OpenAIRecipeIngredient, OpenAIRecipeInstruction
-from mealie.schema.recipe.recipe import Recipe
+from mealie.schema.recipe.recipe import RecipeDraft
 from mealie.schema.recipe.recipe_ingredient import RecipeIngredient
 from mealie.schema.recipe.recipe_step import RecipeStep
 from mealie.services.openai.content import extract_page_content
@@ -116,8 +116,8 @@ def test_lossy_translation_is_rejected(change):
 
 @pytest.mark.asyncio
 async def test_partial_scrape_can_recover_missing_steps(monkeypatch):
-    partial = Recipe(name="Source", recipe_ingredient=[RecipeIngredient(note="1 oignon")])
-    recovered = Recipe(
+    partial = RecipeDraft(name="Source", recipe_ingredient=[RecipeIngredient(note="1 oignon")])
+    recovered = RecipeDraft(
         name="AI",
         recipe_ingredient=[RecipeIngredient(note="2 oignons")],
         recipe_instructions=[RecipeStep(text="Émincer.")],
@@ -125,6 +125,8 @@ async def test_partial_scrape_can_recover_missing_steps(monkeypatch):
 
     def strategy(recipe):
         class Strategy:
+            is_fallback = False
+
             def __init__(self, *args, **kwargs):
                 pass
 
@@ -146,9 +148,11 @@ async def test_partial_scrape_can_recover_missing_steps(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_partial_scrape_is_kept_if_recovery_fails(monkeypatch):
-    partial = Recipe(name="Source", recipe_ingredient=[RecipeIngredient(note="1 oignon")])
+    partial = RecipeDraft(name="Source", recipe_ingredient=[RecipeIngredient(note="1 oignon")])
 
     class Strategy:
+        is_fallback = False
+
         def __init__(self, *args, **kwargs):
             pass
 
@@ -180,7 +184,7 @@ def test_placeholder_text_is_not_a_complete_recipe():
 
 @pytest.mark.asyncio
 async def test_translation_keeps_normalized_servings_and_times():
-    original = Recipe(
+    original = RecipeDraft(
         name="Rice",
         recipe_yield="servings",
         recipe_yield_quantity=4,

@@ -53,27 +53,24 @@
       </v-row>
     </v-container>
 
-    <v-row>
-      <v-col cols="12" sm="4" class="py-1">
-        <v-text-field
-          v-model="recipe.totalTime"
-          :label="$t('recipe.total-time')"
-          density="comfortable"
-          variant="filled"
-        />
-      </v-col>
-      <v-col cols="12" sm="4" class="py-1">
-        <v-text-field v-model="recipe.prepTime" :label="$t('recipe.prep-time')" density="comfortable" variant="filled" />
-      </v-col>
-      <v-col cols="12" sm="4" class="py-1">
-        <v-text-field
-          v-model="recipe.performTime"
-          :label="$t('recipe.perform-time')"
-          density="comfortable"
-          variant="filled"
-        />
-      </v-col>
-    </v-row>
+    <!-- Structured hours/minutes keep scaling and time summaries accurate; the text keeps extra wording -->
+    <div class="d-flex flex-column ga-2 my-2">
+      <RecipeTimeInput
+        v-model:seconds="recipe.totalTimeSeconds"
+        v-model:text="recipe.totalTime"
+        :label="$t('recipe.total-time')"
+      />
+      <RecipeTimeInput
+        v-model:seconds="recipe.prepTimeSeconds"
+        v-model:text="recipe.prepTime"
+        :label="$t('recipe.prep-time')"
+      />
+      <RecipeTimeInput
+        v-model:seconds="recipe.performTimeSeconds"
+        v-model:text="recipe.performTime"
+        :label="$t('recipe.perform-time')"
+      />
+    </div>
     <v-textarea
       v-model="recipe.description"
       class="my-1"
@@ -88,6 +85,7 @@
 
 <script setup lang="ts">
 import type { RecipeView } from "~/lib/recipe/recipe-view";
+import RecipeTimeInput from "~/components/Domain/Recipe/RecipeTimeInput.vue";
 import { useQuantityInput } from "~/composables/use-quantity-input";
 import { validators } from "~/composables/use-validators";
 

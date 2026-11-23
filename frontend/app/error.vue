@@ -10,7 +10,7 @@
       </v-card-title>
       <v-card-actions class="justify-center">
         <slot name="actions">
-          <v-btn v-for="(button, index) in buttons" :key="index" nuxt :to="button.to" color="primary">
+          <v-btn v-for="(button, index) in buttons" :key="index" color="primary" @click="clearError({ redirect: button.to })">
             <v-icon start>
               {{ button.icon }}
             </v-icon>
@@ -68,8 +68,10 @@ async function insertGroupSlugIntoRoute() {
     routeVal = `/g/${groupSlug.value}${routeVal}`;
   }
 
-  if (replaceRoute) {
-    await router.replace(routeVal);
+  // Only leave the error page for a path that exists: an unknown path under
+  // /g/<groupSlug> matches only the group page and would show an empty page
+  if (replaceRoute && router.resolve(routeVal).name) {
+    await clearError({ redirect: routeVal });
   }
 }
 
@@ -78,7 +80,7 @@ async function handle404() {
   const newRoute = normalizedRoute.replace(/^\/group\/(mealplan|members|notifiers|webhooks)(\/.*)?$/, "/household/$1$2");
 
   if (newRoute !== normalizedRoute) {
-    await router.replace(newRoute);
+    await clearError({ redirect: newRoute });
   }
   else {
     await insertGroupSlugIntoRoute();

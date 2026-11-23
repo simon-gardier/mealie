@@ -1,15 +1,18 @@
 <template>
   <v-card
-    color="surface-variant"
+    :color="endDate ? 'primary' : 'surface-variant'"
+    :variant="endDate ? 'tonal' : undefined"
     border="primary s-lg opacity-100"
     class="rounded-sm px-2"
-    style="z-index: 2; background: rgb(var(--v-theme-surface-variant)) !important;"
+    :style="endDate ? 'z-index: 2;' : 'z-index: 2; background: rgb(var(--v-theme-surface-variant)) !important;'"
   >
     <v-container class="px-0 d-flex align-center justify-space-between" height="56px">
       <p
-        :class="{ 'pl-2 flex-grow-1 text-center': true, 'text-primary font-weight-bold text-decoration-underline': isToday(day) }"
+        :class="{ 'pl-2 flex-grow-1 text-center': true, 'text-primary font-weight-bold text-decoration-underline': isCurrent }"
       >
-        {{ formatDay(day) }}
+        {{ formatDay(day) }}<template v-if="endDate">
+          - {{ formatDay(endDate) }}
+        </template>
       </p>
       <slot />
     </v-container>
@@ -17,12 +20,14 @@
 </template>
 
 <script setup lang="ts">
-import { isSameDay } from "date-fns";
+import { endOfDay, isSameDay, isWithinInterval, startOfDay } from "date-fns";
 
 interface Props {
   day: Date;
+  /** Set for a week, whose meals aren't planned for a specific day */
+  endDate?: Date | null;
 };
-defineProps<Props>();
+const props = defineProps<Props>();
 
 const i18n = useI18n();
 
@@ -31,7 +36,10 @@ const formatDay = (date: Date) => {
   return formatted.charAt(0).toLocaleUpperCase(i18n.locale.value) + formatted.slice(1);
 };
 
-const isToday = (date: Date) => {
-  return isSameDay(date, new Date());
-};
+const isCurrent = computed(() => {
+  const today = new Date();
+  return props.endDate
+    ? isWithinInterval(today, { start: startOfDay(props.day), end: endOfDay(props.endDate) })
+    : isSameDay(props.day, today);
+});
 </script>

@@ -15,7 +15,7 @@
     />
     <MealPlanLayout :mealplans="mealplans">
       <template #default="{ day }">
-        <MealPlanDay :day="day.date" :actions="actions" :recipes="day.recipes">
+        <MealPlanDay :day="day.date" :end-date="day.endDate" :actions="actions" :recipes="day.recipes">
           <template #default="{ buttons, bindings }">
             <SpinTransition>
               <v-card
@@ -28,15 +28,15 @@
                   {{ $t('meal-plan.no-meal-planned') }}
                 </p>
                 <SpinTransition>
-                  <div v-for="section in planTypes" v-show="dragging || slots[dateKey(day.date)]?.[section.value]?.length" :key="section.value">
+                  <div v-for="section in planTypes" v-show="dragging || slots[mealplanSlotKey(day)]?.[section.value]?.length" :key="section.value">
                     <div class="py-2 d-flex flex-column">
                       <p class="planner-course-label my-0">
                         {{ section.text }}
                       </p>
                     </div>
                     <VueDraggable
-                      v-if="slots[dateKey(day.date)]?.[section.value]"
-                      :model-value="mealsFor(day.date, section.value)"
+                      v-if="slots[mealplanSlotKey(day)]?.[section.value]"
+                      :model-value="mealsFor(day, section.value)"
                       group="planner-meals"
                       handle=".planner-drag-handle"
                       :sort="false"
@@ -50,13 +50,13 @@
                       drag-class="recipe-drag-active"
                       class="planner-drop-zone"
                       :class="{ 'planner-drop-zone-active': dragging }"
-                      :data-date="dateKey(day.date)"
+                      :data-date="mealplanSlotKey(day)"
                       :data-type="section.value"
-                      @update:model-value="setMealsFor(day.date, section.value, $event)"
+                      @update:model-value="setMealsFor(day, section.value, $event)"
                       @start="dragging = true"
                       @end="finishMove"
                     >
-                      <div v-for="mealplan in mealsFor(day.date, section.value)" :key="mealplan.id" :data-meal-id="mealplan.id" class="planner-meal-drag-item">
+                      <div v-for="mealplan in mealsFor(day, section.value)" :key="mealplan.id" :data-meal-id="mealplan.id" class="planner-meal-drag-item">
                         <v-btn
                           icon
                           variant="text"
@@ -70,20 +70,34 @@
                           <v-icon :icon="$globals.icons.arrowUpDown" size="18" />
                         </v-btn>
                         <RecipeCardMobile
-                          :recipe-id="mealplan.recipe ? mealplan.recipe.id! : ''"
+                          :recipe-id="mealplan.recipe ? mealplan.recipe.id : ''"
+                          :scale="mealplan.recipeScale ?? 1"
                           class="planner-meal-card"
                           compact
                           :rating="mealplan.recipe ? mealplan.recipe.rating! : 0"
-                          :slug="mealplan.recipe ? mealplan.recipe.slug! : mealplan.title!"
+                          :slug="mealplan.recipe ? mealplan.recipe.slug : mealplan.title!"
                           :description="mealplan.recipe ? mealplan.recipe.description! : mealplan.text!"
                           :show-description="!mealplan.recipe"
-                          :name="mealplan.recipe ? mealplan.recipe.name! : mealplan.title!"
+                          :name="mealplan.recipe ? mealplan.recipe.name : mealplan.title!"
                           :image="mealplan.recipe ? mealplan.recipe.image! : undefined"
-                          :tags="mealplan.recipe ? mealplan.recipe.tags! : []"
+                          :tags="mealplan.recipe ? mealplan.recipe.tags : []"
                           @mealplan-remove="actions.deleteOne(mealplan.id)"
                           @mealplan-edit="editMeal(mealplan)"
                           @add-to-shopping-list="addMealToShoppingList(mealplan)"
                         />
+                        <div v-if="mealplan.recipe || mealplan.endDate" class="d-flex flex-wrap align-center ga-2 pt-1">
+                          <v-btn
+                            v-if="mealplan.endDate"
+                            color="primary"
+                            variant="tonal"
+                            density="comfortable"
+                            :prepend-icon="$globals.icons.potSteam"
+                            @click="cookToday(mealplan)"
+                          >
+                            {{ $t("meal-plan.cooking-it-today") }}
+                          </v-btn>
+                          <MealPlanScaleControl v-if="mealplan.recipe" class="ms-auto flex-shrink-0" :meal="mealplan" :actions="actions" />
+                        </div>
                       </div>
                     </VueDraggable>
                   </div>
@@ -104,11 +118,12 @@
 import { format } from "date-fns";
 import { VueDraggable } from "vue-draggable-plus";
 import type { SortableEvent } from "sortablejs";
-import { useMealplanDrag } from "~/composables/use-mealplan-drag";
+import { mealplanSlotKey, useMealplanDrag } from "~/composables/use-mealplan-drag";
+import MealPlanScaleControl from "~/components/Domain/Mealplan/MealPlanScaleControl.vue";
 import { usePlanTypeOptions } from "~/composables/use-group-mealplan";
 import { useUserApi } from "~/composables/api";
 import { alert } from "~/composables/use-toast";
-import type { PlanEntryType, ReadPlanEntry } from "~/lib/api/types/meal-plan";
+import type { PlanEntryType, PlanEntryOut } from "~/lib/api/types/meal-plan";
 import RecipeDialogAddToShoppingList from "~/components/Domain/Recipe/RecipeDialogAddToShoppingList.vue";
 import RecipeCardMobile from "~/components/Domain/Recipe/RecipeCardMobile.vue";
 import { useAddToShoppingListDialog } from "~/composables/shopping-list-page/use-add-to-shopping-list-dialog";
@@ -123,7 +138,6 @@ const props = defineProps<{
 const planTypes = usePlanTypeOptions();
 const api = useUserApi();
 const i18n = useI18n();
-const dateKey = (date: Date) => format(date, "yyyy-MM-dd");
 const { slots, dragging, saving, move } = useMealplanDrag(
   () => props.mealplans,
   planTypes.map(type => type.value),
@@ -137,27 +151,27 @@ function finishMove(event: SortableEvent) {
   if (date && type) void move(Number(event.item.dataset.mealId), date, type);
   else dragging.value = false;
 }
-function mealsFor(date: Date, type: PlanEntryType) {
-  return slots[dateKey(date)]?.[type] ?? [];
+function mealsFor(plan: Pick<MealsByDate, "date" | "endDate">, type: PlanEntryType) {
+  return slots[mealplanSlotKey(plan)]?.[type] ?? [];
 }
-function setMealsFor(date: Date, type: PlanEntryType, meals: ReadPlanEntry[]) {
-  const day = slots[dateKey(date)];
-  if (day) day[type] = meals;
+function setMealsFor(plan: Pick<MealsByDate, "date" | "endDate">, type: PlanEntryType, meals: PlanEntryOut[]) {
+  const slot = slots[mealplanSlotKey(plan)];
+  if (slot) slot[type] = meals;
 }
 const { open: shoppingListDialog, shoppingLists, getShoppingLists } = useAddToShoppingListDialog();
 
 const dialog = reactive({
   open: false,
-  entry: null as ReadPlanEntry | null,
+  entry: null as PlanEntryOut | null,
   date: null as Date | null,
 });
-const shoppingListMeal = ref<ReadPlanEntry | null>(null);
+const shoppingListMeal = ref<PlanEntryOut | null>(null);
 const shoppingListRecipes = computed(() => {
   const recipe = shoppingListMeal.value?.recipe;
-  return recipe ? [{ scale: 1, ...recipe }] : [];
+  return recipe ? [{ ...recipe, scale: shoppingListMeal.value?.recipeScale ?? 1 }] : [];
 });
 
-async function addMealToShoppingList(mealplan: ReadPlanEntry) {
+async function addMealToShoppingList(mealplan: PlanEntryOut) {
   if (!mealplan.recipe) return;
 
   shoppingListMeal.value = mealplan;
@@ -165,12 +179,17 @@ async function addMealToShoppingList(mealplan: ReadPlanEntry) {
   shoppingListDialog.value = true;
 }
 
-function editMeal(mealplan: ReadPlanEntry) {
+function editMeal(mealplan: PlanEntryOut) {
   if (!mealplan.entryType) return;
 
   dialog.entry = mealplan;
   dialog.date = null;
   dialog.open = true;
+}
+
+/** Moves a week entry onto today, so it's treated like any other meal made today */
+function cookToday(mealplan: PlanEntryOut) {
+  props.actions.updateOne({ ...mealplan, date: format(new Date(), "yyyy-MM-dd"), endDate: null });
 }
 </script>
 

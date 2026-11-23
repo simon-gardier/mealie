@@ -22,6 +22,7 @@
 <script setup lang="ts">
 import { useDropZone } from "@vueuse/core";
 import { imageDropSuppressedKey } from "~/lib/image-drop-state";
+import { isHttpUrl } from "~/lib/validators/url";
 
 const props = defineProps({
   disabled: {
@@ -45,16 +46,6 @@ const el = ref<HTMLDivElement>();
  * matching `data-src` and similar attributes.
  */
 const IMG_SRC = /<img\b[^>]*?\ssrc\s*=\s*["']([^"']+)["']/i;
-
-function isHttpUrl(value: string) {
-  try {
-    const { protocol } = new URL(value);
-    return protocol === "http:" || protocol === "https:";
-  }
-  catch {
-    return false;
-  }
-}
 
 function isImageDataUrl(value: string) {
   return /^data:image\//i.test(value);

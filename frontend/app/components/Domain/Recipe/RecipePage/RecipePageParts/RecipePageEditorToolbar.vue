@@ -30,7 +30,6 @@
 import type { RecipeView } from "~/lib/recipe/recipe-view";
 import { usePageState, usePageUser } from "~/composables/recipe-page/shared-state";
 import { useUserApi, useStaticRoutes } from "~/composables/api";
-import { alertUnreportedError } from "~/composables/use-toast";
 import RecipeImageUploadBtn from "~/components/Domain/Recipe/RecipeImageUploadBtn.vue";
 import RecipeSettingsMenu from "~/components/Domain/Recipe/RecipeSettingsMenu.vue";
 
@@ -38,7 +37,6 @@ const recipe = defineModel<RecipeView>({ required: true });
 
 const { user } = usePageUser();
 const api = useUserApi();
-const i18n = useI18n();
 const { imageKey } = usePageState(recipe.value.slug);
 const { recipeImage } = useStaticRoutes();
 const currentImageUrl = computed(() => recipe.value.image
@@ -51,7 +49,6 @@ async function uploadImage(fileObject: File) {
   }
   const { data, error } = await api.recipes.updateImage(recipe.value.slug, fileObject);
   if (error) {
-    alertUnreportedError(error, i18n.t("events.something-went-wrong"));
     return;
   }
 

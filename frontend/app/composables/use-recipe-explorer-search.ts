@@ -1,5 +1,5 @@
 import { watchDebounced } from "@vueuse/shared";
-import type { IngredientFood, RecipeCategory, RecipeTag, RecipeTool } from "~/lib/api/types/recipe";
+import type { IngredientFoodOut, CategoryOut, TagOut, ToolOut } from "~/lib/api/types/recipe";
 import type { NoUndefinedField } from "~/lib/api/types/non-generated";
 import type { HouseholdSummary } from "~/lib/api/types/household";
 import type { RecipeSearchQuery } from "~/lib/api/user/recipes/recipe";
@@ -32,19 +32,19 @@ interface RecipeExplorerSearchState {
     requireAllFoods: boolean;
     randomSeed: number;
   }>;
-  selectedCategories: Ref<NoUndefinedField<RecipeCategory>[]>;
-  selectedFoods: Ref<IngredientFood[]>;
+  selectedCategories: Ref<CategoryOut[]>;
+  selectedFoods: Ref<IngredientFoodOut[]>;
   selectedAuthor: Ref<string | null>;
   selectedHouseholds: Ref<NoUndefinedField<HouseholdSummary>[]>;
-  selectedTags: Ref<NoUndefinedField<RecipeTag>[]>;
-  selectedTools: Ref<NoUndefinedField<RecipeTool>[]>;
+  selectedTags: Ref<TagOut[]>;
+  selectedTools: Ref<ToolOut[]>;
   passedQueryWithSeed: ComputedRef<RecipeSearchQuery & { _searchSeed: string }>;
   search: () => Promise<void>;
   reset: () => void;
   toggleOrderDirection: () => void;
   setOrderBy: (value: string) => void;
   setRandomOrderBy: () => void;
-  filterItems: (item: RecipeCategory | RecipeTag | RecipeTool, urlPrefix: string) => void;
+  filterItems: (item: CategoryOut | TagOut | ToolOut, urlPrefix: string) => void;
   initialize: () => Promise<void>;
 }
 
@@ -81,12 +81,12 @@ function createRecipeExplorerSearchState(groupSlug: ComputedRef<string>): Recipe
   const tools = isOwnGroup.value ? useToolStore() : usePublicToolStore(groupSlug.value);
 
   // Selected items
-  const selectedCategories = ref<NoUndefinedField<RecipeCategory>[]>([]);
-  const selectedFoods = ref<IngredientFood[]>([]);
+  const selectedCategories = ref<CategoryOut[]>([]);
+  const selectedFoods = ref<IngredientFoodOut[]>([]);
   const selectedAuthor = ref<string | null>(null);
   const selectedHouseholds = ref<NoUndefinedField<HouseholdSummary>[]>([]);
-  const selectedTags = ref<NoUndefinedField<RecipeTag>[]>([]);
-  const selectedTools = ref<NoUndefinedField<RecipeTool>[]>([]);
+  const selectedTags = ref<TagOut[]>([]);
+  const selectedTools = ref<ToolOut[]>([]);
 
   // Query defaults
   const queryDefaults = {
@@ -114,6 +114,10 @@ function createRecipeExplorerSearchState(groupSlug: ComputedRef<string>): Recipe
   }
 
   function calcPassedQuery(): RecipeSearchQuery {
+    const orderBy = !isOwnGroup.value && state.value.orderBy === "last_made"
+      ? queryDefaults.orderBy
+      : state.value.orderBy;
+
     return {
       search: state.value.search ? state.value.search : "",
       queryFilter: selectedAuthor.value ? `userId = "${selectedAuthor.value}"` : undefined,
@@ -126,7 +130,7 @@ function createRecipeExplorerSearchState(groupSlug: ComputedRef<string>): Recipe
       requireAllTags: state.value.requireAllTags,
       requireAllTools: state.value.requireAllTools,
       requireAllFoods: state.value.requireAllFoods,
-      orderBy: state.value.orderBy,
+      orderBy,
       orderDirection: state.value.orderDirection,
     };
   }
@@ -201,6 +205,10 @@ function createRecipeExplorerSearchState(groupSlug: ComputedRef<string>): Recipe
   }
 
   function setOrderBy(value: string) {
+    if (!isOwnGroup.value && value === "last_made") {
+      value = queryDefaults.orderBy;
+    }
+
     state.value.orderBy = value;
     sortPreferences.value.orderBy = value;
   }
@@ -235,18 +243,18 @@ function createRecipeExplorerSearchState(groupSlug: ComputedRef<string>): Recipe
     searchQuerySession.value.recipe = JSON.stringify(query);
   }
 
-  function filterItems(item: RecipeCategory | RecipeTag | RecipeTool, urlPrefix: string) {
+  function filterItems(item: CategoryOut | TagOut | ToolOut, urlPrefix: string) {
     if (urlPrefix === "categories") {
-      const result = categories.store.value.filter(category => (category.id as string).includes(item.id as string));
-      selectedCategories.value = result as NoUndefinedField<RecipeCategory>[];
+      const result = categories.store.value.filter(category => category.id.includes(item.id));
+      selectedCategories.value = result;
     }
     else if (urlPrefix === "tags") {
-      const result = tags.store.value.filter(tag => (tag.id as string).includes(item.id as string));
-      selectedTags.value = result as NoUndefinedField<RecipeTag>[];
+      const result = tags.store.value.filter(tag => tag.id.includes(item.id));
+      selectedTags.value = result;
     }
     else if (urlPrefix === "tools") {
-      const result = tools.store.value.filter(tool => (tool.id).includes(item.id || ""));
-      selectedTools.value = result as NoUndefinedField<RecipeTool>[];
+      const result = tools.store.value.filter(tool => tool.id.includes(item.id));
+      selectedTools.value = result;
     }
   }
 
@@ -306,7 +314,7 @@ function createRecipeExplorerSearchState(groupSlug: ComputedRef<string>): Recipe
             const result = categories.store.value.filter(item =>
               (query.categories as string[]).includes(item.id as string),
             );
-            selectedCategories.value = result as NoUndefinedField<RecipeCategory>[];
+            selectedCategories.value = result;
           },
         ),
       );
@@ -321,7 +329,7 @@ function createRecipeExplorerSearchState(groupSlug: ComputedRef<string>): Recipe
           () => tags.store.value.length > 0,
           () => {
             const result = tags.store.value.filter(item => (query.tags as string[]).includes(item.id as string));
-            selectedTags.value = result as NoUndefinedField<RecipeTag>[];
+            selectedTags.value = result;
           },
         ),
       );
@@ -336,7 +344,7 @@ function createRecipeExplorerSearchState(groupSlug: ComputedRef<string>): Recipe
           () => tools.store.value.length > 0,
           () => {
             const result = tools.store.value.filter(item => (query.tools as string[]).includes(item.id));
-            selectedTools.value = result as NoUndefinedField<RecipeTool>[];
+            selectedTools.value = result;
           },
         ),
       );

@@ -1,6 +1,10 @@
 <template>
   <div>
     <BaseVideoBackground src="/festin.mp4" />
+    <!-- signing in from the reverse proxy's header happens before the form is useful -->
+    <v-overlay :model-value="reverseProxyLoggingIn" persistent class="align-center justify-center">
+      <v-progress-circular indeterminate color="primary" size="64" />
+    </v-overlay>
     <v-container fluid class="d-flex justify-center align-center flex-column fill-height login-background">
       <v-alert
         v-if="isFirstLogin"
@@ -260,6 +264,7 @@ whenever(
 
 const loggingIn = ref(false);
 const oidcLoggingIn = ref(false);
+const reverseProxyLoggingIn = ref($appInfo.enableReverseProxyAuth && !isDirectLogin());
 
 const { passwordIcon, inputType, togglePasswordShow } = usePasswordField();
 
@@ -272,7 +277,20 @@ whenever(
 onBeforeMount(async () => {
   if (isCallback()) {
     await oidcAuthenticate(true);
+    // Failed callback redirects to ?direct=1 without reloading, so clear the spinner ourselves
+    reverseProxyLoggingIn.value = false;
+    return;
   }
+
+  if ($appInfo.enableReverseProxyAuth && !isDirectLogin() && !loggedIn.value) {
+    try {
+      await auth.reverseProxySignIn();
+    }
+    catch {
+      // Header missing/invalid - fall back to the regular login form
+    }
+  }
+  reverseProxyLoggingIn.value = false;
 });
 
 function isCallback() {

@@ -86,14 +86,11 @@
   </v-autocomplete>
 </template>
 
-<script setup lang="ts">
-import type { IngredientFood, RecipeCategory, RecipeTag, RecipeTool } from "~/lib/api/types/recipe";
+<script setup lang="ts" generic="T extends { id: string; name: string }">
 import { Organizer, type RecipeOrganizer } from "~/lib/api/types/non-generated";
-import type { HouseholdSummary } from "~/lib/api/types/household";
 import { useCategoryStore, useFoodStore, useLabelStore, useHouseholdStore, useTagStore, useToolStore } from "~/composables/store";
 import { useUserStore } from "~/composables/store/use-user-store";
 import { normalizeFilter } from "~/composables/use-utils";
-import type { UserSummary } from "~/lib/api/types/user";
 
 interface Props {
   selectorType: RecipeOrganizer;
@@ -114,14 +111,7 @@ const props = withDefaults(defineProps<Props>(), {
   variant: "filled",
 });
 
-const selected = defineModel<(
-  | HouseholdSummary
-  | RecipeTag
-  | RecipeCategory
-  | RecipeTool
-  | IngredientFood
-  | UserSummary
-)[] | undefined>({ required: true });
+const selected = defineModel<T[] | undefined>({ required: true });
 
 onMounted(() => {
   if (selected.value === undefined) {
@@ -131,7 +121,7 @@ onMounted(() => {
 
 const i18n = useI18n();
 function organizerTitle(item: NonNullable<typeof selected.value>[number]) {
-  return "fullName" in item ? item.fullName : "name" in item ? item.name : "";
+  return String(("fullName" in item ? item.fullName : "name" in item ? item.name : "") ?? "");
 }
 const { $globals } = useNuxtApp();
 

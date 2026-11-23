@@ -216,7 +216,7 @@
                   to="/admin/site-settings"
                 />
                 <v-list-item
-                  v-if="canManage"
+                  v-if="canOrganize"
                   :prepend-icon="$globals.icons.manageData"
                   :title="$t('data-pages.data-management')"
                   to="/group/data"
@@ -271,7 +271,7 @@ const auth = useMealieAuth();
 const sessionUser = computed(() => auth.user.value);
 const { loggedIn, isOwnGroup } = useLoggedInState();
 const isAdmin = computed(() => auth.user.value?.admin);
-const canManage = computed(() => auth.user.value?.canManage);
+const canOrganize = computed(() => auth.user.value?.canOrganize);
 
 const userProfileLink = computed(() => auth.user.value ? "/user/profile" : undefined);
 

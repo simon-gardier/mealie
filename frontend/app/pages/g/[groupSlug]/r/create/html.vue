@@ -102,7 +102,7 @@
           </p>
           <div>
             <p>
-              {{ $t("new-recipe.html-or-json-error-details") }}
+              {{ errorDetails || $t("new-recipe.html-or-json-error-details") }}
             </p>
           </div>
           <div class="d-flex flex-wrap ga-3 justify-space-around my-3">
@@ -149,6 +149,12 @@ const state = reactive({
   loading: false,
   isEditJSON: false,
 });
+// Messages the paste page cannot explain better than its generic advice: the scraper's bare
+// error codes, and the stream client's own fallback when no error message arrived.
+const genericErrors = ["BAD_RECIPE_DATA", "NO_RECIPE_DATA", "CONNECTION_ERROR", "Recipe creation failed"];
+const errorDetails = computed(() =>
+  state.errorMessage && !genericErrors.includes(state.errorMessage) ? state.errorMessage : null,
+);
 const auth = useMealieAuth();
 const i18n = useI18n();
 const route = useRoute();

@@ -8,7 +8,7 @@
         color="transparent"
         class="recipe-info-summary d-flex flex-column justify-center align-center"
       >
-        <v-card-text>
+        <v-card-text style="max-width: 100%;">
           <div class="d-flex flex-column align-center">
             <div class="recipe-title-background d-flex align-center justify-center">
               <v-card-title
@@ -18,6 +18,10 @@
               </v-card-title>
             </div>
             <RecipeRating :key="recipe.slug" :model-value="recipe.rating" :recipe-id="recipe.id" :slug="recipe.slug" />
+            <div v-if="isOwnGroup && owner" class="d-flex align-center mb-2">
+              <UserAvatar :user-id="owner.id" :tooltip="false" size="32" class="mr-2" />
+              {{ owner.fullName }}
+            </div>
           </div>
           <v-divider class="my-2" />
           <SafeMarkdown v-if="recipe.description" :source="recipe.description" class="recipe-description my-3" />
@@ -44,11 +48,14 @@
                 </v-col>
               </v-row>
             </div>
-            <div v-if="recipe.prepTime || recipe.totalTime || recipe.performTime" class="w-100 mt-2">
+            <div v-if="hasTime" class="w-100 mt-2">
               <RecipeTimeCard
                 :prep-time="recipe.prepTime"
                 :total-time="recipe.totalTime"
                 :perform-time="recipe.performTime"
+                :prep-time-seconds="recipe.prepTimeSeconds"
+                :total-time-seconds="recipe.totalTimeSeconds"
+                :perform-time-seconds="recipe.performTimeSeconds"
                 class="mb-4"
               />
             </div>
@@ -68,6 +75,9 @@ import RecipeLastMade from "~/components/Domain/Recipe/RecipeLastMade.vue";
 import RecipeTimeCard from "~/components/Domain/Recipe/RecipeTimeCard.vue";
 import RecipeYield from "~/components/Domain/Recipe/RecipeYield.vue";
 import RecipePageInfoCardImage from "~/components/Domain/Recipe/RecipePage/RecipePageParts/RecipePageInfoCardImage.vue";
+import UserAvatar from "~/components/Domain/User/UserAvatar.vue";
+import { useUserStore } from "~/composables/store/use-user-store";
+import type { UserSummary } from "~/lib/api/types/user";
 
 interface Props {
   recipe: RecipeView;
@@ -75,11 +85,20 @@ interface Props {
   landscape: boolean;
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   recipeScale: 1,
 });
 
 const { isOwnGroup } = useLoggedInState();
+
+// group members aren't visible outside the group, so don't fetch them
+const users = isOwnGroup.value ? useUserStore().store : ref<UserSummary[]>([]);
+const owner = computed(() => users.value.find(u => u.id === props.recipe.userId));
+
+const hasTime = computed(() => {
+  const { prepTime, totalTime, performTime, prepTimeSeconds, totalTimeSeconds, performTimeSeconds } = props.recipe;
+  return [prepTime, totalTime, performTime, prepTimeSeconds, totalTimeSeconds, performTimeSeconds].some(x => !!x);
+});
 </script>
 
 <style scoped>

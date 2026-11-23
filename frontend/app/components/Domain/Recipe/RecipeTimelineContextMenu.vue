@@ -13,7 +13,7 @@
       @submit="submitEdit"
     >
       <v-card-text>
-        <v-form ref="domEditEventForm">
+        <v-form ref="domEditEventForm" @submit.prevent>
           <v-text-field v-model="localEvent.subject" :label="$t('general.subject')" />
           <v-textarea v-model="localEvent.eventMessage" :label="$t('general.message')" rows="4" />
           <RecipeTimelinePhotoEditor :preview="imagePreview" :submitted="loading" @upload="selectImage" @crop="applyCrop" @remove="removeImage" />
@@ -81,13 +81,18 @@
 <script setup lang="ts">
 import RecipeTimelinePhotoEditor from "./RecipeTimelinePhotoEditor.vue";
 import { useI18n, useNuxtApp } from "#imports";
-import type { RecipeTimelineEventOut } from "~/lib/api/types/recipe";
+import type { RecipeTimelineEventOut, RecipeTimelineEventUpdate } from "~/lib/api/types/recipe";
 import { useUserApi, useStaticRoutes } from "~/composables/api";
 import { alert } from "~/composables/use-toast";
 
 export interface TimelineContextMenuIncludes {
   edit: boolean;
   delete: boolean;
+}
+
+export interface TimelineEventEdit {
+  event: RecipeTimelineEventUpdate;
+  image?: { file: Blob | File; fileName: string };
 }
 
 export interface ContextMenuItem {
@@ -106,6 +111,7 @@ const props = defineProps<{
   elevation?: number | null;
   color?: string;
   event: RecipeTimelineEventOut;
+  imageUrl?: string;
   menuIcon?: string | null;
 }>();
 
@@ -216,6 +222,7 @@ async function submitEdit() {
   if (loading.value) return;
   loading.value = true;
   try {
+    // The photo is uploaded here so the dialog can stay open, with the crop, if it fails
     if (pendingImage.value) {
       const { response } = await api.recipes.updateTimelineEventImage(props.event.id, pendingImage.value, imageName.value);
       if (!response || response.status >= 400) {
@@ -225,7 +232,8 @@ async function submitEdit() {
       localEvent.value.image = "has image";
       pendingImage.value = undefined;
     }
-    emit("update", { ...localEvent.value });
+    const edit: TimelineEventEdit = { event: { ...localEvent.value } };
+    emit("update", edit);
     recipeEventEditDialog.value = false;
   }
   catch {

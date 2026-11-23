@@ -32,11 +32,11 @@ class RepositoryUsers(GroupRepositoryGeneric[PrivateUser, User]):
         new_user = super().create(user)
 
         avatar_path = avatars_assets.get_avatar_path(avatar)
-        shutil.copy(avatar_path, new_user.directory() / "profile.webp")
+        shutil.copyfile(avatar_path, new_user.directory() / "profile.webp")
 
         return new_user
 
-    def update(self, match_value: str | int | UUID4, new_data: dict | PrivateUser) -> PrivateUser:
+    def update(self, match_value: str | int | UUID4, new_data: dict | PrivateUser) -> PrivateUser:  # type: ignore[override]
         if settings.IS_DEMO:
             user_to_update = self.get_one(match_value)
             if user_to_update and user_to_update.is_default_user:
@@ -45,7 +45,7 @@ class RepositoryUsers(GroupRepositoryGeneric[PrivateUser, User]):
 
         return super().update(match_value, new_data)
 
-    def delete(self, value: str | UUID4, match_key: str | None = None) -> User:
+    def delete(self, value: str | UUID4, match_key: str | None = None) -> PrivateUser:
         if settings.IS_DEMO:
             user_to_delete = self.get_one(value, match_key)
             if user_to_delete and user_to_delete.is_default_user:

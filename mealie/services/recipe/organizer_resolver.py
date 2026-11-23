@@ -4,8 +4,7 @@ from pydantic import BaseModel
 from slugify import slugify
 
 from mealie.repos.repository_factory import AllRepositories
-from mealie.schema.recipe.recipe import RecipeCategory, RecipeTag, RecipeTool
-from mealie.schema.recipe.recipe_tool import RecipeToolSave
+from mealie.schema.recipe.recipe_organizers import CategoryOut, TagOut, ToolOut, ToolSave
 from mealie.schema.response.pagination import PaginationQuery
 from mealie.services.matching import find_match
 
@@ -25,9 +24,9 @@ class OrganizerResolver:
         self.repos = repos
         self.fuzzy_match_threshold = fuzzy_match_threshold
 
-        self._tags: dict[str, RecipeTag] | None = None
-        self._categories: dict[str, RecipeCategory] | None = None
-        self._tools: dict[str, RecipeTool] | None = None
+        self._tags: dict[str, TagOut] | None = None
+        self._categories: dict[str, CategoryOut] | None = None
+        self._tools: dict[str, ToolOut] | None = None
 
     @staticmethod
     def _normalize(name: str) -> str:
@@ -39,23 +38,23 @@ class OrganizerResolver:
         return {self._normalize(item.name): schema.model_validate(item, from_attributes=True) for item in items}
 
     @property
-    def tags(self) -> dict[str, RecipeTag]:
+    def tags(self) -> dict[str, TagOut]:
         if self._tags is None:
-            self._tags = self._load(self.repos.tags, RecipeTag)
+            self._tags = self._load(self.repos.tags, TagOut)
 
         return self._tags
 
     @property
-    def categories(self) -> dict[str, RecipeCategory]:
+    def categories(self) -> dict[str, CategoryOut]:
         if self._categories is None:
-            self._categories = self._load(self.repos.categories, RecipeCategory)
+            self._categories = self._load(self.repos.categories, CategoryOut)
 
         return self._categories
 
     @property
-    def tools(self) -> dict[str, RecipeTool]:
+    def tools(self) -> dict[str, ToolOut]:
         if self._tools is None:
-            self._tools = self._load(self.repos.tools, RecipeTool)
+            self._tools = self._load(self.repos.tools, ToolOut)
 
         return self._tools
 
@@ -103,16 +102,17 @@ class OrganizerResolver:
 
         return resolved
 
-    def resolve_tags(self, names: list[str], create_missing: bool = False) -> list[RecipeTag]:
+    def resolve_tags(self, names: list[str], create_missing: bool = False) -> list[TagOut]:
         # Legacy callers may still request creation; recipe imports never create tags.
         return self._resolve(names, self.tags, False, None)
 
-    def resolve_categories(self, names: list[str], create_missing: bool = False) -> list[RecipeCategory]:
+    def resolve_categories(self, names: list[str], create_missing: bool = False) -> list[CategoryOut]:
+        # Legacy callers may still request creation; recipe imports never create categories.
         return self._resolve(names, self.categories, False, None)
 
-    def resolve_tools(self, names: list[str], create_missing: bool) -> list[RecipeTool]:
-        def create(name: str) -> RecipeTool:
-            saved = self.repos.tools.create(RecipeToolSave(name=name, group_id=self.repos.group_id))
-            return RecipeTool.model_validate(saved, from_attributes=True)
+    def resolve_tools(self, names: list[str], create_missing: bool) -> list[ToolOut]:
+        def create(name: str) -> ToolOut:
+            saved = self.repos.tools.create(ToolSave(name=name, group_id=self.repos.group_id))
+            return ToolOut.model_validate(saved, from_attributes=True)
 
         return self._resolve(names, self.tools, create_missing, create)

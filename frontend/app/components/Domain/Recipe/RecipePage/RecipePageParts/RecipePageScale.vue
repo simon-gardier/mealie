@@ -1,5 +1,9 @@
 <template>
-  <div class="d-flex justify-space-between align-center" :class="compact ? 'pa-0' : 'pt-2 pb-3'">
+  <div class="d-flex align-center ga-2" :class="compact ? 'pa-0' : 'pt-2 pb-3'">
+    <RecipeUnitSystemButton
+      v-if="!isEditMode"
+      :recipe="recipe"
+    />
     <RecipeScaleEditButton
       v-if="!isEditMode"
       v-model.number="scale"
@@ -14,6 +18,7 @@
 <script setup lang="ts">
 import type { RecipeView } from "~/lib/recipe/recipe-view";
 import RecipeScaleEditButton from "~/components/Domain/Recipe/RecipeScaleEditButton.vue";
+import RecipeUnitSystemButton from "~/components/Domain/Recipe/RecipeUnitSystemButton.vue";
 import { usePageState } from "~/composables/recipe-page/shared-state";
 import { canScaleShoppingRecipe, unanalyzedSubrecipeNames } from "~/lib/shopping-recipe-portions";
 

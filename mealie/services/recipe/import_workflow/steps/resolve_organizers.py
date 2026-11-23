@@ -1,4 +1,5 @@
 from mealie.schema.openai.organizers import OpenAIOrganizers
+from mealie.schema.recipe.recipe_organizers import CategoryDraft, TagDraft, ToolDraft
 from mealie.services.openai import OpenAIDataInjection
 from mealie.services.openai.content import truncate_source_content
 
@@ -103,6 +104,9 @@ class ResolveOrganizersStep(WorkflowStep):
             # the caller applies these itself
             return
 
-        recipe.tags = resolver.resolve_tags(response.tags, False)
-        recipe.recipe_category = resolver.resolve_categories(response.categories, False)
-        recipe.tools = resolver.resolve_tools(response.tools, True)
+        # Fork policy: imports only attach existing tags/categories; tools may be created.
+        recipe.tags = [TagDraft.model_validate(t) for t in resolver.resolve_tags(response.tags, False)]
+        recipe.recipe_category = [
+            CategoryDraft.model_validate(c) for c in resolver.resolve_categories(response.categories, False)
+        ]
+        recipe.tools = [ToolDraft.model_validate(t) for t in resolver.resolve_tools(response.tools, True)]

@@ -1,10 +1,11 @@
 import { effectScope, ref } from "vue";
 import { describe, expect, test, vi } from "vitest";
-import { useMealplanDrag } from "./use-mealplan-drag";
+import { mealplanSlotKey, useMealplanDrag } from "./use-mealplan-drag";
 import type { MealsByDate } from "./use-group-mealplan";
+import type { PlanEntryOut } from "~/lib/api/types/meal-plan";
 
 function setup(success: boolean) {
-  const plans = ref<MealsByDate[]>([{ date: new Date(2026, 9, 8), meals: [{ id: 1, date: "2026-10-08", entryType: "lunch", title: "Soup", recipeId: "recipe", groupId: "g", householdId: "h", userId: "u" }] }, { date: new Date(2026, 9, 9), meals: [] }]);
+  const plans = ref<MealsByDate[]>([{ date: new Date(2026, 9, 8), meals: [{ id: 1, date: "2026-10-08", entryType: "lunch", title: "Soup", recipeId: "recipe", groupId: "g", householdId: "h", userId: "u" } as PlanEntryOut] }, { date: new Date(2026, 9, 9), meals: [] }]);
   const save = vi.fn(async () => success);
   const refresh = vi.fn(async () => {
     if (success) {
@@ -37,6 +38,18 @@ describe("meal planner moves", () => {
     expect(refresh).not.toHaveBeenCalled();
     expect(drag.slots["2026-10-08"]!.lunch).toHaveLength(1);
     expect(drag.slots["2026-10-09"]!.dinner).toHaveLength(0);
+    scope.stop();
+  });
+  test("keeps a week apart from its first day and schedules moves into it as a week", async () => {
+    const { drag, save, plans, scope } = setup(false);
+    const week = { date: new Date(2026, 9, 5), endDate: new Date(2026, 9, 11), meals: [] };
+    plans.value.push(week);
+    await Promise.resolve();
+    const weekKey = mealplanSlotKey(week);
+    expect(weekKey).toBe("2026-10-05~2026-10-11");
+    expect(mealplanSlotKey({ date: new Date(2026, 9, 5) })).toBe("2026-10-05");
+    await drag.move(1, weekKey, "lunch");
+    expect(save).toHaveBeenCalledWith(expect.objectContaining({ id: 1, date: "2026-10-05", endDate: "2026-10-11", entryType: "lunch" }));
     scope.stop();
   });
 });

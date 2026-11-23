@@ -108,5 +108,6 @@ export const useUserRegistrationForm = () => {
     validateEmail,
     // Dom Refs
     domAccountForm,
+    safeValidate,
   };
 };

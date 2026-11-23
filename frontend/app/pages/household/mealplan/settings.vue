@@ -80,11 +80,11 @@
               </span>
             </v-card-title>
             <v-card-text>
-              <template v-if="!editState[rule.id]">
-                <p class="text-secondary" style="overflow-wrap: anywhere">
-                  {{ rule.queryFilterString }}
-                </p>
-              </template>
+              <GroupMealPlanRuleForm
+                v-if="!editState[rule.id]"
+                :query-filter="rule.queryFilter"
+                readonly
+              />
               <template v-else>
                 <GroupMealPlanRuleForm
                   v-model:day="rule.day"
@@ -113,6 +113,10 @@ import { useUserApi } from "~/composables/api";
 import type { PlanRulesCreate, PlanRulesOut } from "~/lib/api/types/meal-plan";
 import GroupMealPlanRuleForm from "~/components/Domain/Household/GroupMealPlanRuleForm.vue";
 import { useAsyncKey } from "~/composables/use-utils";
+
+definePageMeta({
+  middleware: ["auth"],
+});
 
 const api = useUserApi();
 const i18n = useI18n();

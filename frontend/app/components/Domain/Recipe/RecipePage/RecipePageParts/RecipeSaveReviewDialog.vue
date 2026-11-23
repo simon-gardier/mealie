@@ -73,10 +73,10 @@
 </template>
 
 <script setup lang="ts">
-import type { Recipe } from "~/lib/api/types/recipe";
+import type { RecipeDraft } from "~/lib/api/types/recipe";
 import type { RecipeSaveWarning } from "~/lib/recipe/save-warnings";
 
-const props = defineProps<{ modelValue: boolean; warnings: RecipeSaveWarning[]; recipe: Recipe }>();
+const props = defineProps<{ modelValue: boolean; warnings: RecipeSaveWarning[]; recipe: RecipeDraft }>();
 const emit = defineEmits<{ confirm: []; cancel: [] }>();
 const { t } = useI18n();
 const issueIndex = ref(0);

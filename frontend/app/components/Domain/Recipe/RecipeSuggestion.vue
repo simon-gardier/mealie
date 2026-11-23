@@ -84,23 +84,23 @@
 <script setup lang="ts">
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 import type {
-  IngredientFood,
+  IngredientFoodOut,
   IngredientFoodSummary,
   RecipeSuggestionSubstitutedFood,
   RecipeSummary,
-  RecipeTool,
+  ToolOut,
 } from "~/lib/api/types/recipe";
 
 interface Organizer {
   type: "food" | "tool";
-  item: IngredientFood | RecipeTool;
+  item: IngredientFoodOut | ToolOut;
   selected: boolean;
 }
 
 interface Props {
   recipe: RecipeSummary;
-  missingFoods?: IngredientFood[] | null;
-  missingTools?: RecipeTool[] | null;
+  missingFoods?: IngredientFoodOut[] | null;
+  missingTools?: ToolOut[] | null;
   substitutedFoods?: RecipeSuggestionSubstitutedFood[] | null;
   disableCheckbox?: boolean;
 }
@@ -124,15 +124,15 @@ const { isOwnGroup } = useLoggedInState();
 const recipeRoute = computed(() => `/g/${route.params.groupSlug || auth.user.value?.groupSlug || ""}/r/${props.recipe.slug}`);
 
 // same label rule the missing-food chips use
-function foodLabel(food: IngredientFood | IngredientFoodSummary) {
+function foodLabel(food: IngredientFoodOut | IngredientFoodSummary) {
   return food.pluralName || food.name;
 }
 
 const emit = defineEmits<{
-  "add-food": [food: IngredientFood];
-  "remove-food": [food: IngredientFood];
-  "add-tool": [tool: RecipeTool];
-  "remove-tool": [tool: RecipeTool];
+  "add-food": [food: IngredientFoodOut];
+  "remove-food": [food: IngredientFoodOut];
+  "add-tool": [tool: ToolOut];
+  "remove-tool": [tool: ToolOut];
 }>();
 
 const { $globals } = useNuxtApp();
@@ -146,7 +146,7 @@ const missingOrganizers = computed(() => [
           return reactive({ type: "food", item: food, selected: false } as Organizer);
         })
       : [],
-    getLabel: (item: IngredientFood | RecipeTool) => "pluralName" in item ? item.pluralName || item.name : item.name,
+    getLabel: (item: IngredientFoodOut | ToolOut) => "pluralName" in item ? item.pluralName || item.name : item.name,
   },
   {
     type: "tool",
@@ -157,7 +157,7 @@ const missingOrganizers = computed(() => [
           return reactive({ type: "tool", item: tool, selected: false } as Organizer);
         })
       : [],
-    getLabel: (item: IngredientFood | RecipeTool) => item.name,
+    getLabel: (item: IngredientFoodOut | ToolOut) => item.name,
   },
 ]);
 
@@ -169,18 +169,18 @@ function handleCheckbox(organizer: Organizer) {
   organizer.selected = !organizer.selected;
   if (organizer.selected) {
     if (organizer.type === "food") {
-      emit("add-food", organizer.item as IngredientFood);
+      emit("add-food", organizer.item as IngredientFoodOut);
     }
     else {
-      emit("add-tool", organizer.item as RecipeTool);
+      emit("add-tool", organizer.item as ToolOut);
     }
   }
   else {
     if (organizer.type === "food") {
-      emit("remove-food", organizer.item as IngredientFood);
+      emit("remove-food", organizer.item as IngredientFoodOut);
     }
     else {
-      emit("remove-tool", organizer.item as RecipeTool);
+      emit("remove-tool", organizer.item as ToolOut);
     }
   }
 }

@@ -1,14 +1,16 @@
 import re
-from collections import Counter
+from collections import Counter, defaultdict
+from functools import cache
 
 from mealie.core.root_logger import get_logger
+from mealie.lang.locale_config import LOCALE_CONFIG
 from mealie.schema.openai.recipe import (
     OpenAIRecipe,
     OpenAIRecipeIngredient,
     OpenAIRecipeInstruction,
     OpenAIRecipeNotes,
 )
-from mealie.schema.recipe.recipe import Recipe
+from mealie.schema.recipe.recipe import RecipeDraft
 from mealie.services.scraper import cleaner
 
 from ..base import WorkflowStep
@@ -18,6 +20,60 @@ from ..recipe_conversion import to_recipe
 TRANSLATE_RECIPE_PROMPT = "recipes.translate-recipe"
 
 logger = get_logger()
+
+MATCH_LANGUAGE_TAG = re.compile(r"^([a-z]{2,3})(?:[-_][a-z0-9]+)*$")
+""" Matches ISO 639 codes and BCP 47 tags `de`, `de-DE`, `de_DE` and captures the language """
+
+MATCH_LOCALE_NAME = re.compile(r"^(?P<native>.+?)\s*\((?P<english>.+)\)$")
+""" Splits a locale name `Deutsch (German)` into its native and English names """
+
+
+@cache
+def _language_names() -> dict[str, str]:
+    """
+    Maps the language names known from the locale config, e.g. `deutsch` or `german`, to their
+    ISO 639 code.
+
+    Single words are included too, so that `English` matches `American English`, but only where
+    they point to one language.
+    """
+
+    candidates: defaultdict[str, set[str]] = defaultdict(set)
+    for key, config in LOCALE_CONFIG.items():
+        code = key.split("-")[0].lower()
+        name = config.name.lower()
+        match = MATCH_LOCALE_NAME.match(name)
+        names = [match["native"], match["english"]] if match else [name]
+
+        for value in names:
+            candidates[value].add(code)
+            for word in value.split():
+                candidates[word].add(code)
+
+    return {name: codes.pop() for name, codes in candidates.items() if len(codes) == 1}
+
+
+def language_code(language: str | None) -> str | None:
+    """
+    Normalizes a language to its ISO 639 code, so that a locale like `de-DE` and a name like
+    `German` compare equal. Returns None if the language isn't recognized.
+    """
+
+    value = (language or "").strip().lower()
+    if not value:
+        return None
+
+    if match := MATCH_LANGUAGE_TAG.match(value):
+        return match[1]
+
+    return _language_names().get(value)
+
+
+def _yield_display(recipe: RecipeDraft) -> str:
+    """The yield as it reads on the recipe, e.g. "4 servings", falling back to the servings count."""
+    quantity = recipe.recipe_yield_quantity or (recipe.recipe_servings if not recipe.recipe_yield else 0)
+    number = f"{quantity:g}" if quantity else ""
+    return f"{number} {recipe.recipe_yield or ''}".strip()
 
 
 class TranslateRecipeStep(WorkflowStep):
@@ -42,12 +98,17 @@ class TranslateRecipeStep(WorkflowStep):
         if not (language and ctx.draft_recipe):
             return False
 
-        # nothing to do when the source is already written in the target language
+        # nothing to do when the source is already written in the target language. A source whose
+        # language is unknown is still translated, since it may well be written in another one
         source_language = ctx.compiled_source.language if ctx.compiled_source else None
-        return language.lower() != (source_language or "").lower()
+        target_code, source_code = language_code(language), language_code(source_language)
+        if target_code and source_code:
+            return target_code != source_code
+
+        return language.strip().lower() != (source_language or "").strip().lower()
 
     @staticmethod
-    def _to_openai_recipe(recipe: Recipe) -> OpenAIRecipe:
+    def _to_openai_recipe(recipe: RecipeDraft) -> OpenAIRecipe:
         """
         Puts the draft recipe back into the provider's own schema.
 
@@ -59,7 +120,7 @@ class TranslateRecipeStep(WorkflowStep):
         return OpenAIRecipe(
             name=recipe.name or "",
             description=recipe.description,
-            recipe_yield=recipe.recipe_yield_display or None,
+            recipe_yield=_yield_display(recipe) or None,
             total_time=recipe.total_time,
             prep_time=recipe.prep_time,
             perform_time=recipe.perform_time,
@@ -76,7 +137,7 @@ class TranslateRecipeStep(WorkflowStep):
             notes=[OpenAIRecipeNotes(title=note.title, text=note.text) for note in recipe.notes or [] if note.text],
         )
 
-    def _build_message(self, ctx: WorkflowContext, recipe: Recipe) -> str:
+    def _build_message(self, ctx: WorkflowContext, recipe: RecipeDraft) -> str:
         translatable = self._to_openai_recipe(recipe)
 
         return "\n\n".join(
@@ -130,11 +191,19 @@ class TranslateRecipeStep(WorkflowStep):
 
         self._validate_translation(self._to_openai_recipe(recipe), response)
         translated = to_recipe(ctx, response)
-        # nutrition never made the round trip, so it carries over untouched
+        # nutrition and structured times never made the round trip, so they carry over untouched
         translated.nutrition = recipe.nutrition
+        translated.total_time_seconds = recipe.total_time_seconds
+        translated.prep_time_seconds = recipe.prep_time_seconds
+        translated.perform_time_seconds = recipe.perform_time_seconds
 
         # cleaning again is what parses the translated times and yield back out of their new wording
-        translated = cleaner.clean(translated, ctx.translator)
-        for field in ("prep_time", "perform_time", "total_time", "recipe_servings", "recipe_yield_quantity"):
-            setattr(translated, field, getattr(recipe, field))
-        ctx.draft_recipe = translated
+        cleaned = cleaner.clean(translated, ctx.translator)
+
+        # the yield's numbers were parsed out before translating, so only its wording was sent.
+        # Cleaning the translated wording finds no number in it, so the parsed ones carry over too.
+        # Time numbers live in the *_seconds fields carried over above; only their wording is translated.
+        cleaned.recipe_servings = recipe.recipe_servings
+        cleaned.recipe_yield_quantity = recipe.recipe_yield_quantity
+
+        ctx.draft_recipe = cleaned

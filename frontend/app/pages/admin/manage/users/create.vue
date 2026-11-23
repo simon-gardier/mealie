@@ -54,6 +54,7 @@
               :key="permission.varName"
               v-model="newUserData[permission.varName as PermissionName]"
               :label="permission.label"
+              :disabled="disabledFields.includes(permission.varName)"
               hide-details
               color="primary"
               density="comfortable"
@@ -73,7 +74,7 @@ import { useAdminApi } from "~/composables/api";
 import { useGroups } from "~/composables/use-groups";
 import { useUserForm } from "~/composables/use-users";
 import { validators } from "~/composables/use-validators";
-import type { GroupInDB, UserIn } from "~/lib/api/types/user";
+import type { GroupOut, UserIn } from "~/lib/api/types/user";
 import type { VForm } from "~/types/auto-forms";
 
 definePageMeta({
@@ -90,7 +91,7 @@ const router = useRouter();
 const refNewUserForm = ref<VForm | null>(null);
 const adminApi = useAdminApi();
 
-const selectedGroup = ref<GroupInDB | undefined>(undefined);
+const selectedGroup = ref<GroupOut | undefined>(undefined);
 const households = computed(() => selectedGroup.value?.households || []);
 
 const newUserData = ref({
@@ -108,6 +109,37 @@ const newUserData = ref({
   password: "",
   authMethod: "Mealie",
 });
+
+const disabledFields = computed(() => {
+  const fields: string[] = [];
+  if (newUserData.value.admin) {
+    fields.push("canManageHousehold", "canManage", "advanced");
+  }
+  if (newUserData.value.admin) {
+    fields.push("canOrganize", "canInvite");
+  }
+  return fields;
+});
+
+watch(
+  () => newUserData.value.admin,
+  (isAdmin, wasAdmin) => {
+    if (isAdmin && !wasAdmin) {
+      newUserData.value.canManageHousehold = true;
+      newUserData.value.canManage = true;
+      newUserData.value.canOrganize = true;
+      newUserData.value.canInvite = true;
+      newUserData.value.advanced = true;
+    }
+    else if (!isAdmin && wasAdmin) {
+      newUserData.value.canManageHousehold = false;
+      newUserData.value.canManage = false;
+      newUserData.value.canOrganize = false;
+      newUserData.value.canInvite = false;
+      newUserData.value.advanced = false;
+    }
+  },
+);
 
 async function handleSubmit() {
   const { valid } = (await refNewUserForm.value?.validate()) ?? {

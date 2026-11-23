@@ -26,7 +26,7 @@
 
 <script setup lang="ts">
 definePageMeta({
-  middleware: ["can-organize-only"],
+  middleware: ["auth", "can-organize-only"],
 });
 
 const i18n = useI18n();

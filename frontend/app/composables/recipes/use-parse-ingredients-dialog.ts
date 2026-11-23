@@ -1,7 +1,7 @@
 import { ingredientAnalysisErrorKey, ingredientAnalysisErrorReason } from "~/lib/ingredient-analysis-error";
 import { alert } from "~/composables/use-toast";
 import type { NoUndefinedField } from "~/lib/api/types/non-generated";
-import type { IngredientFood, IngredientUnit, ParsedIngredient, RecipeIngredient } from "~/lib/api/types/recipe";
+import type { IngredientFoodOut, IngredientUnitOut, ParsedIngredient, RecipeIngredient } from "~/lib/api/types/recipe";
 import type { Parser } from "~/lib/api/user/recipes/recipe";
 import { useUserApi } from "../api";
 import { useFoodData, useFoodStore, useUnitData, useUnitStore } from "../store";
@@ -51,7 +51,7 @@ export function useParseIngredientsDialog(
         value: "brute",
       },
       {
-        text: i18n.t("recipe.parser.openai-parser"),
+        text: i18n.t("recipe.parser.ai-parser"),
         value: "openai",
         hide: !group.value?.aiProviderSettings?.aiEnabled,
       },
@@ -384,9 +384,14 @@ export function useParseIngredientsDialog(
         throw error || new Error("Failed to parse ingredients");
       }
 
-      // Restore section titles from original ingredients — the parser doesn't return them
+      // The parser only sees the text, so restore what it can't return: section titles, and the
+      // reference ids that instruction steps link to
       data.forEach((parsed, index) => {
-        parsed.ingredient.title = filteredIngredients[index]?.title || "";
+        const original = filteredIngredients[index];
+        parsed.ingredient.title = original?.title || "";
+        if (original?.referenceId) {
+          parsed.ingredient.referenceId = original.referenceId;
+        }
       });
 
       const recipeRefs = ingredients.filter(ing => ing.referencedRecipe).map(ing => ({
@@ -416,9 +421,9 @@ export function useParseIngredientsDialog(
   }
 
   /** Cache of lowercased created units to avoid duplicate creations */
-  const createdUnits = new Map<string, IngredientUnit>();
+  const createdUnits = new Map<string, IngredientUnitOut>();
   /** Cache of lowercased created foods to avoid duplicate creations */
-  const createdFoods = new Map<string, IngredientFood>();
+  const createdFoods = new Map<string, IngredientFoodOut>();
 
   async function createMissingUnit() {
     if (!currentMissingUnit.value) {
@@ -430,7 +435,7 @@ export function useParseIngredientsDialog(
 
     state.loading.unit = true;
     try {
-      let newUnit: IngredientUnit | null;
+      let newUnit: IngredientUnitOut | null;
       if (createdUnits.has(unitData.data.name)) {
         newUnit = createdUnits.get(unitData.data.name)!;
       }
@@ -462,7 +467,7 @@ export function useParseIngredientsDialog(
 
     state.loading.food = true;
     try {
-      let newFood: IngredientFood | null;
+      let newFood: IngredientFoodOut | null;
       if (createdFoods.has(foodData.data.name)) {
         newFood = createdFoods.get(foodData.data.name)!;
       }
@@ -485,7 +490,7 @@ export function useParseIngredientsDialog(
   }
 
   async function addMissingUnitAsAlias() {
-    const unit = currentIng.value?.ingredient.unit as IngredientUnit | undefined;
+    const unit = currentIng.value?.ingredient.unit as IngredientUnitOut | undefined;
     if (!currentMissingUnit.value || !unit?.id) {
       return;
     }
@@ -518,13 +523,14 @@ export function useParseIngredientsDialog(
   }
 
   async function addMissingFoodAsAlias() {
-    const food = currentIng.value?.ingredient.food as IngredientFood | undefined;
+    const food = currentIng.value?.ingredient.food as IngredientFoodOut | undefined;
     if (!currentMissingFood.value || !food?.id) {
       return;
     }
 
     food.aliases = food.aliases || [];
-    if (food.aliases.map(a => a.name).includes(currentMissingFood.value)) {
+    const missingFood = currentMissingFood.value.toLowerCase();
+    if (food.aliases.some(a => a.name.toLowerCase() === missingFood)) {
       return;
     }
 

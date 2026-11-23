@@ -137,7 +137,7 @@
 </template>
 
 <script setup lang="ts">
-import { alertUnreportedError, alert } from "~/composables/use-toast";
+import { alert } from "~/composables/use-toast";
 import { useUserApi } from "~/composables/api";
 
 const DELETE_EVENT = "delete";
@@ -214,14 +214,15 @@ async function saveReframedImage(blob: Blob) {
     const image = new File([blob], "reframed-recipe.png", { type: blob.type || "image/png" });
     const { data, error } = await api.recipes.updateImage(props.slug, image);
     if (error || !data?.image) {
-      alertUnreportedError(error, i18n.t("events.something-went-wrong"));
+      // the request interceptor already reports failed writes
+      if (!error) alert.error(i18n.t("events.something-went-wrong"));
       return;
     }
     emit(REFRESH_EVENT, data.image);
     dialogReframeImage.value = false;
   }
   catch {
-    alertUnreportedError(null, i18n.t("events.something-went-wrong"));
+    alert.error(i18n.t("events.something-went-wrong"));
   }
   finally {
     loading.value = false;
@@ -234,7 +235,6 @@ async function deleteImage() {
   loading.value = false;
 
   if (error) {
-    alertUnreportedError(error, i18n.t("events.something-went-wrong"));
     return;
   }
 

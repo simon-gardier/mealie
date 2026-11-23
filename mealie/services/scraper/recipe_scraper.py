@@ -2,8 +2,9 @@ from collections.abc import Awaitable, Callable
 
 from mealie.core.root_logger import get_logger
 from mealie.lang.providers import Translator
+from mealie.pkgs.safehttp import fetch_via_flaresolverr, resilient_fetch
 from mealie.repos.repository_factory import AllRepositories
-from mealie.schema.recipe.recipe import Recipe
+from mealie.schema.recipe.recipe import RecipeDraft
 from mealie.services.scraper import cleaner
 from mealie.services.scraper.scraped_extras import ScrapedExtras
 
@@ -13,7 +14,6 @@ from .scraper_strategies import (
     RecipeScraperOpenAITranscription,
     RecipeScraperOpenGraph,
     RecipeScraperPackage,
-    safe_scrape_html,
 )
 
 DEFAULT_SCRAPER_STRATEGIES: list[type[ABCScraperStrategy]] = [
@@ -58,7 +58,7 @@ class RecipeScraper:
         on_progress: Callable[[str], Awaitable[None]] | None = None,
         include_tags: bool = False,
         include_categories: bool = False,
-    ) -> tuple[Recipe, ScrapedExtras] | tuple[None, None]:
+    ) -> tuple[RecipeDraft, ScrapedExtras] | tuple[None, None]:
         """
         Scrapes a recipe from the web.
         Skips the network request if `html` is provided.
@@ -68,16 +68,77 @@ class RecipeScraper:
         organizers, so that strategies which have to ask a provider for them can skip the request.
         """
 
+        resolved_url: str | None = None
+        can_escalate = False
         if not html:
             if on_progress:
                 await on_progress(self.translator.t("recipe.create-progress.fetching-webpage"))
 
-            html = await safe_scrape_html(url)
-            if not html:
+            fetched = await resilient_fetch(url)
+            if not fetched or not fetched.text:
                 return None, None
+            html = fetched.text
+            resolved_url = fetched.url
+            can_escalate = not fetched.via_flaresolverr
 
-        partial: tuple[Recipe, ScrapedExtras] | None = None
-        for ScraperClass in self.scrapers:
+        # A source page can yield a recipe missing its ingredients or steps. Keep it as a partial
+        # result across every pass so a later strategy (e.g. AI) only supplies the missing section.
+        partial: tuple[RecipeDraft, ScrapedExtras] | None = None
+
+        async def run(
+            strategies: list[type[ABCScraperStrategy]], page_html: str, page_url: str | None
+        ) -> tuple[RecipeDraft, ScrapedExtras] | None:
+            nonlocal partial
+            complete, partial = await self._scrape_with_strategies(
+                strategies,
+                url,
+                page_html,
+                page_url,
+                partial,
+                on_progress=on_progress,
+                include_tags=include_tags,
+                include_categories=include_categories,
+            )
+            return complete
+
+        primary = [scraper for scraper in self.scrapers if not scraper.is_fallback]
+        fallbacks = [scraper for scraper in self.scrapers if scraper.is_fallback]
+
+        result = await run(primary, html, resolved_url)
+        if result is not None:
+            return result
+
+        # A page with no recipe is often a JavaScript bot wall served with a 200 status, which the
+        # fetch-level challenge detection cannot recognize. FlareSolverr drives a real browser, so
+        # retry through it before the fallback strategies accept the bot wall as a recipe.
+        if can_escalate:
+            solved = await fetch_via_flaresolverr(url)
+            if solved is not None and solved.text and solved.text != html:
+                html, resolved_url = solved.text, solved.url
+                result = await run(primary, html, resolved_url)
+                if result is not None:
+                    return result
+
+        result = await run(fallbacks, html, resolved_url)
+        if result is not None:
+            return result
+
+        return partial or (None, None)
+
+    async def _scrape_with_strategies(
+        self,
+        strategies: list[type[ABCScraperStrategy]],
+        url: str,
+        html: str,
+        resolved_url: str | None,
+        partial: tuple[RecipeDraft, ScrapedExtras] | None = None,
+        on_progress: Callable[[str], Awaitable[None]] | None = None,
+        include_tags: bool = False,
+        include_categories: bool = False,
+    ) -> tuple[tuple[RecipeDraft, ScrapedExtras] | None, tuple[RecipeDraft, ScrapedExtras] | None]:
+        """Returns the first complete recipe (or None) and the partial recipe kept so far."""
+
+        for ScraperClass in strategies:
             scraper = ScraperClass(
                 url,
                 self.translator,
@@ -85,6 +146,7 @@ class RecipeScraper:
                 raw_html=html,
                 include_tags=include_tags,
                 include_categories=include_categories,
+                resolved_url=resolved_url,
             )
             if not scraper.can_scrape():
                 self.logger.debug(f"Skipping {scraper.__class__.__name__}")
@@ -136,6 +198,6 @@ class RecipeScraper:
                     if value and value != "no image":
                         setattr(recipe, field, value)
                 extras = original_extras
-            return recipe, extras
+            return (recipe, extras), partial
 
-        return partial or (None, None)
+        return None, partial
