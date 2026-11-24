@@ -17,6 +17,8 @@ services:
       TZ: Europe/Brussels
       BASE_URL: https://remy.sgdr.me
       DATA_DIR: /app/data
+      # App name in the page title, emails and the installed (PWA) app; Mealie's default is "Mealie"
+      BRANDING_NAME: Petit Chef
     volumes:
       # This file lives in mealie/, alongside the existing sibling data/ directory.
       - type: bind

@@ -4,7 +4,7 @@ Use `compose.petit-chef.production.yml` in the repository root. It matches the o
 
 The bind mount requires the existing `data/` directory. Compose will not silently create an empty one if the path is wrong. Verify its location before deploying.
 
-The production Dockerfile already defaults to `PRODUCTION=true` and `TESTING=false`. Compose makes both explicit, selects the `production` build target, disables public API documentation and signup, and keeps `BASE_URL=https://remy.sgdr.me`. This builds the customized Petit Chef frontend with Mealie 3.28.0, not an upstream image that replaces the UI. Development Compose and `task ui` are for local development only.
+The production Dockerfile already defaults to `PRODUCTION=true` and `TESTING=false`. Compose makes both explicit, selects the `production` build target, disables public API documentation and signup, and keeps `BASE_URL=https://remy.sgdr.me`. `BRANDING_NAME=Petit Chef` names the app in page titles, emails and the installed (PWA) app; without it Mealie 3.31 reports "Mealie". This builds the customized Petit Chef frontend with Mealie 3.31.0, not an upstream image that replaces the UI. Development Compose and `task ui` are for local development only.
 
 ## Build and deploy on the production host
 
