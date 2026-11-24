@@ -126,6 +126,7 @@ async def test_partial_scrape_can_recover_missing_steps(monkeypatch):
     def strategy(recipe):
         class Strategy:
             is_fallback = False
+            uses_ai = False
 
             def __init__(self, *args, **kwargs):
                 pass
@@ -139,6 +140,7 @@ async def test_partial_scrape_can_recover_missing_steps(monkeypatch):
         return Strategy
 
     monkeypatch.setattr(cleaner, "clean", lambda recipe, translator: recipe)
+    monkeypatch.setattr(RecipeScraper, "_should_enrich", lambda self: False)
     scraper = RecipeScraper(None, get_locale_provider(), [strategy(partial), strategy(recovered)])
     result, _ = await scraper.scrape("https://example.test/recipe", html="<p>Recipe</p>")
     assert result.name == "Source"
@@ -152,6 +154,7 @@ async def test_partial_scrape_is_kept_if_recovery_fails(monkeypatch):
 
     class Strategy:
         is_fallback = False
+        uses_ai = False
 
         def __init__(self, *args, **kwargs):
             pass
@@ -162,6 +165,7 @@ async def test_partial_scrape_is_kept_if_recovery_fails(monkeypatch):
         parse = AsyncMock(return_value=(partial, ScrapedExtras()))
 
     monkeypatch.setattr(cleaner, "clean", lambda recipe, translator: recipe)
+    monkeypatch.setattr(RecipeScraper, "_should_enrich", lambda self: False)
     result, _ = await RecipeScraper(None, get_locale_provider(), [Strategy]).scrape(
         "https://example.test/recipe", html="<p>Recipe</p>"
     )

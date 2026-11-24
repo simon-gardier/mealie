@@ -5,7 +5,9 @@ from pytest import MonkeyPatch
 from mealie.core.settings.branding import Branding
 
 
-def test_branding_defaults():
+def test_branding_defaults(monkeypatch: MonkeyPatch):
+    # the Petit Chef dev container sets BRANDING_NAME; the default is what's under test here
+    monkeypatch.delenv("BRANDING_NAME", raising=False)
     branding = Branding()
 
     assert branding.name == "Mealie"

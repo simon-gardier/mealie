@@ -156,8 +156,11 @@ export const useAuthBackend = function (): AuthState {
   }
 
   async function signOut(callbackUrl: string = ""): Promise<void> {
+    // Set when the session came from an identity provider whose own session should end too
+    let redirectUrl: string | null = null;
     try {
-      await $axios.post("/api/auth/logout");
+      const { data } = await $axios.post<{ redirect_url?: string | null }>("/api/auth/logout");
+      redirectUrl = data.redirect_url ?? null;
     }
     catch (error) {
       // Continue with logout even if API call fails
@@ -176,7 +179,13 @@ export const useAuthBackend = function (): AuthState {
       // Clear Nuxt's useAsyncData cache
       clearNuxtData();
 
-      await router.push(isSafeRedirectTarget(callbackUrl) ? callbackUrl : "/login");
+      if (redirectUrl) {
+        // e.g. the OIDC provider's own logout page, which signs the user out there too
+        await navigateTo(redirectUrl, { external: true });
+      }
+      else {
+        await router.push(isSafeRedirectTarget(callbackUrl) ? callbackUrl : "/login");
+      }
     }
   }
 
