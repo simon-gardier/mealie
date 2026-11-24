@@ -85,9 +85,6 @@ onMounted(() => {
   sidebar.value = display.lgAndUp.value;
 });
 watch(display.lgAndUp, (wide) => { sidebar.value = wide; });
-watch(() => route.fullPath, () => {
-  if (!display.lgAndUp.value) sidebar.value = false;
-});
 
 function cookbookAsLink(cookbook: CookBookOut): SideBarLink {
   return {

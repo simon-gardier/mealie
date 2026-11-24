@@ -12,6 +12,7 @@
     :width="display.smAndDown.value ? '100%' : 280"
     :scrim="true"
     :aria-label="$t('general.menu')"
+    @click="closeOnLinkClick"
   >
     <div class="bistro-sidebar-header d-flex align-center ga-2 px-3 py-2">
       <v-btn
@@ -260,6 +261,18 @@ const props = defineProps({
 
 const modelValue = defineModel<boolean>({ default: false });
 const sidebarElement = ref(null);
+
+// The menu overlays the page, so it closes once a page is chosen, at every screen size.
+// A click on the current page's link doesn't navigate, so links are handled directly too.
+const route = useRoute();
+watch(() => route.fullPath, () => {
+  modelValue.value = false;
+});
+function closeOnLinkClick(event: MouseEvent) {
+  if ((event.target as HTMLElement | null)?.closest("a[href]")) {
+    modelValue.value = false;
+  }
+}
 onClickOutside(sidebarElement, () => {
   modelValue.value = false;
 }, {

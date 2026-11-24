@@ -97,6 +97,16 @@
       </div>
     </BaseDialog>
 
+    <!-- Create Item: opened from the page actions -->
+    <ShoppingListAddItemDialog
+      v-model="createEditorOpen"
+      v-model:item="createListItemData"
+      :labels="allLabels || []"
+      :units="allUnits || []"
+      :foods="allFoods || []"
+      @save="createListItem"
+    />
+
     <header class="shopping-details-header">
       <ButtonLink :to="`/shopping-lists?disableRedirect=true`" :text="$t('shopping-list.all-lists')" :icon="$globals.icons.backArrow" />
       <div class="shopping-details-heading">
@@ -105,6 +115,12 @@
           class="d-flex"
           rounded
           :buttons="[
+            {
+              icon: $globals.icons.createAlt,
+              text: $t('shopping-list.add-item'),
+              event: 'add-item',
+              color: 'primary',
+            },
             ...(canSearch || isSearchOpen ? [{
               icon: $globals.icons.search,
               text: $t('search.search'),
@@ -157,6 +173,7 @@
               ],
             },
           ]"
+          @add-item="createEditorOpen = true"
           @search="toggleSearch"
           @edit="edit = true"
           @three-dot="threeDot = true"
@@ -209,41 +226,6 @@
         @update:model-value="value => search = value ?? ''"
         @click:clear="clearSearch"
       />
-
-      <!-- Create Item -->
-      <ShoppingListAddItemForm
-        v-if="$vuetify.display.smAndDown"
-        v-model="createListItemData"
-        class="my-4"
-        :labels="allLabels || []"
-        :units="allUnits || []"
-        :foods="allFoods || []"
-        @cancel="createEditorOpen = false"
-        @save="createListItem"
-      />
-
-      <div v-else class="mb-3 d-flex justify-center">
-        <ShoppingListItemEditor
-          v-if="createEditorOpen"
-          v-model="createListItemData"
-          class="my-4"
-          :labels="allLabels || []"
-          :units="allUnits || []"
-          :foods="allFoods || []"
-          :allow-delete="false"
-          @delete="createEditorOpen = false"
-          @cancel="createEditorOpen = false"
-          @save="createListItem"
-        />
-        <BaseButton
-          v-else
-          create
-          small
-          :text="$t('shopping-list.add-item')"
-          style="height: 48px"
-          @click="createEditorOpen = true"
-        />
-      </div>
 
       <BaseEmptyState v-if="!totalItemCount" :message="$t('shopping-list.empty-list')" :icon="$globals.icons.cartCheck" />
       <TransitionGroup name="scroll-x-transition">
@@ -418,9 +400,8 @@ import { VueDraggable } from "vue-draggable-plus";
 import RecipeCardLineItem from "~/components/Domain/Recipe/RecipeCardLineItem.vue";
 import RecipeScaleEditButton from "~/components/Domain/Recipe/RecipeScaleEditButton.vue";
 import MultiPurposeLabelSection from "~/components/Domain/ShoppingList/MultiPurposeLabelSection.vue";
-import ShoppingListAddItemForm from "~/components/Domain/ShoppingList/ShoppingListAddItemForm.vue";
+import ShoppingListAddItemDialog from "~/components/Domain/ShoppingList/ShoppingListAddItemDialog.vue";
 import ShoppingListItem from "~/components/Domain/ShoppingList/ShoppingListItem.vue";
-import ShoppingListItemEditor from "~/components/Domain/ShoppingList/ShoppingListItemEditor.vue";
 import UserAvatar from "~/components/Domain/User/UserAvatar.vue";
 import { useAmbianceMusic } from "~/composables/use-ambiance-music";
 import { useShoppingListPage } from "~/composables/shopping-list-page/use-shopping-list-page";

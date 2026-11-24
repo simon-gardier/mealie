@@ -75,7 +75,7 @@ const { quantityDecimalSeparator, onQuantityInput, onQuantityPaste } = useQuanti
 // modelValue as reactive v-model
 const listItem = defineModel<ShoppingListItemOut>({ required: true });
 
-defineProps({
+const props = defineProps({
   labels: {
     type: Array as () => MultiPurposeLabelOut[],
     required: true,
@@ -84,6 +84,11 @@ defineProps({
     type: Array as () => IngredientUnitOut[],
     required: true,
   },
+  /** Where the unit and label menus open; by default upwards on small screens */
+  menuLocation: {
+    type: String as () => "top" | "bottom" | undefined,
+    default: undefined,
+  },
 });
 
 const emit = defineEmits<{ (e: "save"): void }>();
@@ -91,7 +96,7 @@ const emit = defineEmits<{ (e: "save"): void }>();
 const { assignLabelToFood, createAssignUnit } = useShoppingListItemEditor(listItem);
 
 const { smAndDown } = useDisplay();
-const menuDirection = computed(() => smAndDown.value ? "top" : "bottom");
+const menuDirection = computed(() => props.menuLocation ?? (smAndDown.value ? "top" : "bottom"));
 
 function handleNoteKeyPress(event: KeyboardEvent) {
   // Save on Enter
